@@ -1,0 +1,33 @@
+============================================================================
+
+The analyzer takes six command line arguments. The first two are
+respectively the x and y coordinates of the first point of the
+triangle, the second two are respectively the x and y coordinates of
+the second point, etc. Each coordinate is a decimal integer in the
+range 0...INT_MAX (inclusive) where INT_MAX comes from limits.h on a
+32-bit or 64-bit Linux machine.
+
+The behavior of the triangle analyzer is undefined if the input format
+does not match the one specified above.
+
+The output of the triangle analyzer is a single line of text that is
+terminated by a newline. This line is the result of the analysis of
+the triangle and it should match the following (informal) regular
+expression:
+
+(("scalene"|"isosceles"|"equilateral") ("acute"|"right"|"obtuse") | "not a triangle"
+
+Non-functional requirement:
+
+- The analyzer must be written in C that can be compiled by GCC on a
+  CADE Lab Linux machine
+
+Turn in your analyzer like this:
+
+- push it to a directory in the class github repo called
+  "triangle/username" where "username" is your github user name
+
+- include a makefile so that when someone types "make" in your
+  triangle directory, the result is an executable called "triangle"
+
+============================================================================
