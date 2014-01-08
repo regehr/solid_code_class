@@ -92,9 +92,12 @@ int figure_triangle(struct point points[3],
     }
     
     for (int i = 0; i < 3; i++) {
-        for (int j = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
             if (i == j) { continue; }
-            if (double_equal(angle[i], angle[j])) { *out_type = ISOC; }
+            if (double_equal(angle[i], angle[j])) { 
+                *out_type = ISOC; 
+                return 0;
+            }
         }
     }
 
