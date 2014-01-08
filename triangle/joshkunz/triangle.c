@@ -10,8 +10,6 @@
 #define RAD(x) ((x) * (M_PI / 180))
 #define ABSOLUTE_ERROR 0.0000001
 
-#define NOT_TRI "not a triangle"
-
 #define ISOC "isosceles"
 #define EQUI "equilateral"
 #define SCAL "scalene"
