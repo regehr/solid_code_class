@@ -3,10 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define PI acos(-1)
+#define EPSILON PI / pow(2, 15)
+
 typedef struct Point {
   int x;
   int y;
 } Point;
+
+int equal(double a, double b) {
+  return abs(a - b) < EPSILON;
+}
 
 double distance(Point a, Point b) {
   int changeInX = abs(a.x - b.x);
@@ -61,11 +68,12 @@ int main(int argc, char** argv) {
   angles[2] = angleLawOfCos(lengths[2], lengths[0], lengths[1]);
 
   char *angleName;
-  if (angles[0] > asin(1) || angles[1] > asin(1) || angles[2] > asin(1)) {
-    angleName = "obtuse";
-  } else if (angles[0] == asin(1) || angles[1] == asin(1) ||
-      angles[2] == asin(1)) {
+  if (equal(angles[0], PI / 2) || equal(angles[1], PI / 2) ||
+      equal(angles[2], PI / 2)) {
     angleName = "right";
+  } else if (angles[0] > asin(1) || angles[1] > asin(1) ||
+      angles[2] > asin(1)) {
+    angleName = "obtuse";
   } else {
     angleName = "acute";
   }
