@@ -1,9 +1,9 @@
 ============================================================================
 
 The analyzer takes six command line arguments. The first two are
-respectively the x and y coordinates of the first point of the
+respectively the x and y coordinates of the first vertex of the
 triangle, the second two are respectively the x and y coordinates of
-the second point, etc. Each coordinate is a decimal integer in the
+the second vertex, etc. Each coordinate is a decimal integer in the
 range 0...INT_MAX (inclusive) where INT_MAX comes from limits.h on a
 32-bit or 64-bit Linux machine.
 
@@ -24,10 +24,10 @@ Non-functional requirement:
 
 Turn in your analyzer like this:
 
-- push it to a directory in the class github repo called
-  "triangle/username" where "username" is your github user name
+- Push it to a directory in the class github repo called
+  "triangle/username" where "username" is your github user name.
 
-- include a makefile so that when someone types "make" in your
-  triangle directory, the result is an executable called "triangle"
+- Include a makefile so that when someone types "make" in your
+  triangle directory, the result is an executable called "triangle".
 
 ============================================================================
