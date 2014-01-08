@@ -5,7 +5,7 @@ import random
 from itertools import combinations, chain
 
 BIN = "./triangle"
-ABSOLUTE_ERROR = 0.000001
+ABSOLUTE_ERROR = 0.00000000001
 POINT_MAX = (2 ** 31) - 1
 
 def deg(x): return x * (180.0 / math.pi)

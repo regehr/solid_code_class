@@ -8,7 +8,7 @@
 #define DEG(x) ((x) * (180 / M_PI))
 /* convert degrees to radians */
 #define RAD(x) ((x) * (M_PI / 180))
-#define ABSOLUTE_ERROR 0.0000001
+#define ABSOLUTE_ERROR 0.00000000001
 
 #define ISOC "isosceles"
 #define EQUI "equilateral"
