@@ -27,8 +27,7 @@ double angleLawOfCos(double a, double b, double c) {
 
 int main(int argc, char** argv) {
   if (argc != 7) {
-    printf("Please follow the format\n$ %s <x1> <y1> <x2> <y2> <x3> <y3>\n",
-      argv[0]);
+    printf("Usage: %s x1 y1 x2 y2 x3 y3\n", argv[0]);
     return 1;
   }
 
