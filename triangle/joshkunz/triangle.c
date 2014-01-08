@@ -75,6 +75,7 @@ int figure_triangle(struct point points[3],
     /* if it is not obtuse of right then it must be acute */
     *out_angle = ACUTE;
     for (int i = 0; i < 3; i++) {
+        //printf("Angle [%d]: %.12f\n", i, angle[i]);
         if (double_equal(angle[i], 0.0)) { return -1; }
         else if (double_equal(angle[i], RAD(90.0))) { *out_angle = RIGHT; }
         else if (DEG(angle[i]) > 90.0) { *out_angle = OBTUSE; } 
