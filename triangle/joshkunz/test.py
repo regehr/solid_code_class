@@ -21,7 +21,7 @@ def rand_point():
             random.randrange(POINT_MAX))
 
 def rand_triangle():
-    return [rand_point() for x in range(3)]
+    return [rand_point() for x in xrange(3)]
 
 def cdist((x1, y1), (x2, y2)):
     "get the length between two coordinates"
@@ -37,9 +37,9 @@ def angle(first_adj, second_adj, opposite):
 def classify_triangle(points):
     "triangle classification in python"
     edges = [cdist(points[x], points[(x + 1) % 3]) 
-                for x in range(3)]
+                for x in xrange(3)]
     angles = [angle(edges[x], edges[(2 + x) % 3], edges[(1 + x) % 3])
-                for x in range(3)]
+                for x in xrange(3)]
     assert eq(sum(angles), rad(180.0))
 
     if 0.0 in angles: return "not a triangle"
@@ -72,7 +72,7 @@ def print_error(triangle, expected, got):
 
 def fuzz(test_count):
     "Run test_count property formatted tests"
-    for test in range(test_count):
+    for test in xrange(test_count):
         triangle = rand_triangle()
         expected = classify_triangle(triangle)
         got, match = test_output(triangle, expected)
