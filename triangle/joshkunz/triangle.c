@@ -1,28 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <assert.h>
 #include <stdbool.h>
+
+#define ABSOLUTE_ERROR 0.00000000001
 
 /* convert radians to degrees */
 #define DEG(x) ((x) * (180 / M_PI))
 /* convert degrees to radians */
 #define RAD(x) ((x) * (M_PI / 180))
-#define ABSOLUTE_ERROR 0.00000000001
-
-#define ISOC "isosceles"
-#define EQUI "equilateral"
-#define SCAL "scalene"
-
-#define RIGHT "right"
-#define ACUTE "acute"
-#define OBTUSE "obtuse"
 
 struct point {
     double x;
     double y;
 };
 
+/* check equality of two doubles */
 bool double_equal(double a, double b) {
     if (a > b) {
         return (a - b) < ABSOLUTE_ERROR;
@@ -31,14 +24,13 @@ bool double_equal(double a, double b) {
     }
 }
 
-/* Calculate the distance between two points in the cartesian plane */
+/* Calculate the distance between two points in the Cartesian plane */
 double distance_between(struct point point_a, struct point point_b) {
-    return sqrt( powl(point_b.x - point_a.x, 2) + 
-                 powl(point_b.y - point_a.y, 2) );
+    return sqrt( pow(point_b.x - point_a.x, 2) + 
+                 pow(point_b.y - point_a.y, 2) );
 }
 
-
-/* calculate an angle in the triangle using hte cosine rule 
+/* calculate an angle in the triangle using the cosine rule and
  * the edge-lengths of the triangle. */
 double angle_given(double first_adj, double second_adj, double opposite) {
     return acos( (pow(first_adj, 2) + 
@@ -57,50 +49,42 @@ int calculate_angles(struct point points[3], double out_angle[3]) {
     out_angle[1] = angle_given(edge[1], edge[0], edge[2]);
     out_angle[2] = angle_given(edge[2], edge[1], edge[0]);
 
-    if (! double_equal(out_angle[0] + 
-                       out_angle[1] + 
-                       out_angle[2], RAD(180.0))) {
-        return -1;
-    }
-
     return 0;
 }
 
-int figure_triangle(struct point points[3], 
-                    char ** out_type, 
-                    char ** out_angle) {
-    double angle[3];
-    if (calculate_angles(points, angle) < 0) { return -1; }
-
-    /* if it is not obtuse of right then it must be acute */
-    *out_angle = ACUTE;
+const char * triangle_angle(double angle[3]) {
+    /* if not obtuse or right, than it must be acute */
+    char * name = "acute";
     for (int i = 0; i < 3; i++) {
         //printf("Angle [%d]: %.12f\n", i, angle[i]);
-        if (double_equal(angle[i], 0.0)) { return -1; }
-        else if (double_equal(angle[i], RAD(90.0))) { *out_angle = RIGHT; }
-        else if (DEG(angle[i]) > 90.0) { *out_angle = OBTUSE; } 
+        
+        /* if the same point is given for every input, the angles will be
+         * NaN, and if any angle is 0 than two points are colinear. */
+        if (isnan(angle[i]) || double_equal(angle[i], 0.0)) { 
+            return NULL; 
+        } else if (double_equal(angle[i], RAD(90.0))) { 
+            name = "right"; 
+        } else if (DEG(angle[i]) > 90.0) { 
+            name = "obtuse";
+        } 
     }
+    return name;
+}
 
+const char * triangle_type(double angle[3]) {
     /* if it not equilateral or isosceles then it must be scalene */
-    *out_type = SCAL;
+    char * name = "scalene";
     if (double_equal(angle[0], angle[1]) 
             && double_equal(angle[1], angle[2])
             && double_equal(angle[0], angle[2])) {
-        *out_type = EQUI;
-        return 0;
-    }
-    
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (i == j) { continue; }
-            if (double_equal(angle[i], angle[j])) { 
-                *out_type = ISOC; 
-                return 0;
-            }
-        }
+        name = "equilateral";
+    } else if (double_equal(angle[0], angle[1]) 
+            || double_equal(angle[1], angle[2]) 
+            || double_equal(angle[0], angle[2])) {
+        name = "isosceles";
     }
 
-    return 0;
+    return name;
 }
 
 int main(int argc, char * argv[]) {
@@ -109,6 +93,7 @@ int main(int argc, char * argv[]) {
         return 1;
     }
     struct point points[3];
+    double angles[3];
 
     /* parse the points */
     points[0].x = atof(argv[1]);
@@ -120,12 +105,15 @@ int main(int argc, char * argv[]) {
     points[2].x = atof(argv[5]);
     points[2].y = atof(argv[6]);
 
-    char * type = "";
-    char * angle = "";
-    if (figure_triangle(points, &type, &angle) >= 0) {
-        printf("%s %s\n", type, angle);
-    } else {
+    calculate_angles(points, angles);
+
+    const char * type = triangle_type(angles);
+    const char * angle = triangle_angle(angles);
+
+    if (type == NULL || angle == NULL) {
         printf("not a triangle\n");
+    } else {
+        printf("%s %s\n", type, angle);
     }
 
     return 0;

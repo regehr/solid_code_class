@@ -4,7 +4,6 @@ import math
 import random
 from itertools import combinations, chain
 
-BIN = "./triangle"
 ABSOLUTE_ERROR = 0.00000000001
 POINT_MAX = (2 ** 31) - 1
 
@@ -40,8 +39,6 @@ def classify_triangle(points):
                 for x in xrange(3)]
     angles = [angle(edges[x], edges[(2 + x) % 3], edges[(1 + x) % 3])
                 for x in xrange(3)]
-    if not eq(sum(angles), rad(180.0)):
-        return "not a triangle\n"
 
     if 0.0 in angles: return "not a triangle"
     a = "acute"
@@ -57,9 +54,9 @@ def classify_triangle(points):
         t = "isosceles"
     return "{0} {1}\n".format(t, a)
 
-def test_output(triangle, expected, bin=BIN):
+def test_output(binary, triangle, expected):
     "Test the output of the binary given the triangle"
-    args = [bin] + map(str, chain.from_iterable(triangle))
+    args = [binary] + map(str, chain.from_iterable(triangle))
     got = subprocess.check_output(args)
     return (got, got == expected)
 
@@ -71,12 +68,12 @@ def print_error(triangle, expected, got):
     print "[Got]     ", got
     #sys.exit(1)
 
-def fuzz(test_count):
+def fuzz(test_count, binary):
     "Run test_count property formatted tests"
     for test in xrange(test_count):
         triangle = rand_triangle()
         expected = classify_triangle(triangle)
-        got, match = test_output(triangle, expected)
+        got, match = test_output(binary, triangle, expected)
         if not match: print_error(triangle, expected, got)
 
 def read_triangle(line):
@@ -87,13 +84,13 @@ def read_triangle(line):
             (numbers[2], numbers[3]),
             (numbers[4], numbers[5])]
 
-def test_file(file):
+def test_file(file, binary):
     "check inputs from a test file"
     triangle = []
     for line in file:
         triangle = read_triangle(line) 
         expected = file.next()
-        got, match = test_output(triangle, expected)
+        got, match = test_output(binary, triangle, expected)
         if not match: print_error(triangle, expected, got)
 
 if __name__ == "__main__":
@@ -101,11 +98,13 @@ if __name__ == "__main__":
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument("--fuzz", "-f")
-    parser.add_argument("--test", "-t")
+    parser.add_argument("--fuzz", "-u")
+    parser.add_argument("--file", "-f")
+    parser.add_argument("binary")
     args = parser.parse_args()
 
     if args.fuzz:
-        fuzz(int(args.fuzz))
+        fuzz(int(args.fuzz), args.binary)
     else:
-        with open(args.test) as f: test_file(f)
+        with open(args.file) as f: 
+            test_file(f, args.binary)

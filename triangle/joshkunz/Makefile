@@ -10,8 +10,8 @@ test_file = outputs.text
 $(bin):
 
 test: $(bin) 
-	python test.py --test $(test_file)
-	python test.py --fuzz 100
+	python test.py --file $(test_file) ./$(bin)
+	python test.py --fuzz 100 ./$(bin)
 
 gdb: $(bin) 
 	gdb ./$(bin)
