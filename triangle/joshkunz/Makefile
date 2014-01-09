@@ -1,7 +1,7 @@
 .PHONY: clean
 
-CC = clang
-CFLAGS = -Wall -Wextra -pedantic -Werror
+CC = gcc
+CFLAGS = -std=gnu99 -Wall -Wextra -pedantic -Werror
 LDLIBS = -lm
 
 bin = triangle
