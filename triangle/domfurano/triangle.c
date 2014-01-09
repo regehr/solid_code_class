@@ -7,6 +7,17 @@
 #include <math.h>
 
 #define _USE_MATH_DEFINES
+#define EPSILON   0.0000000001
+
+int almost_equal(double x, double y)
+{
+   double relative_error;
+   relative_error = fabs((x-y) / y);
+   if (relative_error < EPSILON)
+      return 1;
+   
+   return 0;
+}
 
 double distance(double x0, double y0, double x1, double y1)
 {
@@ -38,7 +49,7 @@ int main(int argc, char *argv[])
    if (A == 0 || B == 0 || C == 0 || a == 0 || b == 0 || c == 0)
    {
       printf("not a triangle\n");
-      exit(EXIT_FAILURE);
+      exit(EXIT_SUCCESS);
    }
 
    if ( (A == B == C) && (a == b == c) )
@@ -50,7 +61,7 @@ int main(int argc, char *argv[])
    else
       printf("ERROR_1 ");
 
-   if (a == M_PI_2 || b == M_PI_2 || c == M_PI_2)
+   if ( almost_equal(a, M_PI_2) || almost_equal(b, M_PI_2)|| almost_equal(c, M_PI_2) )
       printf("right\n");
    else if (a > M_PI_2 || b > M_PI_2 || c > M_PI_2)
       printf("obtuse\n");
