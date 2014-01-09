@@ -1,0 +1,7 @@
+not a triangle
+isosceles right
+scalene right
+isosceles acute
+isosceles obtuse
+scalene obtuse
+scalene acute
