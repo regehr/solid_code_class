@@ -44,19 +44,7 @@ void printType(double angleA, double angleB, double angleC)
 int main(int argc, char* argv[])
 {
   struct Point a, b, c;
-	double ab;
-	double ac;
-	double bc;
-	double angleA;
-	double angleB;
-	double angleC;
-
-
-	if(argc < 7)
-	{
-		printf("Not enough args\n");
-		return 0;
-	}
+	double ab, ac, bc, angleA, angleB, angleC;
 
 	a.x = atoi(argv[1]);
 	a.y = atoi(argv[2]);
@@ -82,9 +70,7 @@ int main(int argc, char* argv[])
 	angleB = acos(((ab*ab) - (ac*ac) + (bc*bc)) / (2 * ab * bc)) * (180/M_PI);
 	angleC = acos(((ac*ac) - (ab*ab) + (bc*bc)) / (2 * bc * ac)) * (180/M_PI);
 
-	if(ab == ac && ab == bc) // Equilateral
-		printf("equilateral acute\n");
-	else if(ab == ac || ab == bc || ac == bc) // Isosceles
+	if(ab == ac || ab == bc || ac == bc) // Isosceles
 	{
 		printf("isosceles ");
 		printType(angleA, angleB, angleC);

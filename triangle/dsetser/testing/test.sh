@@ -1,12 +1,8 @@
 #!/bin/bash
 
-cd ..
-make
-cd testing
+testing/runFile.sh testing/testInputs.txt > testing/output.txt
 
-./runFile.sh testInputs.txt > output.txt
-
-if diff output.txt expected.txt > /dev/null ; then
+if diff testing/output.txt testing/expected.txt > /dev/null ; then
 	echo "All tests passed"
 else
 	echo "At least one test failed"
