@@ -1,54 +1,34 @@
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define PI acos(-1)
-#define EPSILON PI / pow(2, 15)
+#include "triangle.h"
 
-typedef struct Point {
-  int x;
-  int y;
-} Point;
+#define PI acos(-1)
+#define EPSILON PI / pow(2, 16)
 
 int equal(double a, double b) {
-  return abs(a - b) < EPSILON;
+  return fabs(a - b) < EPSILON;
 }
 
 double distance(Point a, Point b) {
-  int changeInX = abs(a.x - b.x);
-  int changeInY = abs(a.y - b.y);
-  return sqrt(changeInX * changeInX + changeInY * changeInY);
+  return sqrt(pow(abs(a.x - b.x), 2) + pow(abs(a.y - b.y), 2));
 }
 
 double angleLawOfCos(double a, double b, double c) {
-  return acos((a * a + b * b - c * c) / (2 * a * b));
+  return acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b));
 }
 
-int main(int argc, char** argv) {
-  if (argc != 7) {
-    printf("Usage: %s x1 y1 x2 y2 x3 y3\n", argv[0]);
-    return 1;
-  }
-
-  Point points[3];
-  points[0].x = atoi(argv[1]);
-  points[0].y = atoi(argv[2]);
-  points[1].x = atoi(argv[3]);
-  points[1].y = atoi(argv[4]);
-  points[2].x = atoi(argv[5]);
-  points[2].y = atoi(argv[6]);
-
+char *analyzeTriangle(Point a, Point b, Point c) {
   double lengths[3];
-  lengths[0] = distance(points[0], points[1]);
-  lengths[1] = distance(points[1], points[2]);
-  lengths[2] = distance(points[2], points[0]);
+  lengths[0] = distance(a, b);
+  lengths[1] = distance(b, c);
+  lengths[2] = distance(c, a);
 
   if (lengths[0] == lengths[1] + lengths[2] ||
       lengths[1] == lengths[0] + lengths[2] ||
       lengths[2] == lengths[0] + lengths[1]) {
-    printf("not a triangle\n");
-    return 0;
+    return "not a triangle";
   }
 
   char *sideName;
@@ -77,7 +57,10 @@ int main(int argc, char** argv) {
     angleName = "acute";
   }
 
-  printf("%s %s\n", sideName, angleName);
+  char *result = malloc(20 * sizeof(char));
+  strcpy(result, sideName);
+  strcat(result, " ");
+  strcat(result, angleName);
 
-  return 0;
+  return result;
 }
