@@ -1,8 +1,8 @@
 /* 
  * File:   main.c
  * Author: codyfoltz
- *     -f
- * gcc -pg -g triangle.c -lm -o triangle -D
+ * 
+ * 
  * 
  * 
  * Created on January 8, 2014, 8:31 PM
