@@ -9,13 +9,10 @@
 #define _USE_MATH_DEFINES
 #define EPSILON   0.0000000001
 
-int almost_equal(double x, double y)
+int a_equal(double x, double y)
 {
-   double relative_error;
-   relative_error = fabs((x-y) / y);
-   if (relative_error < EPSILON)
-      return 1;
-   
+   if (fabs((x-y) / y) < EPSILON)
+      return 1;   
    return 0;
 }
 
@@ -25,7 +22,7 @@ double distance(double x0, double y0, double x1, double y1)
 }
 
 int main(int argc, char *argv[])
-{
+{n
    double coords[6]; /* Array to hold coordinate values. */
    double A, B, C; /* Length of sides. */
    double a, b, c; /* Magnitude of angles. */
@@ -58,17 +55,13 @@ int main(int argc, char *argv[])
       printf("isosceles ");
    else if ( ( (A != B) && (A != C) && (B != C) ) && ( (a != b) && (a != c) && (b != c) ) )
       printf("scalene ");
-   else
-      printf("ERROR_1 ");
 
-   if ( almost_equal(a, M_PI_2) || almost_equal(b, M_PI_2)|| almost_equal(c, M_PI_2) )
+   if ( a_equal(a, M_PI_2) || a_equal(b, M_PI_2) || a_equal(c, M_PI_2) )
       printf("right\n");
    else if (a > M_PI_2 || b > M_PI_2 || c > M_PI_2)
       printf("obtuse\n");
-   else if (a < M_PI_2 && b < M_PI_2 && c < M_PI_2)
-      printf("acute\n");
    else
-      printf("ERROR_2\n");
+      printf("acute\n");
 
    exit(EXIT_SUCCESS);      
 }
