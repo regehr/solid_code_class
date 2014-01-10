@@ -56,17 +56,40 @@ def testSca(debug):
 
         return toReturn
 
+def testNot(debug):
+        toReturn = ""
+        output = subprocess.check_output(['./triangle' , '0' , '0' , '1' , '1', '2' , '2'])
+        if(debug == "true"):
+                print("output = " + output)
+                print("expected = not a triangle    actual = " + output)
+        if(output != "not a triangle\n"):
+                toReturn += "line "
+
+
+        output = subprocess.check_output(['./triangle' , '0' , '0' , '0' , '0', '0' , '0'])
+        if(debug == "true"):
+                print("output = " + output)
+                print("expected = not a triangle    actual = " + output)
+        if(output != "not a triangle\n"):
+                toReturn += "equal "
+
+        return toReturn
+
+
 
 def main():
 	debug = "false"
 	returnedValue = testIso(debug)
 	if(returnedValue != ""):
-		print("failed isosceles " + returnedValue)
+		print("failed isosceles: " + returnedValue)
 
 	returnedValue = testSca(debug)
         if(returnedValue != ""):
-                print("failed scalene " + returnedValue)
-
+                print("failed scalene: " + returnedValue)
+	
+	returnedValue = testNot(debug)
+        if(returnedValue != ""):
+                print("failed not a triangle: " + returnedValue)
 
 
 if __name__ == '__main__':
