@@ -22,7 +22,7 @@ double distance(double x0, double y0, double x1, double y1)
 }
 
 int main(int argc, char *argv[])
-{n
+{
    double coords[6]; /* Array to hold coordinate values. */
    double A, B, C; /* Length of sides. */
    double a, b, c; /* Magnitude of angles. */
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
       printf("equilateral ");
    else if ( ( (A == B) || (A == C) || (B == C) ) && ( (a == b) || (a == c) || (b == c) ) )
       printf("isosceles ");
-   else if ( ( (A != B) && (A != C) && (B != C) ) && ( (a != b) && (a != c) && (b != c) ) )
+   else /* if ( ( (A != B) && (A != C) && (B != C) ) && ( (a != b) && (a != c) && (b != c) ) ) */
       printf("scalene ");
 
    if ( a_equal(a, M_PI_2) || a_equal(b, M_PI_2) || a_equal(c, M_PI_2) )
