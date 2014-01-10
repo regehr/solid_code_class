@@ -1,6 +1,6 @@
 .PHONY: clean
 
-CC = gcc
+CC = gcc 
 CFLAGS = -std=gnu99 -Wall -Wextra -pedantic -Werror
 CFLAGS += -ftest-coverage -fprofile-arcs
 LDLIBS = -lm
