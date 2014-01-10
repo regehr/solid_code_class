@@ -1,0 +1,40 @@
+# Basic coverage
+80 0 0 0 40 1000
+isosceles acute
+
+0 0 0 10 100 3
+scalene acute
+
+0 0 3 0 0 4
+scalene right
+
+0 0 1000 0 0 1000
+isosceles right
+
+1 0 3 0 0 4
+scalene obtuse
+
+0 0 8 0 4 1
+isosceles obtuse
+
+0 0 4 0 5 0
+not a triangle
+
+0 0 0 0 4 0
+not a triangle
+
+3 3 3 3 3 3
+not a triangle
+
+# Some special cases
+# This one usually breaks implementations that classify based on angle in floating-point
+0 0 2147483647 0 0 1
+scalene right
+
+# Similar to above
+0 0 2147483646 0 1073741823 1
+isosceles obtuse
+
+# This one can overflow naive int64 implementations
+0 0 2147483647 0 1073741823 2147483647
+scalene acute

@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 {
   if (argc != 7) {
     fputs("Usage: ./triangle x1 y1 x2 y2 x3 y3\n", stderr);
-    exit(1);
+    return 1;
   }
 
   /* Read points from cmd line */
