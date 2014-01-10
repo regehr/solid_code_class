@@ -1,43 +1,9 @@
-/*
-============================================================================
-
-The analyzer takes six command line arguments. The first two are
-respectively the x and y coordinates of the first point of the
-triangle, the second two are respectively the x and y coordinates of
-the second point, etc. Each coordinate is a decimal integer in the
-range 0...INT_MAX (inclusive) where INT_MAX comes from limits.h on a
-32-bit or 64-bit Linux machine.
-
-The behavior of the triangle analyzer is undefined if the input format
-does not match the one specified above.
-
-The output of the triangle analyzer is a single line of text that is
-terminated by a newline. This line is the result of the analysis of
-the triangle and it should match the following (informal) regular
-expression:
-
-(("scalene"|"isosceles"|"equilateral") ("acute"|"right"|"obtuse")) | "not a triangle"
-
-Non-functional requirement:
-
-- The analyzer must be written in C that can be compiled by GCC on a
-  CADE Lab Linux machine
-
-Turn in your analyzer like this:
-
-- push it to a directory in the class github repo called
-  "triangle/username" where "username" is your github user name
-
-- include a makefile so that when someone types "make" in your
-  triangle directory, the result is an executable called "triangle"
-
-============================================================================
-*/
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
+//Associate two ints as an xy pair
 struct Point
 {
 	int x;
@@ -58,13 +24,31 @@ double distance(struct Point p1, struct Point p2)
 	return dist;
 }
 
-
+//Determine the angle using the law of cosines
 double angle(double d1, double d2, double d3)
 {
 	double angle;
 	angle = acos((d2*d2 + d3*d3 - d1*d1)/(2*d2*d3));
 	return angle*(180.0/M_PI);
 }
+
+//Determine if any of the given angles are obtuse
+int is_obtuse(double a1, double a2, double a3)
+{
+	if((a1 > 90.0) || (a2 > 90.0) || (a3 > 90.0))
+		return 1;	
+	return 0;
+}
+
+//Determine if any of the given angles are right
+int is_right(double a1, double a2, double a3)
+{
+	if((a1 == 90.0) || (a2 == 90.0) || (a3 == 90.0))
+		return 1;
+	return 0;
+}
+
+
 
 int main(int argc, char* argv[])
 {
@@ -95,37 +79,27 @@ int main(int argc, char* argv[])
 	{
 		result = "not a triangle\n";
 	}
-	//EQUILATERAL case
-	else if(distance1 == distance2 && distance2 == distance3)
-	{
-		//Impossible to have anything but acute angles
-		result = "equilateral acute\n";
-	}
 	//ISOSCELES case
 	else if((distance1 == distance2) || (distance2 == distance3) || (distance3 == distance1))
 	{
-		result = "isoscelese";
-		
 		//Determine type of angles
-		if((angle1 > 90.0) || (angle2 > 90.0) || (angle3 > 90.0))
-			result += " obtuse\n";
-		else if((angle1 == 90.0) || (angle2 == 90.0) || (angle3 == 90.0))
-			result = " right\n";
+		if(is_right(angle1, angle2, angle3))
+			result = "isoscelese right\n";
+		else if(is_obtuse(angle1, angle2, angle3))
+			result = "isoscelese obtuse\n";
 		else
-			result = " acute\n";
+			result = "isoscelese acute\n";
 	}
 	//SCALENE case
 	else
 	{
-		result = "scalene";
-		
 		//Determine type of angles
-		if((angle1 > 90.0) || (angle2 > 90.0) || (angle3 > 90.0))
-			result = " obtuse\n";
-		else if((angle1 == 45.0) || (angle2 == 45.0) || (angle3 == 45.0))
-			result = " right\n";
+		if(is_right(angle1, angle2, angle3))
+			result = "scalene right\n";
+		else if(is_obtuse(angle1, angle2, angle3))
+			result = "scalene obtuse\n";
 		else
-			result = " acute\n";
+			result = "scalene acute\n";
 	}
 	
 	//Print the results

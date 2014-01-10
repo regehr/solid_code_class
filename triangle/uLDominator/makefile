@@ -1,5 +1,11 @@
 all:
 	gcc triangle.c -o triangle -lm
 	
+coverage:
+	gcc -fprofile-arcs -ftest-coverage triangle.c -o triangle -lm
+	
+test:
+	python27 test.py
+	
 clean:
-	rm *~
+	rm triangle triangle.c.gc* triangle.gc* *~
