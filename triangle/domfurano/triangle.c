@@ -9,6 +9,7 @@
 #define _USE_MATH_DEFINES
 #define EPSILON   0.0000000001
 
+/* A crude comparison of floating point numbers using relative error. */
 int a_equal(double x, double y)
 {
    if (fabs((x-y) / y) < EPSILON)
@@ -16,6 +17,7 @@ int a_equal(double x, double y)
    return 0;
 }
 
+/* The distance between two points. */
 double distance(double x0, double y0, double x1, double y1)
 {
    return sqrt(pow(x1 - x0, 2.0) + pow(y1 - y0, 2.0));
@@ -37,23 +39,30 @@ int main(int argc, char *argv[])
    B = distance(coords[2], coords[3], coords[4], coords[5]);
    C = distance(coords[4], coords[5], coords[0], coords[1]);
 
-   /* Compute angles (in radians) between sides using the law of cosines. */
-   a = acos( ( pow(B, 2.0) + pow(C, 2.0) - pow(A, 2.0) ) / (2*B*C) );
-   b = acos( ( pow(C, 2.0) + pow(A, 2.0) - pow(B, 2.0) ) / (2*C*A) );
-   c = acos( ( pow(A, 2.0) + pow(B, 2.0) - pow(C, 2.0) ) / (2*A*B) );
-
-   /* If any of the lengths or angles are 0, then the points don't form a triangle. */
-   if (A == 0 || B == 0 || C == 0 || a == 0 || b == 0 || c == 0)
+   /* If any of the side lengths are 0 then the points don't form a triangle. */
+   if (A == 0 || B == 0 || C == 0)
    {
       printf("not a triangle\n");
       exit(EXIT_SUCCESS);
    }
 
-   if ( (A == B == C) && (a == b == c) )
+   /* Compute angles (in radians) between sides using the law of cosines. */
+   a = acos( ( pow(B, 2.0) + pow(C, 2.0) - pow(A, 2.0) ) / (2*B*C) );
+   b = acos( ( pow(C, 2.0) + pow(A, 2.0) - pow(B, 2.0) ) / (2*C*A) );
+   c = acos( ( pow(A, 2.0) + pow(B, 2.0) - pow(C, 2.0) ) / (2*A*B) );
+
+   /* If any of the angles are 0 then the points don't form a triangle. */
+   if (a == 0 || b == 0 || c == 0)
+   {
+      printf("not a triangle\n");
+      exit(EXIT_SUCCESS);
+   }
+
+   if ( (A == B == C) ) /* Supposedly impossible. */
       printf("equilateral ");
-   else if ( ( (A == B) || (A == C) || (B == C) ) && ( (a == b) || (a == c) || (b == c) ) )
+   else if ( (A == B) || (A == C) || (B == C) )
       printf("isosceles ");
-   else /* if ( ( (A != B) && (A != C) && (B != C) ) && ( (a != b) && (a != c) && (b != c) ) ) */
+   else
       printf("scalene ");
 
    if ( a_equal(a, M_PI_2) || a_equal(b, M_PI_2) || a_equal(c, M_PI_2) )

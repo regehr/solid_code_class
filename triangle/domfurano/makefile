@@ -1,4 +1,4 @@
 all:
-	gcc triangle.c -lm -o triangle
+	gcc -Werror -Wall triangle.c -lm -o triangle
 clean:
 	rm triangle
