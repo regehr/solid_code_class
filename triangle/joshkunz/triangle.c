@@ -3,6 +3,8 @@
 #include <math.h>
 #include <stdbool.h>
 
+#define UNUSED(x) __attribute__((unused)) x
+
 #define ABSOLUTE_ERROR 0.00000000001
 
 /* convert radians to degrees */
@@ -68,17 +70,15 @@ const char * triangle_angle(double angle[3]) {
             name = "obtuse";
         } 
     }
-    return name;
-}
+
+    return name; 
+} 
 
 const char * triangle_type(double angle[3]) {
-    /* if it not equilateral or isosceles then it must be scalene */
+    /* We cannot have an equilateral triangle with only integer inputs on a
+     * cartesian grid. */
     char * name = "scalene";
     if (double_equal(angle[0], angle[1]) 
-            && double_equal(angle[1], angle[2])
-            && double_equal(angle[0], angle[2])) {
-        name = "equilateral";
-    } else if (double_equal(angle[0], angle[1]) 
             || double_equal(angle[1], angle[2]) 
             || double_equal(angle[0], angle[2])) {
         name = "isosceles";
@@ -87,11 +87,7 @@ const char * triangle_type(double angle[3]) {
     return name;
 }
 
-int main(int argc, char * argv[]) {
-    if (argc < 7) {
-        fputs("usage: ./tri x1 y1 x2 y2 x3 y3\n", stderr);
-        return 1;
-    }
+int main(UNUSED(int argc), char * argv[]) {
     struct point points[3];
     double angles[3];
 
@@ -110,7 +106,7 @@ int main(int argc, char * argv[]) {
     const char * type = triangle_type(angles);
     const char * angle = triangle_angle(angles);
 
-    if (type == NULL || angle == NULL) {
+    if (angle == NULL) {
         printf("not a triangle\n");
     } else {
         printf("%s %s\n", type, angle);
