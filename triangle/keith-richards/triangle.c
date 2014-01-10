@@ -53,12 +53,7 @@ int main(int argc, char *argv[])
     double largest_angle = max(angle_a, angle_b, angle_c);
 
     // check the side lengths
-    if (a == b == c)
-    {
-	// I don't think this case is possible with integer inputs
-	printf("equilateral ");
-    }
-    else if (a == b || b == c || a == c)
+    if (a == b || b == c || a == c)
     {
 	printf("isosceles ");
     }
