@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
       exit(EXIT_SUCCESS);
    }
 
-   if ( (A == B == C) ) /* Supposedly impossible. */
+   if ( (A == B == C) ) /* Mathematically impossible. */
       printf("equilateral ");
    else if ( (A == B) || (A == C) || (B == C) )
       printf("isosceles ");
