@@ -1,5 +1,5 @@
 all:
-	gcc -lm triangle.c
+	gcc -lm triangle.c -o triangle 
 
 clean:
 	rm -rf *.o triangle
