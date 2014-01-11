@@ -1,7 +1,8 @@
 .PHONY: clean
 
-CC = gcc
+CC = gcc 
 CFLAGS = -std=gnu99 -Wall -Wextra -pedantic -Werror
+CFLAGS += -ftest-coverage -fprofile-arcs
 LDLIBS = -lm
 
 bin = triangle
@@ -11,10 +12,11 @@ $(bin):
 
 test: $(bin) 
 	python test.py --file $(test_file) ./$(bin)
-	python test.py --fuzz 100 ./$(bin)
+	gcov -b $(bin)
 
 gdb: $(bin) 
 	gdb ./$(bin)
 
 clean:
 	-rm $(bin) 
+	-rm *.gcov *.gcda *.gcno
