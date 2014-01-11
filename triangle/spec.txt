@@ -4,9 +4,7 @@ The analyzer takes six command line arguments. The first two are
 respectively the x and y coordinates of the first vertex of the
 triangle, the second two are respectively the x and y coordinates of
 the second vertex, etc. Each coordinate is a decimal integer in the
-range 0...INT_MAX (inclusive) where INT_MAX comes from limits.h on an
-x86 or x64 Linux machine. In other words, INT_MAX is specified to be
-2^31-1.
+range 0...2^31-1.
 
 The behavior of the triangle analyzer is undefined if the input format
 does not match the one specified above.
@@ -25,14 +23,17 @@ isosceles if two sides have the same length, and scalene otherwise.
 A triangle is right if one of its angles is 90 degrees, it is obtuse
 if one of its angles exceeds 90 degrees, otherwise it is acute.
 
-Non-functional requirement:
+Non-functional requirements:
 
-- The analyzer must be written in C that can be compiled by GCC on a
-  CADE Lab Linux machine
+- The analyzer must be written in C that can be compiled by GCC and
+  Clang on a CADE Lab Linux machine. These machines are x86-64, but
+  your code should also work when compiled to a 32-bit target.
 
-Turn in your analyzer like this:
+- It is fine to use external libraries but please avoid exotic ones.
 
-- Push it to a directory in the class github repo called
+Submission:
+
+- Push your analyzer to a directory in the class github repo called
   "triangle/username" where "username" is your github user name.
 
 - Include a makefile so that when someone types "make" in your
