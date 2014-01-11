@@ -17,11 +17,12 @@ the triangle. It should match this Perl regex:
 
 Three vertices are not a triangle if they are colinear.
 
-A triangle is equilateral if three sides have the same length,
-isosceles if two sides have the same length, and scalene otherwise.
+A triangle is equilateral if all three sides have the same length,
+isosceles if exactly two sides have the same length, and scalene
+otherwise.
 
 A triangle is right if one of its angles is 90 degrees, it is obtuse
-if one of its angles exceeds 90 degrees, otherwise it is acute.
+if one of its angles exceeds 90 degrees, and is acute otherwise.
 
 Non-functional requirements:
 
