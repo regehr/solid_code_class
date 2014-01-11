@@ -11,5 +11,7 @@ for line in file:
     if (output != expected):
         print "Test failed!\nInput: \t\t{0}\nExpected: \t{1}\nOutput: \t{2}".format(coords, expected.rstrip(), output)
 
+file.close()
+
 print "Test completed."
 
