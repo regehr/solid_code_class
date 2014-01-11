@@ -39,8 +39,8 @@ bool safe_add(long long *out, long long a, long long b) {
     }
 }
 
-/* Figure out the index of the largest edge */
-void max_index(long long edges[3], int *oa, int *ob, int *oc) {
+/* Figure out the indexes of the largest edge and smaller edges */
+void assign_edges(long long edges[3], int *oa, int *ob, int *oc) {
     int a, b, c = 0;
     if (edges[1] > edges[c]) { a = c; c = 1; } else { a = 1; }
     if (edges[2] > edges[c]) { b = c; c = 2; } else { b = 2; }
@@ -50,7 +50,7 @@ void max_index(long long edges[3], int *oa, int *ob, int *oc) {
 const char * triangle_angle(long long edge[3]) {
     int ai, bi, ci;
     long long ab;
-    max_index(edge, &ai, &bi, &ci);
+    assign_edges(edge, &ai, &bi, &ci);
     /* if addition overflows than we know for sure that a + b is
      * larger than c */
     if (safe_add(&ab, edge[ai], edge[bi])) {
