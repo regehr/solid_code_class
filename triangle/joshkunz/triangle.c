@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <stdbool.h>
 
 #define UNUSED(x) __attribute__((unused)) x
+#define POS_SHIFT ((sizeof(long long) << 3) - 2)
+
 #define POW2(x) ((x) * (x))
 
 struct point {
@@ -16,25 +17,45 @@ long long distance(struct point point_a, struct point point_b) {
     return POW2(point_b.x - point_a.x) + POW2(point_b.y - point_a.y);
 }
 
+/* check if three points line on the same line */
 bool is_collinear(struct point point_a, struct point point_b, struct point point_c) {
     return ( (point_a.x * (point_b.y - point_c.y)) +
              (point_b.x * (point_c.y - point_a.y)) +
              (point_c.x * (point_a.y - point_b.y)) ) == 0;
 }
 
-/* Figure out the index of the largest edge */
-void max_index(long long edges[3], int *a, int *b, int *c) {
-    *c = 0;
-    if (edges[1] > edges[*c]) { *a = *c; *c = 1; }
-    else { *a = 1; }
-    if (edges[2] > edges[*c]) { *b = *c; *c = 2; }
-    else { *b = 2; }
+/* Perform an addition with well-defined overflow detection. Returns true if
+ * the addition overflowed. If an overflow occurs the value of out is 
+ * undefined. */
+bool safe_add(long long *out, long long a, long long b) {
+    long long lower_add = (~(1LL << POS_SHIFT) & a) + (~(1LL << POS_SHIFT) & b);
+    if ((lower_add >> POS_SHIFT) & ((a >> POS_SHIFT) | (b >> POS_SHIFT))) {
+        return true;
+    } else if ((a >> POS_SHIFT) & (b >> POS_SHIFT)) {
+        return true;
+    } else {
+        *out = a + b; 
+        return false;
+    }
+}
+
+/* Figure out the indexes of the largest edge and smaller edges */
+void assign_edges(long long edges[3], int *oa, int *ob, int *oc) {
+    int a, b, c = 0;
+    if (edges[1] > edges[c]) { a = c; c = 1; } else { a = 1; }
+    if (edges[2] > edges[c]) { b = c; c = 2; } else { b = 2; }
+    *oa = a; *ob = b; *oc = c;
 }
 
 const char * triangle_angle(long long edge[3]) {
     int ai, bi, ci;
-    max_index(edge, &ai, &bi, &ci);
-    long long ab = edge[ai] + edge[bi];
+    long long ab;
+    assign_edges(edge, &ai, &bi, &ci);
+    /* if addition overflows than we know for sure that a + b is
+     * larger than c */
+    if (safe_add(&ab, edge[ai], edge[bi])) {
+        return "acute";
+    } 
 
     char * name = "acute";
     if (ab == edge[ci]) {
