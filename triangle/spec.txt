@@ -4,8 +4,9 @@ The analyzer takes six command line arguments. The first two are
 respectively the x and y coordinates of the first vertex of the
 triangle, the second two are respectively the x and y coordinates of
 the second vertex, etc. Each coordinate is a decimal integer in the
-range 0...INT_MAX (inclusive) where INT_MAX comes from limits.h on a
-32-bit or 64-bit Linux machine.
+range 0...INT_MAX (inclusive) where INT_MAX comes from limits.h on an
+x86 or x64 Linux machine. In other words, INT_MAX is specified to be
+2^31-1.
 
 The behavior of the triangle analyzer is undefined if the input format
 does not match the one specified above.
@@ -18,8 +19,8 @@ the triangle. It should match this Perl regex:
 
 Three vertices are not a triangle if they are colinear.
 
-A triangle is equilateral if three sides have the same length, scalene
-if two sides have the same length, and scalene otherwise.
+A triangle is equilateral if three sides have the same length,
+isosceles if two sides have the same length, and scalene otherwise.
 
 A triangle is right if one of its angles is 90 degrees, it is obtuse
 if one of its angles exceeds 90 degrees, otherwise it is acute.
