@@ -12,10 +12,17 @@ does not match the one specified above.
 
 The output of the triangle analyzer is a single line of text that is
 terminated by a newline. This line is the result of the analysis of
-the triangle and it should match the following (informal) regular
-expression:
+the triangle. It should match this Perl regex:
 
-(("scalene"|"isosceles"|"equilateral") ("acute"|"right"|"obtuse")) | "not a triangle"
+^(((scalene|isosceles|equilateral) (acute|obtuse|right))|not a triangle)\n$
+
+Three vertices are not a triangle if they are colinear.
+
+A triangle is equilateral if three sides have the same length, scalene
+if two sides have the same length, and scalene otherwise.
+
+A triangle is right if one of its angles is 90 degrees, it is obtuse
+if one of its angles exceeds 90 degrees, otherwise it is acute.
 
 Non-functional requirement:
 
@@ -30,9 +37,9 @@ Turn in your analyzer like this:
 - Include a makefile so that when someone types "make" in your
   triangle directory, the result is an executable called "triangle".
 
-- DO NOT turn in the executable itself 
+- DO NOT add your executable to git.
 
-- try not to make your code or makefile CADE-specific; ideally it can be
-  compiled on any Linux or Mac OS X machine
+- Try not to make your code or makefile CADE-specific; ideally it can be
+  compiled on any Linux or Mac OS X machine.
 
 ============================================================================
