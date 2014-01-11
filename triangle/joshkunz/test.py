@@ -101,10 +101,13 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--fuzz", "-u")
     parser.add_argument("--file", "-f")
+    parser.add_argument("--input", "-i")
     parser.add_argument("binary")
     args = parser.parse_args()
 
-    if args.fuzz:
+    if args.input:
+        print classify_triangle(read_triangle(args.input)),
+    elif args.fuzz:
         fuzz(int(args.fuzz), args.binary)
     else:
         with open(args.file) as f: 
