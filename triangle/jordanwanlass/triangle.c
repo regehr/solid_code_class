@@ -11,7 +11,7 @@ struct triangle {
 	long double A;
 	long double B;
 	long double C;
-} triangle;
+};
 
 void getSides(struct triangle *triangle){
  	long double ax = (*triangle).ax;
@@ -45,18 +45,28 @@ void findTriangle(struct triangle *triangle){
 
 }
 
-int main(int argc, char *argv[]) {
+void setup(struct triangle *triangle, char *argv[]) {
+	long double inputs[6];
+	 
+	int i;
+	for(i = 0; i < 6; i++) {
+		int temp = atoi(argv[i+1]);
+		inputs[i] = (long double)temp;
+	}
+	
+	(*triangle).ax = inputs[0];
+	(*triangle).ay = inputs[1];
+	(*triangle).bx = inputs[2];
+	(*triangle).by = inputs[3];
+	(*triangle).cx = inputs[4];
+	(*triangle).cy = inputs[5];		
+}
 
-    triangle.ax = 0.0;
-    triangle.ay = 0.0;
-    triangle.bx = 0.0;
-    triangle.by = 1.0;
-    triangle.cx = 1.0;
-    triangle.cy = 0.0;
-    triangle.A = 0.0;
-    triangle.B = 0.0;
-    triangle.C = 0.0;
-    
+int main(int argc, char *argv[]) {
+	struct triangle triangle = {0.0};
+	
+	if(argc == 7) setup(&triangle, argv);
+
     getSides(&triangle);
     
     printf("%llf is Struct A\n", triangle.A);
