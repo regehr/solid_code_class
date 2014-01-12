@@ -26,23 +26,53 @@ void getSides(struct triangle *triangle){
  	(*triangle).B = sqrt(pow((cx - ax),2) + pow((cy - ay), 2));	   
 }
 
-
-char getLongSide(struct triangle *triangle) {
+long double getLargestAngle(long double a, long double b, long double c) {
+	long double eq = (pow(b,2) + pow(c,2) - pow(a,2))/(2*b*c);
 	
-	char longSide = 'A';
-	long double max = 0.0;
-	if((*triangle).A > (*triangle).B) {
-		max = (*triangle).A;	
-	} else {
-		longSide = 'B';
-		max = (*triangle).B;
-	}
-	
-	return ((max > (*triangle).C) ? longSide : 'C');
+	return acos(eq);
 }
 
-void findTriangle(struct triangle *triangle){
+char getLongSide(struct triangle triangle) {	
+	char longSide = 'A';
+	long double max = 0.0;
+	if(triangle.A > triangle.B) {
+		max = triangle.A;	
+	} else {
+		longSide = 'B';
+		max = triangle.B;
+	}
+	
+	return ((max > triangle.C) ? longSide : 'C');
+}
 
+char * findTriangle(struct triangle triangle){
+	char longestSide = getLongSide(triangle);
+	long double largest = 0.0;
+	
+	if(longestSide == 'A') {
+		largest = getLargestAngle(triangle.A, triangle.B, triangle.C);
+	} else if(longestSide == 'B') {
+		largest = getLargestAngle(triangle.B, triangle.A, triangle.C);
+	} else {
+		largest = getLargestAngle(triangle.C, triangle.A, triangle.B);
+	}
+	
+	if(largest == 90) {
+		return "right";
+	} else if(largest > 90) {
+		return "obtuse";
+	} else {
+		return "acute";
+	}
+	
+}
+
+char * findType(struct triangle triangle) {
+	int bool = 	triangle.A == triangle.B 
+				|| triangle.B == triangle.C 
+				|| triangle.C == triangle.A;
+	
+	return bool ? "isosceles" : "scalene";
 }
 
 void setup(struct triangle *triangle, char *argv[]) {
@@ -62,15 +92,35 @@ void setup(struct triangle *triangle, char *argv[]) {
 	(*triangle).cy = inputs[5];		
 }
 
+int collinearCheck(struct triangle triangle) {
+	int bool = 	((triangle.ax*(triangle.by - triangle.cy)) +
+				(triangle.bx*(triangle.cy - triangle.ay)) +
+				(triangle.cx*(triangle.ay - triangle.by))) == 0;
+	return bool;
+}
+
 int main(int argc, char *argv[]) {
+	
 	struct triangle triangle = {0.0};
 	
-	if(argc == 7) setup(&triangle, argv);
+	if(argc == 7) {
+	 	setup(&triangle, argv);
+	} else {
+		printf("Invalid Input");
+		return 0;
+	}
 
     getSides(&triangle);
+    
+    if(collinearCheck(triangle)) {
+    	printf("not a triangle\n");
+    	return 0;
+    }
+
+    printf("%s %s\n",findType(triangle),findTriangle(triangle));
     
     printf("%llf is Struct A\n", triangle.A);
     printf("%llf is Struct B\n", triangle.B);
     printf("%llf is Struct C\n", triangle.C);
-    printf("%c This is the longest Struct side\n", getLongSide(&triangle));
+    printf("%c This is the longest Struct side\n", getLongSide(triangle));
 }
