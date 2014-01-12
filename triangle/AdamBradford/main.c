@@ -1,6 +1,6 @@
 //
 //  main.c
-//  c_triangle_checker
+//  
 //
 //  Created by Adam Bradford on 1/11/14.
 //  Copyright (c) 2014 Adam Bradford. All rights reserved.

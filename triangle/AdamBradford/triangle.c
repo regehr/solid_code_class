@@ -1,5 +1,5 @@
 //
-//  tri.c
+//  triangle.c
 //
 //  Created by Adam Bradford on 1/7/14.
 //  Copyright (c) 2014 Adam Bradford. All rights reserved.
