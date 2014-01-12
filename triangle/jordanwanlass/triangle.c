@@ -26,10 +26,13 @@ void getSides(struct triangle *triangle){
  	(*triangle).B = sqrt(pow((cx - ax),2) + pow((cy - ay), 2));	   
 }
 
-long double getLargestAngle(long double a, long double b, long double c) {
-	long double eq = (pow(b,2) + pow(c,2) - pow(a,2))/(2*b*c);
+double getLargestAngle(long double a, long double b, long double c) {
+
+	double eq = acos(((b*b) + (c*c) - (a*a))/(2.0*b*c));
 	
-	return acos(eq);
+	double angle = eq * (180/M_PI);
+
+	return angle;
 }
 
 char getLongSide(struct triangle triangle) {	
@@ -57,9 +60,9 @@ char * findTriangle(struct triangle triangle){
 		largest = getLargestAngle(triangle.C, triangle.A, triangle.B);
 	}
 	
-	if(largest == 90) {
+	if((largest - 90.0) < .00000000001 && (largest - 90.0) > 0) {
 		return "right";
-	} else if(largest > 90) {
+	} else if((largest - 90.0) > .00000000001) {
 		return "obtuse";
 	} else {
 		return "acute";
@@ -99,28 +102,34 @@ int collinearCheck(struct triangle triangle) {
 	return bool;
 }
 
+int validPoints(struct triangle triangle) {
+	return ((triangle.A > 0) && (triangle.B > 0) && (triangle.C > 0));
+}
+
 int main(int argc, char *argv[]) {
-	
 	struct triangle triangle = {0.0};
 	
 	if(argc == 7) {
 	 	setup(&triangle, argv);
 	} else {
-		printf("Invalid Input");
+		printf("not a triangle\n");
 		return 0;
 	}
 
     getSides(&triangle);
-    
-    if(collinearCheck(triangle)) {
+      
+    if(collinearCheck(triangle) || !validPoints(triangle)) {
     	printf("not a triangle\n");
     	return 0;
     }
-
-    printf("%s %s\n",findType(triangle),findTriangle(triangle));
     
-    printf("%llf is Struct A\n", triangle.A);
-    printf("%llf is Struct B\n", triangle.B);
-    printf("%llf is Struct C\n", triangle.C);
-    printf("%c This is the longest Struct side\n", getLongSide(triangle));
+    
+
+     printf("%s %s\n",findType(triangle),findTriangle(triangle));
+    
+//     printf("%llf is Struct A\n", triangle.A);
+//     printf("%llf is Struct B\n", triangle.B);
+//     printf("%llf is Struct C\n", triangle.C);
+//     printf("%c This is the longest Struct side\n", getLongSide(triangle));
+	return 0;
 }
