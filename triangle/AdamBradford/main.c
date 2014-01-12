@@ -34,7 +34,8 @@ int main(int argc, const char * argv[])
     
     //make the triangle!
     triangle triangle = triangle_for_points(points[0], points[1], points[2]);
-    
+   
+
     //output?
     if(triangle.is_triangle == 0)
     {

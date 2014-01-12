@@ -29,12 +29,9 @@ typedef enum{
 typedef struct{
 	
     triangle_point point_1,point_2,point_3;
-    //angles aren't necessary, but are fun for gui's
-	long double angle_1,angle_2,angle_3;
-    //lengths calculated as floating point
-	long double length_1,length_2,length_3;
+
     //lengths without the sqrt appled and are not floating point
-    unsigned long long length_alt_1,length_alt_2,length_alt_3;
+    unsigned long long length_1,length_2,length_3;
     
     //properties for the triangle
     triangle_angle_type angle_type;
@@ -45,6 +42,8 @@ typedef struct{
 
 //creates a triangle point
 triangle_point triangle_point_make(unsigned x,unsigned y);
+
+int is_colinear(triangle_point p1, triangle_point p2, triangle_point p3);
 
 //returns a triangle with lengths and angles and all properties calculated
 triangle triangle_for_points(triangle_point point1,triangle_point point2,triangle_point point3);
