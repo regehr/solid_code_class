@@ -25,15 +25,30 @@ int main (int argc, char **argv) {
   }
   
   for (i = 0; i < 6; i++) {
-    pts[i] = strtoll(argv[i+1], NULL, 0);
+    if (sscanf(argv[i+1], "%lld", &pts[i]) != 1) {
+      printf("input error\n");
+      return 1;
+    }
   }
   
+  /* translating the triangle so that (x_1, y_1) is at the origin
+   * and preparing to find the length of the third side.
+   */
   pts[4] = pts[4] - pts[0];
   pts[5] = pts[5] - pts[1];
   pts[2] = pts[2] - pts[0];
   pts[3] = pts[3] - pts[1];
   pts[0] = pts[4] - pts[2];
   pts[1] = pts[5] - pts[3];
+  
+  /* if the ratio between x_2 and x_3 is the same as the ratio between
+   * y_2 and y_3, then all three points lie along a line or are 
+   * colocated.
+   */
+  if (pts[2] * pts[5] == pts[4] * pts[3]) {
+    printf("not a triangle\n");
+    return 0;
+  }
   
   l1sq = (pts[0] * pts[0]) + (pts[1] * pts[1]);
   l2sq = (pts[2] * pts[2]) + (pts[3] * pts[3]);
@@ -52,6 +67,6 @@ int main (int argc, char **argv) {
   for (i = 0; i < 6; i++) {
     printf("%lld\n", pts[i]);
   }
-  
+
   return 0;
 }
