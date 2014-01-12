@@ -7,7 +7,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
+
+long long length_squared(long long x, long long y);
+const char *side_type_squares(long long asq, long long bsq, long long csq);
+const char *angle_from_squares(long long asq, long long bsq, long long csq);
 
 int main (int argc, char **argv) {
   /* Long longs can represent all length values since each coordinate is
@@ -50,23 +53,54 @@ int main (int argc, char **argv) {
     return 0;
   }
   
-  l1sq = (pts[0] * pts[0]) + (pts[1] * pts[1]);
-  l2sq = (pts[2] * pts[2]) + (pts[3] * pts[3]);
-  l3sq = (pts[4] * pts[4]) + (pts[5] * pts[5]);
-
-  if (l1sq == l2sq && l2sq == l3sq) {
-    printf("equilateral ");
+  l1sq = length_squared(pts[0], pts[1]);
+  l2sq = length_squared(pts[2], pts[3]);
+  l3sq = length_squared(pts[4], pts[5]);
+  
+  printf("%s ", side_type_squares(l1sq, l2sq, l3sq));
+	 
+  if (l1sq >= l2sq && l1sq >= l3sq) {
+    printf("%s\n", angle_from_squares(l2sq, l3sq, l1sq));
   }
-  else if (l1sq == l2sq || l1sq == l3sq || l2sq == l3sq) {
-    printf("isosceles ");
+  else if (l2sq >= l1sq && l2sq >= l3sq) {
+    printf("%s\n", angle_from_squares(l1sq, l3sq, l2sq));
   }
   else {
-    printf ("scalene ");
+    printf("%s\n", angle_from_squares(l1sq, l2sq, l3sq));
   }
-  
-  for (i = 0; i < 6; i++) {
-    printf("%lld\n", pts[i]);
-  }
-
   return 0;
+}
+
+/* x and y must be no larger than 2^31-1. Return value will be no larger
+ * than 2^63-2^33+2.
+ */
+long long length_squared(long long x, long long y) {
+  return x * x + y * y;
+}
+
+/* Squares should not be larger than 2^63-2^33+2. */
+const char *side_type_squares(long long asq, long long bsq, long long csq) {
+  if (asq == bsq && asq == csq) {
+    return "equilateral";
+  }
+  else if (asq == bsq || asq == csq || bsq == csq) {
+    return "isosceles";
+  }
+  else {
+    return "scalene";
+  }
+}
+
+/* Largest squared side should be the third `csq' argument. */
+const char *angle_from_squares(long long asq, long long bsq, long long csq) {
+  long long diff = csq - asq - bsq;
+  if (diff > 0ll) {
+    return "obtuse";
+  }
+  else if (diff == 0ll) {
+    return "right";
+  }
+  else {
+    return "acute";
+  }
 }
