@@ -11,14 +11,15 @@
 #include "triangle.h"
 #include <assert.h>
 
-char * acute_obutse_or_right_string_for_triangle(Triangle triangle);
-char * scalene_iso_string_for_triangle(Triangle triangle);
+char * acute_obutse_or_right_string_for_triangle(triangle triangle);
+char * scalene_iso_string_for_triangle(triangle triangle);
 
 int main(int argc, const char * argv[])
 {
 
-    TrianglePoint points[3];
+    triangle_point points[3];
     int i;
+    
     //do we even have inputs?
     for( i = 0; i < 7; i++)
     {
@@ -26,13 +27,13 @@ int main(int argc, const char * argv[])
     }
     
     /* parse the points */
-    points[0] = TrianglePointMake(atoi(argv[1]),atoi(argv[2]));
-    points[1] = TrianglePointMake(atoi(argv[3]),atoi(argv[4]));
-    points[2] = TrianglePointMake(atoi(argv[5]),atoi(argv[6]));
+    points[0] = triangle_point_make(atoi(argv[1]),atoi(argv[2]));
+    points[1] = triangle_point_make(atoi(argv[3]),atoi(argv[4]));
+    points[2] = triangle_point_make(atoi(argv[5]),atoi(argv[6]));
 
     
     //make the triangle!
-    Triangle triangle = triangle_for_points(points[0], points[1], points[2]);
+    triangle triangle = triangle_for_points(points[0], points[1], points[2]);
     
     //output?
     if(!is_triangle(triangle))
@@ -49,7 +50,7 @@ int main(int argc, const char * argv[])
     return 0;
 }
 
-char * acute_obutse_or_right_string_for_triangle(Triangle triangle)
+char * acute_obutse_or_right_string_for_triangle(triangle triangle)
 {
     char *result;
     
@@ -68,7 +69,7 @@ char * acute_obutse_or_right_string_for_triangle(Triangle triangle)
     
 }
 
-char * scalene_iso_string_for_triangle(Triangle triangle)
+char * scalene_iso_string_for_triangle(triangle triangle)
 {
     char *result;
     
