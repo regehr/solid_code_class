@@ -14,29 +14,41 @@ typedef struct
 
 }triangle_point;
 
+typedef enum{
+    ACUTE = 1,
+    OBTUSE,
+    RIGHT
+}triangle_angle_type;
+
+typedef enum{
+    SCALENE = 1,
+    ISOSCELES,
+    EQUILATERAL
+}triangle_shape_type;
+
 typedef struct{
 	
     triangle_point point_1,point_2,point_3;
+    //angles aren't necessary, but are fun for gui's
 	long double angle_1,angle_2,angle_3;
     //lengths calculated as floating point
 	long double length_1,length_2,length_3;
     //lengths without the sqrt appled and are not floating point
     unsigned long long length_alt_1,length_alt_2,length_alt_3;
+    
+    //properties for the triangle
+    triangle_angle_type angle_type;
+    triangle_shape_type shape_type;
+    int is_triangle;
 
 }triangle;
 
 //creates a triangle point
 triangle_point triangle_point_make(unsigned x,unsigned y);
 
-//returns a triangle with lengths and angles calculated
+//returns a triangle with lengths and angles and all properties calculated
 triangle triangle_for_points(triangle_point point1,triangle_point point2,triangle_point point3);
 
-//these return 1 if true, 0 if false
-int is_triangle(triangle t);
-int is_acute(triangle t);
-int is_obtuse(triangle t);
-int is_right(triangle t);
-int is_isosceles(triangle t);
-int is_scalene(triangle t);
+
 
 #endif

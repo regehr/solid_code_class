@@ -36,7 +36,7 @@ int main(int argc, const char * argv[])
     triangle triangle = triangle_for_points(points[0], points[1], points[2]);
     
     //output?
-    if(!is_triangle(triangle))
+    if(triangle.is_triangle == 0)
     {
         printf("not a triangle\n");
     }
@@ -53,16 +53,9 @@ int main(int argc, const char * argv[])
 char * acute_obutse_or_right_string_for_triangle(triangle triangle)
 {
     char *result;
-    
-    int right,acute,obtuse;
-    right = is_right(triangle);
-    acute = is_acute(triangle);
-    obtuse = is_obtuse(triangle);
-    
-    assert(acute != obtuse);
 
-    if(right) result = "right";
-    else if(acute) result = "acute";
+    if(triangle.angle_type == RIGHT) result = "right";
+    else if(triangle.angle_type == ACUTE) result = "acute";
     else result = "obtuse";
     
     return result;
@@ -73,15 +66,9 @@ char * scalene_iso_string_for_triangle(triangle triangle)
 {
     char *result;
     
-    int scalene,iso;
-   
-    scalene = is_scalene(triangle);
-    iso = is_isosceles(triangle);
-    
-    assert(scalene != iso);
-    
-    if(scalene) result = "scalene";
-    else result = "isosceles";
+    if(triangle.shape_type == SCALENE) result = "scalene";
+    else if(triangle.shape_type == ISOSCELES) result = "isosceles";
+    else result = "equilateral";
     
     return result;
 }

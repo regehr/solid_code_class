@@ -11,10 +11,13 @@
 
 
 //private header
+triangle calculate_triangle_data_for_triangle(triangle t);
 long double calc_float_distance_for_points(triangle_point point1, triangle_point point2);
 unsigned long long calc_alt_distance_for_points(triangle_point point1, triangle_point point2);
 long double calc_angle_for_length(long double c, long double a,long double b);
-triangle calculate_triangle_data_for_triangle(triangle t);
+triangle_angle_type angle_type_for_triangle(triangle t);
+triangle_shape_type shape_type_for_triangle(triangle t);
+int is_triangle(triangle t);
 
 
 //a helper method to make a new triangle point
@@ -42,54 +45,33 @@ triangle triangle_for_points(triangle_point point1,triangle_point point2,triangl
 triangle calculate_triangle_data_for_triangle(triangle t)
 {
 	triangle new_triangle = t;
+    
+    //this length is to report if it is a triangle
 	new_triangle.length_1 = calc_float_distance_for_points(t.point_2, t.point_3);
 	new_triangle.length_2 = calc_float_distance_for_points(t.point_1, t.point_3);
 	new_triangle.length_3 = calc_float_distance_for_points(t.point_1, t.point_2);
     
+    //this computes everything else
     new_triangle.length_alt_1 = calc_alt_distance_for_points(t.point_2, t.point_3);
 	new_triangle.length_alt_2 = calc_alt_distance_for_points(t.point_1, t.point_3);
 	new_triangle.length_alt_3 = calc_alt_distance_for_points(t.point_1, t.point_2);
 	
+    //angles aren't really necessary, but are fun to have.
 	new_triangle.angle_1 = calc_angle_for_length(new_triangle.length_1, new_triangle.length_2, new_triangle.length_3);
 	new_triangle.angle_2 = calc_angle_for_length(new_triangle.length_2, new_triangle.length_3, new_triangle.length_1);
 	new_triangle.angle_3 = calc_angle_for_length(new_triangle.length_3, new_triangle.length_1, new_triangle.length_2);
 
+    //Calculate properties
+    new_triangle.is_triangle = is_triangle(new_triangle);
+    new_triangle.angle_type = angle_type_for_triangle(new_triangle);
+    new_triangle.shape_type = shape_type_for_triangle(new_triangle);
+    
 	return new_triangle;
 }
 
-//returns 0 if the triangle is colinear
-int is_triangle(triangle t)
+triangle_angle_type angle_type_for_triangle(triangle t)
 {
-	int result = 1;
-	if(t.length_1 == t.length_2 + t.length_3 ||
-	   t.length_2 == t.length_1 + t.length_3 ||
-	   t.length_3 == t.length_1 + t.length_2) result = 0;
-	
-	return result;
-}
-
-//returns 1 if the triangle is acute
-int is_acute(triangle t)
-{
-	int result = 0;
-	if(t.angle_1 < 90.0L &&  t.angle_2 < 90.0L && t.angle_3 < 90.0L) result = 1;
-	
-	return result;
-}
-
-//returns 1 if the triangle is obtuse
-int is_obtuse(triangle t)
-{
-	int result = 0;
-	if(t.angle_1 > 90.0L ||  t.angle_2 > 90.0L || t.angle_3 > 90.0L) result = 1;
-	
-	return result;
-}
-
-//returns 1 if the triangle is right
-int is_right(triangle t)
-{
-	int result = 0;
+    int result = 0;
 	
 	unsigned long long a,b,c;
 	
@@ -117,34 +99,42 @@ int is_right(triangle t)
     
     //the alt length is the distance formula saved as a long long that
     //doesn't have a sqare root applied so just check pythagoras
-	if(a + b == c)result = 1;
+	if(a + b > c)result = ACUTE;
+    else if(a + b < c)result = OBTUSE;
+    else result = RIGHT;
 	return result;
 }
-
-//returns 1 if two alt lenghts are are the same
-int is_isosceles(triangle t)
+triangle_shape_type shape_type_for_triangle(triangle t)
 {
-	int result = 0;
-	
-	if(t.length_alt_1 == t.length_alt_2||
-	   t.length_alt_2 == t.length_alt_3||
-	   t.length_alt_1 == t.length_alt_3) result = 1;
-
-	return result;
+    int result = SCALENE;
+    
+    if(t.length_alt_1 == t.length_alt_2 ||
+       t.length_alt_1 == t.length_alt_3 ||
+	   t.length_alt_2 == t.length_alt_3) result = ISOSCELES;
+    
+    if(t.length_alt_1 == t.length_alt_2 &&
+       t.length_alt_1 == t.length_alt_3 &&
+       t.length_alt_2 == t.length_alt_3) result = EQUILATERAL;
+    
+    return result;
 }
 
-//returns 1 of the triangle is scalene
-int is_scalene(triangle t)
+//returns 0 if the triangle is colinear
+int is_triangle(triangle t)
 {
 	int result = 1;
-	
-	
-	if(t.length_alt_1 == t.length_alt_2 ||
-       t.length_alt_1 == t.length_alt_3 ||
-	   t.length_alt_2 == t.length_alt_3) result = 0;
+	if(t.length_1 == t.length_2 + t.length_3 ||
+	   t.length_2 == t.length_1 + t.length_3 ||
+	   t.length_3 == t.length_1 + t.length_2) result = 0;
+    
+    //this handles case of two points being the same
+    if(t.length_alt_1 == 0 ||
+       t.length_alt_2 == 0 ||
+       t.length_alt_3 == 0)result = 0;
 	
 	return result;
 }
+
 
 //gives a long double distance
 long double calc_float_distance_for_points(triangle_point point1, triangle_point point2)
@@ -160,7 +150,7 @@ long double calc_float_distance_for_points(triangle_point point1, triangle_point
 }
 
 //this calculates the length as a unsigned long long and does not perform the square root
-//normally used in the distance formula
+//normally used in the distance formula and for calculating the properties of the triangle
 unsigned long long calc_alt_distance_for_points(triangle_point point1, triangle_point point2)
 {
     long long x = (long long)point1.x - (long long)point2.x;
@@ -172,6 +162,7 @@ unsigned long long calc_alt_distance_for_points(triangle_point point1, triangle_
 }
 
 //The law of cosines, the first length is opposite the angle which you wish to find the angle for
+//this is calculated, but not for the main program currently.  I use it for a gui written for iOS.
 long double calc_angle_for_length(long double c, long double a, long double b)
 {
 	long double result = (a*a + b*b - c*c)/(2.0L*a*b);
