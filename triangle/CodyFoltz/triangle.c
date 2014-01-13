@@ -12,15 +12,40 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define NOT_TRIANGLE "not a triangle"
+#define EQUILATERAL "equilateral"
+#define ISOSCELES "isosceles"
+#define SCALENE "scalene"
+#define ACUTE "acute"
+#define RIGHT "right"
+#define OBTUSE "obtuse"
+
+/**
+ * 
+ * ((sc|is|eq|) (ac|ri|ob)) | (not a triangle)
+ * 
+ * 
+ */
+
+
+
 typedef struct point{
     double x;
     double y;
 }Point;
 
+typedef struct slope{
+    int is_negative;
+        int rise;
+        int run;
+    } Slope;
+
 char* find_triangle_type(Point point1, Point point2, Point point3);
 Point create_point(char* x, char* y);
 double calculate_distance(Point point1, Point point2);
 int is_legal_triangle(Point point1, Point point2, Point point3);
+void insure_correct_slope(Slope* slope);
+Slope calculate_slope(Point pointA, Point pointB);
 
 /*
  * 
@@ -53,7 +78,7 @@ int main(int argc, char** argv) {
 char* find_triangle_type(Point point1, Point point2, Point point3)
 {   
     if(is_legal_triangle(point1, point2, point3)){
-        return "not a triangle";
+        return NOT_TRIANGLE;
     }
     
     double side_1_2 = calculate_distance(point1, point2);
@@ -62,10 +87,10 @@ char* find_triangle_type(Point point1, Point point2, Point point3)
     
     //check for equalateral
     if(side_1_2 == side_1_3 && side_1_2 == side_2_3){
-        return "acute equilateral";
+        return "equilateral acute";
     }
     
-    return "not a triangle";
+    return NOT_TRIANGLE;
     
     
 }
@@ -108,8 +133,53 @@ double calculate_distance(Point point1, Point point2)
 int is_legal_triangle(Point point1, Point point2, Point point3){
     int is_legal_triangle = 0;
     
+    /* rise/run */
+    
+    
+    Slope slope_1_2;
+    slope_1_2 = 
+    
     return is_legal_triangle;
     
 }
 
+Slope calculate_slope(Point pointA, Point pointB){
+    
+}
 
+void insure_correct_slope(Slope* slope){
+    if(slope->rise < 0 || slope->run < 0){
+        slope->is_negative = 1;
+        slope->rise = abs(slope->rise);
+        slope.run = abs(slope->run);
+    } else if( slope->rise >= 0 && slope->run >= 0){
+        slope->is_negative = 1;
+    } else {
+        slope->is_negative = -1;
+    }
+}
+
+
+
+/*
+ * Dot product = p1.x * p2.x + p1.y * p2.y
+ * 
+ * 
+ * If the dot product of A and B is greater than zero, then we know the angle is
+ * less than 90 degrees. If the dot product is equal to zero then we know the 
+ * two vectors are perpendicular or orthogonal to one another. If the scalar 
+ * value returned is less than zero, we know the angle is greater than 90 
+ * degrees. If you need the actual angle between the two vectors, 
+ * take the inverse cosine of the scalar value returned by the dot product.
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
