@@ -1,5 +1,5 @@
 all:
-	gcc -Werror -Wall triangle.c -lm -o triangle
+	gcc -O0 -Werror -Wall triangle.c -lm -o triangle
 clean:
 	@rm -f triangle
 	@rm -f *~
@@ -8,7 +8,7 @@ clean:
 	@rm -f *gcda
 test:
 	@make clean
-	@gcc -fprofile-arcs -ftest-coverage triangle.c -lm -o triangle
+	@gcc -O0 -fprofile-arcs -ftest-coverage triangle.c -lm -o triangle
 	@python test.py
 	@gcov triangle.gcda
 coverage:
