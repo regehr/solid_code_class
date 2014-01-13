@@ -6,71 +6,79 @@
 #include <stdio.h>
 #include <math.h>
 
-#define _USE_MATH_DEFINES
-#define EPSILON   0.0000000001
-
-/* A crude comparison of floating point numbers using relative error. */
-int a_equal(double x, double y)
+/* Returns the dot product of two vectors. If the two vectors are acute,
+   the dot product is positive. If the two vectors are obtuse, the dot product
+   is negative. If the two vectors are perpendicular, the dot product is zero. */
+long double dot_product(long double x0, long double y0, long double x1, long double y1)
 {
-   if (fabs((x-y) / y) < EPSILON)
-      return 1;   
-   return 0;
+    return (x0 * x1) + (y0 * y1);
 }
 
-/* The distance between two points. */
-double distance(double x0, double y0, double x1, double y1)
+/* Returns the distance between two vectors. */
+long double distance(long double x0, long double y0, long double x1, long double y1)
 {
-   return sqrt(pow(x1 - x0, 2.0) + pow(y1 - y0, 2.0));
+    return sqrtl((powl((x1 - x0), 2.0) + powl((y1 - y0), 2.0)));
+}
+
+/* Returns longest side of three given sides. */
+long double longest_side(long double A, long double B, long double C)
+{
+    long double longest = A;
+    if (B > longest)
+        longest = B;
+    if (C > longest)
+        longest = C;
+    return longest;
+}
+
+/* Returns 0 if sides form a right triangle; > 0 if sides form an acute triangle;
+ < 0 if sides form obtuse triangle. */
+long double angle_type(long double A, long double B, long double C, long double *pts)
+{
+    long double hypotenuse = longest_side(A, B, C);
+    
+    if (A == hypotenuse)
+        return dot_product((pts[2] - pts[4]), (pts[3] - pts[5]), (pts[0] - pts[4]), (pts[1] - pts[5]));
+    if (B == hypotenuse)
+        return dot_product((pts[2] - pts[0]), (pts[3] - pts[1]), (pts[4] - pts[0]), (pts[5] - pts[1]));
+    return dot_product((pts[0] - pts[2]), (pts[1] - pts[3]), (pts[4] - pts[2]), (pts[5] - pts[3]));
 }
 
 int main(int argc, char *argv[])
 {
-   double coords[6]; /* Array to hold coordinate values. */
-   double A, B, C; /* Length of sides. */
-   double a, b, c; /* Magnitude of angles. */
-   int i; /* Iteration variable. */
-
-   /* Convert and save command line parameters. */
-   for (i = 0; i < argc - 1; i++)
-      coords[i] = atof(argv[i + 1]);
-
-   /* Compute length of sides of triangle. */
-   A = distance(coords[0], coords[1], coords[2], coords[3]);
-   B = distance(coords[2], coords[3], coords[4], coords[5]);
-   C = distance(coords[4], coords[5], coords[0], coords[1]);
-
-   /* If any of the side lengths are 0 then the points don't form a triangle. */
-   if (A == 0 || B == 0 || C == 0)
-   {
-      printf("not a triangle\n");
-      exit(EXIT_SUCCESS);
-   }
-
-   /* Compute angles (in radians) between sides using the law of cosines. */
-   a = acos( ( pow(B, 2.0) + pow(C, 2.0) - pow(A, 2.0) ) / (2*B*C) );
-   b = acos( ( pow(C, 2.0) + pow(A, 2.0) - pow(B, 2.0) ) / (2*C*A) );
-   c = acos( ( pow(A, 2.0) + pow(B, 2.0) - pow(C, 2.0) ) / (2*A*B) );
-
-   /* If any of the angles are 0 then the points don't form a triangle. */
-   if (a == 0 || b == 0 || c == 0)
-   {
-      printf("not a triangle\n");
-      exit(EXIT_SUCCESS);
-   }
-
-   if ( (A == B == C) ) /* Mathematically impossible. */
-      printf("equilateral ");
-   else if ( (A == B) || (A == C) || (B == C) )
-      printf("isosceles ");
-   else
-      printf("scalene ");
-
-   if ( a_equal(a, M_PI_2) || a_equal(b, M_PI_2) || a_equal(c, M_PI_2) )
-      printf("right\n");
-   else if (a > M_PI_2 || b > M_PI_2 || c > M_PI_2)
-      printf("obtuse\n");
-   else
-      printf("acute\n");
-
-   exit(EXIT_SUCCESS);      
+    long double pts[6]; /* Array to hold coordinate values. */
+    long double A, B, C; /* Length of sides. */
+    int i; /* Iteration variable. */
+    
+    /* Convert and save command line parameters. */
+    for (i = 0; i < argc - 1; i++)
+        pts[i] = atof(argv[i + 1]);
+    
+    /* Check for collinearity. */
+    if ((pts[0] * (pts[3] - pts[5]) + pts[2] * (pts[5] - pts[1]) + pts[4] * (pts[1] - pts[3])) == 0)
+    {
+        printf("not a triangle\n");
+        exit(EXIT_SUCCESS);
+    }
+    
+    /* Compute length of sides of triangle. */
+    A = distance(pts[0], pts[1], pts[2], pts[3]);
+    B = distance(pts[2], pts[3], pts[4], pts[5]);
+    C = distance(pts[4], pts[5], pts[0], pts[1]);
+    
+    if ( (A == B) || (A == C) || (B == C) )
+        printf("isosceles ");
+    else
+        printf("scalene ");
+    
+    long double type = angle_type(A, B, C, pts);
+    
+    if (type == 0)
+        printf("right\n");
+    else if (type > 0)
+        printf("acute\n");
+    else
+        printf("obtuse\n");
+    
+    exit(EXIT_SUCCESS);      
 }
