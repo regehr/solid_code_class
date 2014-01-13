@@ -9,21 +9,21 @@
 /* Returns the dot product of two vectors. If the two vectors are acute,
    the dot product is positive. If the two vectors are obtuse, the dot product
    is negative. If the two vectors are perpendicular, the dot product is zero. */
-long double dot_product(long double x0, long double y0, long double x1, long double y1)
+long long dot_product(long long x0, long long y0, long long x1, long long y1)
 {
     return (x0 * x1) + (y0 * y1);
 }
 
-/* Returns the distance between two vectors. */
-long double distance(long double x0, long double y0, long double x1, long double y1)
+/* Returns the sqd_dst between two vectors. */
+long long sqd_dst(long long x0, long long y0, long long x1, long long y1)
 {
-    return sqrtl((powl((x1 - x0), 2.0) + powl((y1 - y0), 2.0)));
+   return ((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0));
 }
 
 /* Returns longest side of three given sides. */
-long double longest_side(long double A, long double B, long double C)
+long long longest_side(long long A, long long B, long long C)
 {
-    long double longest = A;
+    long long longest = A;
     if (B > longest)
         longest = B;
     if (C > longest)
@@ -33,9 +33,9 @@ long double longest_side(long double A, long double B, long double C)
 
 /* Returns 0 if sides form a right triangle; > 0 if sides form an acute triangle;
  < 0 if sides form obtuse triangle. */
-long double angle_type(long double A, long double B, long double C, long double *pts)
+long long angle_type(long long A, long long B, long long C, long long *pts)
 {
-    long double hypotenuse = longest_side(A, B, C);
+    long long hypotenuse = longest_side(A, B, C);
     
     if (A == hypotenuse)
         return dot_product((pts[2] - pts[4]), (pts[3] - pts[5]), (pts[0] - pts[4]), (pts[1] - pts[5]));
@@ -46,8 +46,8 @@ long double angle_type(long double A, long double B, long double C, long double 
 
 int main(int argc, char *argv[])
 {
-    long double pts[6]; /* Array to hold coordinate values. */
-    long double A, B, C; /* Length of sides. */
+    long long pts[6]; /* Array to hold coordinate values. */
+    long long A, B, C; /* Length of sides. */
     int i; /* Iteration variable. */
     
     /* Convert and save command line parameters. */
@@ -61,17 +61,17 @@ int main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
     }
     
-    /* Compute length of sides of triangle. */
-    A = distance(pts[0], pts[1], pts[2], pts[3]);
-    B = distance(pts[2], pts[3], pts[4], pts[5]);
-    C = distance(pts[4], pts[5], pts[0], pts[1]);
+    /* Compute the squared length of sides of triangle. */
+    A = sqd_dst(pts[0], pts[1], pts[2], pts[3]);
+    B = sqd_dst(pts[2], pts[3], pts[4], pts[5]);
+    C = sqd_dst(pts[4], pts[5], pts[0], pts[1]);
     
     if ( (A == B) || (A == C) || (B == C) )
         printf("isosceles ");
     else
         printf("scalene ");
     
-    long double type = angle_type(A, B, C, pts);
+    long long type = angle_type(A, B, C, pts);
     
     if (type == 0)
         printf("right\n");

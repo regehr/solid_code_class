@@ -2,7 +2,7 @@
 
 import subprocess
 
-file = open("test.txt", "r")
+file = open("outputs.text", "r")
 
 correct = 0;
 total = 0;
