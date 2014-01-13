@@ -1,8 +1,7 @@
-#! /usr/bin/python
-
+import sys
 import subprocess
 
-file = open("outputs.text", "r")
+file = open("test.txt", "r")
 
 correct = 0;
 total = 0;
