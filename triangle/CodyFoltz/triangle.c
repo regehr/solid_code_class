@@ -12,13 +12,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define NOT_TRIANGLE "not a triangle\n"
-#define EQUILATERAL "equilateral"
-#define ISOSCELES "isosceles"
-#define SCALENE "scalene"
-#define ACUTE "acute/n"
-#define RIGHT "right/n"
-#define OBTUSE "obtuse/n"
+#define NOT_TRIANGLE "not a triangle"
+#define EQUILATERAL_ACUTE "equilateral acute"
+#define ISOSCELES_ACUTE "isosceles acute"
+#define ISOSCELES_OBTUSE "isosceles obtuse"
+#define ISOSCELES_RIGHT "isosceles right"
+#define SCALENE_ACUTE "scalene acute"
+#define SCALENE_OBTUSE "scalene obtuse"
+#define SCALENE_RIGHT "scalene right"
 
 /**
  * 
@@ -49,6 +50,8 @@ Slope calculate_slope(Point pointA, Point pointB);
 int are_slopes_equal(Slope slopeA, Slope slopeB);
 int are_points_equal(Point pointA, Point pointB);
 int check_for_overlapping_points(Point pointA, Point pointB, Point pointC);
+int is_greater_than_90_degrees(double A, double B, double C);
+int is_90_degrees(double A, double B, double C);
 
 /*
  * 
@@ -66,7 +69,7 @@ int main(int argc, char** argv) {
     
     char* triangle_type = find_triangle_type(point1, point2, point3);
     
-    printf("%s", triangle_type);
+    printf("%s\n", triangle_type);
 
     return (EXIT_SUCCESS);
 }
@@ -98,13 +101,87 @@ char* find_triangle_type(Point point1, Point point2, Point point3)
     angle_B = acos(angle_B);
     angle_C = acos(angle_C);
     
+    int is_obtuse = is_greater_than_90(angle_A, angle_B, angle_C);
+    int is_right = 0;
+    
+    if(!is_obtuse){
+        is_right = is_90_degrees(angle_A, angle_B, angle_C);
+    }
+    
+    
     //check for equalateral
+    if(angle_A == angle_B){
+        // A == B
+        if(angle_A == angle_C){
+            // A == B == C  
+            return EQUILATERAL_ACUTE;
+        } else{
+            //A == B Iso
+            if(is_obtuse){
+                //iso ob
+                return ISOSCELES_OBTUSE;
+            } else if( is_right){
+                //iso right
+                return ISOSCELES_RIGHT;
+            } else{
+                //iso ac
+                return ISOSCELES_ACUTE;
+            }
+        }
+    } else{
+        //A != B
+        if(angle_A == angle_C){
+            // A == C,  A != B
+            //iso
+            if(is_obtuse){
+                //iso ob
+                return ISOSCELES_OBTUSE;
+            } else if(is_right){
+                //iso ri
+                return ISOSCELES_RIGHT;
+            } else{
+                return ISOSCELES_ACUTE;
+            }
+        }else if(angle_B == angle_C){
+            // B == C,  A!=B A!=C
+            //iso
+            if(is_obtuse){
+                //iso ob
+                return ISOSCELES_OBTUSE;
+            } else if(is_right){
+                //iso ri
+                return ISOSCELES_RIGHT;
+            } else{
+                return ISOSCELES_ACUTE;
+            }
+        } else{
+            //sc
+            if(is_obtuse){
+                //sc ob
+                return SCALENE_OBTUSE;
+            } else if(is_right){
+                //sc ri
+                return SCALENE_RIGHT;
+            } else{
+                return SCALENE_ACUTE;
+            }
+        }
+    }
     
-    
-    return "Error: Type not found.\n";
-    
-    
+    return "Error: Type not found.";
 }
+
+int is_greater_than_90(double A, double B, double C){
+    return A > 90 || B > 90 || C > 90;
+}
+
+int is_90_degrees(double A, double B, double C){
+    return A == 90 || B == 90 || C == 90;
+}
+
+
+
+
 
 /**
  * Creates a point "object" from an x and y string.
