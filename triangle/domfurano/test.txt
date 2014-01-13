@@ -28,3 +28,5 @@ scalene obtuse
 isosceles acute
 0 30 3000 30 1500 31
 isosceles obtuse
+0 0 1 0 2 0
+not a triangle
