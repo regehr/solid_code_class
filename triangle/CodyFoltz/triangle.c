@@ -63,8 +63,8 @@ int main(int argc, char** argv) {
 //        return 0;
 //    }
     
-    Point point1 = create_point(argv[3], argv[4]);
-    Point point2 = create_point(argv[1], argv[2]);
+    Point point1 = create_point(argv[1], argv[2]);
+    Point point2 = create_point(argv[3], argv[4]);
     Point point3 = create_point(argv[5], argv[6]);
     
     char* triangle_type = find_triangle_type(point1, point2, point3);
@@ -97,9 +97,9 @@ char* find_triangle_type(Point point1, Point point2, Point point3)
     // cos(C) = (a^2 + b^2 - c^2) / (2ab) 
     double angle_C = ( (side_a * side_a) + (side_b * side_b) - (side_c * side_c) ) / (2 * side_a * side_b);
     
-    angle_A = acos(angle_A);
-    angle_B = acos(angle_B);
-    angle_C = acos(angle_C);
+    angle_A = acos(angle_A)* 180.0 / M_PI;
+    angle_B = acos(angle_B)* 180.0 / M_PI;
+    angle_C = acos(angle_C)* 180.0 / M_PI;
     
     int is_obtuse = is_greater_than_90(angle_A, angle_B, angle_C);
     int is_right = 0;
@@ -172,11 +172,12 @@ char* find_triangle_type(Point point1, Point point2, Point point3)
 }
 
 int is_greater_than_90(double A, double B, double C){
-    return A > 90 || B > 90 || C > 90;
+    return( ((A - 90) > .000001) || (( B-90) > .000001) || ((C-90) > .000001) );
 }
 
 int is_90_degrees(double A, double B, double C){
-    return A == 90 || B == 90 || C == 90;
+    
+    return( ((A - 90) < .000001) || (( B-90) < .000001) || ((C-90) < .000001) );
 }
 
 
@@ -270,7 +271,10 @@ int are_slopes_equal(Slope slopeA, Slope slopeB){
 }
 
 int are_points_equal(Point pointA, Point pointB){
-    return (pointA.x == pointB.x) && (pointA.y = pointB.y);
+    double x = pointA.x == pointB.x;
+    double y = pointA.y == pointB.y;
+    
+    return y && x;
 }
 
 int has_overlapping_points(Point pointA, Point pointB, Point pointC){
