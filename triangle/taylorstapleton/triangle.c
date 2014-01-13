@@ -12,6 +12,8 @@ bool eq(long double left , long double right , long double error);
 int main(int argc , char *argv[])
 {	
 	long double error = .00000000001;
+	long double error1 = 1.0;
+	long double error2 = 0.0001;
 	int debug = 0;
 	char *NOT = "not a triangle\n";
 	if(argc != 7)
@@ -42,6 +44,11 @@ int main(int argc , char *argv[])
 		
 	char *toPrint1 = "";
 	char *toPrint2 = "";
+	
+	if(debug)
+        {
+                printf("side lengths: %Lf, %Lf , %Lf\n", s1 , s2 , s3);
+        }	
 
 	if(s1 == 0 || s2 == 0 || s3 == 0)
 	{
@@ -70,7 +77,7 @@ int main(int argc , char *argv[])
 	{
 		toPrint2 = "right";
 	}
-	else if((angleS1 < (M_PI / 2)) && (angleS2 < (M_PI / 2)) && (angleS3 < (M_PI / 2)))
+	else if((angleS1 < ((M_PI / 2) + error2)) && (angleS2 < ((M_PI / 2) + error2)) && (angleS3 < ((M_PI / 2) + error2)))
 	{
 		toPrint2 = "acute";
 	}
@@ -79,10 +86,6 @@ int main(int argc , char *argv[])
 		toPrint2 = "obtuse";
 	}
 	
-	if(debug)
-	{
-		printf("side lengths: %Lf, %Lf , %Lf\n", s1 , s2 , s3);
-	}
 	printf("%s %s\n" , toPrint1 , toPrint2);
 	return 0;
 }
