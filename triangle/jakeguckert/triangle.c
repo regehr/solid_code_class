@@ -13,6 +13,7 @@ float get_side_length(int x0, int y0, int x1, int y1) {
 	return length;
 }
 
+/* returns whether the triangle is equilateral, scalene, or isosceles. */
 const char * get_side_classification(float s1, float s2, float s3) {
 	if(s1 == s2 && s1 == s3 && s2 == s3) {
 		return "equilateral";
@@ -23,6 +24,7 @@ const char * get_side_classification(float s1, float s2, float s3) {
 	return "isosceles";
 }
 
+/* returns whether the triangle is right, obtuse, or acute. */
 const char * get_angle_classification(float a, float b, float c) {
 	float a_squared = a * a;
 	float b_squared = b * b;
@@ -37,6 +39,7 @@ const char * get_angle_classification(float a, float b, float c) {
 	return "obtuse";
 }
 
+/* determines whether the given side lengths make a triangle. */
 int is_a_triangle(float s1, float s2, float s3) {
 	float s1_s2 = s1 + s2;
 	float s1_s3 = s1 + s3;
