@@ -203,7 +203,7 @@ int main(int argc, char **argv)
   else
     {
       printf("not a triangle\n");
-    }
+    } 
 
   return 0;
 }

@@ -1,5 +1,5 @@
 #!/bin/bash
-# test for triangle program
+# tests for triangle program
 
 # not a triangle
 ./triangle 0 0 0 0 1 2
