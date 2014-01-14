@@ -7,6 +7,7 @@
 
 import subprocess
 
+# Some test points. Expected result followed by coordinates.
 testpts = [["scalene obtuse\n", "0", "0", "2147483647", "2147483647", "2147483647", "2147483646"], 
 ["isosceles acute\n", "0", "0", "2147483646", "2147483647", "2147483647", "2147483646"],
 ["not a triangle\n", "0", "0", "1073741823", "1073741823", "2147483646", "2147483646"],
@@ -18,6 +19,7 @@ testpts = [["scalene obtuse\n", "0", "0", "2147483647", "2147483647", "214748364
 ["scalene acute\n", "1", "2", "2", "7", "5", "3"],
 ["not a triangle\n", "6", "6", "6", "6", "6", "6"]]
 
+
 if __name__ == "__main__":
     for point in testpts:
         result = subprocess.check_output(["./triangle", 
@@ -27,5 +29,7 @@ if __name__ == "__main__":
                                           point[4], 
                                           point[5], 
                                           point[6]])
-        if result == point[0]:
-            print "Test failed:\n" + "expected: " + point[0] + "actual: " + result + str(point[1:6])
+        if result != point[0]:
+            print "Test failed\n" + "Expected: " + point[0] + "Actual: " + result + "Input " + str(point[1:6])
+            exit(0)
+    print "All tests passed."
