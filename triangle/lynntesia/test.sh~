@@ -1,0 +1,10 @@
+#!/usr/bin/env python27
+# tests for triangle program
+
+import subprocess
+import sys
+import string
+
+test_file = open("test.txt", "r")
+file_data = test_file.read()
+print

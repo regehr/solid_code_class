@@ -1,0 +1,7 @@
+all:
+	gcc -Wall triangle.c -lm -o triangle
+clean:
+	rm -f triangle
+test:
+	python27 test.py
+	gcov triangle.c
