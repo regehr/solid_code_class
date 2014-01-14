@@ -1,6 +1,6 @@
 
 all:
-	@gcc -O2 triangle.c -o triangle -lm
+	gcc -O0 -pedantic -Wall -Werror -g triangle.c -o triangle -lm
 
 clean:
 	@rm -f triangle
