@@ -15,9 +15,24 @@
  * Struct that represents a point
  */
 struct point {
-	int x;
-	int y;
+	long long x;
+	long long y;
 };
+
+
+/*
+ * Returns the distance without the square root
+ */
+long long get_sq_len (struct point p1, struct point p2)
+{
+	long long part1, part2, sum;
+	
+	part1 = pow((p2.x - p1.x), 2ll);
+	part2 = pow((p2.y - p1.y), 2ll);
+
+	sum = part1 + part2;
+	return sum;
+}
 
 
 /*
@@ -25,14 +40,7 @@ struct point {
  */
 double get_length (struct point p1, struct point p2)
 {
-	double part1, part2, sum;
-	
-	part1 = pow((p2.x - p1.x), 2.0);
-	part2 = pow((p2.y - p1.y), 2.0);
-
-	sum = part1 + part2;
-	
-	return sqrt(sum);
+	return sqrt(get_sq_len(p1, p2));
 }
 
 
@@ -67,20 +75,33 @@ double in_degrees (double num)
 
 
 /*
- * Is this not a triangle?
+ * Determines if this is not a triangle based on the cross product formula that
+ * we covered in class.
  */
-int is_nat (double len1, double len2, double len3)
+int is_nat (struct point p1, struct point p2, struct point p3)
 {
-	return (len1 == 0.0 || len2 == 0.0 || len3 == 0.0);
+	long long result1, result2, result3;
+
+	result1 = (p1.x * (p2.y - p3.y));
+	result2 = (p2.x * (p3.y - p1.y));
+	result3 = (p3.x * (p1.y - p2.y));
+
+	return ((result1 + result2 + result3) == 0);
 }
 
 
 /*
- * Is this triangle obtuse?
+ * Determines if the provided points form a right triangle.
  */
-int is_obtuse (double ang1, double ang2, double ang3)
+int is_right (struct point p1, struct point p2, struct point p3)
 {
-	return (ang1 > 1.57079633 || ang2 > 1.57079633 || ang3 > 1.57079633);
+	int result1, result2, result3;
+
+	result1 = (get_sq_len(p1, p2) + get_sq_len(p2, p3) == get_sq_len(p1, p3));
+	result2 = (get_sq_len(p2, p3) + get_sq_len(p1, p3) == get_sq_len(p1, p2));
+	result3 = (get_sq_len(p1, p2) + get_sq_len(p1, p3) == get_sq_len(p2, p3));
+
+	return (result1 || result2 || result3);
 }
 
 
@@ -90,15 +111,6 @@ int is_obtuse (double ang1, double ang2, double ang3)
 int is_acute (double ang1, double ang2, double ang3)
 {
 	return (ang1 < 1.57079633 && ang2 < 1.57079633 && ang3 < 1.57079633);
-}
-
-
-/*
- * Is this triangle equilateral?
- */
-int is_equilateral (double len1, double len2, double len3)
-{
-	return (len1 == len2 && len1 == len3 && len2 == len3);
 }
 
 
@@ -132,7 +144,6 @@ struct point new_point (char * num1, char * num2)
  */
 int main (int argc, char * argv[])
 {
-	int i;
 	double len_p1_p2, len_p2_p3, len_p1_p3;
 	double ang_p1_p2, ang_p2_p3, ang_p1_p3;
 	struct point p1, p2, p3;
@@ -149,25 +160,23 @@ int main (int argc, char * argv[])
 	ang_p2_p3 = get_angle(len_p1_p2, len_p1_p3, len_p2_p3);
 	ang_p1_p3 = get_angle(len_p1_p2, len_p2_p3, len_p1_p3);
 
-	if (is_nat(len_p1_p2, len_p2_p3, len_p1_p3)) {
+	if (is_nat(p1, p2, p3)) {
 		printf("not a triangle\n");
 		return 0;
 	}
 
-	if (is_equilateral(len_p1_p2, len_p2_p3, len_p1_p3)) {
-		printf("equilateral ");
-	} else if (is_iso(len_p1_p2, len_p2_p3, len_p1_p3)) {
+	if (is_iso(len_p1_p2, len_p2_p3, len_p1_p3)) {
 		printf("isosceles ");
 	} else {
 		printf("scalene ");
 	}
 
-	if (is_acute(ang_p1_p2, ang_p1_p3, ang_p2_p3)) {
-		printf("acute\n");
-	} else if (is_obtuse(ang_p1_p2, ang_p1_p3, ang_p2_p3)) {
-		printf("obtuse\n");
-	} else {
+	if (is_right(p1, p2, p3)) {
 		printf("right\n");
+	} else if (is_acute(ang_p1_p2, ang_p1_p3, ang_p2_p3)) {
+		printf("acute\n");
+	} else {
+		printf("obtuse\n");
 	}
 
 	return 0;
