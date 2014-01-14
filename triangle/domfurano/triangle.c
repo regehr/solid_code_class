@@ -1,5 +1,6 @@
 /*
  * Dominic Furano
+ * January 2013
  */
 
 #include <stdlib.h>
@@ -52,7 +53,7 @@ int main(int argc, char *argv[])
     
     /* Convert and save command line parameters. */
     for (i = 0; i < argc - 1; i++)
-        pts[i] = atof(argv[i + 1]);
+       pts[i] = atoll(argv[i + 1]);
     
     /* Check for collinearity. */
     if ((pts[0] * (pts[3] - pts[5]) + pts[2] * (pts[5] - pts[1]) + pts[4] * (pts[1] - pts[3])) == 0)

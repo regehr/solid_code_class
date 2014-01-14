@@ -1,8 +1,11 @@
-default:
-	clang -lm triangle.c main.c -o triangle
+CC = gcc
+CFLAGS = -std=gnu99 -Wall -Wextra -pedantic -Werror --coverage
+LDLIBS = -lgcov
 
-debug:
-	clang -Wall -Wextra -pedantic -Werror -fsanitize=undefined -lm triangle.c main.c -o triangle
+triangle:
+
+test:
+	./test.sh
 
 clean:
-	rm triangle
+	-rm triangle triangle.c.gcov triangle.gcda triangle.gcno > /dev/null
