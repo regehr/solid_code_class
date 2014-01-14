@@ -102,10 +102,10 @@ const char *angle_from_squares(long long asq, long long bsq, long long csq) {
   long long diff = csq - asq - bsq;
 
   /* Law of cosines. */
-  if (diff > 0ll) {
+  if (diff > 0) {
     return "obtuse";
   }
-  else if (diff == 0ll) {
+  else if (diff == 0) {
     return "right";
   }
   else {
