@@ -30,8 +30,8 @@ int main (int argc, char **argv) {
   
   for (i = 0; i < 6; i++) {
     if (sscanf(argv[i+1], "%lld", &pts[i]) != 1) {
-      fprintf(stderr, "input error\n");
-      return 1;
+      printf("input error\n");
+      return 0;
     }
   }
   

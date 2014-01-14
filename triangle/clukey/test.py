@@ -17,7 +17,8 @@ testpts = [["scalene obtuse\n", "0", "0", "2147483647", "2147483647", "214748364
 ["isosceles right\n", "1", "0", "0", "2147483646", "2147483647", "1"],
 ["scalene right\n", "0", "0", "3", "0", "0", "5"],
 ["scalene acute\n", "1", "2", "2", "7", "5", "3"],
-["not a triangle\n", "6", "6", "6", "6", "6", "6"]]
+["not a triangle\n", "6", "6", "6", "6", "6", "6"],
+["input error\n", "3", "!", "3", "$", "2", "#"]]
 
 
 if __name__ == "__main__":
@@ -32,4 +33,8 @@ if __name__ == "__main__":
         if result != point[0]:
             print "Test failed\n" + "Expected: " + point[0] + "Actual: " + result + "Input " + str(point[1:6])
             exit(0)
+    result = subprocess.check_output(["./triangle"])
+    if result != "Please enter three integral points in first quadrant of the xy-plane.\n":
+        print "Test failed\n Expected: " + "Please enter three integral points in first quadrant of the xy-plane.\n" + "Actual: " + result + "Input: \n"
+        exit(0)
     print "All tests passed."
