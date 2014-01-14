@@ -31,7 +31,8 @@ static void longestAngle(double longest, double a1, double a2)
   char* type = "scalene";
   char* angle = "acute";
 
-  if(fabs(longest - 90.0) < 0.00000000001) // Longest angle is 90 degress
+  //  printf("longest: %.10f\n", longest);
+  if(fabs(longest - 90.0) < 0.000001) // Longest angle is 90 degress
       angle = "right";
   else if(longest > 90.0)
       angle = "obtuse";
@@ -99,7 +100,7 @@ int main (int argc, char **argv)
   aB = findAngle(l02, l01, l12);
   aC = findAngle(l01, l12, l02);
 
-  printf("l01: %f l12: %f l02: %f aA: %f aB: %f aC: %f\n", l01, l12, l02, aA, aB, aC);
+  // printf("l01: %f l12: %f l02: %f aA: %f aB: %f aC: %f\n", l01, l12, l02, aA, aB, aC);
 
   // Check if any one length is greater than the others, this will equate to the largest opposite angle
   if(l01 > l12 && l01 > l02)
