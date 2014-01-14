@@ -1,106 +1,91 @@
 #!/usr/bin/env python27
-#
-#
-#
 
 import subprocess
 
+#Test if inputs do not create a triangle
 def testIsTriangle():
-    toReturn = ""
-    #test co-linear
-    output = subprocess.check_output(['./triangle', '0', '0', '0', '1', '0', '5'])
+    #Same point
+    output = subprocess.check_output(['./triangle', '0', '0', '0', '0', '0', '0'])
     if not "not" in output:
-        toReturn = "expected = not a triangle actual = " + output
-        return toReturn;
-    #Use same point
-    subprocess.check_output(['./triangle', '0', '0', '0', '0', '1', '2147483647'])
+        return "fail"
+    #Co-linear
+    subprocess.check_output(['./triangle', '0', '0', '1', '1', '2', '2'])
     if not "not" in output:
-        toReturn = "expected = not a triangle actual = " + output
-        return toReturn;
+        return "fail"
+    #Bad input
+    subprocess.check_output(['./triangle', '0', '0', '1'])
+    if not "not" in output:
+        return "fail"
 
-    return toReturn
+    return "Passed"
 
+#Test for right angle
 def testIsRight():
-    toReturn = ""
-    #small triangle test
     output = subprocess.check_output(['./triangle', '0', '0', '1', '0', '1', '1'])
     if not "right" in output:
-        toReturn = "expected = right actual = " + output
-        return toReturn;
-    #skinniest tall right triangle
+        return "fail"
+
     subprocess.check_output(['./triangle', '0', '0', '1', '0', '1', '2147483647'])
     if not "right" in output:
-        toReturn = "expected = right actual = " + output
-        return toReturn;
+        return "fail"
 
-    return toReturn
+    return "Passed"
 
-
+#Test for acute angle
 def testIsAcute():
-    toReturn = ""
-   
     output = subprocess.check_output(['./triangle', '0', '0', '2', '2', '0', '3'])
     if not "acute" in output:
-        toReturn = "expected = acute actual = " + output
-        return toReturn;
+        return "fail"
 
-    return toReturn
+    return "Passed"
 
 def testIsObtuse():
-
-    toReturn = ""
-
     output = subprocess.check_output(['./triangle', '5', '5', '10', '5', '3', '10' ])
     if not "obtuse" in output:
-        toReturn = "expected = obtuse actual = " + output
-        return toReturn;
+        return "fail"
 
-    return toReturn
+    return "Passed"
 
-def testIsIsoScalene():
-    toReturn = ""
-    
-    output = subprocess.check_output(['./triangle', '0', '0', '1', '0', '1', '1'])
+#Test for 2 equal sides, "Isosceles"
+def testIsIso():
+    output = subprocess.check_output(['./triangle', '0', '0', '0', '1', '1', '0'])
     if not "isosceles " in output:
-        toReturn = "expected = right actual = " + output
-        return toReturn;
-    
-    subprocess.check_output(['./triangle', '0', '0', '1', '0', '1', '2147483647'])
-    if not "right" in output:
-        toReturn = "expected = right actual = " + output
-        return toReturn;
+        return "fail"
 
-    return toReturn
+    output = subprocess.check_output(['./triangle', '0', '0', '2', '1', '0', '2'])
+    if not "isosceles " in output:
+        return "fail"
 
+    output = subprocess.check_output(['./triangle', '0', '0', '2', '1', '4', '0'])
+    if not "isosceles " in output:
+        return "fail"
 
+    return "Passed"
 
+#Test for no equal sides, "Scalene"
+def testIsScalene():
+    output = subprocess.check_output(['./triangle', '0', '0', '0', '2', '1', '0'])
+    if not "scalene " in output:
+        return "fail"
+
+    output = subprocess.check_output(['./triangle', '0', '0', '2', '2', '0', '3'])
+    if not "scalene " in output:
+        return "fail"
+
+    output = subprocess.check_output(['./triangle', '0', '0', '1', '1', '0', '3'])
+    if not "scalene " in output:
+        return "fail"
+
+    return "Passed"
+  
 def main():
-    value = testIsTriangle()
-    if(value != ""):
-        print("failed isTriangle: " + value)
-        return
+    print("Triangle Test: " + testIsTriangle())
+    print("Right Angle Test: " + testIsRight())
+    print("Obtuse Angle Test: " + testIsObtuse())
+    print("Acute Angle Test: " + testIsAcute())
+    print("Isosceles Test: " + testIsIso())
+    print("Scalene Test: " + testIsScalene())
 
-    value = testIsRight()
-    if(value != ""):
-        print("failed isRight: " + value)
-        return
-    
-    value = testIsObtuse()
-    if(value != ""):
-        print("failed isObtuse: " + value)
-        return
-
-    value = testIsAcute()
-    if(value != ""):
-        print("failed isAcuteObtuse: " + value)
-        return
-
-    value = testIsIsoScalene()
-    if(value != ""):
-        print("failed isIsoScalene: " + value)
-        return
-
-    print("All tests pass")
 
 if __name__ == '__main__':
     main()

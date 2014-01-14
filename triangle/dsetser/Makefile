@@ -8,7 +8,7 @@ test: all
 	testing/test.sh
 
 coverage: clean
-	gcc -fprofile-arcs -ftest-coverage -lm -o triangle triangle.c
+	gcc -fprofile-arcs -ftest-coverage -o triangle triangle.c -lm
 	testing/test.sh
 	gcov triangle
 	rm -f triangle.gcno triangle.gcda

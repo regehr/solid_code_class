@@ -1,0 +1,14 @@
+1 2 3 4 5 6 
+not a triangle
+0 0 0 2 2 0 
+isosceles right
+0 0 0 2 3 0 
+scalene right
+0 0 2 0 1 2 
+isosceles acute
+5 5 10 1 0 1 
+isosceles obtuse
+0 0 1 2 3 0 
+scalene acute
+1 1 2 0 1 2 
+scalene obtuse
