@@ -9,6 +9,7 @@ by Daniel Setser
 In order to add or edit tests you need to edit two files:
 	testing/testInputs.txt: 
 		Each line in this file represents the parameters to test a triangle
+		(excluding lines starting with "//")
 
 	testing/expected.txt:
 		Each line corresponds to the same line in testInputs, and is the output

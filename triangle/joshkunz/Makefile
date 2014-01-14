@@ -1,8 +1,9 @@
 .PHONY: clean
 
+PY = python27
 CC = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -pedantic -Werror
-LDLIBS = -lm
+CFLAGS += -ftest-coverage -fprofile-arcs
 
 bin = triangle
 test_file = outputs.text
@@ -10,11 +11,12 @@ test_file = outputs.text
 $(bin):
 
 test: $(bin) 
-	python test.py --file $(test_file) ./$(bin)
-	python test.py --fuzz 100 ./$(bin)
+	$(PY) test.py --file $(test_file) ./$(bin)
+	gcov -b $(bin)
 
 gdb: $(bin) 
 	gdb ./$(bin)
 
 clean:
 	-rm $(bin) 
+	-rm *.gcov *.gcda *.gcno

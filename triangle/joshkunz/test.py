@@ -2,7 +2,7 @@ import sys
 import subprocess
 import math
 import random
-from itertools import combinations, chain
+from itertools import combinations, chain, permutations
 
 ABSOLUTE_ERROR = 0.00000000001
 POINT_MAX = (2 ** 31) - 1
@@ -90,8 +90,9 @@ def test_file(file, binary):
     for line in file:
         triangle = read_triangle(line) 
         expected = file.next()
-        got, match = test_output(binary, triangle, expected)
-        if not match: print_error(triangle, expected, got)
+        for order in permutations(triangle, 3):
+            got, match = test_output(binary, order, expected)
+            if not match: print_error(order, expected, got)
 
 if __name__ == "__main__":
     from pprint import pprint
@@ -100,10 +101,13 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--fuzz", "-u")
     parser.add_argument("--file", "-f")
+    parser.add_argument("--input", "-i")
     parser.add_argument("binary")
     args = parser.parse_args()
 
-    if args.fuzz:
+    if args.input:
+        print classify_triangle(read_triangle(args.input)),
+    elif args.fuzz:
         fuzz(int(args.fuzz), args.binary)
     else:
         with open(args.file) as f: 
