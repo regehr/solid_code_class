@@ -1,6 +1,6 @@
 
 all:
-	@gcc -O2 triangle.c -o triangle -lm
+	gcc -O0 -Wall -Werror -g triangle.c -o triangle -lm
 
 clean:
 	@rm -f triangle
@@ -8,4 +8,4 @@ clean:
 
 
 test:
-	@python test.py
+	@python27 test.py

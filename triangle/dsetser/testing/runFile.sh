@@ -3,6 +3,9 @@
 IFS=$'\n' read -d '' -r -a input < $1
 
 cat $1 | while read LINE ; do
-	echo -e `./triangle $LINE`
+	if [[ $LINE != //* ]]
+	then
+		echo -e `./triangle $LINE`
+	fi
 done
 
