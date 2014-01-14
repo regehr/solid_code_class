@@ -3,3 +3,7 @@ all:
 
 clean:
 	rm triangle
+
+test:
+	gcc -o triangle triangle.c -O
+	./test.py

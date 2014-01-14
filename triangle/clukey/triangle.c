@@ -1,7 +1,7 @@
 /* Triangle Analyzer
  * 
  * Student: John Clukey
- * Date: January 8, 2014
+ * Date: January 8-13, 2014
  */
 
 #include <stdlib.h>
@@ -30,7 +30,7 @@ int main (int argc, char **argv) {
   
   for (i = 0; i < 6; i++) {
     if (sscanf(argv[i+1], "%lld", &pts[i]) != 1) {
-      printf("input error\n");
+      fprintf(stderr, "input error\n");
       return 1;
     }
   }
