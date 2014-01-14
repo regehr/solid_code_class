@@ -1,8 +1,6 @@
 /*
  * Identifies important information about triangles.  Not yet tested.  
  *
- * Laser Life - Blood Brothers
- *
  * @author Jonathon McDonald <jmcdonald.ut@gmail.com>
  */
 #include <limits.h>
@@ -11,9 +9,6 @@
 #include <math.h>
 
 
-/*
- * Struct that represents a point
- */
 struct point {
 	long long x;
 	long long y;
@@ -21,7 +16,7 @@ struct point {
 
 
 /*
- * Returns the distance without the square root
+ * Get the length (squared) between two points.
  */
 long long get_sq_len (struct point p1, struct point p2)
 {
@@ -36,7 +31,7 @@ long long get_sq_len (struct point p1, struct point p2)
 
 
 /*
- * Determines the length between two points
+ * Determines the distance between two points.
  */
 double get_length (struct point p1, struct point p2)
 {
@@ -45,7 +40,7 @@ double get_length (struct point p1, struct point p2)
 
 
 /*
- * Gets an angle between two points
+ * Determines the angle between two edges.
  */
 double get_angle (double len_a, double len_b, double len_c)
 {
@@ -62,15 +57,6 @@ double get_angle (double len_a, double len_b, double len_c)
 	product = num / den;
 
 	return acos(product);
-}
-
-
-/*
- * Convert radians to degrees
- */
-double in_degrees (double num)
-{
-	return num * 180 / M_PI;
 }
 
 
@@ -106,7 +92,7 @@ int is_right (struct point p1, struct point p2, struct point p3)
 
 
 /*
- * Is this triangle acute?
+ * Determines if this triangle is acute based on the angles.
  */
 int is_acute (double ang1, double ang2, double ang3)
 {
@@ -115,7 +101,7 @@ int is_acute (double ang1, double ang2, double ang3)
 
 
 /*
- * Is this triangle iso?
+ * Determines if this trinagle is isosceles based on the lengths of the edges.
  */
 int is_iso (double len1, double len2, double len3)
 {
@@ -124,7 +110,7 @@ int is_iso (double len1, double len2, double len3)
 
 
 /*
- * Builds a point with the given string
+ * Builds a new point.
  */
 struct point new_point (char * num1, char * num2)
 {
@@ -137,11 +123,6 @@ struct point new_point (char * num1, char * num2)
 }
 
 
-/*
- * Blood brothers - laser life?
- *
- * ummm...i'll refactor this..fasho
- */
 int main (int argc, char * argv[])
 {
 	double len_p1_p2, len_p2_p3, len_p1_p3;
