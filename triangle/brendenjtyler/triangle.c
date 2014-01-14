@@ -17,11 +17,6 @@ int main(int argc, char* argv[])
   int *P2 = malloc(2*sizeof(int));
   int *P3 = malloc(2*sizeof(int));
 
-  //make sure we got the memory we asked for
-  assert(P1!=NULL);
-  assert(P2!=NULL);
-  assert(P3!=NULL);
-
   //assign values (the first two numbers are the first point, second two are the second, etc.)
   P1[0] = atoi(argv[1]);
   P1[1] = atoi(argv[2]);
@@ -36,10 +31,10 @@ int main(int argc, char* argv[])
   if (checkCollinearity(P1, P2, P3) == 0)
     {
       //if they don't, say so
-      printf("Not a triangle\n");
+      printf("not a triangle\n");
 
       //and we're done
-      exit(0);
+      return 0;
     }
   
   //check for the type of triangle scalene, isosceles, or equilateral
@@ -51,7 +46,7 @@ int main(int argc, char* argv[])
   free(P3);
 
   //end gracefully
-  exit(0);
+  return 0;
 }
 
 /*
@@ -66,22 +61,22 @@ void checkTriangle(int* P1, int* P2, int* P3)
   //compute the length of each side
   double S1 = computeSide(P1, P2);
   double S2 = computeSide(P2, P3);
-  double S3 = computeSide(P1, P3);
+  double S3 = computeSide(P3, P1);
 
   //if they're all the same
   if(S1 == S2 && S1 == S3 && S2 == S3)
     {
-      result = "equilateral ";
+      result = "equilateral";
     }
   //if two are the same
   else if(S1 == S2 || S1 == S3 || S2 == S3)
     {
-      result = "isosceles ";
+      result = "isosceles";
     }
   //if they're all different
   else
     {
-      result = "scalene ";
+      result = "scalene";
     }
 
   //check the angles to determine right, obtuse, or acute
@@ -111,12 +106,12 @@ void checkAngles(double a, double b, double c, char* result)
   //if one of them is over 90 degrees
   else if (A > ninteyDegrees || B > ninteyDegrees || C > ninteyDegrees)
     {
-      printf("%sobtuse\n", result);
+      printf("%s obtuse\n", result);
     }
   //all of them are less than 90 degrees
-  else if (A < ninteyDegrees && B < ninteyDegrees && C < ninteyDegrees)
+  else
     {
-      printf("%sacute\n", result);
+      printf("%s acute\n", result);
     }
 }
 
@@ -137,7 +132,7 @@ double checkCollinearity(int* P1, int* P2, int* P3)
  */
 double computeSide(int* P1, int* P2)
 {
-  return sqrt(pow(P2[0] - P1[0], 2) + pow (P2[1] - P1[1], 2));
+  return sqrt(pow(P2[0] - P1[0], 2) + pow(P2[1] - P1[1], 2));
 }
 
 /*
