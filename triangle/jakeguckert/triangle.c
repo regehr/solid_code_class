@@ -30,13 +30,22 @@ const char * get_angle_classification(float a, float b, float c) {
 	float b_squared = b * b;
 	float c_squared = c * c;
 
-	if(a_squared + b_squared == c_squared) {
+	float angle_a = acos((b_squared + c_squared - a_squared) / (2 * b * c));
+	angle_a = angle_a * (180 / M_PI);
+	float angle_b = acos((c_squared + a_squared - b_squared) / (2 * c * a));
+	angle_b = angle_b * (180 / M_PI);
+	float angle_c = 180 - (angle_a + angle_b);
+
+	if(angle_a == 90 || angle_b == 90 || angle_c == 90) {
 		return "right";
 	}
-	if(a_squared + b_squared > c_squared) {
+	if(angle_a > 90 || angle_b > 90 || angle_c > 90) {
+		return "obtuse";
+	}
+	if(angle_a < 90 || angle_b < 90 || angle_c < 90) {
 		return "acute";
 	}
-	return "obtuse";
+	return "";
 }
 
 /* determines whether the given side lengths make a triangle. */
@@ -71,7 +80,7 @@ int main(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	printf("%s ", get_side_classification(s1, s2, s3));
+ 	printf("%s ", get_side_classification(s1, s2, s3));	
 	printf("%s\n", get_angle_classification(s1, s2, s3));
 	
 	return 0;
