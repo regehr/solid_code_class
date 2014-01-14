@@ -1,1 +1,4 @@
 triangle
+*.gcov
+*.gcda
+*.gcno

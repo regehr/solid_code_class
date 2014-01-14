@@ -1,5 +1,7 @@
-import sys
 import subprocess
+from random import randrange
+
+print "Beginning tests. This might take a minute."
 
 file = open("test.txt", "r")
 
@@ -17,6 +19,21 @@ for line in file:
     total+=1
 
 file.close()
+
+for i in range(0, 100):
+    x = randrange(2147483647)
+    y = randrange(2147483647)
+    mod = 1
+    while (x + mod*2 <= 2147483647 and y + mod*2 <= 2147483647 and x - mod*2 >= 0):
+        assert (subprocess.check_output(["./triangle", str(x), str(y), str(x - mod), str(y + mod), str(x + mod), str(y + mod)]) == "isosceles right\n")
+        assert (subprocess.check_output(["./triangle", str(x), str(y), str(x - mod*2), str(y + mod), str(x + mod), str(y + mod)]) == "scalene obtuse\n")
+        assert (subprocess.check_output(["./triangle", str(x), str(y), str(x - mod*2), str(y + mod*2), str(x + mod), str(y + mod)]) == "scalene right\n")
+        assert (subprocess.check_output(["./triangle", str(x), str(y), str(x - mod), str(y + mod*2), str(x + mod), str(y + mod)]) == "isosceles acute\n")
+        assert (subprocess.check_output(["./triangle", str(x), str(y), str(x - mod*2), str(y + mod), str(x + mod*2), str(y + mod)]) == "isosceles obtuse\n")
+        assert (subprocess.check_output(["./triangle", str(x), str(y), str(x - mod*2), str(y + mod*2), str(x + mod), str(y + mod*2)]) == "scalene acute\n")
+        mod += 10000000
+        correct += 6
+        total += 6    
 
 print "{0} out of {1} tests passed.".format(correct, total)
 
