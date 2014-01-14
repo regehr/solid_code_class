@@ -8,129 +8,84 @@ import subprocess
 
 NUM_OF_TESTS = 500
 EXECUTABLE = './triangle'
-
-# I wanted my origin to not be zero, so that the math actually has potential to error
-_X = 5
-_Y = 5
+START_X = 2
 
 
-class IsoscelesRight500Cases(unittest.TestCase):
+# every test case inherits this setup method
+class MyTestCase(unittest.TestCase):
     def setUp(self):
-        p = subprocess.Popen("make clean all", shell=True)
-        os.waitpid(p.pid, 0)
+        pass
 
-
+class IsoscelesRight500Cases(MyTestCase):
     def runTest(self):
-        for i in range(_X, NUM_OF_TESTS + _X):
-            input = [str(_X), str(_Y), str(_X), str(i*2), str(i*2), str(i*2)]
+        for i in range(START_X, NUM_OF_TESTS + START_X):
+            input = [str(START_X), str(START_X), str(START_X), str(i*i), str(i*i), str(i*i)]
             output = subprocess.check_output([EXECUTABLE] + input)
             self.assertTrue(output == 'isosceles right\n', 
-                            '\nexpected: isosceles right\nactual  : %s\ninput: %s' % (output, ' '.join(input)))
+                            '\nexpected: isosceles right\nactual  : %s\ninput   : %s' % (output, ' '.join(input)))
 
 
-
-class ScaleneRight500Cases(unittest.TestCase):
-    def setUp(self):
-        p = subprocess.Popen("make clean all", shell=True)
-        os.waitpid(p.pid, 0)
-
-
+class ScaleneRight500Cases(MyTestCase):
     def runTest(self):
-        for i in range(_X, NUM_OF_TESTS + _X):
-            input = [str(_X), str(_Y), str(_X), str(i*2), str(i*3), str(i*2)]
+        for i in range(START_X, NUM_OF_TESTS + START_X):
+            input = [str(START_X), str(START_X), str(START_X), str(i*i), str(i*i*i), str(i*i)]
             output = subprocess.check_output([EXECUTABLE] + input)
             self.assertTrue(output == 'scalene right\n', 
-                            '\nexpected: scalene right\nactual  : %s\ninput: %s' % (output, ' '.join(input)))
+                            '\nexpected: scalene right\nactual  : %s\ninput   : %s' % (output, ' '.join(input)))
 
 
-
-
-
-class IsoscelesAcute500Cases(unittest.TestCase):
-    def setUp(self):
-        p = subprocess.Popen("make clean all", shell=True)
-        os.waitpid(p.pid, 0)
-
-
+class IsoscelesAcute500Cases(MyTestCase):
     def runTest(self):
-        for i in range(_X, NUM_OF_TESTS + _X):
-            input = [str(_X), str(_Y), str(_X*2), str((i*2)+1), str(_X*3), str(_Y)]
+        for i in range(START_X, NUM_OF_TESTS + START_X):
+            input = [str(START_X), str(START_X), str(START_X*2), str((i*i)+1), str(START_X*3), str(START_X)]
             output = subprocess.check_output([EXECUTABLE] + input)
             self.assertTrue(output == 'isosceles acute\n', 
-                            '\nexpected: isosceles acute\nactual  : %s\ninput: %s' % (output, ' '.join(input)))
+                            '\nexpected: isosceles acute\nactual  : %s\ninput   : %s' % (output, ' '.join(input)))
 
 
-
-class ScaleneAcute500Cases(unittest.TestCase):
-    def setUp(self):
-        p = subprocess.Popen("make clean all", shell=True)
-        os.waitpid(p.pid, 0)
-
-
+class ScaleneAcute500Cases(MyTestCase):
     def runTest(self):
-        for i in range(_X, NUM_OF_TESTS + _X):
-            input = [str(_X), str(_Y), str((_X*2)-1), str(i*3), str(_X*3), str(_Y)]
+        for i in range(START_X, NUM_OF_TESTS + START_X):
+            input = [str(START_X), str(START_X), str((START_X*2)-1), str(i*i*i), str(START_X*3), str(START_X)]
             output = subprocess.check_output([EXECUTABLE] + input)
             self.assertTrue(output == 'scalene acute\n', 
-                            '\nexpected: scalene acute\nactual  : %s\ninput: %s' % (output, ' '.join(input)))
-            
+                            '\nexpected: scalene acute\nactual  : %s\ninput   : %s' % (output, ' '.join(input)))
 
 
-class IsoscelesObtuse500Cases(unittest.TestCase):
-    def setUp(self):
-        p = subprocess.Popen("make clean all", shell=True)
-        os.waitpid(p.pid, 0)
-
-
+class IsoscelesObtuse500Cases(MyTestCase):
     def runTest(self):
         mid_point = 1000000
-        for i in range(_X, NUM_OF_TESTS + _X):
-            input = [str(mid_point-i), str(_Y-1), str(mid_point), str(_Y), str(mid_point+i), str(_Y-1)]
+        for i in range(START_X, NUM_OF_TESTS + START_X):
+            input = [str(mid_point-i), str(START_X-1), str(mid_point), str(START_X), str(mid_point+i), str(START_X-1)]
             output = subprocess.check_output([EXECUTABLE] + input)
             self.assertTrue(output == 'isosceles obtuse\n', 
-                            '\nexpected: isosceles obtuse\nactual  : %s\ninput: %s' % (output, ' '.join(input)))
+                            '\nexpected: isosceles obtuse\nactual  : %s\ninput   : %s' % (output, ' '.join(input)))
 
 
-
-class ScaleneObtuse500Cases(unittest.TestCase):
-    def setUp(self):
-        p = subprocess.Popen("make clean all", shell=True)
-        os.waitpid(p.pid, 0)
-
-
+class ScaleneObtuse500Cases(MyTestCase):
     def runTest(self):
-        for i in range(_X, NUM_OF_TESTS + _X):
-            input = [str(_X), str(_Y), str((_X*2)), str(_Y*2), str(i*5), str(_Y)]
+        for i in range(START_X, NUM_OF_TESTS + START_X):
+            input = [str(START_X), str(START_X), str((START_X*2)), str(START_X*2), str(i*5), str(START_X)]
             output = subprocess.check_output([EXECUTABLE] + input)
             self.assertTrue(output == 'scalene obtuse\n', 
-                            '\nexpected: scalene obtuse\nactual  : %s\ninput: %s' % (output, ' '.join(input)))
-
-class NotATriangle500Cases(unittest.TestCase):
-    def setUp(self):
-        p = subprocess.Popen("make clean all", shell=True)
-        os.waitpid(p.pid, 0)
+                            '\nexpected: scalene obtuse\nactual  : %s\ninput   : %s' % (output, ' '.join(input)))
 
 
+class NotATriangle500Cases(MyTestCase):
     def runTest(self):
         for i in range(NUM_OF_TESTS/2):
             input = [str(i), str(i), str(i), str(i), str(i), str(i)]
             output = subprocess.check_output([EXECUTABLE] + input)
             self.assertTrue(output == 'not a triangle\n', 
-                            '\nexpected: not a triangle\nactual  : %s\ninput: %s' % (output, ' '.join(input)))
+                            '\nexpected: not a triangle\nactual  : %s\ninput   : %s' % (output, ' '.join(input)))
         for i in range(NUM_OF_TESTS/2):
             input = [str(i), str(i), str(i), str(i), str(i+1), str(i+1)]
             output = subprocess.check_output([EXECUTABLE] + input)
             self.assertTrue(output == 'not a triangle\n', 
-                            '\nexpected: not a triangle\nactual  : %s\ninput: %s' % (output, ' '.join(input)))
+                            '\nexpected: not a triangle\nactual  : %s\ninput   : %s' % (output, ' '.join(input)))
 
 
-
-class Fuzz1000Cases(unittest.TestCase):
-    def setUp(self):
-        p = subprocess.Popen("make clean all", shell=True)
-        os.waitpid(p.pid, 0)
-
-
+class Fuzz1000Cases(MyTestCase):
     def runTest(self):
         try:
             for i in range(500):
@@ -146,11 +101,10 @@ class Fuzz1000Cases(unittest.TestCase):
             raise 
 
 
-
-
 def main():
 
     # initialize unit tests and harness
+
     suite = unittest.TestSuite()    
     runner = unittest.TextTestRunner(verbosity=2)
 

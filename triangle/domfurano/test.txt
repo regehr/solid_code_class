@@ -1,5 +1,7 @@
 0 0 0 0 0 0
 not a triangle
+2147483647 2147483647 2147483647 2147483647 2147483647 2147483647
+not a triangle
 0 1 2 3 4 5
 not a triangle
 1 2 3 4 5 6
@@ -30,3 +32,13 @@ isosceles acute
 isosceles obtuse
 0 0 1 0 2 0
 not a triangle
+0 0 0 2147483647 2147483647 0
+isosceles right
+1 1 1 2147483647 2147483647 1
+isosceles right
+0 0 0 1 2147483647 0
+scalene right
+1073741823 0 0 1 2147483646 1
+isosceles obtuse
+1073741823 0 0 2147483647 2147483646 2147483647
+isosceles acute

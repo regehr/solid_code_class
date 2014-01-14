@@ -1,0 +1,10 @@
+#triangle executable
+triangle
+
+#object files
+*.o
+
+#code coverage files
+*.gcno
+*.gcda
+*.c.gcov

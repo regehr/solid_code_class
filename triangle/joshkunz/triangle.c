@@ -12,20 +12,20 @@ struct point {
     long long y;
 };
 
-/* Calculate the distance between two points in the Cartesian plane */
+/* Calculate the distance between two points on a Cartesian plane */
 long long distance(struct point point_a, struct point point_b) {
     return POW2(point_b.x - point_a.x) + POW2(point_b.y - point_a.y);
 }
 
-/* check if three points line on the same line */
-bool is_collinear(struct point point_a, struct point point_b, struct point point_c) {
+/* Check if three points lie on the same line */
+bool are_collinear(struct point point_a, struct point point_b, struct point point_c) {
     return ( (point_a.x * (point_b.y - point_c.y)) +
              (point_b.x * (point_c.y - point_a.y)) +
              (point_c.x * (point_a.y - point_b.y)) ) == 0;
 }
 
 /* Perform an addition with well-defined overflow detection. Returns true if
- * the addition overflowed. If an overflow occurs the value of out is 
+ * the addition overflowed. If an overflow occurs the value of 'out' is 
  * undefined. */
 bool safe_add(long long *out, long long a, long long b) {
     long long lower_add = (~(1LL << POS_SHIFT) & a) + (~(1LL << POS_SHIFT) & b);
@@ -51,7 +51,7 @@ const char * triangle_angle(long long edge[3]) {
     int ai, bi, ci;
     long long ab;
     assign_edges(edge, &ai, &bi, &ci);
-    /* if addition overflows than we know for sure that a + b is
+    /* if addition overflows then we know for sure that a + b is
      * larger than c */
     if (safe_add(&ab, edge[ai], edge[bi])) {
         return "acute";
@@ -69,7 +69,7 @@ const char * triangle_angle(long long edge[3]) {
 
 const char * triangle_type(long long edge[3]) {
     /* We cannot have an equilateral triangle with only integer inputs on a
-     * cartesian grid. */
+     * Cartesian grid, so the equilateral case is not handled.  */
     char * name = "scalene";
     if (edge[0] == edge[1] 
             || edge[1] == edge[2]
@@ -98,7 +98,7 @@ int main(UNUSED(int argc), char * argv[]) {
     edges[1] = distance(points[1], points[2]);
     edges[2] = distance(points[2], points[0]);
 
-    if (is_collinear(points[0], points[1], points[2])) {
+    if (are_collinear(points[0], points[1], points[2])) {
         printf("not a triangle\n");
     } else {
         const char * type = triangle_type(edges);
