@@ -23,6 +23,7 @@ double distance(struct Point p1, struct Point p2)
   return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
 }
 
+
 int point_equals(struct Point p1, struct Point p2)
 {
   if(p1.x == p2.x && p1.y == p2.y)
@@ -31,13 +32,19 @@ int point_equals(struct Point p1, struct Point p2)
     return 0;
 }
 
+/*
+ * Convert radians to degrees
+ */
 double radians_to_degrees(double rad)
 {
   return ((180 * rad)/M_PI);
 }
 
 
-
+/*
+ * Taken from class repo for error handling trying 
+ * to get equilateral test case to work.
+ */
 double error_tolerance(double a, double b)
 {
   if (a > b)
@@ -69,7 +76,7 @@ int main(int argc, char* argv[])
       return 0;
     }
 
-  //Get x, y coordinate arguments
+  //Get x, y coordinate cmd arguments
   p1.x = atoi(argv[1]);
   p1.y = atoi(argv[2]);
   p2.x = atoi(argv[3]);
@@ -78,29 +85,6 @@ int main(int argc, char* argv[])
   p3.y = atoi(argv[6]);
 
   if(point_equals(p1, p2) || point_equals(p2, p3) || point_equals(p1, p3))
-    {
-      printf("not a triangle\n");
-      return 0;
-    }
-
-  double ABrise = p2.y - p1.y;
-  double ABrun = p2.x - p1.x;
-
-  double ACrise = p3.y-p1.y;
-  double ACrun = p3.x-p1.x;
-
-  
-
-  //check for co-linearity
-  double slopeAB = 0;
-  if(ABrun != 0)
-    slopeAB = (ABrise)/(ABrun);
-  
-  double slopeAC = 0;
-  if(ACrun != 0)
-    slopeAC = (ACrise)/(ACrun);
-
-  if(slopeAB == slopeAC)
     {
       printf("not a triangle\n");
       return 0;
@@ -131,7 +115,7 @@ int main(int argc, char* argv[])
   else
     printf("scalene ");
   
-  printf("%f, %f, %f\n", angle_A, angle_B, angle_C);
+  //printf("%f, %f, %f\n", angle_A, angle_B, angle_C);
   //Right angle check
   if(error_tolerance(angle_A, 90) || error_tolerance(angle_B, 90) || error_tolerance(angle_C, 90))
     printf("right\n");
