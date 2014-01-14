@@ -11,5 +11,5 @@ testmac:
 	python test.py
 	gcov triangle
 clean:
-	rm triangle triangle.c.gcov triangle.gcda triangle.gcno
+	rm -f triangle triangle.c.gcov triangle.gcda triangle.gcno
 	
