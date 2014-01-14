@@ -2,50 +2,64 @@
 #include "stdlib.h"
 #include "math.h"
 
-// Triangle Analyzer written by Daniel Setser
-// This program takes in 6 positive integers, which represent 3 points 
-// forming a triangle. It outputs two words describing what kind of
-// triangle was given as input, or "not a triangle". The first word will be
-// scalene,  isosceles, or equilateral. The second word will be acute,
-// right, or obtuse.
+/* Triangle Analyzer written by Daniel Setser
+ * This program takes in 6 positive integers, which represent 3 points 
+ * forming a triangle. It outputs two words describing what kind of
+ * triangle was given as input, or "not a triangle". The first word will be
+ * scalene,  isosceles, or equilateral. The second word will be acute,
+ * right, or obtuse.
+ */
 
 struct Point
 {
-	double x;
-	double y;
+	long x;
+	long y;
 };
 
-double distance(struct Point a, struct Point b)
+long distanceSquared(struct Point a, struct Point b)
 {
-	return sqrt(((a.x - b.x)*(a.x - b.x)) + ((a.y - b.y)*(a.y - b.y)));
+	return ((a.x - b.x)*(a.x - b.x)) + ((a.y - b.y)*(a.y - b.y));
 }
 
-int equalsTolerance(double a, double b)
+void printType(long a, long long int b, long long int c)
 {
-	return abs(a-b) <= .0000000001;
-}
-
-int isRight(double angleA, double angleB, double angleC)
-{
-	return equalsTolerance(angleA, 90) || equalsTolerance(angleB, 90) 
-      || equalsTolerance(angleC, 90);
-}
-
-void printType(double angleA, double angleB, double angleC)
-{
-	if(isRight(angleA, angleB, angleC))
-		printf("right\n");
-	else if(angleA > 90 || angleB > 90 || angleC > 90)
-		printf("obtuse\n");
+	// Print the first word.
+	if(a == b || a == c || b == c)
+	{
+		printf("isosceles ");
+	}
 	else
+	{
+		printf("scalene ");
+	}
+
+	// Make sure a is the max.
+	long temp;
+	if(b > a && b > c)
+	{
+		temp = b; b = a; a = temp; }
+	else if(c > a && c > b)
+	{	
+		temp = c;
+		c = a;
+		a = temp;
+	}
+
+	// Print the second word.
+	if(a - c == b) // b + c == a avoiding overflow
+		printf("right\n");
+	else if(a - c < b) // b + c > a avoiding overflow
 		printf("acute\n");
+	else
+		printf("obtuse\n");
 }
 
 int main(int argc, char* argv[])
 {
   struct Point a, b, c;
-	double ab, ac, bc, angleA, angleB, angleC;
+	long ab, ac, bc;
 
+	// Store arguments into points
 	a.x = atoi(argv[1]);
 	a.y = atoi(argv[2]);
 	b.x = atoi(argv[3]);
@@ -53,32 +67,18 @@ int main(int argc, char* argv[])
 	c.x = atoi(argv[5]);
 	c.y = atoi(argv[6]);
 
-	// Check if the points are collinear
+	// Check if the points are collinear.
 	if(((b.y - a.y) * (c.x - b.x)) == ((c.y - b.y) * (b.x - a.x)))
 	{
 		printf("not a triangle\n");
 		return 0;
 	}
 
-	// Find the sides
-	ab = distance(a, b);
-	ac = distance(a, c);
-	bc = distance(b, c);
+	// Find the sides squared.
+	ab = distanceSquared(a, b);
+	ac = distanceSquared(a, c);
+	bc = distanceSquared(b, c);
 
-	// Find the angles
-	angleA = acos(((ab*ab) + (ac*ac) - (bc*bc)) / (2 * ab * ac)) * (180/M_PI);
-	angleB = acos(((ab*ab) - (ac*ac) + (bc*bc)) / (2 * ab * bc)) * (180/M_PI);
-	angleC = acos(((ac*ac) - (ab*ab) + (bc*bc)) / (2 * bc * ac)) * (180/M_PI);
-
-	if(ab == ac || ab == bc || ac == bc) // Isosceles
-	{
-		printf("isosceles ");
-		printType(angleA, angleB, angleC);
-	}
-	else // Scalene
-	{
-		printf("scalene ");
-		printType(angleA, angleB, angleC);
-	}
+	printType(ab, ac, bc);
 }
 
