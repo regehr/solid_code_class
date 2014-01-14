@@ -4,33 +4,40 @@
 #define error 0.00001
 
 
-double lengthOfSide(double p1x, double p1y, double p2x, double p2y)
-{
-  // distance formula
-  double ret;
-  double p1, p2;
-  p1 = pow((p2x-p1x), 2);
-  p2 = pow((p2y-p1y), 2);
-  // printf("%f\n", sqrt(p1+p2));
-  ret = sqrt(p1+p2);
-  return ret;	
+bool isEqual(double d1, double d2)
+{ 
+  if(fabs(d1-d2) < error)
+    {
+      return true;
+    }
+  return false;
 }
 
-double angleBetween(double x1, double y1, double x2, double y2)
+
+double lengthOfSide(double x1, double y1, double x2, double y2)
 {
-  double ret, p1, p2, angle;
-  p1 = y1-y2;
-  p2 = x1-x2;
-  angle = atan2(p1, p2);
-  ret = angle*180/M_PI;
-  return ret;
+  // distance formula 
+  double ret;
+  double p1, p2;
+  p1 = pow((x2-x1), 2);
+  p2 = pow((y2-y1), 2);  
+  ret = sqrt(p1+p2); 
+  return ret;	
+   
+}
+
+double angleBetween(double s1, double s2, double s3)
+{
+  double angle = acos((pow(s1, 2)+pow(s2, 2)-pow(s3, 2))/ (pow(s1, 2)*pow(s2, 2)));
+  angle = 180*angle/M_PI;
+ return angle;  
 }
 
 bool isRight(double a1, double a2, double a3)
 {
-  if((a1 == 90 && a2 < 90 && a3 < 90) ||
-     (a2 == 90 && a1 < 90 && a3 < 90) ||
-     (a3 == 90 && a1 < 90 && a2 < 90))
+  if((isEqual(a1,90) && a2 < 90 && a3 < 90) ||
+     (isEqual(a2,90) && a1 < 90 && a3 < 90) ||
+     (isEqual(a3,90) && a1 < 90 && a2 < 90))
     {
       return true;
     }
@@ -61,7 +68,7 @@ bool isAcute(double a1, double a2, double a3)
 
 bool isEquilateral(double s1, double s2, double s3)
 {
-  if(s1 == s2 && s1 == s3 && s2 == s3)
+  if(isEqual(s1,s2) && isEqual(s1,s3) && isEqual(s2,s3))
     {
       return true;
     }
@@ -70,15 +77,15 @@ bool isEquilateral(double s1, double s2, double s3)
 
 bool isIsosceles(double s1, double s2, double s3)
 {
-  if(s1 == s2 && s2 != s3 && s1 != s3)
+  if(isEqual(s1,s2) && !isEqual(s2,s3) && !isEqual(s1,s3))
     {
       return true;
     }
-  else if(s1 == s3 && s3 != s2 && s1 != s2)
+  else if(isEqual(s1,s3) && !isEqual(s3,s2) && !isEqual(s1,s2))
     {
       return true;
     }
-  else if(s2 == s3 && s3 != s1 && s2 != s1)
+  else if(isEqual(s2,s3) && !isEqual(s3,s1) && !isEqual(s2,s1))
     {
       return true;
     }
@@ -90,16 +97,7 @@ bool isIsosceles(double s1, double s2, double s3)
 
 bool isScalene(double s1, double s2, double s3)
 {
-  if(!isEquilateral(s1, s2, s3) && !isIsosceles(s1, s2, s3))
-    {
-      return true;
-    }
-  return false;
-}
-
-bool isEqual(double d1, double d2)
-{ 
-  if(fabs(d1-d2) < error)
+  if(!isEqual(s1, s2) && !isEqual(s2, s3) && !isEqual(s1, s3))
     {
       return true;
     }
@@ -108,12 +106,11 @@ bool isEqual(double d1, double d2)
 
 
 int main(int argc, char **argv)
-{
-  int i ;
+{  
   double xpoints[3];
   double ypoints[3];
   double s1, s2, s3, a1, a2, a3;
-  bool scal, iso, equi, acute, obtuse, right;
+  bool scal, iso, equi, acute, obtuse, right; 
 
 
   // get command line arguments
@@ -123,15 +120,15 @@ int main(int argc, char **argv)
     }
   else
     {
-      for(i = 1; i < argc; i+=2)
-	{
-	  xpoints[i] = atoi(argv[i]);
-	  ypoints[i] = atoi(argv[i+1]);
-	}          
+      xpoints[0] = atoi(argv[1]);
+      ypoints[0] = atoi(argv[2]);
+      xpoints[1] = atoi(argv[3]);
+      ypoints[1] = atoi(argv[4]);
+      xpoints[2] = atoi(argv[5]);
+      ypoints[2] = atoi(argv[6]);      
     }
   
-  // check for nat
-  /*
+  // check for nat  
   if(isEqual(xpoints[0], xpoints[1]) && isEqual(ypoints[0], ypoints[1]))
     {
       printf("not a triangle\n");
@@ -146,18 +143,68 @@ int main(int argc, char **argv)
     {
       printf("not a triangle\n");
       return 0;
-    }
-  */
+      }  
   
+     //scal, iso, equi, acute, obtuse, right
 
   s1 = lengthOfSide(xpoints[0], ypoints[0], xpoints[1], ypoints[1]);
   s2 = lengthOfSide(xpoints[2], ypoints[2], xpoints[1], ypoints[1]);
-  s3 = lengthOfSide(xpoints[2], ypoints[2], xpoints[0], ypoints[0]);
+  s3 = lengthOfSide(xpoints[2], ypoints[2], xpoints[0], ypoints[0]); 
+ 
+  scal = isScalene(s1, s2, s3);
+  iso = isIsosceles(s1, s2, s3);
+  equi = isEquilateral(s1, s2, s3);
 
-  printf("%f\n", s1);
-  printf("%f\n", s2);
-  printf("%f\n", s3);
+  a3 = angleBetween(s1, s2, s3);
+  a2 = angleBetween(s1, s3, s2);
+  a1 = angleBetween(s2, s3, s1);
+
+  acute = isAcute(a1, a2, a3);
+  obtuse = isObtuse(a1, a2, a3);
+  right = isRight(a1, a2, a3);
   
+  // (((scalene|isosceles|equilateral) (acute|obtuse|right))|not a triangle)
+  if(scal && acute)
+    {
+      printf("scalene acute\n");
+    }
+  else if(scal && obtuse)
+    {
+      printf("scalene obtuse\n");
+    }
+  else if(scal && right)
+    {
+      printf("scalene right\n");
+    }
+  else if(iso && acute)
+    {
+      printf("isosceles acute\n");
+    }
+  else if(iso && obtuse)
+    {
+      printf("isosceles obtuse\n");
+    }
+  else if(iso && right)
+    {
+      printf("isosceles right\n");
+    }
+  else if(equi && acute)
+    {
+      printf("equilateral acute\n");
+    }
+  else if(equi && obtuse)
+    {
+      printf("equilateral obtuse\n");
+    }
+  else if(equi && right)
+    {
+      printf("equilateral right\n");
+    }
+  else
+    {
+      printf("not a triangle\n");
+    } 
+
   return 0;
 }
 
