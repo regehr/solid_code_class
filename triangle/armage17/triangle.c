@@ -31,7 +31,8 @@ static void longestAngle(double longest, double a1, double a2)
   char* type = "scalene";
   char* angle = "acute";
 
-  if(fabs(longest - 90.0) < 0.00000000001) // Longest angle is 90 degress
+  printf("longest: %.10f\n", longest);
+  if(fabs(longest - 90.0) < 0.000001) // Longest angle is 90 degress
       angle = "right";
   else if(longest > 90.0)
       angle = "obtuse";
