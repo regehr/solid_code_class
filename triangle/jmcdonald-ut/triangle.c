@@ -89,7 +89,7 @@ int is_obtuse (double ang1, double ang2, double ang3)
  */
 int is_acute (double ang1, double ang2, double ang3)
 {
-	return (ang1 < 1.57079633 || ang2 < 1.57079633 || ang3 < 1.57079633);
+	return (ang1 < 1.57079633 && ang2 < 1.57079633 && ang3 < 1.57079633);
 }
 
 
