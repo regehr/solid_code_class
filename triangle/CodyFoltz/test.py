@@ -8,7 +8,7 @@ def test_is_ri():
         if(output != "isosceles right\n"):
                 print("isosceles right: failed test 1\n")
 		test_successful = False
-	output = subprocess.check_output(['./triangle' , '0' , '0' , '100', '0', '0' '100'])
+	output = subprocess.check_output(['./triangle' , '0' , '0' , '100', '0', '0', '100'])
 	if(output != "isosceles right\n"):
 		print("isosceles right: failed test 2\n")
 		test_sucessful = False
@@ -17,7 +17,7 @@ def test_is_ri():
 def main():
        	success = test_is_ri()
 
-	if(success)
+	if (success): 
 		print("All Tests Passed!!!!\n")
 
 if __name__ == '__main__':
