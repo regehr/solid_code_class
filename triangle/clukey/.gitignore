@@ -1,0 +1,5 @@
+#triangle executable
+triangle
+
+#object files
+*.o
