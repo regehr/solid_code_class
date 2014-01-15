@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
       printf("not a triangle\n");
 
       //and we're done
-      return 0;
+      exit(0);
     }
   
   //check for the type of triangle scalene, isosceles, or equilateral
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
   free(P3);
 
   //end gracefully
-  return 0;
+  exit(0);
 }
 
 /*
@@ -61,7 +61,7 @@ void checkTriangle(int* P1, int* P2, int* P3)
   //compute the length of each side
   double S1 = computeSide(P1, P2);
   double S2 = computeSide(P2, P3);
-  double S3 = computeSide(P3, P1);
+  double S3 = computeSide(P1, P3);
 
   //if they're all the same
   if(S1 == S2 && S1 == S3 && S2 == S3)
@@ -101,7 +101,7 @@ void checkAngles(double a, double b, double c, char* result)
   //if one of them is 90 degrees
   if(closeEnough(A, ninteyDegrees) || closeEnough(B, ninteyDegrees) || closeEnough(C, ninteyDegrees))
     {
-      printf("right\n");
+      printf("%s right\n", result);
     }
   //if one of them is over 90 degrees
   else if (A > ninteyDegrees || B > ninteyDegrees || C > ninteyDegrees)
@@ -109,7 +109,7 @@ void checkAngles(double a, double b, double c, char* result)
       printf("%s obtuse\n", result);
     }
   //all of them are less than 90 degrees
-  else
+  else if (A < ninteyDegrees && B < ninteyDegrees && C < ninteyDegrees)
     {
       printf("%s acute\n", result);
     }
@@ -132,7 +132,7 @@ double checkCollinearity(int* P1, int* P2, int* P3)
  */
 double computeSide(int* P1, int* P2)
 {
-  return sqrt(pow(P2[0] - P1[0], 2) + pow(P2[1] - P1[1], 2));
+  return sqrt(pow(P2[0] - P1[0], 2) + pow (P2[1] - P1[1], 2));
 }
 
 /*
