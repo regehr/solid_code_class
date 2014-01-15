@@ -11,8 +11,7 @@ long long get_side(long long x1, long long x2, long long y1, long long y2);
 void triangle_type(long long A, long long B, long long C);
 void validate(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3);
 int is_straight_line(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3);
-void check_in_add_range(long long A, long long B, long long C);
-
+void get_triangle_type(long long A, long long B, long long C);
 
 
 int main(int argc, char **argv){
@@ -36,7 +35,7 @@ validate(x1, y1, x2, y2, x3, y3);
 long long A = get_side(x1, x3, y1, y3);
 long long B = get_side(x2, x3, y2, y3);
 long long C = get_side(x1, x2, y1, y2);
-triangle_type(A, B, C);
+get_triangle_type(A, B, C);
 
 }
 
@@ -58,7 +57,6 @@ return sum_of_squares;
 void triangle_type(long long A, long long B, long long C){
 
   char *type = NULL;
-  check_in_add_range(A, B, C);
 
   if((A == B) && (B == C))
   printf("equalateral acute");
@@ -69,11 +67,13 @@ void triangle_type(long long A, long long B, long long C){
   else
    printf("scalene ");
 
-  if (((A + B) == C) || ((A + C) == B) || ((B + C) == A))
-   printf("right\n");
+  long long rslt = C - B - A;
 
-  else if (((A + B) < C) || ((A + C) < B) || ((B + C) < A)) 
+  if (rslt > 0)
    printf("obtuse\n");
+
+  else if (rslt == 0) 
+   printf("right\n");
 
   else
     printf("acute\n");
@@ -138,12 +138,18 @@ check_in_range(long long x1, long long y1, long long x2, long long y2, long long
 
 }
 
-/* Checks for signed overflow */
-void check_in_add_range(long long A, long long B, long long C){
 
-  assert(!((A+B) & LLONG_MIN));
-  assert(!((A+C) & LLONG_MIN));
-  assert(!((B+C) & LLONG_MIN));
+/* Get triangle type */
+void get_triangle_type(long long A, long long B, long long C){
 
+  
+  if(A >= B && A >= C)
+    triangle_type(B, C, A);
+    
+  else if(B >= A && B >= C)
+    triangle_type(A, C, B);
+
+  else
+    triangle_type(A, B, C);
 
 }
