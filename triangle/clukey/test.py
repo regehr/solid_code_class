@@ -1,4 +1,4 @@
-#!/usr/bin/env python27
+#!/usr/bin/env python2.7
 #
 # Triangle Analyzer tests
 #
@@ -17,11 +17,12 @@ testpts = [["scalene obtuse\n", "0", "0", "2147483647", "2147483647", "214748364
 ["isosceles right\n", "1", "0", "0", "2147483646", "2147483647", "1"], 
 ["scalene right\n", "0", "0", "3", "0", "0", "5"], 
 ["scalene acute\n", "1", "2", "2", "7", "5", "3"], 
-["not a triangle\n", "6", "6", "6", "6", "6", "6"], 
-["input error\n", "3", "!", "3", "$", "2", "#"]]
+["not a triangle\n", "6", "6", "6", "6", "6", "6"]]
 
 
 if __name__ == "__main__":
+    passed = 0
+    failed = 0
     for point in testpts:
         result = subprocess.check_output(["./triangle", 
                                           point[1], 
@@ -30,11 +31,26 @@ if __name__ == "__main__":
                                           point[4], 
                                           point[5], 
                                           point[6]])
-        if result != point[0]:
-            print "Test failed\n" + "Expected: " + point[0] + "Actual: " + result + "Input " + str(point[1:6])
-            exit(0)
-    result = subprocess.check_output(["./triangle"])
-    if result != "Please enter three integral points in first quadrant of the xy-plane.\n":
-        print "Test failed\n Expected: " + "Please enter three integral points in first quadrant of the xy-plane.\n" + "Actual: " + result + "Input: \n"
-        exit(0)
-    print "All tests passed."
+        if result == point[0]:
+            passed += 1
+        else:
+            failed += 1
+            
+    fd = open("tests.txt", "r")
+    expected = fd.readline()
+    while expected != "":
+        pts = fd.readline().split()
+        result = subprocess.check_output(["./triangle",
+                                          pts[0],
+                                          pts[1],
+                                          pts[2],
+                                          pts[3],
+                                          pts[4],
+                                          pts[5]])
+        if expected == result:
+            passed += 1
+        else:
+            failed += 1
+        expected = fd.readline()
+        
+    print "Passed: " + str(passed) + " Failed: " + str(failed)
