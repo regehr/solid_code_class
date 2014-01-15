@@ -36,7 +36,7 @@ if __name__ == "__main__":
         else:
             failed += 1
             
-    fd = open("tests.txt", "r")
+    fd = open("../clukey/tests.txt", "r")
     expected = fd.readline()
     while expected != "":
         pts = fd.readline().split()

@@ -8,3 +8,7 @@ triangle
 *.gcno
 *.gcda
 *.c.gcov
+
+#a couple of scripts for mass testing and cleanup
+clean.sh
+test.sh
