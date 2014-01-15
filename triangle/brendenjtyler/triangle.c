@@ -26,9 +26,11 @@ int main(int argc, char* argv[])
 
   P3[0] = atoi(argv[5]);
   P3[1] = atoi(argv[6]);
+
+  double area = checkCollinearity(P1, P2, P3);
   
   //check to see if the points form a triangle
-  if (checkCollinearity(P1, P2, P3) == 0)
+  if (checkCollinearity(P1, P2, P3) == 0.0)
     {
       //if they don't, say so
       printf("not a triangle\n");
@@ -122,7 +124,12 @@ void checkAngles(double a, double b, double c, char* result)
 */
 double checkCollinearity(int* P1, int* P2, int* P3)
 {
-  return (P1[0]*P2[1]*1 - P1[0]*1*P3[1] - P1[1]*P2[0]*1 + P1[1]*1*P3[1] + 1*P2[0]*P3[1] - 1*P2[1]*P3[0])/2;
+  double firstResult = P1[0]*(P2[1]-P3[1]);
+  double secondResult = P2[0]*(P3[1]-P1[1]);
+  double thirdResult = P3[0]*(P1[1]-P2[1]);
+
+  double result = (firstResult+secondResult+thirdResult)/2;
+  return result;
 }
 
 /*
