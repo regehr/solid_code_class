@@ -12,3 +12,15 @@ isosceles obtuse
 scalene acute
 1 1 2 0 1 2 
 scalene obtuse
+2147483647 2147483647 2147483647 0 0 2147483647
+isosceles right
+2147483647 2147483647 2147483647 2147483646 2147483646 2147483647
+isosceles right
+6 5 4 3 2 1
+not a triangle
+0 0 0 1 0 2
+not a triangle
+0 0 1 0 2 0
+not a triangle
+0 0 0 0 0 0
+not a triangle

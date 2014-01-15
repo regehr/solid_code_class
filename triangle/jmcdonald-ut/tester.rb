@@ -81,10 +81,11 @@ end
 test_harness = Tester.new
 test_harness.run_test("./triangle 0 0 0 0 0 0", :nat_simple)
 test_harness.run_test("./triangle 1 1 2 2 3 3", :nat_hard)
-test_harness.run_test("./triangle 1 1 2 4 3 1", :iso_acute)
-test_harness.run_test("./triangle 1 1 3 2 4 1", :iso_obtuse)
-test_harness.run_test("./triangle 1 1 1 2 2 1", :iso_right)
+test_harness.run_test("./triangle 1 1 3 2 1 3", :iso_acute)
+test_harness.run_test("./triangle 1 1 3 2 5 1", :iso_obtuse)
+test_harness.run_test("./triangle 1 1 0 2 0 1", :iso_right)
 test_harness.run_test("./triangle 1 1 5 1 5 4", :sca_right)
 test_harness.run_test("./triangle 1 1 4 2 6 1", :sca_obtuse)
-test_harness.run_test("./triangle 1 1 2 2 4 1", :sca_acute)
+test_harness.run_test("./triangle 1 1 2 2 4 1", :sca_obtuse)
+test_harness.run_test("./triangle 0 0 1 3 4 0", :sca_acute)
 test_harness.summary

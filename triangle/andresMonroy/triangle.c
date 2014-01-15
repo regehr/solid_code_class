@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 
 struct Point {
     double x;
@@ -12,6 +13,9 @@ struct Point {
 double find_slope(double x1, double x2, double y1, double y2){
     double dy = y2 - y1;
     double dx = x2 - x1;
+    if (dx == dy){
+        return 1;
+    }
     return dy/dx;
 }
 
@@ -104,6 +108,7 @@ void find_triangle(struct Point points[3], char** type, char** angle){
 }
 
 int main (int argc, char* argv[]){
+    assert(argc == 7);
     char* type = "";
     char* angle = "";
     struct Point points[3];
