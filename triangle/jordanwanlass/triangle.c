@@ -2,42 +2,46 @@
 #include <math.h>
 
 struct triangle {
-	long double ax;
-	long double ay;
-	long double bx;
-	long double by;
-	long double cx;
-	long double cy;
-	long double A;
-	long double B;
-	long double C;
+	long long ax;
+	long long ay;
+	long long bx;
+	long long by;
+	long long cx;
+	long long cy;
+	long long A;
+	long long B;
+	long long C;
 };
 
 void getSides(struct triangle *triangle){
- 	long double ax = (*triangle).ax;
- 	long double ay = (*triangle).ay; 
- 	long double bx = (*triangle).bx; 
- 	long double by = (*triangle).by; 
- 	long double cx = (*triangle).cx; 
- 	long double cy = (*triangle).cy; 
+ 	long long ax = (*triangle).ax;
+ 	long long ay = (*triangle).ay; 
+ 	long long bx = (*triangle).bx; 
+ 	long long by = (*triangle).by; 
+ 	long long cx = (*triangle).cx; 
+ 	long long cy = (*triangle).cy; 
  	  	 
- 	(*triangle).C = sqrt(pow((ax - bx),2) + pow((ay - by), 2));
- 	(*triangle).A = sqrt(pow((bx - cx),2) + pow((by - cy), 2));
- 	(*triangle).B = sqrt(pow((cx - ax),2) + pow((cy - ay), 2));	   
+ 	(*triangle).C = pow((ax - bx),2) + pow((ay - by), 2);
+ 	(*triangle).A = pow((bx - cx),2) + pow((by - cy), 2);
+ 	(*triangle).B = pow((cx - ax),2) + pow((cy - ay), 2);	   
 }
 
-double getLargestAngle(long double a, long double b, long double c) {
+// double getLargestAngle(long long a, long long b, long long c) {
+// 
+// 	double eq = acos(((b*b) + (c*c) - (a*a))/(2.0*b*c));
+// 	
+// 	double angle = eq * (180/M_PI);
+// 
+// 	return angle;
+// }
 
-	double eq = acos(((b*b) + (c*c) - (a*a))/(2.0*b*c));
-	
-	double angle = eq * (180/M_PI);
-
-	return angle;
+long findAngle(long ax, long ay, long bx, long by) {
+	return (ax * bx) + (ay * by);	
 }
 
 char getLongSide(struct triangle triangle) {	
 	char longSide = 'A';
-	long double max = 0.0;
+	long long max = 0;
 	if(triangle.A > triangle.B) {
 		max = triangle.A;	
 	} else {
@@ -48,26 +52,55 @@ char getLongSide(struct triangle triangle) {
 	return ((max > triangle.C) ? longSide : 'C');
 }
 
-char * findTriangle(struct triangle triangle){
-	char longestSide = getLongSide(triangle);
-	long double largest = 0.0;
+// char * findTriangle(struct triangle triangle){
+// 	char longestSide = getLongSide(triangle);
+// 	long double largest = 0.0;
+// 	
+// 	if(longestSide == 'A') {
+// 		largest = getLargestAngle(triangle.A, triangle.B, triangle.C);
+// 	} else if(longestSide == 'B') {
+// 		largest = getLargestAngle(triangle.B, triangle.A, triangle.C);
+// 	} else {
+// 		largest = getLargestAngle(triangle.C, triangle.A, triangle.B);
+// 	}
+// 	
+// 	if((largest - 90.0) < .00000000001 && (largest - 90.0) > 0) {
+// 		return "right";
+// 	} else if((largest - 90.0) > .00000000001) {
+// 		return "obtuse";
+// 	} else {
+// 		return "acute";
+// 	}
+// 	
+// }
+
+char * findTriangle(struct triangle triangle) {
 	
-	if(longestSide == 'A') {
-		largest = getLargestAngle(triangle.A, triangle.B, triangle.C);
-	} else if(longestSide == 'B') {
-		largest = getLargestAngle(triangle.B, triangle.A, triangle.C);
+	long long ax = triangle.ax;
+ 	long long ay = triangle.ay; 
+ 	long long bx = triangle.bx; 
+ 	long long by = triangle.by; 
+ 	long long cx = triangle.cx; 
+ 	long long cy = triangle.cy; 
+ 	
+	char longSide = getLongSide(triangle);
+	
+	long angle = 0;
+	if(longSide == 'A') {
+		angle = findAngle((bx - ax), (by - ay), (cx - ax), (cy - ay));
+	} else if(longSide = 'B') {
+		angle = findAngle((cx - bx), (cy - by), (ax - bx), (ay - by));
 	} else {
-		largest = getLargestAngle(triangle.C, triangle.A, triangle.B);
+		angle = findAngle((bx - cx), (by - cy), (ax - cx), (ay - cy));
 	}
 	
-	if((largest - 90.0) < .00000000001 && (largest - 90.0) > 0) {
+	if(angle == 0) {
 		return "right";
-	} else if((largest - 90.0) > .00000000001) {
-		return "obtuse";
-	} else {
+	} else if(angle > 0) {
 		return "acute";
+	} else {
+		return "obtuse";
 	}
-	
 }
 
 char * findType(struct triangle triangle) {
@@ -79,12 +112,11 @@ char * findType(struct triangle triangle) {
 }
 
 void setup(struct triangle *triangle, char *argv[]) {
-	long double inputs[6];
+	long long inputs[6];
 	 
 	int i;
 	for(i = 0; i < 6; i++) {
-		int temp = atoi(argv[i+1]);
-		inputs[i] = (long double)temp;
+		inputs[i] = atoll(argv[i+1]);
 	}
 	
 	(*triangle).ax = inputs[0];
@@ -102,12 +134,8 @@ int collinearCheck(struct triangle triangle) {
 	return bool;
 }
 
-int validPoints(struct triangle triangle) {
-	return ((triangle.A > 0) && (triangle.B > 0) && (triangle.C > 0));
-}
-
 int main(int argc, char *argv[]) {
-	struct triangle triangle = {0.0};
+	struct triangle triangle = {0};
 	
 	if(argc == 7) {
 	 	setup(&triangle, argv);
@@ -118,7 +146,7 @@ int main(int argc, char *argv[]) {
 
     getSides(&triangle);
       
-    if(collinearCheck(triangle) || !validPoints(triangle)) {
+    if(collinearCheck(triangle)) {
     	printf("not a triangle\n");
     	return 0;
     }
@@ -127,9 +155,5 @@ int main(int argc, char *argv[]) {
 
      printf("%s %s\n",findType(triangle),findTriangle(triangle));
     
-//     printf("%llf is Struct A\n", triangle.A);
-//     printf("%llf is Struct B\n", triangle.B);
-//     printf("%llf is Struct C\n", triangle.C);
-//     printf("%c This is the longest Struct side\n", getLongSide(triangle));
 	return 0;
 }

@@ -3,6 +3,7 @@ all:
 	
 coverage:
 	gcc -fprofile-arcs -ftest-coverage triangle.c -o triangle -lm
+	python27 test.py
 	
 test:
 	python27 test.py
