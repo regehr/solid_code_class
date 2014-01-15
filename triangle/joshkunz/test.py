@@ -75,10 +75,10 @@ def print_error(triangle, expected, got):
     "Print out an error message if a triangle is mis-classified"
     print "~~~ Failed test. ~~~"
     pprint(triangle)
-    print "[Expected]", expected
-    print "[Got]     ", got
+    print "[Expected]", repr(expected)
+    print "[Got]     ", repr(got)
 
-def iter_test(testgen, binary, display_error=True):
+def iter_test(testgen, binary, display_error=True, fail_fast=False):
     failed = 0
     total = 0
     for (triangle, expected) in testgen:
@@ -87,6 +87,7 @@ def iter_test(testgen, binary, display_error=True):
             failed += 1
             if display_error: print_error(triangle, expected, got)
         total += 1
+        if fail_fast and failed > 0: break
     return failed, total 
 
 def permute_glue(generator):
@@ -116,6 +117,7 @@ if __name__ == "__main__":
     parser.add_argument("--permute", "-p", action="store_true")
     parser.add_argument("--file", "-f")
     parser.add_argument("--quiet", "-q", action="store_false")
+    parser.add_argument("--fail-fast", "-ff", action="store_true")
     parser.add_argument("--input", "-i", action="store_true")
     parser.add_argument("binary", nargs="+")
     args = parser.parse_args()
@@ -134,6 +136,8 @@ if __name__ == "__main__":
             gen = test_file(f)
         if args.permute:
             gen = permute_glue(gen)
-        failed, total = iter_test(gen, binary, display_error=args.quiet) 
+        failed, total = iter_test(gen, binary, 
+                                  display_error=args.quiet, 
+                                  fail_fast=args.fail_fast) 
         print "{0} tests passed, {1} tests failed.".format(total - failed, failed)
         if f is not None: f.close()
