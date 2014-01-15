@@ -57,24 +57,10 @@ def classify_triangle(points):
 def test_output(binary, triangle, expected):
     "Test the output of the binary given the triangle"
     args = [binary] + map(str, chain.from_iterable(triangle))
-    got = subprocess.check_output(args)
+    process = subprocess.Popen(args, stdout=subprocess.PIPE)
+    # Get the binary data from 
+    got = process.communicate()[0]
     return (got, got == expected)
-
-def print_error(triangle, expected, got):
-    "Print out an error message if a triangle is mis-classified"
-    print "~~~ Failed test. ~~~"
-    pprint(triangle)
-    print "[Expected]", expected
-    print "[Got]     ", got
-    #sys.exit(1)
-
-def fuzz(test_count, binary):
-    "Run test_count property formatted tests"
-    for test in xrange(test_count):
-        triangle = rand_triangle()
-        expected = classify_triangle(triangle)
-        got, match = test_output(binary, triangle, expected)
-        if not match: print_error(triangle, expected, got)
 
 def read_triangle(line):
     "Read a triangle from a test-input file"
@@ -84,15 +70,42 @@ def read_triangle(line):
             (numbers[2], numbers[3]),
             (numbers[4], numbers[5])]
 
-def test_file(file, binary):
+
+def print_error(triangle, expected, got):
+    "Print out an error message if a triangle is mis-classified"
+    print "~~~ Failed test. ~~~"
+    pprint(triangle)
+    print "[Expected]", expected
+    print "[Got]     ", got
+
+def iter_test(testgen, binary, display_error=True):
+    failed = 0
+    total = 0
+    for (triangle, expected) in testgen:
+        got, match = test_output(binary, triangle, expected)
+        if not match:
+            failed += 1
+            if display_error: print_error(triangle, expected, got)
+        total += 1
+    return failed, total 
+
+def permute_glue(generator):
+    for (triangle, expected) in generator:
+        for order in permutations(triangle, 3):
+            yield (order, expected)
+
+def fuzz(test_count):
+    "Run test_count property formatted tests"
+    for test in xrange(test_count):
+        triangle = rand_triangle()
+        yield (triangle, classify_triangle(triangle))
+
+def test_file(file):
     "check inputs from a test file"
-    triangle = []
     for line in file:
         triangle = read_triangle(line) 
         expected = file.next()
-        for order in permutations(triangle, 3):
-            got, match = test_output(binary, order, expected)
-            if not match: print_error(order, expected, got)
+        yield (triangle, expected)
 
 if __name__ == "__main__":
     from pprint import pprint
@@ -100,15 +113,27 @@ if __name__ == "__main__":
 
     parser = ArgumentParser()
     parser.add_argument("--fuzz", "-u")
+    parser.add_argument("--permute", "-p", action="store_true")
     parser.add_argument("--file", "-f")
-    parser.add_argument("--input", "-i")
-    parser.add_argument("binary")
+    parser.add_argument("--quiet", "-q", action="store_false")
+    parser.add_argument("--input", "-i", action="store_true")
+    parser.add_argument("binary", nargs="+")
     args = parser.parse_args()
 
     if args.input:
-        print classify_triangle(read_triangle(args.input)),
-    elif args.fuzz:
-        fuzz(int(args.fuzz), args.binary)
-    else:
-        with open(args.file) as f: 
-            test_file(f, args.binary)
+        print classify_triangle(read_triangle(args.binary[0])),
+
+    for binary in args.binary:
+        print "Testing:", binary
+        gen = None
+        f = None
+        if args.fuzz:
+            gen = fuzz(int(args.fuzz))
+        else:
+            f = open(args.file)
+            gen = test_file(f)
+        if args.permute:
+            gen = permute_glue(gen)
+        failed, total = iter_test(gen, binary, display_error=args.quiet) 
+        print "{0} tests passed, {1} tests failed.".format(total - failed, failed)
+        if f is not None: f.close()

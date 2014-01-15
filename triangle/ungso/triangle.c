@@ -20,17 +20,7 @@ int main(int argc, char **argv){
 	exit(1);
     }
 
-
-/* Test 1 isosc right*/
     print_type(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]));
-/* Test 2 isosc acute */
-//print_type(0, 0, 1, 2, 2, 0);
-/* Test 3 scalene obtuse */
-//print_type(0, 0, 4, 1, 5, 0);
-/* Test 4 scalene acute */
-//I can't find integer coordinates for scalene acute
-/* print_type(0, 0, 2, 1, 3, 0); */
-//I can't find integer coordinates for equalateral acute
 
 }
 
@@ -106,7 +96,7 @@ assert(!(y3 & INT_MIN));
 
 }
 
-
+/* validates the coordinates as describing a triangle */
 void validate(int x1, int y1, int x2, int y2, int x3, int y3){
  
   int invalid = 0;
@@ -131,7 +121,7 @@ else if (((x1 == x3) && (y1 == y3)))
    
 }
 
-
+/* Do coordinates represent a straight line, i.e, not a triangle? */
 int is_straight_line(int x1, int y1, int x2, int y2, int x3, int y3){
 
   int denom_1 = abs(y2 - y1);

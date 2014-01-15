@@ -1,7 +1,7 @@
 /* Triangle Analyzer
  * 
  * Student: John Clukey
- * Date: January 8, 2014
+ * Date: January 8-13, 2014
  */
 
 #include <stdlib.h>
@@ -13,6 +13,7 @@ const char *side_type_squares(long long asq, long long bsq, long long csq);
 const char *angle_from_squares(long long asq, long long bsq, long long csq);
 
 int main (int argc, char **argv) {
+
   /* Long longs can represent all length values since each coordinate is
    * less than or equal to 2^31-1, so the sum of two squares is less than
    * or equal to 2^63-2^33+2 which is less than 2^63-1, i.e. the square of
@@ -30,11 +31,11 @@ int main (int argc, char **argv) {
   for (i = 0; i < 6; i++) {
     if (sscanf(argv[i+1], "%lld", &pts[i]) != 1) {
       printf("input error\n");
-      return 1;
+      return 0;
     }
   }
   
-  /* translating the triangle so that (x_1, y_1) is at the origin
+  /* Translating the triangle so that (x_1, y_1) is at the origin
    * and preparing to find the length of the third side.
    */
   pts[4] = pts[4] - pts[0];
@@ -44,9 +45,9 @@ int main (int argc, char **argv) {
   pts[0] = pts[4] - pts[2];
   pts[1] = pts[5] - pts[3];
   
-  /* if the ratio between x_2 and x_3 is the same as the ratio between
-   * y_2 and y_3, then all three points lie along a line or are 
-   * colocated.
+  /* If the ratio between the translated x_2 and x_3 is the same as 
+   * the ratio between the translated y_2 and y_3, then all three 
+   * points lie along a line or are colocated.
    */
   if (pts[2] * pts[5] == pts[4] * pts[3]) {
     printf("not a triangle\n");
@@ -56,7 +57,7 @@ int main (int argc, char **argv) {
   l1sq = length_squared(pts[0], pts[1]);
   l2sq = length_squared(pts[2], pts[3]);
   l3sq = length_squared(pts[4], pts[5]);
-  
+
   printf("%s ", side_type_squares(l1sq, l2sq, l3sq));
 	 
   if (l1sq >= l2sq && l1sq >= l3sq) {
@@ -80,10 +81,14 @@ long long length_squared(long long x, long long y) {
 
 /* Squares should not be larger than 2^63-2^33+2. */
 const char *side_type_squares(long long asq, long long bsq, long long csq) {
-  if (asq == bsq && asq == csq) {
+  
+  /* Equilateral triangles are actually impossible in a two dimensial space 
+   * with only integer valued coordinates.
+   */
+  /*if (asq == bsq && asq == csq) {
     return "equilateral";
   }
-  else if (asq == bsq || asq == csq || bsq == csq) {
+  else*/ if (asq == bsq || asq == csq || bsq == csq) {
     return "isosceles";
   }
   else {
@@ -93,11 +98,14 @@ const char *side_type_squares(long long asq, long long bsq, long long csq) {
 
 /* Largest squared side should be the third `csq' argument. */
 const char *angle_from_squares(long long asq, long long bsq, long long csq) {
+
   long long diff = csq - asq - bsq;
-  if (diff > 0ll) {
+
+  /* Law of cosines. */
+  if (diff > 0) {
     return "obtuse";
   }
-  else if (diff == 0ll) {
+  else if (diff == 0) {
     return "right";
   }
   else {

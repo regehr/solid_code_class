@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 
 struct Point {
     double x;
@@ -12,6 +13,9 @@ struct Point {
 double find_slope(double x1, double x2, double y1, double y2){
     double dy = y2 - y1;
     double dx = x2 - x1;
+    if (dx == dy){
+        return 1;
+    }
     return dy/dx;
 }
 
@@ -33,9 +37,22 @@ bool is_equilateral(double sides[3]){
     return sides[0] == sides[1] && sides[1] == sides[2] && sides[2] == sides[0];
 }
 
-bool is_right(double AB, double AC, double BC){
+double get_largest_angle(double angles[3]){
+    if (angles[0] > angles[1] && angles[0] > angles[2]){
+        return angles[0];
+    } else if (angles[1] > angles[0] && angles[1] > angles[2]){
+        return angles[1];
+    } else if (angles[2] > angles[0] && angles[2] > angles[1]){
+        return angles[2];
+    } else {
+		return angles[0];
+    }
+}
+
+bool is_right(double angles[3]){
     /* slopes of perpendicular lines are negative reciprocals */
-    return (AB*AC) == -1 || (AB*BC) == -1 || (AC*BC) == -1;
+    double angle = get_largest_angle(angles);
+    return angle >= 90 && (angle - 90) < .00000000001;
 }
 
 bool is_isosceles(double sides[3]){
@@ -47,7 +64,6 @@ bool is_obtuse(double angles[3]){
 }
 
 void find_triangle(struct Point points[3], char** type, char** angle){
-    char* NOT = "not a triangle";
     char* EQI = "equilateral";
     char* ISO = "isosceles";
     char* RIGHT = "right";
@@ -57,23 +73,13 @@ void find_triangle(struct Point points[3], char** type, char** angle){
     double sides[3];
     double angles[3];
     
-    double slope_AB = find_slope(points[0].x, points[1].x, points[0].y, points[1].y);
-    double slope_AC = find_slope(points[0].x, points[2].x, points[0].y, points[2].y);
-    double slope_BC = find_slope(points[1].x, points[2].x, points[1].y, points[2].y);
-    
-    /* Same slope = not a triangle */
-    if (slope_AB == slope_AC){
-        *type = NOT;
-        return;
-    }
-    
     /* finds sides and angles */
     sides[0] = find_distance(points[0], points[1]);
     sides[1] = find_distance(points[0], points[2]);
     sides[2] = find_distance(points[1], points[2]);
     angles[0] = find_angle(sides[1], sides[2], sides[0]);
     angles[1] = find_angle(sides[0], sides[1], sides[2]);
-    angles[2] = find_angle(sides[0], sides[2], sides[1]);
+    angles[2] = find_angle(sides[2], sides[1], sides[0]);
     
     /* check equilateral */
     if (is_equilateral(sides)){
@@ -90,7 +96,7 @@ void find_triangle(struct Point points[3], char** type, char** angle){
     }
     
     /* check angle type */
-    if (is_right(slope_AB, slope_AC, slope_BC)){
+    if (is_right(angles)){
         *angle = RIGHT;
         return;
     }
@@ -102,6 +108,7 @@ void find_triangle(struct Point points[3], char** type, char** angle){
 }
 
 int main (int argc, char* argv[]){
+    assert(argc == 7);
     char* type = "";
     char* angle = "";
     struct Point points[3];
@@ -111,6 +118,15 @@ int main (int argc, char* argv[]){
     points[1].y = atof(argv[4]);
     points[2].x = atof(argv[5]);
     points[2].y = atof(argv[6]);
+    
+    double slope_AB = find_slope(points[0].x, points[1].x, points[0].y, points[1].y);
+    double slope_AC = find_slope(points[0].x, points[2].x, points[0].y, points[2].y);
+    
+    /* Same slope = not a triangle */
+    if (slope_AB == slope_AC){
+        printf("not a triangle\n");
+        return 0;
+    }
     
     find_triangle(points, &type, &angle);
     printf("%s %s\n", type, angle);

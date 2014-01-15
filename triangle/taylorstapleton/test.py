@@ -27,6 +27,23 @@ def testIso(debug):
         if(output != "isosceles right\n"):
                 toReturn += "right "
 
+
+	output = subprocess.check_output(['./triangle' , '0' , '0' , '2' , '0', '1' , '2147483647'])
+        if(debug == "true"):
+                print("output = " + output)
+                print("expected = isosceles acute    actual = " + output)
+        if(output != "isosceles acute\n"):
+                toReturn += "acuteEdgeCase "
+
+	output = subprocess.check_output(['./triangle' , '0' , '0' , '0' , '2147483646' , '64', '1073741823'])
+        if(debug == "true"):
+                print("output = " + output)
+                print("expected = isosceles obtuse    actual = " + output)
+        if(output != "isosceles obtuse\n"):
+                toReturn += "obtuseEdgeCase "
+
+	
+
 	return toReturn
 
 def testSca(debug):

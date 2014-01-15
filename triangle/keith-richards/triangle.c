@@ -2,58 +2,50 @@
 #include <stdlib.h>
 #include <math.h>
 
-/*
- * This is my own little max function for 3 doubles.  I use it to find the 
- * largest angle from all three angles
- */
-double max(double a, double b, double c)
-{
-    double largest = a;
 
-    if (b > largest)
-    {
-	largest = b;
-    }
-    if (c > largest)
-    {
-	largest = c;
-    }
-    
-    return largest;
+struct point 
+{
+    unsigned long long x;
+    unsigned long long y;
+};
+
+/*
+ * squares a long long
+ */
+unsigned long long squared(unsigned long long x)
+{
+    return x*x;
 }
 
-
-int main(int argc, char *argv[])
+/*
+ * returns one if the points are collinear
+ */
+int collinear(struct point p[])
 {
-    // I am going to skip error checking since we can.
-    // first peel off the arguments
-    unsigned int x1 = atoi(argv[1]);
-    unsigned int y1 = atoi(argv[2]);
-    unsigned int x2 = atoi(argv[3]);
-    unsigned int y2 = atoi(argv[4]);
-    unsigned int x3 = atoi(argv[5]);
-    unsigned int y3 = atoi(argv[6]);
+    return (p[0].x * (p[1].y - p[2].y)) + 
+	   (p[1].x * (p[2].y - p[0].y)) + 
+	   (p[2].x * (p[0].y - p[1].y)) == 0;
+}
 
-    // run a quick check to remove the not a triangle cases
-    // three points are said to be collinear when the following formula is 0
-    if ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)) == 0)
+void print_angle(unsigned long long lengths[])
+{
+    if (lengths[2] > (lengths[1] + lengths[0]))
     {
-	puts("not a triangle");
-	return 0;
+	puts("obtuse");
     }
+    else if (lengths[2] < (lengths[1] + lengths[0]))
+    {
+	puts("acute");
+    }
+    else
+    {
+	puts("right");
+    }
+}
 
-    double a = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-    double b = sqrt((x2 - x3) * (x2 - x3) + (y2 - y3) * (y2 - y3));
-    double c = sqrt((x1 - x3) * (x1 - x3) + (y1 - y3) * (y1 - y3));
-
-    // find the angles using the law of cosines
-    double angle_a = acos(((b * b) + (c * c) - (a * a))/(2 * b * c));
-    double angle_b = acos((c * c + a * a - b * b)/(2 * c * a));    
-    double angle_c = M_PI - angle_a - angle_b;
-    double largest_angle = max(angle_a, angle_b, angle_c);
-
-    // check the side lengths
-    if (a == b || b == c || a == c)
+void print_type(unsigned long long lengths[])
+{
+    if (lengths[0] == lengths[1] || lengths[2] == lengths[1])
     {
 	printf("isosceles ");
     }
@@ -61,27 +53,54 @@ int main(int argc, char *argv[])
     {
 	printf("scalene ");
     }
+}
 
-    // here I am making a tolerance for round off errors.  There
-    // is probably a better way to do this
-    double ratio = largest_angle / (M_PI / 2);
+int comp(const void *a, const void *b) 
+{
+    unsigned long long *x = (unsigned long long *) a;
+    unsigned long long *y = (unsigned long long *) b;
+    if (*x > *y)
+    {
+	return 1;
+    }
+    if (*y > *x)
+    {
+	return -1;
+    }
+    return 0;
+}
 
-    // check the largest angle    
-    if (ratio >= .99999 && ratio <= 1.00001)
+int main(int argc, char *argv[])
+{
+    struct point points[3];
+    unsigned long long side_lengths[3];
+    
+    points[0].x = atoll(argv[1]);
+    points[0].y = atoll(argv[2]);
+    points[1].x = atoll(argv[3]);
+    points[1].y = atoll(argv[4]);
+    points[2].x = atoll(argv[5]);
+    points[2].y = atoll(argv[6]);
+
+    // run a quick check to remove the not a triangle cases
+    if (collinear(points))
     {
-	printf("right\n");
+	puts("not a triangle");
+	return 0;
     }
-    else if (largest_angle > (M_PI / 2))
-    {
-	printf("obtuse\n");
-    }
-    else
-    {
-	printf("acute\n");
-    }
+
+    side_lengths[0] = squared(points[0].x - points[1].x) + squared(points[0].y - points[1].y);
+    side_lengths[1] = squared(points[1].x - points[2].x) + squared(points[1].y - points[2].y);
+    side_lengths[2] = squared(points[0].x - points[2].x) + squared(points[0].y - points[2].y);
+    qsort(side_lengths, 3, sizeof(unsigned long long), comp);
+
+    print_type(side_lengths);
+    print_angle(side_lengths);
 
     return 0;
 }
+
+
 
 
 
