@@ -1,5 +1,6 @@
 test:
 	gcc -g -fprofile-arcs -ftest-coverage -o triangle triangle.c -lm
+	python27 test.py
 
 
 clean:
