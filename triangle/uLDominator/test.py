@@ -2,86 +2,81 @@
 Created on Jan 10, 2014
 
 @author: Tom
-
-Used Taylor J Stapleton's test.py as a basis.
 '''
 import subprocess
+import math
 
 def isoPartition():
-    result = ""
-    
-    output = subprocess.check_output(['./triangle', '0', '0', '6', '0', '3', '10'])
-    if(output != "isoscelese acute\n") :
-        print("Expected: iscoscelese acute")
-    	print("  Actual: " + output)
-        result += "Acute "
-        
-    output = subprocess.check_output(['./triangle', '0', '0', '5', '0', '0', '5'])
-    if(output != "isoscelese right\n") :
-        print("Expected: iscoscelese right")
-    	print("  Actual: " + output)
-        result += "Right "
-        
-    output = subprocess.check_output(['./triangle', '0', '0', '12', '0', '6', '2'])
-    if(output != "isoscelese obtuse\n") :
-    	print("Expected: iscoscelese obtuse")
-    	print("  Actual: " + output)
-        result += "Obtuse "
-        
-    return result
-
+	#Test output of scaling isosceles right
+	starty1 = 1
+	startx2 = 1
+	for x in range(1, 10) :
+		output = subprocess.check_output(['./triangle', '0', '0', '0', str(starty1*math.pow(2,x)), str(startx2*math.pow(2,x)), '0'])
+		if(output != 'isosceles right\n') :
+			print("Failed isosceles right test. Coords: (0,0) (0,"+str(starty1*math.pow(2,x))+") ("+str(startx2*math.pow(2,x))+",0)")
+			print("Triangle output: " + output)
+			
+	#Test output of scaling isosceles acute
+	starty1 = 2
+	for x in range(1, 10) :
+		output = subprocess.check_output(['./triangle', '0', '0', '1', str(starty1*math.pow(2,x)), '2', '0'])
+		if(output != 'isosceles acute\n') :
+			print("Failed isosceles acute test. Coords: (0,0) (1,"+str(starty1*math.pow(2,x))+") (2,0)")
+			print("Triangle output: " + output)
+		
+	#Test output of scaling isosceles obtuse
+	startx2 = 2
+	for x in range(1, 10) :
+		output = subprocess.check_output(['./triangle', '0', '0', str((startx2*math.pow(2,x))/2), '1', str(startx2*math.pow(2,x)), '0'])
+		if(output != 'isosceles obtuse\n') :
+			print("Failed isosceles obtuse test. Coords: (0,0) ("+str((startx2*math.pow(2,x))/2)+",1) ("+str(startx2*math.pow(2,x))+",0)")
+			print("Triangle output: " + output)
+			
 def scaPartition():
-    result = ""
-    
-    output = subprocess.check_output(['./triangle', '0', '0', '3', '3', '4', '0'])
-    if(output != "scalene acute\n") :
-        print("Expected: scalene acute")
-    	print("  Actual: " + output)
-        result += "Acute "
-        
-    output = subprocess.check_output(['./triangle', '0', '0', '0', '1', '5', '0'])
-    if(output != "scalene right\n") :
-        print("Expected: scalene right")
-    	print("  Actual: " + output)
-        result += "Right "
-        
-    output = subprocess.check_output(['./triangle', '0', '0', '12', '1', '3', '0'])
-    if(output != "scalene obtuse\n") :
-        print("Expected: scalene obtuse")
-    	print("  Actual: " + output)
-        result += "Obtuse "
-        
-    return result
+	#Test output of scaling scalene right
+	startx2 = 1
+	for x in range(1, 10) :
+		output = subprocess.check_output(['./triangle', '0', '0', '0', '1', str(startx2*math.pow(2,x)), '0'])
+		if(output != 'scalene right\n') :
+			print("Failed scalene right test. Coords: (0,0) (0,1) ("+str(startx2*math.pow(2,x))+",0)")
+			print("Triangle output: " + output)
+			
+	#Test output of scaling scalene acute
+	startx2 = 2
+	for x in range(1, 10) :
+		output = subprocess.check_output(['./triangle', '0', '0', str(((startx2*math.pow(2,x))/2)-1), str(startx2*math.pow(2,x)), str(startx2*math.pow(2,x)), '0'])
+		if(output != 'scalene acute\n') :
+			print("Failed scalene acute test. Coords: (0,0) ("+str(((startx2*math.pow(2,x))/2)-1)+","+str(startx2*math.pow(2,x))+") ("+str(startx2*math.pow(2,x))+",0)")
+			print("Triangle output: " + output)
+			
+	#Test output of scaling scalene obtuse
+	startx2 = 2
+	for x in range(1, 10) :
+		output = subprocess.check_output(['./triangle', '0', '0', '1', '1', str(startx2*math.pow(2,x)), '0'])
+		if(output != 'scalene obtuse\n') :
+			print("Failed scalene obtuse test. Coords: (0,0) (1,1) ("+str(startx2*math.pow(2,x))+",0)")
+			print("Triangle output: " + output)
 
 def natPartition():
-    result = ""
-    
-    output = subprocess.check_output(['./triangle', '0', '0', '1', '0', '2', '0'])
-    if(output != "not a triangle\n") :
-        print("Expected: not a triangle")
-    	print("  Actual: " + output)
-        result += "Line "
-        
-    output = subprocess.check_output(['./triangle', '0', '0', '0', '0', '0', '0'])
-    if(output != "not a triangle\n") :
-        print("Expected: not a triangle")
-    	print("  Actual: " + output)
-        result += "Dot "
-
-    return result
+	#Test output of scaling NAT (line)
+	startx1 = 1
+	startx2 = 2
+	for x in range(1,10) :
+		output = subprocess.check_output(['./triangle', '0', '0', str(startx1*math.pow(2,x)), str(startx1*math.pow(2,x)), str(startx2*math.pow(2,x)), str(startx2*math.pow(2,x))])
+		if(output != "not a triangle\n") :
+			print("Failed not a triangle test. Coords: (0,0) ("+str(startx1*math.pow(2,x))+","+str(startx1*math.pow(2,x))+") ("+str(startx1*math.pow(2,x))+","+str(startx1*math.pow(2,x))+")")
+			print("Triangle output: " + output)
+			
+	#Test output of NAT (dot)        
+   	output = subprocess.check_output(['./triangle', '0', '0', '0', '0', '0', '0'])
+    	if(output != "not a triangle\n") :
+        	print("Failed not a triangle test. Coords: (0,0) (0,0) (0,0)")
+    		print("Triangle output: " + output)
 
 def main():
-    testResult = isoPartition()
-    if(testResult != "") :
-        print("Isoscelese partition failed, case: " + testResult)
-        
-    testResult = scaPartition()
-    if(testResult != "") :
-        print("Scalene partition failed, case: " + testResult)
-        
-    testResult = natPartition()
-    if(testResult != "") :
-        print("NAT partition failed, case: " + testResult)
+	isoPartition()
+	scaPartition()
+	natPartition()
 
 if __name__ == '__main__':
-    main()
+    	main()
