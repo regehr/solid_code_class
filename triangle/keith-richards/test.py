@@ -5,6 +5,7 @@ import random
 import sys
 import unittest
 import subprocess
+import multiprocessing
 
 NUM_OF_TESTS = 500
 EXECUTABLE = './triangle'
@@ -101,26 +102,90 @@ class Fuzz1000Cases(MyTestCase):
             raise 
 
 
+
+
+class IR(multiprocessing.Process):
+    def run(self):
+        runner = unittest.TextTestRunner(verbosity=1)
+        runner.run(IsoscelesRight500Cases())
+
+class SR(multiprocessing.Process):
+    def run(self):
+        runner = unittest.TextTestRunner(verbosity=1)
+        runner.run(ScaleneRight500Cases())
+
+class IA(multiprocessing.Process):
+    def run(self):
+        runner = unittest.TextTestRunner(verbosity=1)
+        runner.run(IsoscelesAcute500Cases())
+
+class SA(multiprocessing.Process):
+    def run(self):
+        runner = unittest.TextTestRunner(verbosity=1)
+        runner.run(ScaleneAcute500Cases())
+
+class IO(multiprocessing.Process):
+    def run(self):
+        runner = unittest.TextTestRunner(verbosity=1)
+        runner.run(IsoscelesObtuse500Cases())
+
+class SO(multiprocessing.Process):
+    def run(self):
+        runner = unittest.TextTestRunner(verbosity=1)
+        runner.run(ScaleneObtuse500Cases())
+
+class NT(multiprocessing.Process):
+    def run(self):
+        runner = unittest.TextTestRunner(verbosity=1)
+        runner.run(NotATriangle500Cases())
+
+class FU(multiprocessing.Process):
+    def run(self):
+        runner = unittest.TextTestRunner(verbosity=1)
+        runner.run(Fuzz1000Cases())
+
+
+
 def main():
+
+    p1 = IR()
+    p2 = SR()
+    p3 = IA()
+    p4 = SA()
+    p5 = IO()
+    p6 = SO()
+    p7 = NT()
+    p8 = FU()
+
+    p1.start()
+    p2.start()
+    p3.start()
+    p4.start()
+    p5.start()
+    p6.start()
+    p7.start()
+    p8.start()
+    
+    
 
     # initialize unit tests and harness
 
-    suite = unittest.TestSuite()    
-    runner = unittest.TextTestRunner(verbosity=2)
+#     suite = unittest.TestSuite()    
+#     runner = unittest.TextTestRunner(verbosity=2)
 
-    ir = IsoscelesRight500Cases()
-    sr = ScaleneRight500Cases()
-    ia = IsoscelesAcute500Cases()
-    sa = ScaleneAcute500Cases()
-    io = IsoscelesObtuse500Cases()
-    so = ScaleneObtuse500Cases()
-    nt = NotATriangle500Cases()
-    fuzz = Fuzz1000Cases()
+#     ir = IsoscelesRight500Cases()
+#     sr = ScaleneRight500Cases()
+#     ia = IsoscelesAcute500Cases()
+#     sa = ScaleneAcute500Cases()
+#     io = IsoscelesObtuse500Cases()
+#     so = ScaleneObtuse500Cases()
+#     nt = NotATriangle500Cases()
+#     fuzz = Fuzz1000Cases()
 
-    suite.addTests([ir, sr, ia, sa, io, so, nt, fuzz])
+#     suite.addTests([ir, sr, ia, sa, io, so, nt, fuzz])
 
-    # run the tests
-    runner.run(suite)
+#     # run the tests
+#     runner.run(suite)
     
 
 
