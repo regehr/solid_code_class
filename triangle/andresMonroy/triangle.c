@@ -1,110 +1,63 @@
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 
 struct Point {
-    double x;
-    double y;
+    long long x;
+    long long y;
 };
 
-double find_slope(double x1, double x2, double y1, double y2){
-    double dy = y2 - y1;
-    double dx = x2 - x1;
-    if (dx == dy){
-        return 1;
+bool is_invalid_triangle(struct Point points[3]){
+    struct Point d_AB = { .x = points[0].x - points[1].x, .y = points[0].y - points[1].y };
+    struct Point d_AC = { .x = points[0].x - points[2].x, .y = points[0].y - points[2].y };
+    return (d_AB.x * d_AC.y) == (d_AB.y * d_AC.x);
+}
+
+long long find_distance(struct Point p1, struct Point p2){
+    long long dx = p2.x - p1.x;
+    long long dy = p2.y - p1.y;
+    return (dx*dx) + (dy*dy);
+}
+
+char* get_triangle_type(long long sides[3]){
+    if (sides[0] == sides[1] || sides[1] == sides[2] || sides[2] == sides[0])
+        return "isosceles";
+    return "scalene";
+}
+
+int comp(const void* aa, const void* bb){
+    const int *a = aa, *b = bb;
+    return (*a < *b) ? -1 : (*a > *b);
+}
+
+char* get_angle_type(long long sides[3]){
+    qsort(sides, 3, sizeof(long long), comp);
+    long long angle_type = sides[2] - sides[1] - sides[0];
+    if (angle_type == 0){
+        return "right";
+    } else if (angle_type > 0){
+       	return "obtuse";
     }
-    return dy/dx;
+	return "acute";
 }
 
-double find_distance(struct Point p1, struct Point p2){
-    double dx = p2.x - p1.x;
-    double dy = p2.y - p1.y;
-    return sqrt(dx*dx + dy*dy);
-}
-
-double to_degrees(double rads){
-    return rads*(180.0/M_PI);
-}
-
-double find_angle(double a, double b, double c) {
-    return to_degrees(acos((b*b + c*c - a*a) / (2*b*c)));
-}
-
-bool is_equilateral(double sides[3]){
-    return sides[0] == sides[1] && sides[1] == sides[2] && sides[2] == sides[0];
-}
-
-double get_largest_angle(double angles[3]){
-    if (angles[0] > angles[1] && angles[0] > angles[2]){
-        return angles[0];
-    } else if (angles[1] > angles[0] && angles[1] > angles[2]){
-        return angles[1];
-    } else if (angles[2] > angles[0] && angles[2] > angles[1]){
-        return angles[2];
-    } else {
-		return angles[0];
-    }
-}
-
-bool is_right(double angles[3]){
-    /* slopes of perpendicular lines are negative reciprocals */
-    double angle = get_largest_angle(angles);
-    return angle >= 90 && (angle - 90) < .00000000001;
-}
-
-bool is_isosceles(double sides[3]){
-    return sides[0] == sides[1] || sides[1] == sides[2] || sides[2] == sides[0];
-}
-
-bool is_obtuse(double angles[3]){
-    return angles[0] > 90 || angles[1] > 90 || angles[2] > 90;
-}
-
+/**
+ * Find the type of triangle from the triplet of points given.
+ * out: type - isosceles || scalene
+ * out: angle - acute || obtuse || right
+ */
 void find_triangle(struct Point points[3], char** type, char** angle){
-    char* EQI = "equilateral";
-    char* ISO = "isosceles";
-    char* RIGHT = "right";
-    char* SCA = "scalene";
-    char* OBT = "obtuse";
-    char* ACU = "acute";
-    double sides[3];
-    double angles[3];
+    /* NOTE: cannot form an equilateral triangle with integer inputs */
+    long long sides[3];
     
     /* finds sides and angles */
     sides[0] = find_distance(points[0], points[1]);
     sides[1] = find_distance(points[0], points[2]);
     sides[2] = find_distance(points[1], points[2]);
-    angles[0] = find_angle(sides[1], sides[2], sides[0]);
-    angles[1] = find_angle(sides[0], sides[1], sides[2]);
-    angles[2] = find_angle(sides[2], sides[1], sides[0]);
-    
-    /* check equilateral */
-    if (is_equilateral(sides)){
-        *type = EQI;
-        *angle = ACU;
-        return;
-    }
-    
-    /* check isosceles variants */
-    if (is_isosceles(sides)){
-        *type = ISO;
-    } else {
-        *type = SCA;
-    }
-    
-    /* check angle type */
-    if (is_right(angles)){
-        *angle = RIGHT;
-        return;
-    }
-    if (is_obtuse(angles)){
-        *angle = OBT;
-    } else {
-        *angle = ACU;
-    }
+    *type = get_triangle_type(sides);
+    *angle = get_angle_type(sides);
 }
 
 int main (int argc, char* argv[]){
@@ -112,22 +65,19 @@ int main (int argc, char* argv[]){
     char* type = "";
     char* angle = "";
     struct Point points[3];
-    points[0].x = atof(argv[1]);
-    points[0].y = atof(argv[2]);
-    points[1].x = atof(argv[3]);
-    points[1].y = atof(argv[4]);
-    points[2].x = atof(argv[5]);
-    points[2].y = atof(argv[6]);
     
-    double slope_AB = find_slope(points[0].x, points[1].x, points[0].y, points[1].y);
-    double slope_AC = find_slope(points[0].x, points[2].x, points[0].y, points[2].y);
+    sscanf(argv[1], "%lld", &points[0].x);
+    sscanf(argv[2], "%lld", &points[0].y);
+    sscanf(argv[3], "%lld", &points[1].x);
+    sscanf(argv[4], "%lld", &points[1].y);
+    sscanf(argv[5], "%lld", &points[2].x);
+    sscanf(argv[6], "%lld", &points[2].y);
     
     /* Same slope = not a triangle */
-    if (slope_AB == slope_AC){
+    if (is_invalid_triangle(points)){
         printf("not a triangle\n");
         return 0;
     }
-    
     find_triangle(points, &type, &angle);
     printf("%s %s\n", type, angle);
     return 0;
