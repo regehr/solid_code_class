@@ -5,8 +5,8 @@
 #include <assert.h>
 
 struct Point {
-    long long x;
-    long long y;
+    unsigned long long x;
+    unsigned long long y;
 };
 
 bool is_invalid_triangle(struct Point points[3]){
@@ -15,32 +15,32 @@ bool is_invalid_triangle(struct Point points[3]){
     return (d_AB.x * d_AC.y) == (d_AB.y * d_AC.x);
 }
 
-long long find_distance(struct Point p1, struct Point p2){
-    long long dx = p2.x - p1.x;
-    long long dy = p2.y - p1.y;
+unsigned long long find_distance(struct Point p1, struct Point p2){
+    unsigned long long dx = p2.x - p1.x;
+    unsigned long long dy = p2.y - p1.y;
     return (dx*dx) + (dy*dy);
 }
 
-char* get_triangle_type(long long sides[3]){
+char* get_triangle_type(unsigned long long sides[3]){
     if (sides[0] == sides[1] || sides[1] == sides[2] || sides[2] == sides[0])
         return "isosceles";
     return "scalene";
 }
 
 int comp(const void* aa, const void* bb){
-    const int *a = aa, *b = bb;
+    const unsigned long long *a = aa, *b = bb;
     return (*a < *b) ? -1 : (*a > *b);
 }
 
-char* get_angle_type(long long sides[3]){
-    qsort(sides, 3, sizeof(long long), comp);
-    long long angle_type = sides[2] - sides[1] - sides[0];
-    if (angle_type == 0){
-        return "right";
-    } else if (angle_type > 0){
-       	return "obtuse";
+char* get_angle_type(unsigned long long sides[3]){
+    qsort(sides, 3, sizeof(unsigned long long), comp);
+    unsigned long long angle_type = sides[2] - sides[1] - sides[0];
+    if (sides[2] > (sides[1] + sides[0])){
+        return "obtuse";
+    } else if (sides[2] < (sides[1] + sides[0])){
+        return "acute";
     }
-	return "acute";
+    return "right";
 }
 
 /**
@@ -50,7 +50,7 @@ char* get_angle_type(long long sides[3]){
  */
 void find_triangle(struct Point points[3], char** type, char** angle){
     /* NOTE: cannot form an equilateral triangle with integer inputs */
-    long long sides[3];
+    unsigned long long sides[3];
     
     /* finds sides and angles */
     sides[0] = find_distance(points[0], points[1]);
