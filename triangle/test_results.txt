@@ -138,6 +138,15 @@ passed:
 sphippen		Spencer Phippen
 
 passed:
+AdamBradford
+andresMonroy
+clukey
+domfurano
+dsetser
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
 
 -----------------------------------------------------
 taylorstapleton		Taylor Stapleton
