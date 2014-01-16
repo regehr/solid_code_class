@@ -82,11 +82,13 @@ dsetser			Daniel Setser
 
 passed:
 
+AdamBradford
 andresMonroy
 clukey
 domfurano
 dsetser
 jmcdonald-ut
+jordanwanlass
 joshkunz
 keith-richards
 oscarmarshall
