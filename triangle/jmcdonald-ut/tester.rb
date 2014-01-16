@@ -53,39 +53,23 @@ class Tester
   end
 
   def summary
-    puts ""
-    puts "Ran #{@tests_ran} tests, #{@tests_failed} failed, #{@tests_passed}"\
-          " passed."
-    puts ""
+    "Ran #{@tests_ran} tests, #{@tests_failed} failed, #{@tests_passed} passed."
+  end
+
+  def reset
+    @tests_ran = 0
+    @tests_failed = 0
+    @tests_passed = 0
   end
 
   private
 
   def fails test_sym, output
     @tests_failed += 1
-
-    output.gsub!("\n","")
-    expected = @tests[test_sym][:output].gsub("\n", "")
-
-    puts "Failed #{@tests[test_sym][:name]}.  "
-    puts "\tExpected '#{expected}' but got '#{output}' instead"
   end
 
   def passes test_sym
     @tests_passed += 1
-
-    puts "Passed #{@tests[test_sym][:name]}!"
   end
 end
 
-test_harness = Tester.new
-test_harness.run_test("./triangle 0 0 0 0 0 0", :nat_simple)
-test_harness.run_test("./triangle 1 1 2 2 3 3", :nat_hard)
-test_harness.run_test("./triangle 1 1 3 2 1 3", :iso_acute)
-test_harness.run_test("./triangle 1 1 3 2 5 1", :iso_obtuse)
-test_harness.run_test("./triangle 1 1 0 2 0 1", :iso_right)
-test_harness.run_test("./triangle 1 1 5 1 5 4", :sca_right)
-test_harness.run_test("./triangle 1 1 4 2 6 1", :sca_obtuse)
-test_harness.run_test("./triangle 1 1 2 2 4 1", :sca_obtuse)
-test_harness.run_test("./triangle 0 0 1 3 4 0", :sca_acute)
-test_harness.summary
