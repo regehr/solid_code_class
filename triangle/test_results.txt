@@ -264,6 +264,8 @@ andresMonroy
 clukey
 domfurano
 dsetser
+eisenstat_fp
+eisenstat_int
 joshkunz
 keith-richards
 oscarmarshall
