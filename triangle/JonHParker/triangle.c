@@ -57,7 +57,7 @@ long long unsigned int GetSideSquared(unsigned int x1, unsigned int y1, unsigned
 int main(int argc, char** argv) {
 
     // Declare variables.
-    unsigned int x1, x2, x3, y1, y2, y3;
+    unsigned int x1, x2, x3, y1, y2, y3, v1x, v2x, v1y, v2y;
     long long unsigned int firstSideSquared, secondSideSquared, thirdSideSquared;
     char result[80];
     
@@ -76,6 +76,17 @@ int main(int argc, char** argv) {
 
     // If any square of a length is 0, that means this isn't a triangle.
     if (firstSideSquared == 0 || secondSideSquared == 0 || thirdSideSquared == 0)
+    {
+        printf("not a triangle\n");
+        return 0;
+    }
+
+    // If cross product (which is a*b*sin(theta)) is 0, then points are colinear.
+    v1x = x2-x1;
+    v1y = y2-y1;
+    v2x = x3-x1;
+    v2y = y3-y1;
+    if (v1x*v2y == v2x*v1y)
     {
         printf("not a triangle\n");
         return 0;

@@ -1,3 +1,4 @@
+# Modeled after domfurano's test script (including test.txt)
 import subprocess
 
 print "Beginning test.\n"

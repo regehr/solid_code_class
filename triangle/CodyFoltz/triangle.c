@@ -255,7 +255,7 @@ void reduce_slope(Slope * slope){
      * \gcd(a,b) = \gcd(a, b-a)\quad,
      */
 int gcd(double a, double b){
-    if(a == 1 || b == 1){
+    if(a <= 1 || b <= 1){
         return 1;
     }
     if(a == b){
@@ -324,3 +324,11 @@ int has_overlapping_points(Point pointA, Point pointB, Point pointC){
  * degrees. If you need the actual angle between the two vectors, 
  * take the inverse cosine of the scalar value returned by the dot product.
  */
+
+int dot_product(Point point_A, Point point_B, Point origin){
+    
+    double x = (point_A.x-origin.x)*(point_B.x-origin.x);
+    double y = (point_A.y-origin.y)*(point_B.y-origin.y);
+    
+    int result = x+y;
+}
