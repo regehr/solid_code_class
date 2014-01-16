@@ -144,6 +144,42 @@ taylorstapleton		Taylor Stapleton
 
 passed:
 
+andresMonroy
+domfurano
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
+taylorstapleton
+dsetser
+jmcdonald-ut
+AdamBradford
+clukey
+armage17
+
+
+
+failed:
+
+uLDominator: failed isoceles(right ) (passed scalene) (passed Not a Triangle)
+brendenjtyler: failed isoceles(acuteEdgeCase ) (passed scalene) (passed Not a
+Triangle)
+jakeguckert: failed isoceles(acuteEdgeCase obtuseEdgeCase ) (passed scalene)
+(passed Not a Triangle)
+CodyFoltz: failed isoceles(acute acuteEdgeCase ) failed scalene(acute )
+(passed Not a Triangle)
+lynntesia: failed isoceles(right acuteEdgeCase obtuseEdgeCase ) failed
+scalene(right ) failed NotaTriangle(line )
+toddJohnson: failed isoceles(acuteEdgeCase ) (passed scalene) (passed Not a
+Triangle)
+jordanwanlass: failed isoceles(obtuse right obtuseEdgeCase ) failed
+scalene(obtuse ) (passed Not a Triangle)
+JonHParker: failed isoceles(acuteEdgeCase obtuseEdgeCase ) (passed scalene)
+failed NotaTriangle(line )
+
+ungso: ungso returned the error code: 1
+
+
 -----------------------------------------------------
 uLDominator		Thomas Gonsor
 
