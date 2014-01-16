@@ -32,14 +32,11 @@ void swap(long long* a, long long* b)
 /* Prints the type of triangle given the sides. */
 void printType(long long a, long long int b, long long int c)
 {
+  /* The equilateral case is impossible to get with integer coordinates */
   if(a == b || a == c || b == c)
-  {
     printf("isosceles ");
-  }
   else
-  {
     printf("scalene ");
-  }
   
   /* Make sure c is the largest angle. */
   if(b > a && b > c)
