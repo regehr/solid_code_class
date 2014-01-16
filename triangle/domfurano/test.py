@@ -2,8 +2,8 @@ import subprocess
 
 file = open("test.txt", "r")
 
-correct = 0;
-total = 0;
+correct = 0
+total = 0
 
 for line in file:
     coords = line.split()
@@ -18,4 +18,3 @@ for line in file:
 file.close()
 
 print "{0} out of {1} tests passed.".format(correct, total)
-
