@@ -37,6 +37,16 @@ sphippen
 armage17		Hutch Jorgensen
 
 passed:
+AdamBradford
+andresMonroy
+clukey
+domfunano
+dsetser
+eisenstat_fp
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
 
 -----------------------------------------------------
 brendenjtyler		Brenden Tyler

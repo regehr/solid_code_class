@@ -34,7 +34,6 @@ int comp(const void* aa, const void* bb){
 
 char* get_angle_type(unsigned long long sides[3]){
     qsort(sides, 3, sizeof(unsigned long long), comp);
-    unsigned long long angle_type = sides[2] - sides[1] - sides[0];
     if (sides[2] > (sides[1] + sides[0])){
         return "obtuse";
     } else if (sides[2] < (sides[1] + sides[0])){
