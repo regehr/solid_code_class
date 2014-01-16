@@ -1,0 +1,168 @@
+-----------------------------------------------------
+regehr
+
+passed:
+
+AdamBradford
+armage17
+clukey
+domfurano
+dsetser
+jmcdonald-ut
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
+taylorstapleton
+
+-----------------------------------------------------
+ahbradford		Adam Bradford
+
+passed:
+
+-----------------------------------------------------
+armage17		Hutch Jorgensen
+
+passed:
+
+-----------------------------------------------------
+brendenjtyler		Brenden Tyler
+
+passed:
+
+-----------------------------------------------------
+clukey			John Clukey
+
+passed:
+
+-----------------------------------------------------
+Codablo			Code Foltz
+
+passed:
+
+-----------------------------------------------------
+domfurano		Dominic Furano
+
+passed:
+
+-----------------------------------------------------
+dsetser			Daniel Setser
+
+passed:
+
+-----------------------------------------------------
+hyvemynd		Andres Monroy
+
+passed:
+
+-----------------------------------------------------
+jeffreyj01		Todd Johnson
+
+passed:
+
+-----------------------------------------------------
+jguckert313		John Guckert
+
+passed:
+
+-----------------------------------------------------
+jmcdonald-ut		Jonathon Mcdonald
+
+passed:
+
+-----------------------------------------------------
+JonHParker		Jonathan Parker
+
+passed:
+
+-----------------------------------------------------
+jordanwanlass		Anthony Wanlass
+
+passed:
+
+-----------------------------------------------------
+Joshkunz		Josh Kunz
+
+passed:
+
+sphippen
+oscarmarshall
+keith-richards
+joshkunz
+dsetser
+domfurano
+clukey
+AdamBradford
+andresMonroy
+
+-----------------------------------------------------
+keith-richards		Keith Richards
+
+passed:
+
+AdamBradford
+andresMonroy
+cluckey
+domfurano
+jmcdonald-ut
+jordanwanlass
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
+taylorstapleton
+
+-----------------------------------------------------
+lynntesia		Lynn Gao
+
+passed:
+
+-----------------------------------------------------
+OscarMarshall		Oscar Marshall
+
+passed:
+
+-----------------------------------------------------
+sphippen		Spencer Phippen
+
+passed:
+
+-----------------------------------------------------
+taylorstapleton		Taylor Stapleton
+
+passed:
+
+-----------------------------------------------------
+uLDominator		Thomas Gonsor
+
+passed:
+AdamBradford
+andresMonroy
+armage17
+clukey
+domfurano
+jmcdonald-ut
+jordanwanlass
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
+taylorstapleton
+
+failed:
+brendenjtyler	- invalid output
+CodyFoltz	- Failed isosceles acute & scalene acute tests
+dsetser		- Subprocess exit error 6, could be python27 error
+jakeguckert	- Failed scalene right tests
+JonHParker	- Failed NAT (line) tests
+lynntessia	- Failed isosceles right, scalene right, and NAT tests
+sphippen	- mpz_init_set_str rejects values such as "2.0" which my tests use, correct otherwise
+Todd\ Johnson	- Failed NAT (line) tests
+ungso		- Subprocess exit error 1, could be python27 error
+
+-----------------------------------------------------
+ungso			Chad Miller
+
+passed:
+
+-----------------------------------------------------

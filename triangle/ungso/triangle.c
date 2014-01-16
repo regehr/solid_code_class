@@ -5,11 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-void print_type(int x1, int y1, int x2, int y2, int x3, int y3);
-void check_in_range(int x1, int y1, int x2, int y2, int x3, int y3);
-double get_side(double x1, double x2, double y1, double y2, int length);
-void triangle_type(double A_len, double B_len, double C_len, double A, double B, double C);
-void validate(int x1, int y1, int x2, int y2, int x3, int y3);
+
+void print_type(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3);
+long long get_side(long long x1, long long x2, long long y1, long long y2);
+void triangle_type(long long A, long long B, long long C);
+void validate(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3);
+int is_straight_line(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3);
+void get_triangle_type(long long A, long long B, long long C);
 
 
 int main(int argc, char **argv){
@@ -26,44 +28,37 @@ int main(int argc, char **argv){
 
 
 /* Main routine */
-void print_type(int x1, int y1, int x2, int y2, int x3, int y3){
+void print_type(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3){
 
-  /* first check in range */
 check_in_range(x1, y1, x2, y2, x3, y3);
 validate(x1, y1, x2, y2, x3, y3);
-double A_len = get_side((double)x1, (double)x3, (double)y1, (double)y3, 1);
-double B_len = get_side((double)x2, (double)x3, (double)y2, (double)y3, 1);
-double C_len = get_side((double)x1, (double)x2, (double)y1, (double)y2, 1);
-
-double A = get_side((double)x1, (double)x3, (double)y1, (double)y3, 0);
-double B = get_side((double)x2, (double)x3, (double)y2, (double)y3, 0);
-double C = get_side((double)x1, (double)x2, (double)y1, (double)y2, 0); 
-triangle_type(A_len, B_len, C_len, A, B, C);
+long long A = get_side(x1, x3, y1, y3);
+long long B = get_side(x2, x3, y2, y3);
+long long C = get_side(x1, x2, y1, y2);
+get_triangle_type(A, B, C);
 
 }
 
+
 /* Returns the length of a side */
-double get_side(double x1, double x2, double y1, double y2, int length){
+long long get_side(long long x1, long long x2, long long y1, long long y2){
 
-double diff_1 = (x2 - x1);
-double diff_2 = (y2 - y1);
-double sq_1 = pow(diff_1, 2);
-double sq_2 = pow(diff_2, 2);
-double sum_of_squares = sq_1 + sq_2;
-if(length)
-   return sqrt(sum_of_squares);
+long long diff_1 = (x2 - x1);
+long long diff_2 = (y2 - y1);
+long long sq_1 = pow(diff_1, 2);
+long long sq_2 = pow(diff_2, 2);
+long long sum_of_squares = sq_1 + sq_2;
 
-else
-   return sum_of_squares;
+return sum_of_squares;
 }
 
 
 /* Prints the triangle_type */
-void triangle_type(double A_len, double B_len, double C_len, double A, double B, double C){
+void triangle_type(long long A, long long B, long long C){
 
   char *type = NULL;
 
-  if((A_len == B_len) && (B_len == C_len))
+  if((A == B) && (B == C))
   printf("equalateral acute");
  
   else if ((A==B) || (A==C) || (B==C))
@@ -72,32 +67,22 @@ void triangle_type(double A_len, double B_len, double C_len, double A, double B,
   else
    printf("scalene ");
 
-  if ((A + B) == C || (A + C) == B || (B + C) == A)
-   printf("right\n");
+  long long rslt = C - B - A;
 
-  else if ((A + B) < C || (A + C) < B || (B + C) < A) 
-   printf("obstuse\n");
+  if (rslt > 0)
+   printf("obtuse\n");
+
+  else if (rslt == 0) 
+   printf("right\n");
 
   else
     printf("acute\n");
   
 }
 
-/* Checks that x is in range 0 ... 2^31 -1 assuming no negative ints are allowed */
-void check_in_range(int x1, int y1, int x2, int y2, int x3, int y3){
 
-assert(!(x1 & INT_MIN));
-assert(!(y1 & INT_MIN));
-assert(!(x2 & INT_MIN));
-assert(!(y2 & INT_MIN));
-assert(!(x3 & INT_MIN));
-assert(!(y3 & INT_MIN));
-
-
-}
-
-/* validates the coordinates as describing a triangle */
-void validate(int x1, int y1, int x2, int y2, int x3, int y3){
+/* Validates the coordinates as describing a triangle */
+void validate(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3){
  
   int invalid = 0;
 
@@ -121,20 +106,50 @@ else if (((x1 == x3) && (y1 == y3)))
    
 }
 
-/* Do coordinates represent a straight line, i.e, not a triangle? */
-int is_straight_line(int x1, int y1, int x2, int y2, int x3, int y3){
 
-  int denom_1 = abs(y2 - y1);
-  int denom_2 = abs(y3 - y2);
-  int denom_3 = abs(y3 - y1);
+/* Do coordinates represent a straight line */
+int is_straight_line(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3){
+
+  long long denom_1 = abs(y2 - y1);
+  long long denom_2 = abs(y3 - y2);
+  long long denom_3 = abs(y3 - y1);
+
   if (denom_1 == 0 || denom_2 == 0 || denom_3 == 0)
     return 0;
-  if (denom_1 == INT_MIN || denom_2 == INT_MIN || denom_3 == INT_MIN)
-    return 0;
-  double slope_1 = abs((abs(x2 - x1)) / denom_1);
-  double slope_2 = abs((abs(x3 - x2)) / denom_2);
-  double slope_3 = abs((abs(x3 - x1)) / denom_3);
+ 
+  long long slope_1 = abs((abs(x2 - x1)) / denom_1);
+  long long slope_2 = abs((abs(x3 - x2)) / denom_2);
+  long long slope_3 = abs((abs(x3 - x1)) / denom_3);
 
   return ((slope_1 == slope_2) && (slope_2 == slope_3) && (slope_1 == slope_3));
+
+}
+
+
+/* Checks for signed overflow */
+check_in_range(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3){
+  
+  assert(!(x1 & LLONG_MIN));
+  assert(!(y1 & LLONG_MIN));
+  assert(!(x2 & LLONG_MIN));
+  assert(!(y2 & LLONG_MIN));
+  assert(!(x3 & LLONG_MIN));
+  assert(!(y3 & LLONG_MIN));
+
+}
+
+
+/* Get triangle type */
+void get_triangle_type(long long A, long long B, long long C){
+
+  
+  if(A >= B && A >= C)
+    triangle_type(B, C, A);
+    
+  else if(B >= A && B >= C)
+    triangle_type(A, C, B);
+
+  else
+    triangle_type(A, B, C);
 
 }

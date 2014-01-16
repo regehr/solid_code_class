@@ -5,6 +5,7 @@ import random
 import sys
 import unittest
 import subprocess
+import multiprocessing
 
 NUM_OF_TESTS = 500
 EXECUTABLE = './triangle'
@@ -101,8 +102,8 @@ class Fuzz1000Cases(MyTestCase):
             raise 
 
 
-def main():
 
+def main():
     # initialize unit tests and harness
 
     suite = unittest.TestSuite()    

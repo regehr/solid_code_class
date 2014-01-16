@@ -2,6 +2,8 @@
 
 use strict;
 
+system "find . -name triangle | xargs rm -f";
+
 my @dirs = ();
 foreach my $d (glob "*") {
     if (-d $d) { 

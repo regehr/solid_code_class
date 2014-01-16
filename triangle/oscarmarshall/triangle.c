@@ -1,61 +1,66 @@
-#include <math.h>
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "triangle.h"
+typedef struct {
+  long long x;
+  long long y;
+} Point;
 
-#define PI acos(-1)
-#define EPSILON PI / pow(2, 16)
-
-int equal(double a, double b) {
-  return fabs(a - b) < EPSILON;
+long long square(long long number) {
+  assert(number <= 0x7fffffff);
+  return number * number;
 }
 
-double distance(Point a, Point b) {
-  return sqrt(pow(abs(a.x - b.x), 2) + pow(abs(a.y - b.y), 2));
+long long distanceSquared(Point a, Point b) {
+  return square(abs(a.x - b.x)) + square(abs(a.y - b.y));
 }
 
-double angleLawOfCos(double a, double b, double c) {
-  return acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b));
+long long angleTypeFromLengthsSquared(long long a, long long b, long long c) {
+  return c - a - b;
 }
 
 char *analyzeTriangle(Point a, Point b, Point c) {
-  double lengths[3];
-  lengths[0] = distance(a, b);
-  lengths[1] = distance(b, c);
-  lengths[2] = distance(c, a);
+  Point bTransformed = {.x = b.x - a.x, .y = b.y - a.y};
+  Point cTransformed = {.x = c.x - a.x, .y = c.y - a.y};
 
-  if (lengths[0] == lengths[1] + lengths[2] ||
-      lengths[1] == lengths[0] + lengths[2] ||
-      lengths[2] == lengths[0] + lengths[1]) {
+  if (bTransformed.x * cTransformed.y == bTransformed.y * cTransformed.x) {
     return "not a triangle";
   }
 
+  long long lengthsSquared[3];
+  lengthsSquared[0] = distanceSquared(a, b);
+  lengthsSquared[1] = distanceSquared(b, c);
+  lengthsSquared[2] = distanceSquared(c, a);
+
   char *sideName;
-  if (lengths[0] == lengths[1] && lengths[0] == lengths[2]) {
-    sideName = "equilateral";
-  } else if (lengths[0] == lengths[1] || lengths[0] == lengths[2] ||
-      lengths[1] == lengths[2]) {
+  if (lengthsSquared[0] == lengthsSquared[1] ||
+      lengthsSquared[0] == lengthsSquared[2] ||
+      lengthsSquared[1] == lengthsSquared[2]) {
     sideName = "isosceles";
   } else {
-    sideName = "scalar";
+    sideName = "scalene";
   }
 
-  double angles[3];
-  angles[0] = angleLawOfCos(lengths[0], lengths[1], lengths[2]);
-  angles[1] = angleLawOfCos(lengths[1], lengths[2], lengths[0]);
-  angles[2] = angleLawOfCos(lengths[2], lengths[0], lengths[1]);
+  long long typeOfLargestAngle;
+  if (lengthsSquared[0] >= lengthsSquared[1] &&
+      lengthsSquared[0] >= lengthsSquared[2]) {
+    typeOfLargestAngle = angleTypeFromLengthsSquared(lengthsSquared[1],
+      lengthsSquared[2], lengthsSquared[0]);
+  } else if (lengthsSquared[1] >= lengthsSquared[0] &&
+      lengthsSquared[1] >= lengthsSquared[2]) {
+    typeOfLargestAngle = angleTypeFromLengthsSquared(lengthsSquared[0],
+      lengthsSquared[2], lengthsSquared[1]);
+  } else {
+    typeOfLargestAngle = angleTypeFromLengthsSquared(lengthsSquared[0],
+      lengthsSquared[1], lengthsSquared[2]);
+  }
 
   char *angleName;
-  if (equal(angles[0], PI / 2) || equal(angles[1], PI / 2) ||
-      equal(angles[2], PI / 2)) {
-    angleName = "right";
-  } else if (angles[0] > asin(1) || angles[1] > asin(1) ||
-      angles[2] > asin(1)) {
-    angleName = "obtuse";
-  } else {
-    angleName = "acute";
-  }
+  if (typeOfLargestAngle == 0) angleName = "right";
+  else if (typeOfLargestAngle > 0) angleName = "obtuse";
+  else angleName = "acute";
 
   char *result = malloc(20 * sizeof(char));
   strcpy(result, sideName);
@@ -63,4 +68,22 @@ char *analyzeTriangle(Point a, Point b, Point c) {
   strcat(result, angleName);
 
   return result;
+}
+
+int main(int argc, char **argv) {
+  Point a, b, c;
+  if (argc != 7 ||
+      !sscanf(argv[1], "%lld", &a.x) ||
+      !sscanf(argv[2], "%lld", &a.y) ||
+      !sscanf(argv[3], "%lld", &b.x) ||
+      !sscanf(argv[4], "%lld", &b.y) ||
+      !sscanf(argv[5], "%lld", &c.x) ||
+      !sscanf(argv[6], "%lld", &c.y)) {
+    printf("Usage: %s x1 y1 x2 y2 x3 y3\n", argv[0]);
+    return 1;
+  }
+
+  printf("%s\n", analyzeTriangle(a, b, c));
+
+  return 0;
 }

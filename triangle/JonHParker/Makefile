@@ -1,2 +1,9 @@
 triangle: triangle.c
-	gcc triangle.c -o triangle
+	gcc -fprofile-arcs -ftest-coverage triangle.c -o triangle
+
+test:
+	./test.sh
+	gcov -b triangle.c
+
+clean:
+	rm -rf triangle *.gcda *.gcov *.gcno *~

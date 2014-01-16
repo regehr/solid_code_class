@@ -1,7 +1,7 @@
 /* Triangle Analyzer
  * 
  * Student: John Clukey
- * Date: January 8, 2014
+ * Date: January 8-13, 2014
  */
 
 #include <stdlib.h>
@@ -31,7 +31,7 @@ int main (int argc, char **argv) {
   for (i = 0; i < 6; i++) {
     if (sscanf(argv[i+1], "%lld", &pts[i]) != 1) {
       printf("input error\n");
-      return 1;
+      return 0;
     }
   }
   
@@ -102,10 +102,10 @@ const char *angle_from_squares(long long asq, long long bsq, long long csq) {
   long long diff = csq - asq - bsq;
 
   /* Law of cosines. */
-  if (diff > 0ll) {
+  if (diff > 0) {
     return "obtuse";
   }
-  else if (diff == 0ll) {
+  else if (diff == 0) {
     return "right";
   }
   else {

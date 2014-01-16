@@ -1,15 +1,21 @@
-all:
-	gcc triangle.c  -lm -o triangle
+all: triangle
 
-test:
-	gcc -fprofile-arcs -ftest-coverage triangle.c -o triangle -lm
+triangle: triangle.c
+	gcc -fprofile-arcs -ftest-coverage -lm -o triangle triangle.c
+
+test: triangle python27 cov
+
+mactest: triangle python cov
+	
+python27: 
 	python27 test.py
-	gcov triangle
 
-testmac:
-	gcc -fprofile-arcs -ftest-coverage triangle.c -o triangle
+python: 
 	python test.py
+
+cov:
 	gcov triangle
+	
 clean:
-	rm triangle triangle.c.gcov triangle.gcda triangle.gcno
+	rm -f triangle triangle.c.gcov triangle.gcda triangle.gcno
 	

@@ -10,13 +10,14 @@
 #include <stdlib.h>
 #include "triangle.h"
 #include <assert.h>
+#include <limits.h>
 
 char * acute_obutse_or_right_string_for_triangle(triangle triangle);
 char * scalene_iso_string_for_triangle(triangle triangle);
 
 int main(int argc, const char * argv[])
 {
-
+	
     triangle_point points[3];
     int i;
     

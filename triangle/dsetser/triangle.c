@@ -1,6 +1,5 @@
 #include "stdio.h"
 #include "stdlib.h"
-#include "math.h"
 
 /* Triangle Analyzer written by Daniel Setser
  * This program takes in 6 positive integers, which represent 3 points 
