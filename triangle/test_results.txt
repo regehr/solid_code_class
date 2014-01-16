@@ -19,6 +19,16 @@ taylorstapleton
 ahbradford		Adam Bradford
 
 passed:
+AdamBradford
+andresMonroy
+clukey
+domfunano
+dsetser
+joshkunz
+keith-richards
+ungso
+
+
 
 -----------------------------------------------------
 armage17		Hutch Jorgensen
