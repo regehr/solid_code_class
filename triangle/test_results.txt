@@ -45,6 +45,17 @@ clukey			John Clukey
 
 passed:
 
+AdamBradford
+andresMonroy
+clukey
+domfurano
+dsetser
+joshkunz
+keith-richards
+oscarmarshall
+shippen
+
+
 -----------------------------------------------------
 Codablo			Code Foltz
 
