@@ -24,11 +24,12 @@ andresMonroy
 clukey
 domfunano
 dsetser
+eisenstat_fp
+eisenstat_int
 joshkunz
 keith-richards
 oscarmarshall
 sphippen
-ungso
 
 
 
