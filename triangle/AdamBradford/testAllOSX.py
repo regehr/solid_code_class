@@ -50,7 +50,7 @@ def main():
 			#change to the origional directory
 			os.chdir(myDir)
 			#run the test
-			os.system("python27 testAllHelper.py")
+			os.system("python testAllHelper.py")
 			
 		
 			#print a footer
