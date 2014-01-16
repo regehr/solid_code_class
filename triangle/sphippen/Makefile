@@ -20,4 +20,4 @@ test: $(SRC)
 
 .PHONY: clean
 clean:
-	@rm -rf $(BIN) $(BIN).gcda $(SRC).gcov $(BIN).gcno $(BIN).dSYM testresults.txt
+	@rm -rf $(BIN) $(BIN).gcda $(SRC).gcov $(BIN).gcno $(BIN).dSYM testresults*.txt

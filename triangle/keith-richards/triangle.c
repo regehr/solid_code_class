@@ -2,135 +2,59 @@
 #include <stdlib.h>
 #include <math.h>
 
-long double max(long double a, long double b, long double c)
+
+typedef struct _point 
 {
-    long double largest = a;
-    if (b > largest)
-	largest = b;
-    if (c > largest)
-	largest = c;
-    return largest;
-}
-
-long double min(long double a, long double b, long double c)
-{
-    long double smallest = a;
-    if (b < smallest)
-	smallest = b;
-    if (c < smallest)
-	smallest = c;
-    return smallest;
-}
-
-
-long double mid(long double a, long double b, long double c)
-{
-    if ((a < b && a > c) ||
-	(a < c && a > b))
-    {
-	return a;
-    }
-    if ((b < a && b > c) ||
-	(b < c && b > a))
-    {
-	return b;
-    }
-    if ((c < a && c > b) ||
-	(c < b && c > a))
-    {
-	return c;
-    }
-
-    return 0;
-}
-
-
+    unsigned long long x;
+    unsigned long long y;
+} Point;
 
 /*
- * A function that determines if a triangle is right, without using acos or any other heavy flop
+ * squares a long long
  */
-int is_right(long long x1, long long y1, 
-	  long long x2, long long y2,
-	  long long x3, long long y3)
+unsigned long long square(unsigned long long x)
 {
-    
-    if ((y2 - y1) == 0)
-    {
-	return ((x3 == x1) || (x3 == x2));
-    }
-    if ((x2 - x1) == 0)
-    {
-	return ((y3 == y1) || (y3 == y2));
-    }
-
-    long double slope_num = x1 - x2;
-    long double slope_den = y2 - y1;
-    long double point     = x3 - x1;
-    
-    return y3 == (slope_num/slope_den)*point + y1;
+    return x*x;
 }
-
-
-
 
 /*
- * A function that determines if a triangle is obtuse, without using acos or any other heavy flop
+ * returns one if the points are collinear
  */
-int is_obtuse(long double a, long double b, long double c)
+int collinear(Point points[])
 {
-    long double largest  = max(a, b, c);
-    long double smallest = min(a, b, c); 
-    long double median   = mid(a, b, c);
-
-    // iscoseles case will get into here.  There are two medians (or maxes, or whatever) so we do this
-    if (median == 0)
-    {
-	if (a == b)
-	{
-	    return a < sqrt(2)/2*c;
-	}
-	if (b == c)
-	{
-	    return b < sqrt(2)/2*a;
-	}
-	if (a == c)
-	{
-	    return c < sqrt(2)/2*b;
-	}
-    }
-
-    long double small_squared = smallest * smallest;
-    long double median_squared = median * median;
-
-    return largest > sqrt(small_squared + median_squared);
+    return (points[0].x * (points[1].y - points[2].y)) + 
+	   (points[1].x * (points[2].y - points[0].y)) + 
+	   (points[2].x * (points[0].y - points[1].y)) == 0;
 }
 
-
-int main(int argc, char *argv[])
+/*
+ * prints "obtuse" if the longest side is longer than the sum of the other two sides of a triangle
+ * prints "acute" if the longest side is shorter than the sum of the other two sides of a triangle
+ * prints "right" otherwise
+ */
+void print_angle(unsigned long long lengths[])
 {
-    // I am going to skip error checking since we can.
-    // first peel off the arguments
-    long long x1 = atoi(argv[1]);
-    long long y1 = atoi(argv[2]);
-    long long x2 = atoi(argv[3]);
-    long long y2 = atoi(argv[4]);
-    long long x3 = atoi(argv[5]);
-    long long y3 = atoi(argv[6]);
-
-    // run a quick check to remove the not a triangle cases
-    // three points are said to be collinear when the following formula is 0
-    if ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)) == 0)
+    if (lengths[2] > (lengths[1] + lengths[0]))
     {
-	puts("not a triangle");
-	return 0;
+	puts("obtuse");
     }
+    else if (lengths[2] < (lengths[1] + lengths[0]))
+    {
+	puts("acute");
+    }
+    else
+    {
+	puts("right");
+    }
+}
 
-    long double a = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-    long double b = (x2 - x3) * (x2 - x3) + (y2 - y3) * (y2 - y3);
-    long double c = (x1 - x3) * (x1 - x3) + (y1 - y3) * (y1 - y3);
-   
-    // check the side lengths
-    if (a == b || b == c || a == c)
+/*
+ * prints "isosceles" if two sides are equal in length
+ * prints "scalene" otherwise
+ */
+void print_type(unsigned long long lengths[])
+{
+    if (lengths[0] == lengths[1] || lengths[2] == lengths[1])
     {
 	printf("isosceles ");
     }
@@ -138,29 +62,53 @@ int main(int argc, char *argv[])
     {
 	printf("scalene ");
     }
+}
 
-    a = sqrt(a);
-    b = sqrt(b);
-    c = sqrt(c);
-
-    if (is_right(x1, y1, x2, y2, x3, y3) ||
-	is_right(x2, y2, x3, y3, x1, y1) ||
-	is_right(x3, y3, x1, y1, x2, y2))
+/*
+ * comparison for two unsigned long longs
+ */
+int comp(const void *a, const void *b) 
+{
+    unsigned long long *x = (unsigned long long *) a;
+    unsigned long long *y = (unsigned long long *) b;
+    if (*x > *y)
     {
-	printf("right\n");
+	return 1;
     }
-    else if (is_obtuse(a, b, c))
+    if (*y > *x)
     {
-	printf("obtuse\n");
+	return -1;
     }
-    else
-    {
-	printf("acute\n");
-    }
-
     return 0;
 }
 
+int main(int argc, char *argv[])
+{
+    Point points[3];
+    unsigned long long side_lengths[3];
+    
+    points[0].x = atol(argv[1]);
+    points[0].y = atol(argv[2]);
+    points[1].x = atol(argv[3]);
+    points[1].y = atol(argv[4]);
+    points[2].x = atol(argv[5]);
+    points[2].y = atol(argv[6]);
 
+    // run a quick check to remove the not a triangle cases
+    if (collinear(points))
+    {
+	puts("not a triangle");
+	return 0;
+    }
 
+    side_lengths[0] = square(points[0].x - points[1].x) + square(points[0].y - points[1].y);
+    side_lengths[1] = square(points[1].x - points[2].x) + square(points[1].y - points[2].y);
+    side_lengths[2] = square(points[0].x - points[2].x) + square(points[0].y - points[2].y);
 
+    qsort(side_lengths, 3, sizeof(unsigned long long), comp);
+
+    print_type(side_lengths);
+    print_angle(side_lengths);
+
+    return 0;
+}

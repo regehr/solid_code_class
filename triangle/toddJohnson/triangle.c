@@ -23,7 +23,9 @@ double distance(struct Point p1, struct Point p2)
   return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
 }
 
-
+/*
+ * Returns 1 if two points are equal and 0 otherwise
+ */
 int point_equals(struct Point p1, struct Point p2)
 {
   if(p1.x == p2.x && p1.y == p2.y)
@@ -38,6 +40,17 @@ int point_equals(struct Point p1, struct Point p2)
 double radians_to_degrees(double rad)
 {
   return ((180 * rad)/M_PI);
+}
+
+/*
+ * Check for collinearity
+ */
+int collinear(struct Point p1, struct Point p2, struct Point p3)
+{
+  if(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y) == 0) 
+    return 1;
+  else 
+    return 0;
 }
 
 
@@ -62,15 +75,11 @@ int main(int argc, char* argv[])
   struct Point p3;
 
   //3 sides and 3 angles
-  double side_a;
-  double side_b;
-  double side_c;
-  double angle_A;
-  double angle_B;
-  double angle_C;
+  double side_a, side_b, side_c;
+  double angle_A,  angle_B, angle_C;
 
   //Check for valid number of arguments
-  if(argc < 7)
+  if(argc != 7)
     {
       printf("Invalid arguments\n");
       return 0;
@@ -89,6 +98,13 @@ int main(int argc, char* argv[])
       printf("not a triangle\n");
       return 0;
     }
+
+  if(collinear(p1, p2, p3))
+    {
+      printf("not a triangle\n");
+      return 0;
+    }
+
 
   //Use points to get triangle's sides
   side_a = distance(p1, p2);

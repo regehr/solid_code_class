@@ -255,6 +255,9 @@ void reduce_slope(Slope * slope){
      * \gcd(a,b) = \gcd(a, b-a)\quad,
      */
 int gcd(double a, double b){
+    if(a == 1 || b == 1){
+        return 1;
+    }
     if(a == b){
         return a;
     }

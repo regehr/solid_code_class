@@ -5,11 +5,6 @@ isosceles acute
 isosceles obtuse
 scalene obtuse
 scalene acute
-scalene right
-isosceles obtuse
-scalene acute
 isosceles right
-isosceles right
-scalene right
-isosceles obtuse
 isosceles acute
+scalene right
