@@ -127,6 +127,31 @@ jmcdonald-ut		Jonathon Mcdonald
 
 passed:
 
+AdamBradford Ran 9 tests, 0 failed, 9 passed.
+armage17 Ran 9 tests, 0 failed, 9 passed.
+clukey Ran 9 tests, 0 failed, 9 passed.
+domfurano Ran 9 tests, 0 failed, 9 passed.
+dsetser Ran 9 tests, 0 failed, 9 passed.
+jmcdonald-ut Ran 9 tests, 0 failed, 9 passed.
+joshkunz Ran 9 tests, 0 failed, 9 passed.
+keith-richards Ran 9 tests, 0 failed, 9 passed.
+oscarmarshall Ran 9 tests, 0 failed, 9 passed.
+sphippen Ran 9 tests, 0 failed, 9 passed.
+taylorstapleton Ran 9 tests, 0 failed, 9 passed.
+
+failed:
+
+andresMonroy Ran 9 tests, 1 failed, 8 passed.
+brendenjtyler Ran 9 tests, 4 failed, 5 passed.
+CodyFoltz Ran 9 tests, 2 failed, 7 passed.
+jakeguckert Ran 9 tests, 1 failed, 8 passed.
+JonHParker Ran 9 tests, 1 failed, 8 passed.
+jordanwanlass Ran 9 tests, 1 failed, 8 passed.
+lynntesia Ran 9 tests, 2 failed, 7 passed.
+Todd Johnson Ran 9 tests, 1 failed, 8 passed.
+uLDominator Ran 9 tests, 3 failed, 6 passed.
+ungso Ran 9 tests, 3 failed, 6 passed.	
+
 -----------------------------------------------------
 JonHParker		Jonathan Parker
 
