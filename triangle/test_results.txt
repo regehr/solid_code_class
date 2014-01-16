@@ -45,6 +45,16 @@ domfurano		Dominic Furano
 
 passed:
 
+AdamBradford
+andresMonroy
+clukey
+domfurano
+dsetser
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
+
 -----------------------------------------------------
 dsetser			Daniel Setser
 
