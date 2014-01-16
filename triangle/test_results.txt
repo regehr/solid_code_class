@@ -143,6 +143,15 @@ OscarMarshall		Oscar Marshall
 
 passed:
 
+AdamBradford
+andresMonroy
+clukey
+dsetser
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
+
 -----------------------------------------------------
 sphippen		Spencer Phippen
 
