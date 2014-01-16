@@ -4,4 +4,4 @@ triangle
 *.gcda
 *.gcno
 *.dSYM/
-testresults.txt
+testresults*.txt

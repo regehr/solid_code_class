@@ -1,5 +1,6 @@
 /*
  * Dominic Furano
+ * January 2013
  */
 
 #include <stdlib.h>
@@ -8,13 +9,17 @@
 
 /* Returns the dot product of two vectors. If the two vectors are acute,
    the dot product is positive. If the two vectors are obtuse, the dot product
-   is negative. If the two vectors are perpendicular, the dot product is zero. */
+   is negative. If the two vectors are perpendicular, the dot product is zero.
+   Can overflow with invalid inputs. Will not overflow with valid inputs 
+   because 2*(((2^31)-1)^2) < (2^63)-1 */
 long long dot_product(long long x0, long long y0, long long x1, long long y1)
 {
     return (x0 * x1) + (y0 * y1);
 }
 
-/* Returns the sqd_dst between two vectors. */
+/* Returns the squared distance between two vertices. Can overflow with
+   invalid inputs. Will not overflow with valid inputs 
+   because 2*(((2^31)-1)^2) < (2^63)-1 */
 long long sqd_dst(long long x0, long long y0, long long x1, long long y1)
 {
    return ((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0));
@@ -32,7 +37,7 @@ long long longest_side(long long A, long long B, long long C)
 }
 
 /* Returns 0 if sides form a right triangle; > 0 if sides form an acute triangle;
- < 0 if sides form obtuse triangle. */
+   < 0 if sides form obtuse triangle. */
 long long angle_type(long long A, long long B, long long C, long long *pts)
 {
     long long hypotenuse = longest_side(A, B, C);
@@ -46,13 +51,13 @@ long long angle_type(long long A, long long B, long long C, long long *pts)
 
 int main(int argc, char *argv[])
 {
-    long long pts[6]; /* Array to hold coordinate values. */
+    long long pts[6]; /* Coordinate values. */
     long long A, B, C; /* Length of sides. */
     int i; /* Iteration variable. */
     
     /* Convert and save command line parameters. */
     for (i = 0; i < argc - 1; i++)
-        pts[i] = atof(argv[i + 1]);
+       pts[i] = atoll(argv[i + 1]);
     
     /* Check for collinearity. */
     if ((pts[0] * (pts[3] - pts[5]) + pts[2] * (pts[5] - pts[1]) + pts[4] * (pts[1] - pts[3])) == 0)

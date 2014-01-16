@@ -17,11 +17,6 @@ int main(int argc, char* argv[])
   int *P2 = malloc(2*sizeof(int));
   int *P3 = malloc(2*sizeof(int));
 
-  //make sure we got the memory we asked for
-  assert(P1!=NULL);
-  assert(P2!=NULL);
-  assert(P3!=NULL);
-
   //assign values (the first two numbers are the first point, second two are the second, etc.)
   P1[0] = atoi(argv[1]);
   P1[1] = atoi(argv[2]);
@@ -31,12 +26,14 @@ int main(int argc, char* argv[])
 
   P3[0] = atoi(argv[5]);
   P3[1] = atoi(argv[6]);
+
+  double area = checkCollinearity(P1, P2, P3);
   
   //check to see if the points form a triangle
-  if (checkCollinearity(P1, P2, P3) == 0)
+  if (checkCollinearity(P1, P2, P3) == 0.0)
     {
       //if they don't, say so
-      printf("Not a triangle\n");
+      printf("not a triangle\n");
 
       //and we're done
       exit(0);
@@ -71,17 +68,17 @@ void checkTriangle(int* P1, int* P2, int* P3)
   //if they're all the same
   if(S1 == S2 && S1 == S3 && S2 == S3)
     {
-      result = "equilateral ";
+      result = "equilateral";
     }
   //if two are the same
   else if(S1 == S2 || S1 == S3 || S2 == S3)
     {
-      result = "isosceles ";
+      result = "isosceles";
     }
   //if they're all different
   else
     {
-      result = "scalene ";
+      result = "scalene";
     }
 
   //check the angles to determine right, obtuse, or acute
@@ -106,17 +103,17 @@ void checkAngles(double a, double b, double c, char* result)
   //if one of them is 90 degrees
   if(closeEnough(A, ninteyDegrees) || closeEnough(B, ninteyDegrees) || closeEnough(C, ninteyDegrees))
     {
-      printf("right\n");
+      printf("%s right\n", result);
     }
   //if one of them is over 90 degrees
   else if (A > ninteyDegrees || B > ninteyDegrees || C > ninteyDegrees)
     {
-      printf("%sobtuse\n", result);
+      printf("%s obtuse\n", result);
     }
   //all of them are less than 90 degrees
   else if (A < ninteyDegrees && B < ninteyDegrees && C < ninteyDegrees)
     {
-      printf("%sacute\n", result);
+      printf("%s acute\n", result);
     }
 }
 
@@ -127,7 +124,12 @@ void checkAngles(double a, double b, double c, char* result)
 */
 double checkCollinearity(int* P1, int* P2, int* P3)
 {
-  return (P1[0]*P2[1]*1 - P1[0]*1*P3[1] - P1[1]*P2[0]*1 + P1[1]*1*P3[1] + 1*P2[0]*P3[1] - 1*P2[1]*P3[0])/2;
+  double firstResult = P1[0]*(P2[1]-P3[1]);
+  double secondResult = P2[0]*(P3[1]-P1[1]);
+  double thirdResult = P3[0]*(P1[1]-P2[1]);
+
+  double result = (firstResult+secondResult+thirdResult)/2;
+  return result;
 }
 
 /*

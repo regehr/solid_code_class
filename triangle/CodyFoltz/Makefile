@@ -1,5 +1,6 @@
 all:
-	gcc -lm -g triangle.c -o triangle 
-
+	gcc -g triangle.c -o triangle -lm
+test:
+	python27 test.py
 clean:
 	rm -rf *.o triangle

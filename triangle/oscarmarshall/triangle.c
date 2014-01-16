@@ -9,7 +9,7 @@ typedef struct {
 } Point;
 
 long long square(long long number) {
-  assert(number < 0x7fffffff);
+  assert(number <= 0x7fffffff);
   return number * number;
 }
 
@@ -17,7 +17,7 @@ long long distanceSquared(Point a, Point b) {
   return square(abs(a.x - b.x)) + square(abs(a.y - b.y));
 }
 
-int angleTypeFromLengthsSquared(long long a, long long b, long long c) {
+long long angleTypeFromLengthsSquared(long long a, long long b, long long c) {
   return c - a - b;
 }
 
@@ -43,7 +43,7 @@ char *analyzeTriangle(Point a, Point b, Point c) {
     sideName = "scalene";
   }
 
-  int typeOfLargestAngle;
+  long long typeOfLargestAngle;
   if (lengthsSquared[0] >= lengthsSquared[1] &&
       lengthsSquared[0] >= lengthsSquared[2]) {
     typeOfLargestAngle = angleTypeFromLengthsSquared(lengthsSquared[1],

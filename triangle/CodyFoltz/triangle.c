@@ -52,6 +52,8 @@ int are_points_equal(Point pointA, Point pointB);
 int check_for_overlapping_points(Point pointA, Point pointB, Point pointC);
 int is_greater_than_90_degrees(double A, double B, double C);
 int is_90_degrees(double A, double B, double C);
+int gcd(double a, double b);
+void reduce_slope(Slope* slope);
 
 /*
  * 
@@ -107,7 +109,6 @@ char* find_triangle_type(Point point1, Point point2, Point point3)
     if(!is_obtuse){
         is_right = is_90_degrees(angle_A, angle_B, angle_C);
     }
-    
     
     //check for equalateral
     if(angle_A == angle_B){
@@ -167,7 +168,6 @@ char* find_triangle_type(Point point1, Point point2, Point point3)
             }
         }
     }
-    
     return "Error: Type not found.";
 }
 
@@ -180,10 +180,6 @@ int is_90_degrees(double A, double B, double C){
     return( ((A - 90) < .000001) || (( B-90) < .000001) || ((C-90) < .000001) );
 }
 
-
-
-
-
 /**
  * Creates a point "object" from an x and y string.
  * @param x
@@ -192,8 +188,7 @@ int is_90_degrees(double A, double B, double C){
  */
 Point create_point(char* x, char* y)
 {
-    Point point;
-    
+    Point point;   
     point.x = atoi(x);
     point.y = atoi(y);
     return point;
@@ -208,9 +203,7 @@ Point create_point(char* x, char* y)
 double calculate_distance(Point point1, Point point2)
 {
     double side = 0;
-    
     //distance formula = sqrt( (x2-x1)^2 + (y2 - y1) )
-    
     double x_side = point2.x - point1.x;
     x_side = x_side * x_side;
     double y_side = point2.y - point1.y;
@@ -218,7 +211,6 @@ double calculate_distance(Point point1, Point point2)
     double total = x_side + y_side;
     
     side = sqrt( total );
-    
     return side;
 }
 
@@ -231,19 +223,49 @@ double calculate_distance(Point point1, Point point2)
  * @return 
  */
 int is_illegal_triangle(Point point1, Point point2, Point point3){
-    
+
     //Overlapping points are illegal
     if(has_overlapping_points(point1, point2, point3)){
         return 1;
-    }
-    
+    }    
     /* rise/run */
     Slope slope_1_2 = calculate_slope(point1, point2);
     Slope slope_1_3 = calculate_slope(point1, point3);
-    
     //Equal slopes means all 3 points form one straight line.
     int result = are_slopes_equal(slope_1_2, slope_1_3);
     return result;
+}
+
+void reduce_slope(Slope * slope){
+    if(slope->rise == 0){
+        slope->run = 1;
+        return;
+    }
+    if(slope->run == 0){
+        slope->rise = 1;
+        return;
+    }
+    int divisor = gcd(slope->rise, slope->run);
+    slope->rise = slope->rise/divisor;
+    slope->run = slope->run/divisor;
+}
+    /**
+     * \gcd(a,a) = a
+     * \gcd(a,b) = \gcd(a - b,b)\quad, if a > b
+     * \gcd(a,b) = \gcd(a, b-a)\quad,
+     */
+int gcd(double a, double b){
+    if(a == 1 || b == 1){
+        return 1;
+    }
+    if(a == b){
+        return a;
+    }
+    if(a > b){
+        return gcd(a-b, b);
+    } else{
+        return gcd(a, b-a);
+    }
 }
 
 Slope calculate_slope(Point pointA, Point pointB){
@@ -251,18 +273,21 @@ Slope calculate_slope(Point pointA, Point pointB){
     slope.rise = pointA.y - pointB.y;
     slope.run = pointA.x - pointB.x;
     insure_correct_slope(&slope);
+    reduce_slope(&slope);
     return slope;
 }
 
 void insure_correct_slope(Slope* slope){
-    if(slope->rise < 0 || slope->run < 0){
-        slope->is_negative = 1;
+    if(slope->rise < 0 && slope->run < 0){
+        slope->is_negative = 0;
         slope->rise = abs(slope->rise);
         slope->run = abs(slope->run);
     } else if( slope->rise >= 0 && slope->run >= 0){
-        slope->is_negative = 1;
+        slope->is_negative = 0;
     } else {
         slope->is_negative = -1;
+        slope->rise = abs(slope->rise);
+        slope->run = abs(slope->run);
     }
 }
 
@@ -273,7 +298,6 @@ int are_slopes_equal(Slope slopeA, Slope slopeB){
 int are_points_equal(Point pointA, Point pointB){
     double x = pointA.x == pointB.x;
     double y = pointA.y == pointB.y;
-    
     return y && x;
 }
 
@@ -281,20 +305,14 @@ int has_overlapping_points(Point pointA, Point pointB, Point pointC){
     if(are_points_equal(pointA, pointB)){
         return 1;
     }
-    
     if(are_points_equal(pointA, pointC)){
         return 1;
     }
-    
     if(are_points_equal(pointB, pointC)){
         return 1;
     }
-    
     return 0;
 }
-
-
-
 /*
  * Dot product = p1.x * p2.x + p1.y * p2.y
  * 
