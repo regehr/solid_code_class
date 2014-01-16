@@ -14,7 +14,7 @@ def test_is_ri():
         #Test 2
         output = subprocess.check_output(['./triangle' , '0' , '0' , '100', '0', '0', '100'])
 	if(output != "isosceles right\n"):
-		print("isosceles right: failed test 2\n")
+		print("isosceles right: failed  '0 0 100 0 0 100' \n")
 		test_failed = True
 
         #Test3
@@ -70,7 +70,7 @@ def test_is_ob():
 
 
 #Test5
-        output = subprocess.check_output(['./triangle' , '2345678' , '2345678' , '12345678', '0', '0', '12345678'])
+        output = subprocess.check_output(['./triangle' , '2345679' , '2345679' , '12345678', '0', '0', '12345678'])
 	if(output != "isosceles obtuse\n"):
                 print("isosceles obtuse: failed test 5\n")
 		test_failed = True
@@ -79,9 +79,17 @@ def test_is_ob():
 
 	return test_failed
 
+def sc_ri():
+        output = subprocess.check_output(['./triangle' , '1', '2147483647', '0', '2147483647', '0', '0'])
+	if(output != "scalene right\n"):
+                print("isosceles obtuse: failed test 5\n")
+		test_failed = True
+        return test_failed
+
 def main():
        	test_failed = test_is_ri()
         test_failed = test_failed or test_is_ob()
+        test_failed = sc_ri()
 
 	if ( not test_failed): 
 		print("All Tests Passed!!!!\n")
