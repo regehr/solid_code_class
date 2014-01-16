@@ -111,8 +111,8 @@ int is_colinear(triangle_point p1, triangle_point p2, triangle_point p3)
 {
 	//this checks if the area is 0
 	//see http://demonstrations.wolfram.com/TheAreaOfATriangleUsingADeterminant/
-	long long calc1 = (p1.y - p2.y) * (p1.x - p3.x);
-	long long calc2 = (p1.y - p3.y) * (p1.x - p2.x);
+	long long calc1 = ((long long)p1.y - (long long)p2.y) * ((long long)p1.x - (long long)p3.x);
+	long long calc2 = ((long long)p1.y - (long long)p3.y) * ((long long)p1.x - (long long)p2.x);
 	int result = (calc1 == calc2);
 	return result;
 }
