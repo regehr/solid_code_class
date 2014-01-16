@@ -3,5 +3,5 @@ all:
 clean:
 	rm -f triangle *.gcov *.gcda *.gnco
 test:
-	./test.sh
+	python27 test.py
 	gcov -b triangle.c
