@@ -100,6 +100,17 @@ ungso
 hyvemynd		Andres Monroy
 
 passed:
+AdamBradford
+clukey
+domfurano
+dsetser
+eisenstat_int
+jmcdonald-ut
+jordanwanlass
+keith-richards
+oscarmarshall
+sphippen
+uLDominator
 
 -----------------------------------------------------
 jeffreyj01		Todd Johnson
