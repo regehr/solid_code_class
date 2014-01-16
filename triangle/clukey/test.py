@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python27
 #
 # Triangle Analyzer tests
 #
@@ -17,16 +17,26 @@ if __name__ == "__main__":
     expected = fd.readline()
     while expected != "":
         pts = fd.readline().split()
-        result = subprocess.check_output(["./triangle",
-                                          pts[0],
-                                          pts[1],
-                                          pts[2],
-                                          pts[3],
-                                          pts[4],
-                                          pts[5]])
-        if expected == result:
-            passed += 1
-        else:
+        result = ""
+        try:
+            result = subprocess.check_output(["./triangle",
+                                              pts[0],
+                                              pts[1],
+                                              pts[2],
+                                              pts[3],
+                                              pts[4],
+                                              pts[5]])
+            if expected == result:
+                passed += 1
+            else:
+                failed += 1
+                print("=== Failed test ===")
+                print("Input: (" + pts[0] + ", " + pts[1] + ") " 
+                      + "(" + pts[2] + ", " + pts[3] + ") "
+                      + "(" + pts[4] + ", " + pts[5] + ")")
+                print("Expected: " + expected.strip())
+                print("Actual: " + result.strip() + "\n")
+        except:
             failed += 1
             print("=== Failed test ===")
             print("Input: (" + pts[0] + ", " + pts[1] + ") " 
@@ -34,6 +44,8 @@ if __name__ == "__main__":
                   + "(" + pts[4] + ", " + pts[5] + ")")
             print("Expected: " + expected.strip())
             print("Actual: " + result.strip() + "\n")
+
         expected = fd.readline()
+                
         
     print "Passed: " + str(passed) + " Failed: " + str(failed)
