@@ -11,3 +11,6 @@ test:
 	gcov triangle
 edit:
 	vi triangle.c
+
+testall:
+	python27 testAll.py
