@@ -205,42 +205,50 @@ sphippen
 -----------------------------------------------------
 taylorstapleton		Taylor Stapleton
 
+last updated: thursday @ 10:00 AM
+
 passed:
 
-andresMonroy
+ndresMonroy
 domfurano
 joshkunz
 keith-richards
 oscarmarshall
 sphippen
+eisenstat_int
 taylorstapleton
 dsetser
 jmcdonald-ut
 AdamBradford
-clukey
+jordanwanlass
 armage17
-
-
+clukey
 
 failed:
 
 uLDominator: failed isoceles(right ) (passed scalene) (passed Not a Triangle)
+
 brendenjtyler: failed isoceles(acuteEdgeCase ) (passed scalene) (passed Not a
 Triangle)
-jakeguckert: failed isoceles(acuteEdgeCase obtuseEdgeCase ) (passed scalene)
+
+jakeguckert: failed isoceles(acute obtuse right acuteEdgeCase obtuseEdgeCase )
+failed scalene(acute obtuse right ) failed NotaTriangle(line equal )
+
+JonHParker: failed isoceles(acuteEdgeCase obtuseEdgeCase ) (passed scalene)
 (passed Not a Triangle)
+
 CodyFoltz: failed isoceles(acute acuteEdgeCase ) failed scalene(acute )
 (passed Not a Triangle)
-lynntesia: failed isoceles(right acuteEdgeCase obtuseEdgeCase ) failed
-scalene(right ) failed NotaTriangle(line )
-toddJohnson: failed isoceles(acuteEdgeCase ) (passed scalene) (passed Not a
-Triangle)
-jordanwanlass: failed isoceles(obtuse right obtuseEdgeCase ) failed
-scalene(obtuse ) (passed Not a Triangle)
-JonHParker: failed isoceles(acuteEdgeCase obtuseEdgeCase ) (passed scalene)
-failed NotaTriangle(line )
 
 ungso: ungso returned the error code: 1
+
+lynntesia: failed isoceles(right acuteEdgeCase obtuseEdgeCase ) failed
+scalene(right ) failed NotaTriangle(line )
+
+eisenstat_fp: eisenstat_fp returned the error code: 16
+
+toddJohnson: failed isoceles(acuteEdgeCase ) (passed scalene) (passed Not a
+Triangle)
 
 
 -----------------------------------------------------
