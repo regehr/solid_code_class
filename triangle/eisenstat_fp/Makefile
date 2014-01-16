@@ -1,5 +1,5 @@
 all:
-	gcc -O triangle.c -o triangle -lm
+	gcc -std=c99 -Wall -O triangle.c -o triangle -lm
 
 clean:
 	rm -f triangle
