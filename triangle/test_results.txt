@@ -50,6 +50,18 @@ dsetser			Daniel Setser
 
 passed:
 
+andresMonroy
+clukey
+domfurano
+dsetser
+jmcdonald-ut
+joshkunz
+keith-richards
+oscarmarshall
+sphippen
+taylorstapleton
+ungso
+
 -----------------------------------------------------
 hyvemynd		Andres Monroy
 
