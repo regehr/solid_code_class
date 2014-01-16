@@ -118,7 +118,15 @@ uLDominator
 -----------------------------------------------------
 jeffreyj01		Todd Johnson
 
-passed:
+passed: adambradford
+	andresmonroy
+	clukey
+	domfurano
+	jmcdonald-ut
+	joshkunz
+	keith-richards
+	oscarmarshall
+	sphippen
 
 -----------------------------------------------------
 jguckert313		John Guckert
