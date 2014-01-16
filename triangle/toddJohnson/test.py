@@ -49,15 +49,15 @@ def testIsObtuse():
 #Test for 2 equal sides, "Isosceles"
 def testIsIso():
     output = subprocess.check_output(['./triangle', '0', '0', '0', '1', '1', '0'])
-    if not "isosceles " in output:
+    if not "isosceles" in output:
         return "fail"
     
     output = subprocess.check_output(['./triangle', '0', '0', '2', '1', '0', '2'])
-    if not "isosceles " in output:
+    if not "isosceles" in output:
         return "fail"
 
     output = subprocess.check_output(['./triangle', '0', '0', '2', '1', '4', '0'])
-    if not "isosceles " in output:
+    if not "isosceles" in output:
         return "fail"
 
     return "Passed"
@@ -65,15 +65,15 @@ def testIsIso():
 #Test for no equal sides, "Scalene"
 def testIsScalene():
     output = subprocess.check_output(['./triangle', '0', '0', '0', '2', '1', '0'])
-    if not "scalene " in output:
+    if not "scalene" in output:
         return "fail"
 
     output = subprocess.check_output(['./triangle', '0', '0', '2', '2', '0', '3'])
-    if not "scalene " in output:
+    if not "scalene" in output:
         return "fail"
 
     output = subprocess.check_output(['./triangle', '0', '0', '1', '1', '0', '3'])
-    if not "scalene " in output:
+    if not "scalene" in output:
         return "fail"
 
     return "Passed"
@@ -89,43 +89,43 @@ def newTests():
         return "Test2: Should be scalene obtuse"
 
     output = subprocess.check_output(['./triangle', '0', '0', '3', '4', '1', '4'])
-    if not "obtuse " in output:
+    if not "scalene obtuse" in output:
         return "Test3: Should be scalene obtuse"
 
 
 #Right Scalene
     output = subprocess.check_output(['./triangle', '0', '0', '3', '4', '0', '4'])
-    if not "right " in output:
+    if not "scalene right" in output:
         return "Test4: Should be scalene right"
         
     output = subprocess.check_output(['./triangle', '0', '0', '3', '4', '0', '4'])
-    if not "right " in output:
+    if not "scalene right" in output:
         return "Test5: Should be scalene right"
 #Acute Scalene
     output = subprocess.check_output(['./triangle', '0', '0', '1', '3', '5', '1'])
-    if not "acute " in output:
+    if not "scalene acute" in output:
         return "Test6: Should be scalene acute "
     
 #Isosceles Right
     output = subprocess.check_output(['./triangle', '0', '0', '0', '1', '1', '0'])
-    if not "ososceles right " in output:
+    if not "isosceles right" in output:
         return "Test7: Should be ososceles right"
     
     output = subprocess.check_output(['./triangle', '4', '4', '6', '2', '2', '2'])
-    if not "ososceles right " in output:
+    if not "isosceles right" in output:
         return "Test8: Should be ososceles right"
 #Isosceles Acute
     output = subprocess.check_output(['./triangle', '2', '0', '3', '4', '1', '4'])
-    if not "ososceles acute " in output:
+    if not "isosceles acute" in output:
         return "Test9: Should be ososceles acute"
     
     output = subprocess.check_output(['./triangle', '0', '0', '2', '0', '1', '2'])
-    if not "ososceles acute " in output:
+    if not "isosceles acute" in output:
         return "Test10: Should be ososceles acute"
 
 #Isosceles Obtuse
     output = subprocess.check_output(['./triangle', '4', '4', '7', '2', '1', '2'])
-    if not "ososceles obtuse " in output:
+    if not "isosceles obtuse" in output:
         return "Should be ososceles obtuse"
 
     return "Passed"
