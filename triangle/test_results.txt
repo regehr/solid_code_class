@@ -262,5 +262,15 @@ ungso		- Subprocess exit error 1, could be python27 error
 ungso			Chad Miller
 
 passed:
+AdamBradford
+andresMonroy
+armage17
+clukey
+domfurano
+dsetser
+JonHParker
+joshkunz
+keith-richards
+oscarmarshall
 
 -----------------------------------------------------
