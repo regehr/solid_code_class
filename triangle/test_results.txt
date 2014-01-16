@@ -166,16 +166,17 @@ passed:
 Joshkunz		Josh Kunz
 
 passed:
-
 sphippen
 oscarmarshall
 keith-richards
 joshkunz
+eisenstat_int
+eisenstat_fp
 dsetser
 domfurano
 clukey
-AdamBradford
 andresMonroy
+AdamBradford
 
 -----------------------------------------------------
 keith-richards		Keith Richards
@@ -340,3 +341,15 @@ keith-richards
 oscarmarshall
 
 -----------------------------------------------------
+28 2 jordanwanlass
+27 3 jmcdonald-ut
+27 3 armage17
+26 4 toddJohnson
+26 4 taylorstapleton
+26 4 brendenjtyler
+25 5 ungso
+25 5 uLDominator
+22 8 JonHParker
+14 16 CodyFoltz
+13 17 lynntesia
+0 30 jakeguckert
