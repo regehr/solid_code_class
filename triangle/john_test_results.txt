@@ -1,0 +1,41 @@
+regehr@regehr-M51AC:~/solid_code_class/triangle$ time ./test_triangle.pl 
+
+results:
+AdamBradford/triangle : right 4096, wrong 0, illegal 0
+andresMonroy/triangle : right 4096, wrong 0, illegal 0
+armage17/triangle : right 4096, wrong 0, illegal 0
+brendenjtyler/triangle : right 4096, wrong 0, illegal 0
+clukey/triangle : right 4096, wrong 0, illegal 0
+CodyFoltz/triangle : right 3552, wrong 544, illegal 0
+domfurano/triangle : right 4096, wrong 0, illegal 0
+dsetser/triangle : right 4096, wrong 0, illegal 0
+eisenstat_fp/triangle : right 4096, wrong 0, illegal 0
+jakeguckert/triangle : right 0, wrong 4096, illegal 4096
+jmcdonald-ut/triangle : right 4096, wrong 0, illegal 0
+JonHParker/triangle : right 4096, wrong 0, illegal 0
+jordanwanlass/triangle : right 4096, wrong 0, illegal 0
+joshkunz/triangle : right 4096, wrong 0, illegal 0
+keith-richards/triangle : right 4096, wrong 0, illegal 0
+lynntesia/triangle : right 3040, wrong 1056, illegal 0
+oscarmarshall/triangle : right 4096, wrong 0, illegal 0
+sphippen/triangle : right 4096, wrong 0, illegal 0
+taylorstapleton/triangle : right 4096, wrong 0, illegal 0
+toddJohnson/triangle : right 4096, wrong 0, illegal 0
+uLDominator/triangle : right 4096, wrong 0, illegal 0
+ungso/triangle : right 3928, wrong 168, illegal 0
+
+illegal outputs:
+jakeguckert/triangle : 'side 1: 0.000000' 'side 1: 1.000000' 'side 1: 1.414214' 'side 1: 2.000000' 'side 1: 2.236068' 'side 1: 2.828427' 'side 1: 3.000000' 'side 1: 3.162278' 'side 1: 3.605551' 'side 1: 4.242641' 
+
+partitions covered:
+  isosceles acute 288
+  isosceles obtuse 24
+  isosceles right 576
+  not a triangle 1000
+  scalene acute 192
+  scalene obtuse 1392
+  scalene right 624
+
+real	3m28.779s
+user	0m25.087s
+sys	3m15.850s
