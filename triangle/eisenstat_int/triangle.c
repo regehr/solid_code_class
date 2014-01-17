@@ -11,7 +11,12 @@
 /* number of points */
 #define COUNT (3)
 /* number of dimensions */
-#define DIM (2)
+// #define DIM (2)
+
+static const int DIM = 2;
+
+int x[DIM];
+
 /* maximum coordinate: 2**31 - 1 per the spec
  * ACHTUNG!  integer overflow is possible if
  *     DIM * MAX * MAX
