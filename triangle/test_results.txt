@@ -186,7 +186,10 @@ passed:
 -----------------------------------------------------
 Joshkunz		Josh Kunz
 
+Thu Jan 16 22:55:21 MST 2014
+
 passed:
+
 sphippen
 oscarmarshall
 keith-richards
@@ -198,6 +201,21 @@ domfurano
 clukey
 andresMonroy
 AdamBradford
+
+failed: (results can be found at https://gist.github.com/Joshkunz/8429888)
+
+jordanwanlass
+jmcdonald-ut
+armage17
+toddJohnson
+taylorstapleton
+brendenjtyler
+ungso
+uLDominator
+JonHParker
+CodyFoltz
+lynntesia
+jakeguckert
 
 -----------------------------------------------------
 keith-richards		Keith Richards
