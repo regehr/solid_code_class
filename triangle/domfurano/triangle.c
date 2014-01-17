@@ -37,7 +37,7 @@ long long longest_side(long long A, long long B, long long C)
 }
 
 /* Returns 0 if sides form a right triangle; > 0 if sides form an acute triangle;
- < 0 if sides form obtuse triangle. */
+   < 0 if sides form obtuse triangle. */
 long long angle_type(long long A, long long B, long long C, long long *pts)
 {
     long long hypotenuse = longest_side(A, B, C);

@@ -5,6 +5,6 @@ clean:
 	rm -f triangle triangle.c.gcov triangle.gcda triangle.gcno
 
 test:
-	./triangle_test.sh
+	python triangle_test.py
 	gcov -b triangle
 	

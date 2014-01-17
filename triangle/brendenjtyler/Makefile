@@ -4,7 +4,7 @@ CC=gcc
 #compiler options
 CFLAGS= -lm -O2
 TESTFLAGS = -fprofile-arcs -ftest-coverage
-DBFLAGS = -g
+DBFLAGS = -lm -g
 
 #source and executable files
 SOURCE= triangle.c
@@ -13,7 +13,7 @@ all:
 	$(CC) $(SOURCE) $(EXECUTABLE) $(CFLAGS)
 
 db:
-	$(CC) $(SOURCE) $(EXECUTABLE) $(CFLAGS) $(DBFLAGS)
+	$(CC) $(SOURCE) $(EXECUTABLE) $(DBFLAGS)
 
 test:
 	$(CC) $(SOURCE) $(EXECUTABLE) $(CFLAGS) $(TESTFLAGS)
@@ -22,3 +22,5 @@ test:
 clean:
 	rm -rf *o *gcda *gcno *gcov triangle
 
+superclean:
+	rm -rf *o *gcda *gcno *gcov *~ triangle

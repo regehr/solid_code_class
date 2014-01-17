@@ -3,16 +3,16 @@
 #include <math.h>
 
 
-struct point 
+typedef struct _point 
 {
     unsigned long long x;
     unsigned long long y;
-};
+} Point;
 
 /*
  * squares a long long
  */
-unsigned long long squared(unsigned long long x)
+unsigned long long square(unsigned long long x)
 {
     return x*x;
 }
@@ -20,13 +20,18 @@ unsigned long long squared(unsigned long long x)
 /*
  * returns one if the points are collinear
  */
-int collinear(struct point p[])
+int collinear(Point points[])
 {
-    return (p[0].x * (p[1].y - p[2].y)) + 
-	   (p[1].x * (p[2].y - p[0].y)) + 
-	   (p[2].x * (p[0].y - p[1].y)) == 0;
+    return (points[0].x * (points[1].y - points[2].y)) + 
+	   (points[1].x * (points[2].y - points[0].y)) + 
+	   (points[2].x * (points[0].y - points[1].y)) == 0;
 }
 
+/*
+ * prints "obtuse" if the longest side is longer than the sum of the other two sides of a triangle
+ * prints "acute" if the longest side is shorter than the sum of the other two sides of a triangle
+ * prints "right" otherwise
+ */
 void print_angle(unsigned long long lengths[])
 {
     if (lengths[2] > (lengths[1] + lengths[0]))
@@ -43,6 +48,10 @@ void print_angle(unsigned long long lengths[])
     }
 }
 
+/*
+ * prints "isosceles" if two sides are equal in length
+ * prints "scalene" otherwise
+ */
 void print_type(unsigned long long lengths[])
 {
     if (lengths[0] == lengths[1] || lengths[2] == lengths[1])
@@ -55,6 +64,9 @@ void print_type(unsigned long long lengths[])
     }
 }
 
+/*
+ * comparison for two unsigned long longs
+ */
 int comp(const void *a, const void *b) 
 {
     unsigned long long *x = (unsigned long long *) a;
@@ -72,15 +84,15 @@ int comp(const void *a, const void *b)
 
 int main(int argc, char *argv[])
 {
-    struct point points[3];
+    Point points[3];
     unsigned long long side_lengths[3];
     
-    points[0].x = atoll(argv[1]);
-    points[0].y = atoll(argv[2]);
-    points[1].x = atoll(argv[3]);
-    points[1].y = atoll(argv[4]);
-    points[2].x = atoll(argv[5]);
-    points[2].y = atoll(argv[6]);
+    points[0].x = atol(argv[1]);
+    points[0].y = atol(argv[2]);
+    points[1].x = atol(argv[3]);
+    points[1].y = atol(argv[4]);
+    points[2].x = atol(argv[5]);
+    points[2].y = atol(argv[6]);
 
     // run a quick check to remove the not a triangle cases
     if (collinear(points))
@@ -89,9 +101,10 @@ int main(int argc, char *argv[])
 	return 0;
     }
 
-    side_lengths[0] = squared(points[0].x - points[1].x) + squared(points[0].y - points[1].y);
-    side_lengths[1] = squared(points[1].x - points[2].x) + squared(points[1].y - points[2].y);
-    side_lengths[2] = squared(points[0].x - points[2].x) + squared(points[0].y - points[2].y);
+    side_lengths[0] = square(points[0].x - points[1].x) + square(points[0].y - points[1].y);
+    side_lengths[1] = square(points[1].x - points[2].x) + square(points[1].y - points[2].y);
+    side_lengths[2] = square(points[0].x - points[2].x) + square(points[0].y - points[2].y);
+
     qsort(side_lengths, 3, sizeof(unsigned long long), comp);
 
     print_type(side_lengths);
@@ -99,9 +112,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-
-
-
-
-
