@@ -100,4 +100,6 @@ bool is_right(struct Point p1, struct Point p2, struct Point p3)
 	r1 = (sq_dist(p1, p2) + sq_dist(p2, p3) == sq_dist(p1, p3));
 	r2 = (sq_dist(p2, p3) + sq_dist(p1, p3) == sq_dist(p1, p2));
 	r3 = (sq_dist(p1, p2) + sq_dist(p1, p3) == sq_dist(p2, p3));
+	
+	return (r1 || r2 || r3);
 }
