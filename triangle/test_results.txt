@@ -186,36 +186,36 @@ passed:
 -----------------------------------------------------
 Joshkunz		Josh Kunz
 
-Thu Jan 16 22:55:21 MST 2014
+Thu Jan 16 23:38:24 MST 2014
 
 passed:
 
-sphippen
 oscarmarshall
-keith-richards
-joshkunz
 eisenstat_int
 eisenstat_fp
+AdamBradford
+sphippen
+keith-richards
 dsetser
+andresMonroy
 domfurano
 clukey
-andresMonroy
-AdamBradford
+joshkunz
 
-failed: (results can be found at https://gist.github.com/Joshkunz/8429888)
+failed: (results can be found at: https://gist.github.com/Joshkunz/8429888 )
 
+CodyFoltz
+jakeguckert
 jordanwanlass
-jmcdonald-ut
 armage17
+jmcdonald-ut
 toddJohnson
-taylorstapleton
 brendenjtyler
 ungso
-uLDominator
-JonHParker
-CodyFoltz
 lynntesia
-jakeguckert
+uLDominator
+taylorstapleton
+JonHParker
 
 -----------------------------------------------------
 keith-richards		Keith Richards
