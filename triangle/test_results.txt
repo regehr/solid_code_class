@@ -186,32 +186,31 @@ passed:
 -----------------------------------------------------
 Joshkunz		Josh Kunz
 
-Fri Jan 17 15:31:16 MST 2014
+Sat Jan 18 14:31:39 MST 2014
 
 passed:
 
+CodyFoltz
 oscarmarshall
-eisenstat_int
 eisenstat_fp
 AdamBradford
 sphippen
 keith-richards
 dsetser
 andresMonroy
+ungso
 domfurano
 clukey
 joshkunz
 
 failed: (results can be found at: https://gist.github.com/Joshkunz/8429888 )
 
-CodyFoltz
 jakeguckert
 jordanwanlass
 armage17
 jmcdonald-ut
 toddJohnson
 brendenjtyler
-ungso
 lynntesia
 uLDominator
 taylorstapleton
