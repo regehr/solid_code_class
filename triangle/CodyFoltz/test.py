@@ -32,27 +32,65 @@ def test_is_ri():
 		test_failed = True
 	
 #Test 2
+        points = "(1,2147483647) (0,2147483647) (0,0)"
         input = ['./triangle' , '0' , '0' , '100' , '0', '0' , '100']
-        output = subprocess.check_output(['./triangle' , '0' , '0' , '100', '0', '0', '100'])
-	if(output != "isosceles right\n"):
+        output = subprocess.check_output(input)
+	if(output != expected):
 		print_test_failed(get_points(input), expected, output)
 		test_failed = True
 
 #Test3
-        output = subprocess.check_output(['./triangle' , '0' , '0' , '5000', '0', '0', '5000'])
-	if(output != "isosceles right\n"):
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '0' , '0' , '5000', '0', '0', '5000']
+        output = subprocess.check_output(input)
+	if(output != expected):
 		print_test_failed(get_points(input), expected, output)
 		test_failed = True
 
 #Test4
-        output = subprocess.check_output(['./triangle' , '5000' , '5000' , '5000', '0', '0', '5000'])
-	if(output != "isosceles right\n"):
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '5000' , '5000' , '5000', '0', '0', '5000']
+        output = subprocess.check_output(input)
+	if(output != expected):
 		print_test_failed(get_points(input), expected, output)
 		test_failed = True
 
 #Test5
-        output = subprocess.check_output(['./triangle' , '12345678' , '12345678' , '12345678', '0', '0', '12345678'])
-	if(output != "isosceles right\n"):
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '12345678' , '12345678' , '12345678', '0', '0', '12345678']
+        output = subprocess.check_output(input)
+	if(output != expected):
+		print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+#Test6
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '0' , '0' , '0', '2147483647', '2147483647', '0']
+        output = subprocess.check_output(input)
+	if(output != expected):
+		print_test_failed(get_points(input), expected, output)
+		test_failed = True
+#Test7
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '0' , '2147483647' , '2147483647', '2147483647', '2147483647', '0']
+        output = subprocess.check_output(input)
+	if(output != expected):
+		print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+#Test8
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '0' , '0' , '0', '2147483647', '2147483647', '2147483647']
+        output = subprocess.check_output(input)
+	if(output != expected):
+		print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+#Test9
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '0' , '0' , '2147483647', '0', '2147483647', '2147483647']
+        output = subprocess.check_output(input)
+	if(output != expected):
 		print_test_failed(get_points(input), expected, output)
 		test_failed = True
 
@@ -83,6 +121,7 @@ def test_is_ob():
 		test_failed = True
 
 #Test3
+        points = "(1,2147483647) (0,2147483647) (0,0)"
         input = ['./triangle' , '1' , '1' , '5000', '0', '0', '5000']
         output = subprocess.check_output(input)
 	if(output != expected):
@@ -90,6 +129,7 @@ def test_is_ob():
 		test_failed = True
 
 #Test4
+        points = "(1,2147483647) (0,2147483647) (0,0)"
         input = ['./triangle' , '2501' , '2501' , '5000', '0', '0', '5000']
         output = subprocess.check_output(input)
 	if(output != expected):
@@ -98,12 +138,36 @@ def test_is_ob():
 
 
 #Test5
+        points = "(1,2147483647) (0,2147483647) (0,0)"
         input = ['./triangle' , '2345679' , '2345679' , '12345678', '0', '0', '12345678']
         output = subprocess.check_output(input)
 	if(output != expected):
                 print_test_failed(get_points(input), expected, output)
 		test_failed = True
 
+#Test6
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '1' , '1' , '0', '2147483647', '2147483647', '0']
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+#Test7
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '2147483646' , '2147483646' , '0', '2147483647', '2147483647', '0']
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+#Test8
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '0' , '5' , '5', '0', '1', '1']
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
 
 
 	return test_failed
@@ -111,14 +175,86 @@ def test_is_ob():
 def sc_ri():
         test_failed = False
         expected = "scalene right\n"
+        
+
+#Test 1
         input = ['./triangle' , '1', '2147483647', '0', '2147483647', '0', '0']
         points = "(1,2147483647) (0,2147483647) (0,0)"
-
         output = subprocess.check_output(input)
 	if(output != expected):
                 print_test_failed(get_points(input), expected, output)
 		test_failed = True
 
+#Test 2
+        input = ['./triangle' , '0' , '0' , '0', '1', '2147483647', '0']
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+#Test 3
+        input = ['./triangle' , '0' , '0' , '0', '2147483647', '2147483646', '0']
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+#Test 4
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '0' , '2147483647' , '2147483647', '2147483647', '2147483647', '2147483646']
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+        return test_failed
+
+def sc_ac():
+
+        test_failed = False
+        expected = "scalene acute\n"
+
+#Test 1
+        input = ['./triangle' , '0', '0', '1', '2147483647', '2147483647', '1147483647']
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+        return test_failed
+
+def sc_ob():
+
+        test_failed = False
+        expected = "scalene obtuse\n"
+        
+
+#Test 1
+        points = "(0,0) (2,2147483647) (0,0)"
+        input = ['./triangle' , '0', '0', '2', '2147483647', '100', '100']
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
+
+        return test_failed
+
+def is_ac():
+
+        test_failed = False
+        expected = "scalene right\n"
+        
+
+#Test 1
+        points = "(1,2147483647) (0,2147483647) (0,0)"
+        input = ['./triangle' , '0', '0', '20', '0', '10', '10']
+        output = subprocess.check_output(input)
+	if(output != expected):
+                print_test_failed(get_points(input), expected, output)
+		test_failed = True
 
         return test_failed
 
