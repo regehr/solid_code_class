@@ -40,9 +40,9 @@ double angleBetween(double s1, double s2, double s3)
 
 bool isRight(double a1, double a2, double a3)
 {
-  if((isEqual(a1,90) && a2 < 90 && a3 < 90) ||
-     (isEqual(a2,90) && a1 < 90 && a3 < 90) ||
-     (isEqual(a3,90) && a1 < 90 && a2 < 90))
+  if((isEqual(a1,90) && !isEqual(a2,90) && !isEqual(a3,90)) ||
+     (isEqual(a2,90) && !isEqual(a1,90) && !isEqual(a3,90)) ||
+     (isEqual(a3,90) && !isEqual(a2,90) && !isEqual(a1,90)))
     {
       return true;
     }
