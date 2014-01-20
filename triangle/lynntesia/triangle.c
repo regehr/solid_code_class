@@ -38,16 +38,6 @@ double angleBetween(double s1, double s2, double s3)
  return angle;  
 }
 
-bool isRight(double a1, double a2, double a3)
-{
-  if((isEqual(a1,90) && !isEqual(a2,90) && !isEqual(a3,90)) ||
-     (isEqual(a2,90) && !isEqual(a1,90) && !isEqual(a3,90)) ||
-     (isEqual(a3,90) && !isEqual(a2,90) && !isEqual(a1,90)))
-    {
-      return true;
-    }
-  return false;
-}
 
 bool isObtuse(double a1, double a2, double a3)
 {
@@ -71,6 +61,16 @@ bool isAcute(double a1, double a2, double a3)
   return false;
 }
 
+bool isRight(double a1, double a2, double a3)
+{
+  if(!isObtuse(a1, a2, a3) && !isAcute(a1, a2, a3))
+    {
+      return true;
+    }  
+  
+  return false;
+}
+
 bool isEquilateral(double s1, double s2, double s3)
 {
   if(isEqual(s1,s2) && isEqual(s1,s3) && isEqual(s2,s3))
@@ -79,6 +79,8 @@ bool isEquilateral(double s1, double s2, double s3)
     }
   return false;
 }
+
+
 
 bool isIsosceles(double s1, double s2, double s3)
 {

@@ -3,7 +3,7 @@
 import sys
 import subprocess 
 
-#python27 test.py
+
 # got some test cases from Todd Johnson
 
 print '**Starting tests**\n'
