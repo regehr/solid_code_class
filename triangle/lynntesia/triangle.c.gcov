@@ -1,0 +1,452 @@
+        -:    0:Source:triangle.c
+        -:    0:Graph:triangle.gcno
+        -:    0:Data:triangle.gcda
+        -:    0:Runs:33
+        -:    0:Programs:1
+        -:    1:#include <stdio.h>
+        -:    2:#include <math.h>
+        -:    3:#include <stdbool.h>
+        -:    4:#define error 0.0000001
+        -:    5:
+        -:    6:
+function isEqual called 337 returned 100% blocks executed 100%
+      337:    7:bool isEqual(double d1, double d2)
+        -:    8:{ 
+      337:    9:  if(fabs(d1-d2) < error)
+branch  0 taken 17% (fallthrough)
+branch  1 taken 83%
+        -:   10:    {
+       58:   11:      return true;
+        -:   12:    }
+      279:   13:  return false;
+        -:   14:}
+        -:   15:
+function sameSlope called 29 returned 100% blocks executed 100%
+       29:   16:bool sameSlope(double x1, double y1, double x2, double y2, double x3, double y3)
+        -:   17:{
+       29:   18:  return fabs((y1 - y2) * (x1 - x3) - (y1 - y3) * (x1 - x2)) <= error;
+        -:   19:}
+        -:   20:
+        -:   21:
+function lengthOfSide called 84 returned 100% blocks executed 100%
+       84:   22:double lengthOfSide(double x1, double y1, double x2, double y2)
+        -:   23:{
+        -:   24:  // distance formula 
+        -:   25:  double ret;
+        -:   26:  double p1, p2;
+       84:   27:  p1 = pow((x2-x1), 2);
+       84:   28:  p2 = pow((y2-y1), 2);  
+       84:   29:  ret = sqrt(p1+p2); 
+       84:   30:  return ret;	
+        -:   31:   
+        -:   32:}
+        -:   33:
+function angleBetween called 84 returned 100% blocks executed 100%
+       84:   34:double angleBetween(double s1, double s2, double s3)
+        -:   35:{
+       84:   36:  double angle = acos((pow(s1, 2)+pow(s2, 2)-pow(s3, 2))/ (pow(s1, 2)*pow(s2, 2)));
+       84:   37:  angle = 180*angle/M_PI;
+       84:   38: return angle;  
+        -:   39:}
+        -:   40:
+        -:   41:
+function isObtuse called 28 returned 100% blocks executed 100%
+       28:   42:bool isObtuse(double a1, double a2, double a3)
+        -:   43:{
+       89:   44:  if((a1 > 90 && a2 < 90 && a3 < 90) ||
+branch  0 taken 21% (fallthrough)
+branch  1 taken 79%
+branch  2 taken 100% (fallthrough)
+branch  3 taken 0%
+branch  4 taken 0% (fallthrough)
+branch  5 taken 100%
+branch  6 taken 32% (fallthrough)
+branch  7 taken 68%
+branch  8 taken 100% (fallthrough)
+branch  9 taken 0%
+branch 10 taken 0% (fallthrough)
+branch 11 taken 100%
+branch 12 taken 33% (fallthrough)
+branch 13 taken 67%
+branch 14 taken 100% (fallthrough)
+branch 15 taken 0%
+branch 16 taken 100% (fallthrough)
+branch 17 taken 0%
+       36:   45:     (a2 > 90 && a1 < 90 && a3 < 90) ||
+       25:   46:     (a3 > 90 && a1 < 90 && a2 < 90))
+        -:   47:    {
+       18:   48:      return true;
+        -:   49:    }
+       10:   50:  return false;
+        -:   51:}
+        -:   52:
+function isAcute called 28 returned 100% blocks executed 100%
+       28:   53:bool isAcute(double a1, double a2, double a3)
+        -:   54:{
+      126:   55:  if((a1 < 90 && a2 < 90 && a3 < 90) ||
+branch  0 taken 68% (fallthrough)
+branch  1 taken 32%
+branch  2 taken 53% (fallthrough)
+branch  3 taken 47%
+branch  4 taken 70% (fallthrough)
+branch  5 taken 30%
+branch  6 taken 60% (fallthrough)
+branch  7 taken 40%
+branch  8 taken 47% (fallthrough)
+branch  9 taken 53%
+branch 10 taken 100% (fallthrough)
+branch 11 taken 0%
+branch 12 taken 68% (fallthrough)
+branch 13 taken 32%
+branch 14 taken 53% (fallthrough)
+branch 15 taken 47%
+branch 16 taken 0% (fallthrough)
+branch 17 taken 100%
+       47:   56:     (a2 < 90 && a1 < 90 && a3 < 90) ||
+       51:   57:     (a3 < 90 && a1 < 90 && a2 < 90))
+        -:   58:    {
+        3:   59:      return true;
+        -:   60:    }
+       25:   61:  return false;
+        -:   62:}
+        -:   63:
+function isRight called 0 returned 0% blocks executed 0%
+    #####:   64:bool isRight(double a1, double a2, double a3)
+        -:   65:{
+    #####:   66:  if(isEqual(a1, 90) || isEqual(a1, 90) || isEqual(a3, 90))
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+call    3 never executed
+branch  4 never executed
+branch  5 never executed
+call    6 never executed
+branch  7 never executed
+branch  8 never executed
+        -:   67:    {
+    #####:   68:      return true;
+        -:   69:    }
+    #####:   70:  return false;
+        -:   71:}
+        -:   72:
+function isRightPy called 28 returned 100% blocks executed 100%
+       28:   73:bool isRightPy(double s1, double s2, double s3)
+        -:   74:{
+        -:   75:  // trying pythagoras theorem for checking right triangle
+       28:   76:  double longest = 0;
+       28:   77:  double small1 = 0;
+       28:   78:  double small2 = 0;
+       36:   79:  if(s3 > s2 && s3 > s1)
+branch  0 taken 36% (fallthrough)
+branch  1 taken 64%
+branch  2 taken 80% (fallthrough)
+branch  3 taken 20%
+        -:   80:    {
+        8:   81:      longest = s3;
+        8:   82:      small1 = s2;
+        8:   83:      small2 = s1;
+        -:   84:    }
+       29:   85:  else if(s2 > s3 && s2 > s1)
+branch  0 taken 55% (fallthrough)
+branch  1 taken 45%
+branch  2 taken 82% (fallthrough)
+branch  3 taken 18%
+        -:   86:    {
+        9:   87:      longest = s2;
+        9:   88:      small1 = s3;
+        9:   89:      small2 = s1;
+        -:   90:    }
+        -:   91:  else
+        -:   92:    {
+       11:   93:      longest = s1;
+       11:   94:      small1 = s2;
+       11:   95:      small2 = s3;
+        -:   96:    }
+       28:   97:  double p1 = pow(small1, 2);
+       28:   98:  double p2 = pow(small2, 2);
+       28:   99:  double p3 = pow(longest, 2);
+       28:  100:  double sum = p1 + p2;
+       28:  101:  if(isEqual(sum, p3))
+call    0 returned 100%
+branch  1 taken 43% (fallthrough)
+branch  2 taken 57%
+        -:  102:    {
+       12:  103:      return true;
+        -:  104:    }
+        -:  105:  
+       16:  106:  return false;
+        -:  107:}
+        -:  108:
+function isEquilateral called 28 returned 100% blocks executed 67%
+       28:  109:bool isEquilateral(double s1, double s2, double s3)
+        -:  110:{
+       28:  111:  if(isEqual(s1,s2) && isEqual(s1,s3) && isEqual(s2,s3))
+call    0 returned 100%
+branch  1 taken 11% (fallthrough)
+branch  2 taken 89%
+call    3 returned 100%
+branch  4 taken 0% (fallthrough)
+branch  5 taken 100%
+call    6 never executed
+branch  7 never executed
+branch  8 never executed
+        -:  112:    {
+    #####:  113:      return true;
+        -:  114:    }
+       28:  115:  return false;
+        -:  116:}
+        -:  117:
+        -:  118:
+        -:  119:
+function isIsosceles called 28 returned 100% blocks executed 100%
+       28:  120:bool isIsosceles(double s1, double s2, double s3)
+        -:  121:{
+       28:  122:  if(isEqual(s1,s2) && !isEqual(s2,s3) && !isEqual(s1,s3))
+call    0 returned 100%
+branch  1 taken 11% (fallthrough)
+branch  2 taken 89%
+call    3 returned 100%
+branch  4 taken 100% (fallthrough)
+branch  5 taken 0%
+call    6 returned 100%
+branch  7 taken 100% (fallthrough)
+branch  8 taken 0%
+        -:  123:    {
+        3:  124:      return true;
+        -:  125:    }
+       25:  126:  else if(isEqual(s1,s3) && !isEqual(s3,s2) && !isEqual(s1,s2))
+call    0 returned 100%
+branch  1 taken 4% (fallthrough)
+branch  2 taken 96%
+call    3 returned 100%
+branch  4 taken 100% (fallthrough)
+branch  5 taken 0%
+call    6 returned 100%
+branch  7 taken 100% (fallthrough)
+branch  8 taken 0%
+        -:  127:    {
+        1:  128:      return true;
+        -:  129:    }
+       24:  130:  else if(isEqual(s2,s3) && !isEqual(s3,s1) && !isEqual(s2,s1))
+call    0 returned 100%
+branch  1 taken 29% (fallthrough)
+branch  2 taken 71%
+call    3 returned 100%
+branch  4 taken 100% (fallthrough)
+branch  5 taken 0%
+call    6 returned 100%
+branch  7 taken 100% (fallthrough)
+branch  8 taken 0%
+        -:  131:    {
+        7:  132:      return true;
+        -:  133:    }
+        -:  134:  else
+        -:  135:    {
+       17:  136:      return false;
+        -:  137:    }
+        -:  138:}
+        -:  139:
+function isScalene called 28 returned 100% blocks executed 100%
+       28:  140:bool isScalene(double s1, double s2, double s3)
+        -:  141:{
+       28:  142:  if(!isEqual(s1, s2) && !isEqual(s2, s3) && !isEqual(s1, s3))
+call    0 returned 100%
+branch  1 taken 89% (fallthrough)
+branch  2 taken 11%
+call    3 returned 100%
+branch  4 taken 72% (fallthrough)
+branch  5 taken 28%
+call    6 returned 100%
+branch  7 taken 94% (fallthrough)
+branch  8 taken 6%
+        -:  143:    {
+       17:  144:      return true;
+        -:  145:    }
+       11:  146:  return false;
+        -:  147:}
+        -:  148:
+        -:  149:
+function main called 33 returned 100% blocks executed 93%
+       33:  150:int main(int argc, char **argv)
+        -:  151:{  
+        -:  152:  double xpoints[3];
+        -:  153:  double ypoints[3];
+        -:  154:  double s1, s2, s3, a1, a2, a3;
+        -:  155:  bool scal, iso, equi, acute, obtuse, right; 
+        -:  156:  bool collinear;
+        -:  157:
+        -:  158:
+        -:  159:  // get command line arguments
+       33:  160:  if(argc < 7)
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+        -:  161:    {
+    #####:  162:      printf("invalid number of coordinates\n");
+call    0 never executed
+        -:  163:    }
+        -:  164:  else
+        -:  165:    {
+       33:  166:      xpoints[0] = atoi(argv[1]);
+call    0 returned 100%
+       33:  167:      ypoints[0] = atoi(argv[2]);
+call    0 returned 100%
+       33:  168:      xpoints[1] = atoi(argv[3]);
+call    0 returned 100%
+       33:  169:      ypoints[1] = atoi(argv[4]);
+call    0 returned 100%
+       33:  170:      xpoints[2] = atoi(argv[5]);
+call    0 returned 100%
+       33:  171:      ypoints[2] = atoi(argv[6]);      
+call    0 returned 100%
+        -:  172:    }
+        -:  173:  
+        -:  174:  // check for nat  
+       33:  175:  if(isEqual(xpoints[0], xpoints[1]) && isEqual(ypoints[0], ypoints[1]))
+call    0 returned 100%
+branch  1 taken 36% (fallthrough)
+branch  2 taken 64%
+call    3 returned 100%
+branch  4 taken 33% (fallthrough)
+branch  5 taken 67%
+        -:  176:    {
+        4:  177:      printf("not a triangle\n");
+call    0 returned 100%
+        4:  178:      return 0;
+        -:  179:    }
+       29:  180:   if(isEqual(xpoints[0], xpoints[2]) && isEqual(ypoints[0], ypoints[2]))
+call    0 returned 100%
+branch  1 taken 14% (fallthrough)
+branch  2 taken 86%
+call    3 returned 100%
+branch  4 taken 0% (fallthrough)
+branch  5 taken 100%
+        -:  181:    {
+    #####:  182:      printf("not a triangle\n");
+call    0 never executed
+    #####:  183:      return 0;
+        -:  184:    }
+       29:  185:    if(isEqual(xpoints[2], xpoints[1]) && isEqual(ypoints[2], ypoints[1]))
+call    0 returned 100%
+branch  1 taken 3% (fallthrough)
+branch  2 taken 97%
+call    3 returned 100%
+branch  4 taken 0% (fallthrough)
+branch  5 taken 100%
+        -:  186:    {
+    #####:  187:      printf("not a triangle\n");
+call    0 never executed
+    #####:  188:      return 0;
+        -:  189:    }  
+        -:  190:
+        -:  191:    // check for nat: all 3 points lie on the same line
+       29:  192:    collinear = sameSlope(xpoints[0], ypoints[0], xpoints[1], ypoints[1], xpoints[2], ypoints[2]);
+call    0 returned 100%
+       29:  193:    if(collinear)
+branch  0 taken 3% (fallthrough)
+branch  1 taken 97%
+        -:  194:      {
+        1:  195:	printf("not a triangle\n");
+call    0 returned 100%
+        1:  196:	return 0;
+        -:  197:      }
+        -:  198:
+        -:  199: 
+        -:  200:    
+        -:  201:  
+        -:  202:     //scal, iso, equi, acute, obtuse, right
+        -:  203:
+       28:  204:  s1 = lengthOfSide(xpoints[0], ypoints[0], xpoints[1], ypoints[1]);
+call    0 returned 100%
+       28:  205:  s2 = lengthOfSide(xpoints[2], ypoints[2], xpoints[1], ypoints[1]);
+call    0 returned 100%
+       28:  206:  s3 = lengthOfSide(xpoints[2], ypoints[2], xpoints[0], ypoints[0]); 
+call    0 returned 100%
+        -:  207: 
+       28:  208:  scal = isScalene(s1, s2, s3);
+call    0 returned 100%
+       28:  209:  iso = isIsosceles(s1, s2, s3);
+call    0 returned 100%
+       28:  210:  equi = isEquilateral(s1, s2, s3);
+call    0 returned 100%
+        -:  211:
+       28:  212:  a3 = angleBetween(s1, s2, s3);
+call    0 returned 100%
+       28:  213:  a2 = angleBetween(s1, s3, s2);
+call    0 returned 100%
+       28:  214:  a1 = angleBetween(s2, s3, s1);
+call    0 returned 100%
+        -:  215:
+        -:  216:  //right = isRight(a1, a2, a3);
+       28:  217:  right = isRightPy(s1, s2, s3);
+call    0 returned 100%
+       28:  218:  acute = isAcute(a1, a2, a3);
+call    0 returned 100%
+       28:  219:  obtuse = isObtuse(a1, a2, a3);
+call    0 returned 100%
+        -:  220: 
+        -:  221:  
+        -:  222:  // (((scalene|isosceles|equilateral) (acute|obtuse|right))|not a triangle)
+       33:  223:  if(scal && right)
+branch  0 taken 61% (fallthrough)
+branch  1 taken 39%
+branch  2 taken 29% (fallthrough)
+branch  3 taken 71%
+        -:  224:    {
+        5:  225:      printf("scalene right\n");
+call    0 returned 100%
+        -:  226:    }
+       34:  227:  else if(scal && obtuse)
+branch  0 taken 52% (fallthrough)
+branch  1 taken 48%
+branch  2 taken 92% (fallthrough)
+branch  3 taken 8%
+        -:  228:    {
+       11:  229:      printf("scalene obtuse\n");
+call    0 returned 100%
+        -:  230:    }
+       13:  231:  else if(scal && acute)
+branch  0 taken 8% (fallthrough)
+branch  1 taken 92%
+branch  2 taken 100% (fallthrough)
+branch  3 taken 0%
+        -:  232:    {
+        1:  233:      printf("scalene acute\n");
+call    0 returned 100%
+        -:  234:    }
+       18:  235:  else if(iso && right)
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+branch  2 taken 64% (fallthrough)
+branch  3 taken 36%
+        -:  236:    {
+        7:  237:      printf("isosceles right\n");
+call    0 returned 100%
+        -:  238:    }
+        5:  239:  else if(iso && obtuse)
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+branch  2 taken 25% (fallthrough)
+branch  3 taken 75%
+        -:  240:    {
+        1:  241:      printf("isosceles obtuse\n");
+call    0 returned 100%
+        -:  242:    }
+        5:  243:  else if(iso && acute)
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+branch  2 taken 67% (fallthrough)
+branch  3 taken 33%
+        -:  244:    {
+        2:  245:      printf("isosceles acute\n");
+call    0 returned 100%
+        -:  246:    }  
+        -:  247:  else
+        -:  248:    {
+        1:  249:      printf("not a triangle\n");
+call    0 returned 100%
+        -:  250:    } 
+        -:  251:
+       28:  252:  return 0;
+        -:  253:}
+        -:  254:
+        -:  255:
