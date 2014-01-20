@@ -224,7 +224,7 @@ passed:
 -----------------------------------------------------
 Joshkunz		Josh Kunz
 
-Sat Jan 18 14:31:39 MST 2014
+Mon Jan 20 01:49:11 MST 2014
 
 passed:
 
@@ -240,6 +240,7 @@ ungso
 domfurano
 clukey
 joshkunz
+JonHParker
 
 failed: (results can be found at: https://gist.github.com/Joshkunz/8429888 )
 
@@ -252,7 +253,6 @@ brendenjtyler
 lynntesia
 uLDominator
 taylorstapleton
-JonHParker
 
 -----------------------------------------------------
 keith-richards		Keith Richards
