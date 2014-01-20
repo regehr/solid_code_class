@@ -13,6 +13,11 @@ bool isEqual(double d1, double d2)
   return false;
 }
 
+bool sameSlope(double x1, double y1, double x2, double y2, double x3, double y3)
+{
+  return fabs((y1 - y2) * (x1 - x3) - (y1 - y3) * (x1 - x2)) <= error;
+}
+
 
 double lengthOfSide(double x1, double y1, double x2, double y2)
 {
@@ -111,6 +116,7 @@ int main(int argc, char **argv)
   double ypoints[3];
   double s1, s2, s3, a1, a2, a3;
   bool scal, iso, equi, acute, obtuse, right; 
+  bool collinear;
 
 
   // get command line arguments
@@ -143,7 +149,18 @@ int main(int argc, char **argv)
     {
       printf("not a triangle\n");
       return 0;
-      }  
+    }  
+
+    // check for nat: all 3 points lie on the same line
+    collinear = sameSlope(xpoints[0], ypoints[0], xpoints[1], ypoints[1], xpoints[2], ypoints[2]);
+    if(collinear)
+      {
+	printf("not a triangle\n");
+	return 0;
+      }
+
+ 
+    
   
      //scal, iso, equi, acute, obtuse, right
 
