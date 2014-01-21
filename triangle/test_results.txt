@@ -94,16 +94,35 @@ sphippen
 -----------------------------------------------------
 domfurano		Dominic Furano
 
+January 21 8:30AM
+
 passed:
 
 AdamBradford
 andresMonroy
-clukey
 domfurano
+clukey
+CodyFoltz
 dsetser
+eisenstat_fp
+eisenstat_int
+JonHParker
 joshkunz
 keith-richards
 oscarmarshall
+ungso
+
+failed:
+
+armage17
+brendenjtyler
+jakeguckert
+jmcdonald-ut
+jordanwanlass
+lynntesia
+taylorstapleton
+toddJohnson
+uLDominator
 
 -----------------------------------------------------
 dsetser			Daniel Setser
