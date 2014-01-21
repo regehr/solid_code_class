@@ -21,17 +21,17 @@ typedef struct
    the dot product is positive. If the two pts are obtuse, the dot product
    is negative. If the two pts are perpendicular, the dot product is zero.
    Can overflow with invalid inputs. Will not overflow with valid inputs. */
-long long dot_product(long long x0, long long y0, long long x1, long long y1)
+long long dot_product_pt(const pt pts[3])
 {
-   return (x0 * x1) + (y0 * y1);
+   return ((pts[2].x - pts[0].x) * (pts[1].x - pts[0].x)) + ((pts[2].y - pts[0].y) * (pts[1].y - pts[0].y));
 }
 
-/* Returns the squared distance between two vertices. Will not overflow with valid inputs. */
-long long sqd_dst(long long x0, long long y0, long long x1, long long y1)
+/* Returns the squared distance between two pts. Will not overflow with valid inputs. */
+long long sqd_dst(const pt *pt_a, const pt *pt_b)
 {
-   long long a = (x1 - x0);
-   long long b = (y1 - y0);
-   return a * a + b * b;
+   long long x = pt_b->x - pt_a->x;
+   long long y = pt_b->y - pt_a->y;
+   return x*x + y*y;
 }
 
 /* Comparison routine for qsort. */
@@ -46,8 +46,8 @@ void angle_type(pt pts[3])
    /* Find longest angle. */
    qsort(pts, 3, sizeof(pt), compare);
    /* Calculate vectors with one endpoint at the origin. */
-   long long type = dot_product(pts[2].x - pts[0].x, pts[2].y - pts[0].y, pts[1].x - pts[0].x, pts[1].y - pts[0].y);
-    
+   long long type = dot_product_pt(pts);
+
    if (type == 0)
       printf("right\n");
    else if (type > 0)
@@ -67,11 +67,10 @@ void edge_type(pt pts[3])
       printf("not a triangle\n");
       exit(EXIT_SUCCESS);
    }
-    
-   /* Compute the squared length of sides of triangle. */
-   pts[0].sqd_d = sqd_dst(pts[1].x, pts[1].y, pts[2].x, pts[2].y);
-   pts[1].sqd_d = sqd_dst(pts[0].x, pts[0].y, pts[2].x, pts[2].y);
-   pts[2].sqd_d = sqd_dst(pts[0].x, pts[0].y, pts[1].x, pts[1].y);
+
+   pts[0].sqd_d = sqd_dst(&pts[1], &pts[2]);
+   pts[1].sqd_d = sqd_dst(&pts[0], &pts[2]);
+   pts[2].sqd_d = sqd_dst(&pts[0], &pts[1]);
     
    /* Output type of triangle. Equilateral triangles with integer vertices are impossible. */
    if ((pts[0].sqd_d == pts[1].sqd_d) || (pts[0].sqd_d == pts[2].sqd_d) || (pts[1].sqd_d == pts[2].sqd_d))
