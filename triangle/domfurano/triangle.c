@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <limits.h>
 
+/* Represents a point and the squared distance of the side
+   opposite. */
 typedef struct
 {
    long long x;
@@ -38,7 +40,7 @@ int compare (const void * a, const void * b)
    return (*(pt*)a).sqd_d < (*(pt*)b).sqd_d;
 }
 
-/* */
+/* Determines the type of angle opposite the largest side. */
 void angle_type(pt pts[3])
 {
    /* Find longest angle. */
@@ -54,6 +56,7 @@ void angle_type(pt pts[3])
       printf("obtuse\n");
 }
 
+/* Determines triangle type based on lengths of sides. */
 void edge_type(pt pts[3])
 {
    /* Check for collinearity. */
