@@ -224,7 +224,7 @@ jordanwanlass Ran 9 tests, 1 failed, 8 passed.
 lynntesia Ran 9 tests, 2 failed, 7 passed.
 Todd Johnson Ran 9 tests, 1 failed, 8 passed.
 uLDominator Ran 9 tests, 3 failed, 6 passed.
-ungso Ran 9 tests, 3 failed, 6 passed.	
+ungso Ran 9 tests, 3 failed, 6 passed.
 
 -----------------------------------------------------
 JonHParker		Jonathan Parker
@@ -370,12 +370,16 @@ passed:
 AdamBradford
 andresMonroy
 clukey
+CodyFoltz
+domfurano
 dsetser
-eisenstat
+eisenstat_fp
+JoHParker
 joshkunz
 keith-richards
 oscarmarshall
 sphippen
+ungso
 
 -----------------------------------------------------
 sphippen		Spencer Phippen
