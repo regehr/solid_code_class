@@ -24,7 +24,7 @@ enum {
  */
 #define MAX ((1ULL << 31) - 1ULL)
 /* static assertion */
-typedef char overflow_possible[ULLONG_MAX / 2 / DIM / MAX / MAX > 0ULL ? 1 : -1];
+typedef char overflow_possible[ULLONG_MAX / DIM / MAX / MAX > 0ULL ? 1 : -1];
 /* minimum coordinate: 0 per the spec
  * there is no MIN because this is assumed everywhere
  */
@@ -90,18 +90,13 @@ static bool string_to_coordinate(char const *s, unsigned long long xptr[static 1
 
 static bool is_not_a_triangle(unsigned long long x[static 3][2]) {
   /* is the signed area zero? */
-  return (x[1][0] - x[0][0]) * (x[2][1] - x[1][1]) \
-    == (x[1][1] - x[0][1]) * (x[2][0] - x[1][0]);
-}
-
-static unsigned long long square(unsigned long long d) {
-  return d * d;
+  return (x[1][0] - x[0][0]) * (x[2][1] - x[1][1]) == (x[1][1] - x[0][1]) * (x[2][0] - x[1][0]);
 }
 
 static unsigned long long distance_squared(unsigned long long const x0[static DIM],
                                            unsigned long long const x1[static DIM]) {
   unsigned long long d2 = 0ULL;
-  for (int j = 0; j < DIM; j++) d2 += square(x1[j] - x0[j]);
+  for (int j = 0; j < DIM; j++) d2 += (x1[j] - x0[j]) * (x1[j] - x0[j]);
   return d2;
 }
 
@@ -120,7 +115,7 @@ static int compare_unsigned_long_longs(void const *aptr, void const *bptr) {
 static void sorted_side_lengths_squared(unsigned long long x[static COUNT][DIM],
                                         unsigned long long d2[static COUNT]) {
   for (int i = 0; i < COUNT; i++) d2[i] = distance_squared(x[i], x[(i + 1) % COUNT]);
-  qsort(d2, (size_t)COUNT, sizeof *d2, compare_unsigned_long_longs);
+  qsort((void *)d2, (size_t)COUNT, sizeof *d2, compare_unsigned_long_longs);
 }
 
 /* d2 is a sorted array of side lengths squared */
@@ -135,11 +130,9 @@ static enum side_type classify_side(unsigned long long const d2[static 3]) {
 /* d2 is a sorted array of side lengths squared */
 static enum angle_type classify_angle(unsigned long long const d2[static 3]) {
   /* EWD 975 */
-  unsigned long long a = d2[0] + d2[1];
-  unsigned long long b = d2[2];
-  if (a < b) {
+  if (d2[2] - d2[0] > d2[1]) {
     return obtuse;
-  } else if (a == b) {
+  } else if (d2[2] - d2[0] == d2[1]) {
     return right;
   } else {
     return acute;
@@ -161,12 +154,12 @@ int main(int __attribute__((unused)) argc, char *const *argv) {
   if (*argv != (char *)NULL) return EXIT_FAILURE;
 
   if (is_not_a_triangle(x)) {
-    printf("not a triangle\n");
+    (void)printf("not a triangle\n");
   } else {
     unsigned long long d2[COUNT];
     sorted_side_lengths_squared(x, d2);
-    printf("%s %s\n",
-           g_side_type_name[classify_side(d2)], g_angle_type_name[classify_angle(d2)]);
+    (void)printf("%s %s\n",
+                 g_side_type_name[classify_side(d2)], g_angle_type_name[classify_angle(d2)]);
   }
   return EXIT_SUCCESS;
 }
