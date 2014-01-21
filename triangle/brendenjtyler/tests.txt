@@ -1,215 +1,26 @@
+Passed:
 AdamBradford
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
-CodyFoltz
-scalene obtuse
-1392
-not a triangle
-936
-scalene right
-816
-isosceles right
-864
-isosceles obtuse
-88
-JonHParker
 andresMonroy
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
 armage17
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
 brendenjtyler
 clukey
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
 domfurano
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
 dsetser
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
 eisenstat_fp
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
 eisenstat_int
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
-jakeguckert
 jmcdonald-ut
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
 jordanwanlass
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
-joshkunz
 keith-richards
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
+taylorstapleton
+toddJohnson
+
+Failed:
+JonHParker
+CodyFoltz
+jakeguckert
+joshkunz
 lynntesia
 oscarmarshall
 sphippen
-taylorstapleton
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
-toddJohnson
-scalene right
-624
-isosceles obtuse
-24
-isosceles acute
-288
-scalene obtuse
-1392
-scalene acute
-192
-isosceles right
-576
-not a triangle
-1000
 uLDominator
 ungso
