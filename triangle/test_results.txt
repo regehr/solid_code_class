@@ -330,7 +330,9 @@ AdamBradford
 andresMonroy
 cluckey
 domfurano
+dseter
 jmcdonald-ut
+JonHParker
 jordanwanlass
 joshkunz
 keith-richards
