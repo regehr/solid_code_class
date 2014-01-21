@@ -152,11 +152,13 @@ hyvemynd		Andres Monroy
 
 passed:
 AdamBradford
+andresMonroy
 clukey
+CodyFoltz
 domfurano
 dsetser
-eisenstat_int
 jmcdonald-ut
+JonHParker
 jordanwanlass
 keith-richards
 oscarmarshall
