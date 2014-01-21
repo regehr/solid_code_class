@@ -37,7 +37,7 @@ long long sqd_dst(const pt *pt_a, const pt *pt_b)
 /* Comparison routine for qsort. */
 int compare (const void * a, const void * b)
 {
-   return (*(pt*)a).sqd_d < (*(pt*)b).sqd_d;
+   return (pt*)a->sqd_d < (pt*)b->sqd_d;
 }
 
 /* Determines the type of angle opposite the largest side. */
