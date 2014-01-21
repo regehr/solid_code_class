@@ -2,12 +2,14 @@
 import subprocess
 import sys
 import shlex
-import random
+import os
 
 tests_passed = 0
 tests_failed = 0
 
 file = open("test.txt", "r")
+
+
 
 for line in file:
 	points = line.split()

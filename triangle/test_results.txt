@@ -154,7 +154,26 @@ passed: adambradford
 -----------------------------------------------------
 jguckert313		John Guckert
 
-passed:
+passed: AdamBradford
+		andresMonroy
+		armage17
+		brendenjtyler
+		clukey
+		Codyfoltz
+		domfurano
+		dsetser
+		jmcdonalt-ut
+		JonHParker
+		jordanwanlass
+		joshkunz
+		keith-richards
+		lynntesia
+		oscarmarshall
+		shippen
+		taylorstapleton
+		toddJohnson
+		uLDominator
+		ungso
 
 -----------------------------------------------------
 jmcdonald-ut		Jonathon Mcdonald
