@@ -18,18 +18,18 @@ typedef struct
 /* Returns the dot product of two pts. If the two pts are acute,
    the dot product is positive. If the two pts are obtuse, the dot product
    is negative. If the two pts are perpendicular, the dot product is zero.
-   Can overflow with invalid inputs. Will not overflow with valid inputs
-   because 2*(((2^31)-1)^2) < (2^63)-1 */
+   Can overflow with invalid inputs. Will not overflow with valid inputs. */
 long long dot_product(long long x0, long long y0, long long x1, long long y1)
 {
    return (x0 * x1) + (y0 * y1);
 }
 
-/* Returns the squared distance between two vertices. Will not overflow with valid inputs
-   because 2*(((2^31)-1)^2) < (2^63)-1 */
+/* Returns the squared distance between two vertices. Will not overflow with valid inputs. */
 long long sqd_dst(long long x0, long long y0, long long x1, long long y1)
 {
-   return ((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0));
+   long long a = (x1 - x0);
+   long long b = (y1 - y0);
+   return a * a + b * b;
 }
 
 /* Comparison routine for qsort. */
