@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 long long length_squared(long long x, long long y);
 const char *side_type_squares(long long asq, long long bsq, long long csq);
@@ -34,7 +35,11 @@ int main (int argc, char **argv) {
       return 0;
     }
   }
-  
+  for (i = 0; i < 6; i++) {
+    assert(pts[i] < 2147483648ll);
+    assert(-1ll < pts[i]);
+  }
+ 
   /* Translating the triangle so that (x_1, y_1) is at the origin
    * and preparing to find the length of the third side.
    */
