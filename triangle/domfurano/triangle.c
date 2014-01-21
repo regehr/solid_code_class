@@ -84,15 +84,12 @@ int main(int argc, char *argv[])
    pt pts[3]; /* Coordinate values. */
     
    /* Convert and save command line parameters. */
-   long long x;
-   long long y;
    for (int i = 1; i < argc; i += 2)
    {
-      sscanf(argv[i], "%lld", &x);
-      sscanf(argv[i + 1], "%lld", &y);
-      assert(x >= 0 && y >= 0 && x <= INT_MAX && y <= INT_MAX); /* Do not allow invalid inputs. */
-      pts[i/2].x = x;
-      pts[i/2].y = y;
+      sscanf(argv[i], "%lld", &pts[i/2].x);
+      sscanf(argv[i + 1], "%lld", &pts[i/2].y);
+      /* Do not allow invalid inputs. */
+      assert(pts[i/2].x >= 0 && pts[i/2].y >= 0 && pts[i/2].x <= INT_MAX && pts[i/2].y <= INT_MAX); 
    }
     
    edge_type(pts);
