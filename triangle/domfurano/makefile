@@ -1,5 +1,5 @@
 all: triangle.c
-	gcc triangle.c -o triangle
+	gcc -std=c99 triangle.c -o triangle
 clean:
 	@rm -f triangle *~ *gcov *gcno *gcda
 test:
