@@ -18,6 +18,8 @@ char * scalene_iso_string_for_triangle(triangle triangle);
 int main(int argc, const char * argv[])
 {
 	
+	
+	
     triangle_point points[3];
     int i;
     

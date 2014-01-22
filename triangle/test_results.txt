@@ -61,10 +61,12 @@ passed:
 AdamBradford
 andresMonroy
 clukey
+CodyFoltz
 domfurano
 dsetser
 eisenstat_fp
 eisenstat_int
+JonHParker
 joshkunz
 keith-richards
 oscarmarshall
@@ -92,16 +94,35 @@ sphippen
 -----------------------------------------------------
 domfurano		Dominic Furano
 
+January 21 8:30AM
+
 passed:
 
 AdamBradford
 andresMonroy
-clukey
 domfurano
+clukey
+CodyFoltz
 dsetser
+eisenstat_fp
+eisenstat_int
+JonHParker
 joshkunz
 keith-richards
 oscarmarshall
+ungso
+
+failed:
+
+armage17
+brendenjtyler
+jakeguckert
+jmcdonald-ut
+jordanwanlass
+lynntesia
+taylorstapleton
+toddJohnson
+uLDominator
 
 -----------------------------------------------------
 dsetser			Daniel Setser
@@ -111,8 +132,11 @@ passed:
 AdamBradford
 andresMonroy
 clukey
+CodyFoltz
 domfurano
 dsetser
+eisenstat_fp
+eisenstat_int
 jmcdonald-ut
 jordanwanlass
 joshkunz
@@ -120,6 +144,7 @@ keith-richards
 oscarmarshall
 sphippen
 taylorstapleton
+uLDominator
 ungso
 
 -----------------------------------------------------
@@ -127,11 +152,13 @@ hyvemynd		Andres Monroy
 
 passed:
 AdamBradford
+andresMonroy
 clukey
+CodyFoltz
 domfurano
 dsetser
-eisenstat_int
 jmcdonald-ut
+JonHParker
 jordanwanlass
 keith-richards
 oscarmarshall
@@ -203,7 +230,7 @@ jordanwanlass Ran 9 tests, 1 failed, 8 passed.
 lynntesia Ran 9 tests, 2 failed, 7 passed.
 Todd Johnson Ran 9 tests, 1 failed, 8 passed.
 uLDominator Ran 9 tests, 3 failed, 6 passed.
-ungso Ran 9 tests, 3 failed, 6 passed.	
+ungso Ran 9 tests, 3 failed, 6 passed.
 
 -----------------------------------------------------
 JonHParker		Jonathan Parker
@@ -270,7 +297,7 @@ brendenjtyler
 -----------------------------------------------------
 Joshkunz		Josh Kunz
 
-Mon Jan 20 19:43:16 MST 2014
+Tue Jan 21 12:16:01 MST 2014
 
 passed:
 
@@ -281,6 +308,7 @@ AdamBradford
 sphippen
 keith-richards
 dsetser
+Press ENTER or type command to continue
 andresMonroy
 ungso
 domfurano
@@ -309,7 +337,9 @@ AdamBradford
 andresMonroy
 cluckey
 domfurano
+dseter
 jmcdonald-ut
+JonHParker
 jordanwanlass
 joshkunz
 keith-richards
@@ -349,12 +379,16 @@ passed:
 AdamBradford
 andresMonroy
 clukey
+CodyFoltz
+domfurano
 dsetser
-eisenstat
+eisenstat_fp
+JoHParker
 joshkunz
 keith-richards
 oscarmarshall
 sphippen
+ungso
 
 -----------------------------------------------------
 sphippen		Spencer Phippen

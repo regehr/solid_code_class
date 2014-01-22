@@ -33,7 +33,7 @@ long long get_sq_len (struct point p1, struct point p2)
 /*
  * Determines the distance between two points.
  */
-double get_length (struct point p1, struct point p2)
+long long get_length (struct point p1, struct point p2)
 {
 	return sqrt(get_sq_len(p1, p2));
 }
@@ -103,7 +103,7 @@ int is_acute (double ang1, double ang2, double ang3)
 /*
  * Determines if this trinagle is isosceles based on the lengths of the edges.
  */
-int is_iso (double len1, double len2, double len3)
+int is_iso (long long len1, long long len2, long long len3)
 {
 	return (len1 == len2 || len1 == len3 || len2 == len3);
 }
@@ -125,7 +125,7 @@ struct point new_point (char * num1, char * num2)
 
 int main (int argc, char * argv[])
 {
-	double len_p1_p2, len_p2_p3, len_p1_p3;
+	long long len_p1_p2, len_p2_p3, len_p1_p3;
 	double ang_p1_p2, ang_p2_p3, ang_p1_p3;
 	struct point p1, p2, p3;
 
