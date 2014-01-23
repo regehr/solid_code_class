@@ -31,7 +31,7 @@ class ClassTester
   ### Runs the tests against the current user (runs make, then runs make clean)
   ### +++
   def run_tests
-    `make`
+    `make > dev/null`
     @test_harness.run_test("./triangle 0 0 0 0 0 0", :nat_simple)
     @test_harness.run_test("./triangle 1 1 2 2 3 3", :nat_hard)
     @test_harness.run_test("./triangle 1 1 3 2 1 3", :iso_acute)

@@ -297,7 +297,7 @@ brendenjtyler
 -----------------------------------------------------
 Joshkunz		Josh Kunz
 
-Mon Jan 20 19:43:16 MST 2014
+Tue Jan 21 12:16:01 MST 2014
 
 passed:
 
@@ -308,6 +308,7 @@ AdamBradford
 sphippen
 keith-richards
 dsetser
+Press ENTER or type command to continue
 andresMonroy
 ungso
 domfurano
@@ -396,14 +397,16 @@ passed:
 AdamBradford
 andresMonroy
 clukey
+CodyFoltz
 domfurano
 dsetser
 eisenstat_fp
-eisenstat_int
+JonHParker
 joshkunz
 keith-richards
 oscarmarshall
 sphippen
+ungso
 
 -----------------------------------------------------
 taylorstapleton		Taylor Stapleton
