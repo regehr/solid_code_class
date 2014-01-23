@@ -4,7 +4,7 @@ brendenjtyler		md5sum
 clukey			more
 Codablo			wc
 domfurano		tail
-dsetser			ps
+dsetser			split
 hyvemynd		gzip
 jeffreyj01		less
 jguckert313		dd
