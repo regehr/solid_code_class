@@ -34,7 +34,7 @@
 /*
 * This helper function outputs the square of the length of two points.
 */
-long long unsigned int GetSideSquared(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2)
+long long unsigned int GetSideSquared(unsigned long long int x1, unsigned long long int y1, unsigned long long int x2, unsigned long long int y2)
 {
     int temp;
     if (x1 > x2)
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
     //
     // Since c*c == a*a + b*b means it's a right triangle, then if c*c < a*a + b*b it is acute
     // and if c*c > a*a + b*b then it is obtuse.
-    if (firstSideSquared + secondSideSquared > thirdSideSquared
+    if (firstSideSquared  + secondSideSquared > thirdSideSquared
         && firstSideSquared + thirdSideSquared > secondSideSquared
         && secondSideSquared + thirdSideSquared > firstSideSquared)
     {

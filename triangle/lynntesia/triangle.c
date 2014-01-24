@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
-#define error 0.00001
+#define error 0.0000001
 
 
 bool isEqual(double d1, double d2)
@@ -11,6 +11,11 @@ bool isEqual(double d1, double d2)
       return true;
     }
   return false;
+}
+
+bool sameSlope(double x1, double y1, double x2, double y2, double x3, double y3)
+{
+  return fabs((y1 - y2) * (x1 - x3) - (y1 - y3) * (x1 - x2)) <= error;
 }
 
 
@@ -33,16 +38,6 @@ double angleBetween(double s1, double s2, double s3)
  return angle;  
 }
 
-bool isRight(double a1, double a2, double a3)
-{
-  if((isEqual(a1,90) && a2 < 90 && a3 < 90) ||
-     (isEqual(a2,90) && a1 < 90 && a3 < 90) ||
-     (isEqual(a3,90) && a1 < 90 && a2 < 90))
-    {
-      return true;
-    }
-  return false;
-}
 
 bool isObtuse(double a1, double a2, double a3)
 {
@@ -66,6 +61,51 @@ bool isAcute(double a1, double a2, double a3)
   return false;
 }
 
+bool isRight(double a1, double a2, double a3)
+{
+  if(isEqual(a1, 90) || isEqual(a1, 90) || isEqual(a3, 90))
+    {
+      return true;
+    }
+  return false;
+}
+
+bool isRightPy(double s1, double s2, double s3)
+{
+  // trying pythagoras theorem for checking right triangle
+  double longest = 0;
+  double small1 = 0;
+  double small2 = 0;
+  if(s3 > s2 && s3 > s1)
+    {
+      longest = s3;
+      small1 = s2;
+      small2 = s1;
+    }
+  else if(s2 > s3 && s2 > s1)
+    {
+      longest = s2;
+      small1 = s3;
+      small2 = s1;
+    }
+  else
+    {
+      longest = s1;
+      small1 = s2;
+      small2 = s3;
+    }
+  double p1 = pow(small1, 2);
+  double p2 = pow(small2, 2);
+  double p3 = pow(longest, 2);
+  double sum = p1 + p2;
+  if(isEqual(sum, p3))
+    {
+      return true;
+    }
+  
+  return false;
+}
+
 bool isEquilateral(double s1, double s2, double s3)
 {
   if(isEqual(s1,s2) && isEqual(s1,s3) && isEqual(s2,s3))
@@ -74,6 +114,8 @@ bool isEquilateral(double s1, double s2, double s3)
     }
   return false;
 }
+
+
 
 bool isIsosceles(double s1, double s2, double s3)
 {
@@ -111,6 +153,7 @@ int main(int argc, char **argv)
   double ypoints[3];
   double s1, s2, s3, a1, a2, a3;
   bool scal, iso, equi, acute, obtuse, right; 
+  bool collinear;
 
 
   // get command line arguments
@@ -143,7 +186,18 @@ int main(int argc, char **argv)
     {
       printf("not a triangle\n");
       return 0;
-      }  
+    }  
+
+    // check for nat: all 3 points lie on the same line
+    collinear = sameSlope(xpoints[0], ypoints[0], xpoints[1], ypoints[1], xpoints[2], ypoints[2]);
+    if(collinear)
+      {
+	printf("not a triangle\n");
+	return 0;
+      }
+
+ 
+    
   
      //scal, iso, equi, acute, obtuse, right
 
@@ -159,47 +213,37 @@ int main(int argc, char **argv)
   a2 = angleBetween(s1, s3, s2);
   a1 = angleBetween(s2, s3, s1);
 
+  //right = isRight(a1, a2, a3);
+  right = isRightPy(s1, s2, s3);
   acute = isAcute(a1, a2, a3);
   obtuse = isObtuse(a1, a2, a3);
-  right = isRight(a1, a2, a3);
+ 
   
   // (((scalene|isosceles|equilateral) (acute|obtuse|right))|not a triangle)
-  if(scal && acute)
+  if(scal && right)
     {
-      printf("scalene acute\n");
+      printf("scalene right\n");
     }
   else if(scal && obtuse)
     {
       printf("scalene obtuse\n");
     }
-  else if(scal && right)
+  else if(scal && acute)
     {
-      printf("scalene right\n");
-    }
-  else if(iso && acute)
-    {
-      printf("isosceles acute\n");
-    }
-  else if(iso && obtuse)
-    {
-      printf("isosceles obtuse\n");
+      printf("scalene acute\n");
     }
   else if(iso && right)
     {
       printf("isosceles right\n");
     }
-  else if(equi && acute)
+  else if(iso && obtuse)
     {
-      printf("equilateral acute\n");
+      printf("isosceles obtuse\n");
     }
-  else if(equi && obtuse)
+  else if(iso && acute)
     {
-      printf("equilateral obtuse\n");
-    }
-  else if(equi && right)
-    {
-      printf("equilateral right\n");
-    }
+      printf("isosceles acute\n");
+    }  
   else
     {
       printf("not a triangle\n");

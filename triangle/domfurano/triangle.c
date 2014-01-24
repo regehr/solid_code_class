@@ -5,85 +5,95 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+#include <assert.h>
+#include <limits.h>
 
-/* Returns the dot product of two vectors. If the two vectors are acute,
-   the dot product is positive. If the two vectors are obtuse, the dot product
-   is negative. If the two vectors are perpendicular, the dot product is zero.
-   Can overflow with invalid inputs. Will not overflow with valid inputs 
-   because 2*(((2^31)-1)^2) < (2^63)-1 */
-long long dot_product(long long x0, long long y0, long long x1, long long y1)
+/* Represents a point and the squared distance of the side
+   opposite. */
+typedef struct
 {
-    return (x0 * x1) + (y0 * y1);
+   long long x;
+   long long y;
+   long long sqd_d;
+}pt;
+
+/* Returns the dot product of two pts. If the two pts are acute,
+   the dot product is positive. If the two pts are obtuse, the dot product
+   is negative. If the two pts are perpendicular, the dot product is zero.
+   Can overflow with invalid inputs. Will not overflow with valid inputs. */
+long long dot_product_pt(const pt pts[3])
+{
+   return ((pts[2].x - pts[0].x) * (pts[1].x - pts[0].x)) + ((pts[2].y - pts[0].y) * (pts[1].y - pts[0].y));
 }
 
-/* Returns the squared distance between two vertices. Can overflow with
-   invalid inputs. Will not overflow with valid inputs 
-   because 2*(((2^31)-1)^2) < (2^63)-1 */
-long long sqd_dst(long long x0, long long y0, long long x1, long long y1)
+/* Returns the squared distance between two pts. Will not overflow with valid inputs. */
+long long sqd_dst(const pt *pt_a, const pt *pt_b)
 {
-   return ((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0));
+   long long x = pt_b->x - pt_a->x;
+   long long y = pt_b->y - pt_a->y;
+   return x*x + y*y;
 }
 
-/* Returns longest side of three given sides. */
-long long longest_side(long long A, long long B, long long C)
+/* Comparison routine for qsort. */
+int compare (const void * a, const void * b)
 {
-    long long longest = A;
-    if (B > longest)
-        longest = B;
-    if (C > longest)
-        longest = C;
-    return longest;
+   return (pt*)a->sqd_d < (pt*)b->sqd_d;
 }
 
-/* Returns 0 if sides form a right triangle; > 0 if sides form an acute triangle;
-   < 0 if sides form obtuse triangle. */
-long long angle_type(long long A, long long B, long long C, long long *pts)
+/* Determines the type of angle opposite the largest side. */
+void angle_type(pt pts[3])
 {
-    long long hypotenuse = longest_side(A, B, C);
+   /* Find longest angle. */
+   qsort(pts, 3, sizeof(pt), compare);
+   /* Calculate vectors with one endpoint at the origin. */
+   long long type = dot_product_pt(pts);
+
+   if (type == 0)
+      printf("right\n");
+   else if (type > 0)
+      printf("acute\n");
+   else
+      printf("obtuse\n");
+}
+
+/* Determines triangle type based on lengths of sides. */
+void edge_type(pt pts[3])
+{
+   /* Check for collinearity. */
+   if ((pts[0].x * (pts[1].y - pts[2].y) +
+	pts[1].x * (pts[2].y - pts[0].y) +
+	pts[2].x * (pts[0].y - pts[1].y)) == 0)
+   {
+      printf("not a triangle\n");
+      exit(EXIT_SUCCESS);
+   }
+
+   pts[0].sqd_d = sqd_dst(&pts[1], &pts[2]);
+   pts[1].sqd_d = sqd_dst(&pts[0], &pts[2]);
+   pts[2].sqd_d = sqd_dst(&pts[0], &pts[1]);
     
-    if (A == hypotenuse)
-        return dot_product((pts[2] - pts[4]), (pts[3] - pts[5]), (pts[0] - pts[4]), (pts[1] - pts[5]));
-    if (B == hypotenuse)
-        return dot_product((pts[2] - pts[0]), (pts[3] - pts[1]), (pts[4] - pts[0]), (pts[5] - pts[1]));
-    return dot_product((pts[0] - pts[2]), (pts[1] - pts[3]), (pts[4] - pts[2]), (pts[5] - pts[3]));
+   /* Output type of triangle. Equilateral triangles with integer vertices are impossible. */
+   if ((pts[0].sqd_d == pts[1].sqd_d) || (pts[0].sqd_d == pts[2].sqd_d) || (pts[1].sqd_d == pts[2].sqd_d))
+      printf("isosceles ");
+   else
+      printf("scalene ");
 }
 
 int main(int argc, char *argv[])
 {
-    long long pts[6]; /* Coordinate values. */
-    long long A, B, C; /* Length of sides. */
-    int i; /* Iteration variable. */
+   pt pts[3]; /* Coordinate values. */
     
-    /* Convert and save command line parameters. */
-    for (i = 0; i < argc - 1; i++)
-       pts[i] = atoll(argv[i + 1]);
+   /* Convert and save command line parameters. */
+   for (int i = 1; i < argc; i += 2)
+   {
+      sscanf(argv[i], "%lld", &pts[i/2].x);
+      sscanf(argv[i + 1], "%lld", &pts[i/2].y);
+      /* Do not allow invalid inputs. */
+      assert(pts[i/2].x >= 0 && pts[i/2].y >= 0 && pts[i/2].x <= INT_MAX && pts[i/2].y <= INT_MAX); 
+   }
     
-    /* Check for collinearity. */
-    if ((pts[0] * (pts[3] - pts[5]) + pts[2] * (pts[5] - pts[1]) + pts[4] * (pts[1] - pts[3])) == 0)
-    {
-        printf("not a triangle\n");
-        exit(EXIT_SUCCESS);
-    }
+   edge_type(pts);
+   angle_type(pts);
     
-    /* Compute the squared length of sides of triangle. */
-    A = sqd_dst(pts[0], pts[1], pts[2], pts[3]);
-    B = sqd_dst(pts[2], pts[3], pts[4], pts[5]);
-    C = sqd_dst(pts[4], pts[5], pts[0], pts[1]);
-    
-    if ( (A == B) || (A == C) || (B == C) )
-        printf("isosceles ");
-    else
-        printf("scalene ");
-    
-    long long type = angle_type(A, B, C, pts);
-    
-    if (type == 0)
-        printf("right\n");
-    else if (type > 0)
-        printf("acute\n");
-    else
-        printf("obtuse\n");
-    
-    exit(EXIT_SUCCESS);      
+   exit(EXIT_SUCCESS);
 }

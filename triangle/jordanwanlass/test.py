@@ -10,12 +10,22 @@ def isoscelesTest():
 	output = subprocess.check_output(['./triangle', '0', '0', '2', '1', '0', '2'])
 	
 	if(output != "isosceles acute\n"):
-		return "isosceles acute fail"
+		return "isosceles acute fail" + output
 		
 	output = subprocess.check_output(['./triangle', '0', '0', '2', '1', '4', '0'])
 	
 	if(output != "isosceles obtuse\n"):
-		return "isosceles obtuse fail"
+		return "isosceles obtuse fail" + " " + output
+		
+	output = subprocess.check_output([path , '0' , '0' , '2' , '0', '1' , '2147483647'])
+	
+	if(output != "isosceles acute\n"):
+		return "isosceles acute fail" + " " + output
+		
+	output = subprocess.check_output([path , '0' , '0' , '0' , '2147483646' , '64', '1073741823'])
+	
+	if(output != "isosceles obtuse\n"):
+		return "isosceles obtuse fail" + " " + output
 		
 	return "pass"
 
@@ -49,12 +59,7 @@ def badTriangleTest():
 	
 	if(output != "not a triangle\n"):
 		return "collinear test fail"
-				
-	output = subprocess.check_output(['./triangle', '0'])
-	
-	if(output != "not a triangle\n"):
-		return "input test fail"	
-		
+							
 	return "pass"
 
 def main():
@@ -62,7 +67,6 @@ def main():
 	print("Isosceles Test: " + isoscelesTest())
 	print("Scalene Test: " + scaleneTest())
 	print("Bad Triangle Test: " + badTriangleTest())
-	
 	
 if __name__ == '__main__':
 	main()

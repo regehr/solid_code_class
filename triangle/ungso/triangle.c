@@ -7,12 +7,12 @@
 
 
 void print_type(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3);
-long long get_side(long long x1, long long x2, long long y1, long long y2);
 void triangle_type(long long A, long long B, long long C);
 void validate(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3);
 int is_straight_line(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3);
 void get_triangle_type(long long A, long long B, long long C);
-
+void translate(long long *x1, long long *y1, long long *x2, long long *y2, long long *x3, long long *y3);
+long long get_side(long long x, long long y);
 
 int main(int argc, char **argv){
 
@@ -30,38 +30,26 @@ int main(int argc, char **argv){
 /* Main routine */
 void print_type(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3){
 
-check_in_range(x1, y1, x2, y2, x3, y3);
 validate(x1, y1, x2, y2, x3, y3);
-long long A = get_side(x1, x3, y1, y3);
-long long B = get_side(x2, x3, y2, y3);
-long long C = get_side(x1, x2, y1, y2);
+translate(&x1, &y1, &x2, &y2, &x3, &y3);
+long long A = get_side(x1, y1);
+long long B = get_side(x2, y2);
+long long C = get_side(x3, y3);
 get_triangle_type(A, B, C);
 
 }
 
+/* Returns a side (borrowed from clukey) */
+long long get_side(long long x, long long y){
 
-/* Returns the length of a side */
-long long get_side(long long x1, long long x2, long long y1, long long y2){
-
-long long diff_1 = (x2 - x1);
-long long diff_2 = (y2 - y1);
-long long sq_1 = pow(diff_1, 2);
-long long sq_2 = pow(diff_2, 2);
-long long sum_of_squares = sq_1 + sq_2;
-
-return sum_of_squares;
+  return (x*x) + (y*y);
 }
-
 
 /* Prints the triangle_type */
 void triangle_type(long long A, long long B, long long C){
 
-  char *type = NULL;
 
-  if((A == B) && (B == C))
-  printf("equalateral acute");
- 
-  else if ((A==B) || (A==C) || (B==C))
+  if ((A==B) || (A==C) || (B==C))
   printf("isosceles ");
 
   else
@@ -84,25 +72,10 @@ void triangle_type(long long A, long long B, long long C){
 /* Validates the coordinates as describing a triangle */
 void validate(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3){
  
-  int invalid = 0;
-
-if(((x1 == x2) && (y1 == y2)))
-   invalid = 1;
-
-else if (((x2 == x3) && (y2 == y3)))
-   invalid = 1;
-
-else if (((x1 == x3) && (y1 == y3)))
-   invalid = 1;
-
- if(!invalid)
- if(is_straight_line(x1, y1, x2, y2, x3, y3))
-   invalid = 1;
-
- if (invalid){
+   if(is_straight_line(x1, y1, x2, y2, x3, y3)){
      printf("not a triangle\n");
      exit(0);
- }
+   }
    
 }
 
@@ -110,46 +83,37 @@ else if (((x1 == x3) && (y1 == y3)))
 /* Do coordinates represent a straight line */
 int is_straight_line(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3){
 
-  long long denom_1 = abs(y2 - y1);
-  long long denom_2 = abs(y3 - y2);
-  long long denom_3 = abs(y3 - y1);
-
-  if (denom_1 == 0 || denom_2 == 0 || denom_3 == 0)
-    return 0;
- 
-  long long slope_1 = abs((abs(x2 - x1)) / denom_1);
-  long long slope_2 = abs((abs(x3 - x2)) / denom_2);
-  long long slope_3 = abs((abs(x3 - x1)) / denom_3);
-
-  return ((slope_1 == slope_2) && (slope_2 == slope_3) && (slope_1 == slope_3));
-
-}
-
-
-/* Checks for signed overflow */
-check_in_range(long long x1, long long y1, long long x2, long long y2, long long x3, long long y3){
-  
-  assert(!(x1 & LLONG_MIN));
-  assert(!(y1 & LLONG_MIN));
-  assert(!(x2 & LLONG_MIN));
-  assert(!(y2 & LLONG_MIN));
-  assert(!(x3 & LLONG_MIN));
-  assert(!(y3 & LLONG_MIN));
-
+  return((x1 * (y2 - y3) +
+	  x2 * (y3 - y1) +
+	  x3 * (y1 - y2)) == 0);
 }
 
 
 /* Get triangle type */
 void get_triangle_type(long long A, long long B, long long C){
 
-  
-  if(A >= B && A >= C)
-    triangle_type(B, C, A);
-    
-  else if(B >= A && B >= C)
-    triangle_type(A, C, B);
+  if((A > B) && (A > C))
+     triangle_type(B, C, A);
+
+  else if ((B > A) && (B > C))
+     triangle_type(A, C, B);
 
   else
-    triangle_type(A, B, C);
+     triangle_type(A, B, C);
+}
+
+
+
+
+/* This approach was modeled after clukey's */
+void translate(long long *x1, long long *y1, long long *x2, long long *y2, long long *x3, long long *y3){
+
+  *x3 = *x3 - *x1;
+  *y3 = *y3 - *y1;
+  *x2 = *x2 - *x1;
+  *y2 = *y2 - *y1;
+  *x1 = *x3 - *x2;
+  *y1 = *y3 - *y2;
+  
 
 }
