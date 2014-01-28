@@ -13,8 +13,10 @@
 
 \begin{document}
 \header{Josh Kunz}{xargs Analysis}
-
+%
+\vspace{-2ex}
 \section{Overview}
+\vspace{-1ex}
 \xargs is a standard UNIX utility (from the findutils utility package) for
 converting file contents into arguments for other programs. Typically \xargs is
 employed when the user wishes to run a command over a set of input files. For
@@ -46,14 +48,16 @@ What this means, is that if you want run a command over a set of files, those
 files have to be properly escaped before they are given as input to \xargs. This
 can be very confusing for users of \xargs who might expect it to simply use each
 line as argument instead of parsing each line into arguments. This confusing
-behaviour should be considered before \xargs is relied upon.
+behavior should be considered before \xargs is relied upon.
 
 As can be seen above \xargs has added a work around for this problem, the 
 \verb|-0| option. This option causes \xargs to treat everything between two 
 null-terminators (or a null-terminator and an \texttt{EOF}) as an argument, no
 parsing is done on the input.
 
+\vspace{-2ex}
 \section{Analysis}
+\vspace{-1ex}
 The lab currently has two versions of \xargs installed 4.1, the oldest
 release still available from the findutils project. It was released in 1994. The
 lab \textit{also} has version 4.4.2 installed the newest version of the \xargs
@@ -64,11 +68,27 @@ any bugs that directly affected security, but this very outdated version does
 have a number of logic bugs in it.
 
 \begin{center}
-\parbox[c][1cm][c]{0.8\linewidth}{
-    {\it Note: version 4.1 was in-fact so old that I was unable to compile it
-     on any relatively 'modern' system I control. The analysis presented below
+\parbox[c][1cm][c]{0.7\linewidth}{
+    {\small \it Note: version 4.1 was in-fact so old that I was unable to compile it
+     on any relatively `modern' system I control. The analysis presented below
      was done on version 4.2.25, the next release version.}
 }
 \end{center}
+
+\xargs itself already comes with a fairly comprehensive set of tests built
+on the DejaGnu test system. I compiled \xargs with the \texttt{clang} compiler's 
+undefined behavior sanitizer, and ran the test-suite. To my surprise, 
+\xargs didn't invoke \textit{any} undefined behavior. I also compiled \xargs 
+using \texttt{gcc}'s code coverage tools, and then ran the test-suite. 
+\texttt{xargs}'s supplied test-suite achieved 73\% code coverage. Most 
+un-covered code was system-call error handling code, and code whose reachability
+is platform dependent (though most of that code was quite simple). I attempted
+to test system-call error handling with the Murphy fuzzing tool, but ran out
+of time before I obtained any results.
+
+From my cursory inspection of the \xargs utility, it appears to be a well
+tested, and robust (though not stylistically well-written) piece of code.
+It's unlikely that \xargs cause any issues, yet some
+errors may results from the confusing way in which \xargs handles input.
 
 \end{document}
