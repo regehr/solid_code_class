@@ -14,6 +14,7 @@
 \begin{document}
 \header{Josh Kunz}{xargs Analysis}
 
+\section{Overview}
 \xargs is a standard UNIX utility (from the findutils utility package) for
 converting file contents into arguments for other programs. Typically \xargs is
 employed when the user wishes to run a command over a set of input files. For
@@ -51,4 +52,23 @@ As can be seen above \xargs has added a work around for this problem, the
 \verb|-0| option. This option causes \xargs to treat everything between two 
 null-terminators (or a null-terminator and an \texttt{EOF}) as an argument, no
 parsing is done on the input.
+
+\section{Analysis}
+The lab currently has two versions of \xargs installed 4.1, the oldest
+release still available from the findutils project. It was released in 1994. The
+lab \textit{also} has version 4.4.2 installed the newest version of the \xargs
+utility. However, the default version is version 4.1. Since this version is
+severely outdated, and a newer version has already been installed, version 4.4.2
+should be configured as the default as soon as possible. I was not able to find
+any bugs that directly affected security, but this very outdated version does
+have a number of logic bugs in it.
+
+\begin{center}
+\parbox[c][1cm][c]{0.8\linewidth}{
+    {\it Note: version 4.1 was in-fact so old that I was unable to compile it
+     on any relatively 'modern' system I control. The analysis presented below
+     was done on version 4.2.25, the next release version.}
+}
+\end{center}
+
 \end{document}
