@@ -1,0 +1,65 @@
+============================================================================
+Compression Table Generator
+
+Running "make" in your team's directory should cause a program called
+"maketable" to be compiled. This must work on CADE but please make an
+effort to also support random Linux and MacOS X machines.
+
+maketable takes one or more command line arguments, each of which
+provides a path to a file. It should exit gracefully with a -1 return
+code if any file does not exist or cannot be read, or if no command
+line arguments are provided.
+
+If all files can be read, maketable should print a compression table
+to stdout and exit with a 0 return code. The compression table
+corresponds to the Huffman coding of the contents of all input files.
+Line 0 in the table is the Huffman code for the byte containing 0x0,
+Line 1 is the code for the byte containing 0x1, etc. Therefore, the
+compression table always contains 256 lines. Each line of the file
+matches the Perl regex ^([01])+\n$.
+
+The Huffman coding has the property that no code is the prefix of any
+other code. This enables unambiguous decoding.
+
+The algorithm to generate the compression table is as follows:
+
+- Determine the frequency of occurrence of each byte in the input
+  files.
+
+- Make a list that contains one element for each byte value; this list
+  is sorted by increasing frequency (i.e., least frequently occurring
+  bytes are first). For bytes with the same frequency, the
+  lower-valued byte goes earlier in the list.
+
+- Remove the first two elements of the list and combine them into a
+  single list element whose frequency is the sum of the frequencies of
+  the removed elements. The new element should contain the removed
+  list elements as subtrees. The new element should be inserted into
+  its proper place in the sorted list. Ties are broken by putting the
+  element whose subtree contains the lowest-valued byte earlier in the
+  list.
+
+- If the list contains more than one element, go back to the previous
+  step.
+
+- Create the compression table as follows. Observe that for every
+  non-leaf node in the tree, the subtree containing the minimum-valued
+  element can be called the 0-subtree and the other subtree can be
+  called the 1-subtree. To generate the table entry for the
+  zero-valued byte, walk the tree from root to the leaf corresponding
+  to the 0 byte, generating a 0 in the Huffman code every time the
+  0-subtree is followed and a 1 in the Huffman code every time the
+  1-subtree is followed.
+
+Non-functional requirement: Your program must be in C and must not
+execute any undefined behaviors on either 32-bit or 64-bit
+systems. Furthermore, Valgrind should declare it to be free of memory
+leaks.
+
+============================================================================
+Compressor and Decompressor
+
+TBD
+
+============================================================================
+

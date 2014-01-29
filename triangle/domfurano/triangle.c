@@ -37,7 +37,7 @@ long long sqd_dst(const pt *pt_a, const pt *pt_b)
 /* Comparison routine for qsort. */
 int compare (const void * a, const void * b)
 {
-   return (pt*)a->sqd_d < (pt*)b->sqd_d;
+   return ((pt*)a)->sqd_d < ((pt*)b)->sqd_d;
 }
 
 /* Determines the type of angle opposite the largest side. */
@@ -71,6 +71,9 @@ void edge_type(pt pts[3])
    pts[0].sqd_d = sqd_dst(&pts[1], &pts[2]);
    pts[1].sqd_d = sqd_dst(&pts[0], &pts[2]);
    pts[2].sqd_d = sqd_dst(&pts[0], &pts[1]);
+
+   /* Equilateral triangles with integer vertices are impossible. */
+   assert((pts[0].sqd_d == pts[1].sqd_d == pts[2].sqd_d) == 0);
     
    /* Output type of triangle. Equilateral triangles with integer vertices are impossible. */
    if ((pts[0].sqd_d == pts[1].sqd_d) || (pts[0].sqd_d == pts[2].sqd_d) || (pts[1].sqd_d == pts[2].sqd_d))
@@ -89,7 +92,7 @@ int main(int argc, char *argv[])
       sscanf(argv[i], "%lld", &pts[i/2].x);
       sscanf(argv[i + 1], "%lld", &pts[i/2].y);
       /* Do not allow invalid inputs. */
-      assert(pts[i/2].x >= 0 && pts[i/2].y >= 0 && pts[i/2].x <= INT_MAX && pts[i/2].y <= INT_MAX); 
+      // assert(pts[i/2].x >= 0 && pts[i/2].y >= 0 && pts[i/2].x <= INT_MAX && pts[i/2].y <= INT_MAX); 
    }
     
    edge_type(pts);
