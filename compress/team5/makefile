@@ -13,7 +13,7 @@ all: $(BINARY)
 $(BINARY): $(OBJFILES)
 	$(CC) -o $(BINARY) $(OBJFILES)
 
-%.o: %.cpp
+%.o: %.c
 	$(COMPILE) -o $@ $< 
 
 clean:
