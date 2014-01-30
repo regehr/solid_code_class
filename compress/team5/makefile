@@ -1,8 +1,9 @@
 
 CC = clang
-CFLAGS = -Wall -O2 -fsanitize=undefined,unsigned-integer-overflow
+CFLAGS = -Wall -O2 
+OPTIONAL_CFLAGS = -fsanitize=undefined,unsigned-integer-overflow
 
-BINARY = maketable
+BINARY = huff
 
 COMPILE = $(CC) $(CFLAGS) -c
 OBJFILES := $(patsubst %.c,%.o,$(wildcard *.c))
@@ -16,4 +17,5 @@ $(BINARY): $(OBJFILES)
 	$(COMPILE) -o $@ $< 
 
 clean:
-	-rm -f $(OBJFILES)
+	-@rm -f $(OBJFILES)
+	-@rm -f $(BINARY)
