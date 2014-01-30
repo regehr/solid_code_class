@@ -1,6 +1,7 @@
 
 CC = clang
-CFLAGS = -Wall -O2 -fsanitize=undefined,unsigned-integer-overflow
+CFLAGS = -Wall -O2 
+OPTIONAL_CFLAGS = -fsanitize=undefined,unsigned-integer-overflow
 
 BINARY = maketable
 
@@ -16,4 +17,5 @@ $(BINARY): $(OBJFILES)
 	$(COMPILE) -o $@ $< 
 
 clean:
-	-rm -f $(OBJFILES)
+	-@rm -f $(OBJFILES)
+	-@rm -f $(BINARY)
