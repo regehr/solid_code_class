@@ -83,8 +83,23 @@ using \texttt{gcc}'s code coverage tools, and then ran the test-suite.
 \texttt{xargs}'s supplied test-suite achieved 73\% code coverage. Most 
 un-covered code was system-call error handling code, and code whose reachability
 is platform dependent (though most of that code was quite simple). I attempted
-to test system-call error handling with the Murphy fuzzing tool, but ran out
-of time before I obtained any results.
+to test system-call error handling with the Murphy fuzzing tool, but was unable
+to get the tool working within the alloted time.
+
+I also tested \xargs for memory related bugs by running it under valgrind. I supplied
+a several gigabyte input file and detected no memory leaks. In fact, I noticed 
+that \xargs allocates the same amount of memory for every run, regardless of 
+input size. From inspection of the code, it looks like this is because \xargs
+enforces hard limits on the size (and number) of arguments passed to its child
+program.
+
+One last note, \xargs has built in support for concurrent execution. If the \verb|-P|
+flag is passed to the application, \xargs will run multiple instances of the 
+utility application. \xargs uses the traditional UNIX fork/exec approach to 
+concurrency so the main vector for race conditions will be through the filesystem.
+If two applications access the same file, race conditions may be triggered, however
+this is a problem inherent in concurrently running arbitrary utility programs.
+If synchronization is needed, a custom tool should probably be used instead.
 
 From my cursory inspection of the \xargs utility, it appears to be a well
 tested, and robust (though not stylistically well-written) piece of code.
