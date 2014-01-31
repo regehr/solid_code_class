@@ -16,7 +16,7 @@ corresponds to the Huffman coding of the contents of all input files.
 Line 0 in the table is the Huffman code for the byte containing 0x0,
 Line 1 is the code for the byte containing 0x1, etc. Therefore, the
 compression table always contains 256 lines. Each line of the file
-matches the Perl regex ^([01])+\n$.
+matches the Perl regex ^[01]+\n$.
 
 The Huffman coding has the property that no code is the prefix of any
 other code. This enables unambiguous decoding.
@@ -59,7 +59,23 @@ leaks.
 ============================================================================
 Compressor and Decompressor
 
-TBD
+huff -c file
+huff -d file
+huff -t file 
+  dumps the compression table from a .huff file or computes the table
+  for any other file
+
+multiple files
+.huff
+silently overwrite a compressed file if it exists
+
+.huff file format:
+  bytes 0-3  HUFF
+  bytes 4-11 64-bit unsigned int in little endian -- size of decompressed file
+  bytes 12-... variable sized compression table with 256 newline characters 
+  compressed data
+
+If all goes well, exit with 0, otherwise exit with -1. Otherwise
+behave sensibly.
 
 ============================================================================
-

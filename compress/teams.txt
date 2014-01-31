@@ -4,14 +4,14 @@ domfurano		Dominic Furano
 hyvemynd		Andres Monroy		
 
 2
-jeffreyj01		Todd Johnson		
-Joshkunz		Josh Kunz		
-OscarMarshall		Oscar Marshall		
+jeffreyj01		Todd Johnson		t
+Joshkunz		Josh Kunz		i
+OscarMarshall		Oscar Marshall		c
 
 3
-JonHParker		Jonathan Parker		
-ahbradford		Adam Bradford		
-ungso			Chad Miller		
+JonHParker		Jonathan Parker		i
+ahbradford		Adam Bradford		c
+ungso			Chad Miller		t
 
 4
 lynntesia		Lynn Gao		
