@@ -1,7 +1,7 @@
 1
-brendenjtyler		Brenden Tyler		
-domfurano		Dominic Furano		
-hyvemynd		Andres Monroy		
+brendenjtyler		Brenden Tyler		t
+domfurano		Dominic Furano		c
+hyvemynd		Andres Monroy		i
 
 2
 jeffreyj01		Todd Johnson		t
