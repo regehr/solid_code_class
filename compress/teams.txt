@@ -1,17 +1,17 @@
 1
-brendenjtyler		Brenden Tyler		
-domfurano		Dominic Furano		
-hyvemynd		Andres Monroy		
+brendenjtyler		Brenden Tyler		t
+domfurano		Dominic Furano		c
+hyvemynd		Andres Monroy		i
 
 2
-jeffreyj01		Todd Johnson		
-Joshkunz		Josh Kunz		
-OscarMarshall		Oscar Marshall		
+jeffreyj01		Todd Johnson		t
+Joshkunz		Josh Kunz		i
+OscarMarshall		Oscar Marshall		c
 
 3
-JonHParker		Jonathan Parker		
-ahbradford		Adam Bradford		
-ungso			Chad Miller		
+JonHParker		Jonathan Parker		i
+ahbradford		Adam Bradford		c
+ungso			Chad Miller		t
 
 4
 lynntesia		Lynn Gao		
@@ -25,7 +25,7 @@ keith-richards		Keith Richards
 
 6
 dsetser			Daniel Setser		
-sphippen		Spencer Phippen		
+sphippen		Spencer Phippen		t
 clukey			John Clukey		
 
 7
