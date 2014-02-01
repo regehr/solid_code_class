@@ -14,6 +14,11 @@ typedef enum {
     UNHANDLED
 } flags;
 
+struct frequency {
+    unsigned int count;
+    char character;
+};
+
 
 /*
  * Parses the arguments passed by the user, returning the operation to be used.
@@ -36,9 +41,24 @@ flags parse_args (char *argv[], char **out) {
 
 
 /*
- * Fills the provided frequency table using the file name.
+ * Compares two frequency table rows' respective character counts.
  */
-void build_table (char *file_name, int table[]) {
+int compare (const void * p1, const void * p2) {
+    const struct frequency *row1 = p1;
+    const struct frequency *row2 = p2;
+
+    if (row1->count != row2->count) 
+        return ((int)row2->count - (int)row1->count);
+    else
+        return ((int)row2->character - (int)row1->character);
+}
+
+
+/*
+ * Fills the provided frequency table using the file name, sorted highest 
+ * frequency to lowest.
+ */
+void build_table (char *file_name, struct frequency table[]) {
     FILE * file;
     char character;
 
@@ -49,16 +69,17 @@ void build_table (char *file_name, int table[]) {
     }
 
     while ((character = fgetc(file)) != EOF) {
-        // The character is used as an index into the table, and the value
-        // represents the frequency of the character in the file
-        table[(int)character]++;
+        table[(int)character].count++;
     }
+
+    qsort(table, 256, sizeof(struct frequency), compare);
 }
 
 
 int main (int argc, char *argv[]) {
     char *file = "";
-    int table[256], i;
+    struct frequency table[256];
+    int i;
 
     if (argc != 3) {
         printf("Incorrect amount of arguments supplied.\n");
@@ -66,7 +87,8 @@ int main (int argc, char *argv[]) {
     }
 
     for (i = 0; i < 256; i++) {
-        table[i] = 0;
+        table[i].character = (char)i;
+        table[i].count = 0;
     }
 
     switch (parse_args(argv, &file)) {
