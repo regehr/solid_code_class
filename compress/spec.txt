@@ -1,22 +1,89 @@
 ============================================================================
-Compression Table Generator
+File Compressor
+============================================================================
 
-Running "make" in your team's directory should cause a program called
-"maketable" to be compiled. This must work on CADE but please make an
-effort to also support random Linux and MacOS X machines.
+Your team is creating a program called "huff" that compresses and
+decompresses files on UNIX machines. It operates in three main modes:
 
-maketable takes one or more command line arguments, each of which
-provides a path to a file. It should exit gracefully with a -1 return
-code if any file does not exist or cannot be read, or if no command
-line arguments are provided.
+Compress a file:
 
-If all files can be read, maketable should print a compression table
-to stdout and exit with a 0 return code. The compression table
-corresponds to the Huffman coding of the contents of all input files.
-Line 0 in the table is the Huffman code for the byte containing 0x0,
-Line 1 is the code for the byte containing 0x1, etc. Therefore, the
-compression table always contains 256 lines. Each line of the file
-matches the Perl regex ^[01]+\n$.
+  huff -c file
+
+The compressed file is called "file.huff". This file is silently
+overwritten if it already exists.
+
+NOTE: It is perfectly permissible (if useless) to compress a .huff
+file. If x.huff is compressed, the resulting file would be called
+x.huff.huff.
+
+Decompress a file:
+
+  huff -d file
+
+The name of the uncompressed file is recovered by removing the ".huff"
+extension. If a file of that name exists it is silently overwritten.
+
+Dump the compression table for a file:
+
+  huff -t file 
+
+If file is a huff file, its compression table is recovered from the
+file and dumped to stdout. Otherwise, its compression table is
+computed and dumped to stdout.
+
+============================================================================
+
+The "expected case" is defined to be the situation where the input
+file can be opened for reading, the output file can be opened for
+writing, and library/system calls do not fail unexpectedly
+(i.e. malloc succeeds, mmap succeeds, the hard disk does not fill up,
+etc.).
+
+In compression mode, huff is not permitted to fail in the expected
+case.
+
+In decompression mode, huff must fail if the file is not a valid huff
+file (see below). If the compressed file is valid, then huff must not
+fail in the expected case.
+
+In table dump mode, when the argument is a huff file, huff is required
+to fail if the file is not valid; otherwise, it is not permitted to fail
+in the expected case.
+
+If huff succeeds, it must return a 0 exit code
+
+If huff fails, it must return a -1 exit code and a reasonable error message
+should be printed.
+
+============================================================================
+
+huff file format
+
+A file is a valid huff file only if it meets all of the following
+requirements:
+
+1. its filename ends with ".huff"
+2. bytes 0-3 are the magic number: the ASCII characters HUFF
+3. bytes 4-11 are the length field: a 64-bit unsigned integer in
+   little engian format indicating the size of the decompressed file,
+   which is also the number of huffman codes in the compressed data
+   section
+4. a valid compression table (see format below) begins at byte 12
+5. the remainder of the file contains compressed data; the number of
+   items must match the length field; the only exception is that the
+   final byte of the file, if it is not filled, is padded with
+   1-7 bits whose value is unspecified
+
+A valid compression table is comprised of a sequence of 256 strings, 
+each of which matches this Perl regex:
+
+  ^[01]+\n$
+
+In other words, each of the 256 strings is comprised of a sequence of
+0 and 1 characters of at least length 1, followed by a newline. No
+string of 0s and 1s can exceed length 256.
+
+============================================================================
 
 The Huffman coding has the property that no code is the prefix of any
 other code. This enables unambiguous decoding.
@@ -24,7 +91,7 @@ other code. This enables unambiguous decoding.
 The algorithm to generate the compression table is as follows:
 
 - Determine the frequency of occurrence of each byte in the input
-  files.
+  file.
 
 - Make a list that contains one element for each byte value; this list
   is sorted by increasing frequency (i.e., least frequently occurring
@@ -51,31 +118,20 @@ The algorithm to generate the compression table is as follows:
   0-subtree is followed and a 1 in the Huffman code every time the
   1-subtree is followed.
 
-Non-functional requirement: Your program must be in C and must not
-execute any undefined behaviors on either 32-bit or 64-bit
-systems. Furthermore, Valgrind should declare it to be free of memory
-leaks.
+============================================================================
+
+Additional requirements: 
+
+huff is implemented in C and must not execute any undefined behaviors
+on either 32-bit or 64-bit systems. Furthermore, Valgrind should
+declare it to be free of memory leaks.
+
+Running "make" in your team's directory should cause an executable
+called "huff" to be compiled. This must work on CADE but please make
+an effort to also support random Linux and MacOS X machines.
+
+huff must successfully compress and decompress files larger than 2^32
+bytes, even on a 32-bit machine (so don't mmap() the file!)
 
 ============================================================================
-Compressor and Decompressor
 
-huff -c file
-huff -d file
-huff -t file 
-  dumps the compression table from a .huff file or computes the table
-  for any other file
-
-multiple files
-.huff
-silently overwrite a compressed file if it exists
-
-.huff file format:
-  bytes 0-3  HUFF
-  bytes 4-11 64-bit unsigned int in little endian -- size of decompressed file
-  bytes 12-... variable sized compression table with 256 newline characters 
-  compressed data
-
-If all goes well, exit with 0, otherwise exit with -1. Otherwise
-behave sensibly.
-
-============================================================================
