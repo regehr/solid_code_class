@@ -19,3 +19,6 @@ $(BINARY): $(OBJFILES)
 clean:
 	-@rm -f $(OBJFILES)
 	-@rm -f $(BINARY)
+
+test: $(BINARY)
+	@echo "no tests quite yet\n"
