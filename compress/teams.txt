@@ -25,7 +25,7 @@ keith-richards		Keith Richards
 
 6
 dsetser			Daniel Setser		
-sphippen		Spencer Phippen		
+sphippen		Spencer Phippen		t
 clukey			John Clukey		
 
 7
