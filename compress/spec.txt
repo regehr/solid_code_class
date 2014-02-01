@@ -40,9 +40,11 @@ computed and dumped to stdout.
 ============================================================================
 
 The "expected case" is defined to be the situation where the input
-file can be opened for reading, the output file can be opened for
-writing, and library/system calls do not fail unexpectedly
-(i.e. malloc calls succeed, the hard disk does not fill up, etc.).
+file is a regular file that can be opened for reading, the output file
+is a regular file that can be opened for writing, and library/system
+calls do not fail unexpectedly (i.e. malloc calls succeed, the hard
+disk does not fill up, etc.). In the expected case, neither file is
+modified by another program while huff is executing.
 
 In compression mode, huff is not permitted to fail in the expected
 case.
@@ -57,8 +59,8 @@ in the expected case.
 
 If huff succeeds, it must return a 0 exit code
 
-If huff fails, it must return a -1 exit code and a reasonable error message
-should be printed.
+If huff fails, it must return a 255 exit code and a reasonable error
+message should be printed.
 
 ============================================================================
 
@@ -86,7 +88,11 @@ each of which matches this Perl regex:
 
 In other words, each of the 256 strings is comprised of a sequence of
 0 and 1 characters of at least length 1, followed by a newline. No
-string of 0s and 1s can exceed length 256.
+string of 0s and 1s can exceed length 255.
+
+NOTE: The strings in the compression table are not C strings. That is,
+they are not terminated by nul bytes. Each entry in the table is
+terminated by a single newline character only.
 
 ============================================================================
 

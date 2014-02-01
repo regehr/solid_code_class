@@ -135,18 +135,16 @@ if (0) {
 }
 
 if (1) {
-    reset_pct();
-    for (my $i=0; $i<scalar(@points); $i++) {
-	for (my $j=0; $j<scalar(@points); $j++) {
-	    for (my $k=0; $k<scalar(@points); $k++) {
-		for (my $l=0; $l<scalar(@points); $l++) {
-		    for (my $m=0; $m<scalar(@points); $m++) {
-			for (my $n=0; $n<scalar(@points); $n++) {
+    for (my $i=0; $i<4; $i++) {
+	for (my $j=0; $j<4; $j++) {
+	    for (my $k=0; $k<4; $k++) {
+		for (my $l=0; $l<4; $l++) {
+		    for (my $m=0; $m<4; $m++) {
+			for (my $n=0; $n<4; $n++) {
 			    run_test ($i, $j, $k, $l, $m, $n);
 			    #run_test (2147483647 - $i, 2147483647 - $j, 2147483647 - $k, 2147483647 - $l, 2147483647 - $m, 2147483647 - $n);
 			    #run_test (2147483647 - $i, $j, 2147483647 - $k, $l, 2147483647 - $m, $n);
 			    #run_test ($i, 2147483647 - $j, $k, 2147483647 - $l, $m, 2147483647 - $n);
-			    update_pct();
 			}
 		    }
 		}
