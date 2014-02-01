@@ -90,6 +90,10 @@ In other words, each of the 256 strings is comprised of a sequence of
 0 and 1 characters of at least length 1, followed by a newline. No
 string of 0s and 1s can exceed length 255.
 
+NOTE: The strings in the compression table are not C strings. That is,
+they are not terminated by nul bytes. Each entry in the table is
+terminated by a single newline character only.
+
 ============================================================================
 
 The Huffman coding has the property that no code is the prefix of any
