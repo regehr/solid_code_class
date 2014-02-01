@@ -16,12 +16,18 @@ NOTE: It is perfectly permissible (if useless) to compress a .huff
 file. If x.huff is compressed, the resulting file would be called
 x.huff.huff.
 
+NOTE: Unlike gzip and bzip2, huff does not remove the original file
+after it creates a compressed file.
+
 Decompress a file:
 
   huff -d file
 
 The name of the uncompressed file is recovered by removing the ".huff"
 extension. If a file of that name exists it is silently overwritten.
+
+NOTE: Unlike gzip and bzip2, huff does not remove the original file
+after it creates a decompressed file.
 
 Dump the compression table for a file:
 
@@ -36,8 +42,7 @@ computed and dumped to stdout.
 The "expected case" is defined to be the situation where the input
 file can be opened for reading, the output file can be opened for
 writing, and library/system calls do not fail unexpectedly
-(i.e. malloc succeeds, mmap succeeds, the hard disk does not fill up,
-etc.).
+(i.e. malloc calls succeed, the hard disk does not fill up, etc.).
 
 In compression mode, huff is not permitted to fail in the expected
 case.
@@ -65,8 +70,8 @@ requirements:
 1. its filename ends with ".huff"
 2. bytes 0-3 are the magic number: the ASCII characters HUFF
 3. bytes 4-11 are the length field: a 64-bit unsigned integer in
-   little engian format indicating the size of the decompressed file,
-   which is also the number of huffman codes in the compressed data
+   little endian format indicating the size of the decompressed file,
+   which is also the number of Huffman codes in the compressed data
    section
 4. a valid compression table (see format below) begins at byte 12
 5. the remainder of the file contains compressed data; the number of
