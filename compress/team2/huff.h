@@ -30,7 +30,7 @@ int huff_freecontext(struct DecompressionContext *context);
 /* Returns a pointer to a new DecompressionContext struct generated from a
    translation table, which is an array of 256 char *s which are the ASCII
    representations of that byte index's translation. */
-struct DecompressionContext *contextfromtable(char *table[]);
+struct DecompressionContext *contextfromtable(char *table[256]);
 
 /* Takes the next bit to decode. Returns an unsigned char converted to an int if
    a character is decoded, returns -1 otherwise. If an error occurs, -2 or lower
