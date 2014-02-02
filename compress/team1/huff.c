@@ -93,7 +93,8 @@ void byte_freq(node **nodes, FILE *file)
     int c;
     do {
         c = fgetc(file); /* Get the next character from the file stream. */
-        (*nodes)[c].freq++; /* Increment the frequency of specific character. */
+        if (c != EOF)
+            nodes[c]->freq++; /* Increment the frequency of specific character. */
     } while (c != EOF); /* May have to check errno here e.g. (... && ferror(file) == 0) */
     
 #ifdef DBG_FRQ
@@ -191,7 +192,7 @@ void sort_nodes(node **nodes)
     for(i = 0; i < 256; i++)
     {
         if (nodes[i] != NULL)
-            printf("%d:\t%lld\n", nodes[i]->c, nodes[i]->freq);
+            printf("%c:\t%lld\n", nodes[i]->c, nodes[i]->freq);
     }
 #endif
 }
