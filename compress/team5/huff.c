@@ -43,10 +43,14 @@ int main (int argc, char *argv[])
     exit (-1);
   }
   
+  const char *tablePrint = "-t";
   const char *compress = "-c";
-
-  if(argv[1] == compress) {
-  	printf("compress");	
+  const char *decompress = "-d";
+  
+  if(argv[1] == compress || argv[1] == tablePrint) {
+  	compress_file(argv[2]);
+  } else if(argv[1] == decompress) {
+  	printf("decompress to come soon");
   }
   
   return 0;
