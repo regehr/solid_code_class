@@ -10,7 +10,7 @@
 /* Returns a new translation table generated from an array of 256
    unsigned long longs representing the number of times the byte index has
    appeared in a file. */
-char ** huff_tablefromfreq(unsigned long long freq[256]);
+int huff_tablefromfreq(unsigned long long freq[256], char *out_table[256]);
 
 /* Decompression
 ----------------------------------------------------------------------------- */
