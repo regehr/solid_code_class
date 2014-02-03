@@ -32,6 +32,9 @@ bool is_huff(FILE * file, char * filename) {
         return false;
     }
 
+    /* seek back to the beginning of the file. */
+    fseek(file, 0L, SEEK_SET);
+
     return true;
 }
 
