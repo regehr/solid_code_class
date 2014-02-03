@@ -28,6 +28,6 @@ struct DecompressionContext *huff_makecontext(char *table[]);
 /* Takes the next bit to decode. Returns an unsigned char converted to an int if
    a character is decoded, returns -1 otherwise. If an error occurs, -2 or lower
    is returned */
-int huff_decode(int bit, DecompressionContext *context);
+int huff_decode(int bit, struct DecompressionContext *context);
 
 #endif
