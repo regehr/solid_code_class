@@ -5,33 +5,10 @@
 #include <stdbool.h>
 #include "huff.h"
 
-const int ERROR_EXIT = 255;
-const int SUCCESS_EXIT = 0;
-
-const char HUFF_MAGIC[] = "HUFF";
-const char HUFF_EXT[] = ".huff";
-
-const int HUFF_MAGICLEN = sizeof(HUFF_MAGIC) - 1;
-const int HUFF_EXTLEN = sizeof(HUFF_EXT) - 1;
-
-const int EFILETOOLONG = -1;
-
-typedef unsigned long long uint64_t;
-typedef unsigned char uint8_t;
-
 void DEBUG_print_freqtable(uint64_t table[256]) {
     for (int i = 0; i < 256; i++) {
         printf("0x%2X: %lld\n", i, table[i]);
     }
-}
-
-void usage(FILE * to) {
-    fputs("usage: huff [-t | -c | -d] FILE\n"
-          "Arguments:\n"
-          " -c      Compress the given file.\n"
-          " -d      Decompress the given file.\n"
-          " -t      Print FILE's compression table. If FILE is uncompressed\n"
-          "         then a compression table is generated and printed.\n", to);
 }
 
 /* Returns 'true' when the given file has all the markings of a huff file,
@@ -94,6 +71,15 @@ int table(FILE * file, char * filename) {
         DEBUG_print_freqtable(table);
     }
     return ERROR_EXIT; 
+}
+
+void usage(FILE * to) {
+    fputs("usage: huff [-t | -c | -d] FILE\n"
+          "Arguments:\n"
+          " -c      Compress the given file.\n"
+          " -d      Decompress the given file.\n"
+          " -t      Print FILE's compression table. If FILE is uncompressed\n"
+          "         then a compression table is generated and printed.\n", to);
 }
 
 int main(int argc, char *argv[]) {
