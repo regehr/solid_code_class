@@ -6,7 +6,7 @@ CFLAGS = -Wall -Wextra
 objects = main.o
 bin = huff
 
-mail.o: huff.h
+main.o: huff.h
 
 $(bin): $(objects) 
 	$(CC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
