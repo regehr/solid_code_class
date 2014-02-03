@@ -3,7 +3,7 @@
 CC = clang
 CFLAGS = -Wall -Wextra -O0 -g
 
-objects = main.o internal.o parser.o
+objects = main.o internal.o parser.o huff.o
 bin = huff
 
 default: $(bin)
