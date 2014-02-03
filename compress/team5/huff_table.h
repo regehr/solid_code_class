@@ -10,6 +10,7 @@ typedef struct huff_tree() {
 	struct huff_tree *one_tree;
 } huff_tree;
 
+/* prints out huff table for a given input file. */
 void print_huff_table(FILE *input);
 
 #endif
