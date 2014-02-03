@@ -45,15 +45,15 @@ static int table(FILE * file, char * filename) {
     int code = huff_read_header(file, filename, &header);
     if (code != 0) {
         uint64_t size;
-        uint64_t table[256];
-        build_freqtable(file, table, &size);
-        printf("Filesize: %lld\n", size);
-        DEBUG_print_freqtable(table);
-        return HUFF_FAILURE;
-    }
+        uint64_t ftable[256];
+        build_freqtable(file, ftable, &size);
+        huff_make_table(ftable, header.table);
+    } 
+
     for (int i = 0; i < 256; i++) {
         printf("%s\n", header.table[i]);
     }
+
     huff_free_hdrtable(&header);
     return HUFF_SUCCESS; 
 }
