@@ -10,6 +10,9 @@
 #include <assert.h>
 #include "tree.h"
 
+/* TODO: Write a find_min function for a tree.
+ * TODO: Implement get_tree_from_table
+
 /* Nodes must be freed by calling function.
  */
 tree make_node_from_ascii_freq(char c, long long frequency) {
@@ -65,11 +68,16 @@ int compare_trees(const void *a, const void *b) {
 static void check_rep(tree t) {
   assert((t->zero == NULL && t->one == NULL)
 	 || (t->zero != NULL && t->one != NULL));
-  if (t->zero == NULL) {
+  if (t->zero != NULL) {
     assert(t->freq == t->zero->freq + t->one->freq);
     assert(t->zero->freq <= t->one->freq);
+    if (t->zero->freq == t->one->freq && t->zero->zero == NULL)
+      assert((unsigned char)t->zero->ascii < (unsigned char)t->one->ascii);
   }
-  /* TODO: Assert more. */
+  if (t->zero != NULL) {
+    check_rep(t->zero);
+    check_rep(t->one);
+  }
 }
 
 tree get_next_from_queues(tree leaf_array[256], tree branch_array[128],
