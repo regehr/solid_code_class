@@ -23,7 +23,7 @@ typedef unsigned char uint8_t;
 
 /* Returns a new translation table generated from an array of 256
    unsigned long longs representing the number of times the byte index has
-   appeared in a file. */
+   appeared in a file. Allocates (strlen(i) + 1) * 8 memory for each string. */
 int huff_tablefromfreq(uint64_t freq[256], char *out_table[256]);
 
 /* Decompression
