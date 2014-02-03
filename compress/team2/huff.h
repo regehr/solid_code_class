@@ -1,19 +1,7 @@
+#include "internal.h"
+
 #ifndef HUFF_H
 #define HUFF_H
-
-const int ERROR_EXIT = 255;
-const int SUCCESS_EXIT = 0;
-
-const char HUFF_MAGIC[] = "HUFF";
-const char HUFF_EXT[] = ".huff";
-
-const int HUFF_MAGICLEN = sizeof(HUFF_MAGIC) - 1;
-const int HUFF_EXTLEN = sizeof(HUFF_EXT) - 1;
-
-const int EFILETOOLONG = -1;
-
-typedef unsigned long long uint64_t;
-typedef unsigned char uint8_t;
 
 /* A Huffman table specifies an encoding for all 256 bytes as a null terminated
    string: char * HuffmanTable[256] */
