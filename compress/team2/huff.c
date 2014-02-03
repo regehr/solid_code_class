@@ -73,29 +73,34 @@ int leafcheck(int nodeindex, int haschar[256], const struct HuffmanTree *tree) {
     short one = tree->nodes[nodeindex].one;
 
     if (zero < 0) {
+        assert(haschar[-(zero + 1)] == 0);
         haschar[-(zero + 1)] = 1;
     }
 
     if (one < 0) {
-        haschar[-(zero - 1)] = 1;
+        assert(haschar[-(one + 1)] == 0);
+        haschar[-(one + 1)] = 1;
     }
 
-    return zero ? 1 : leafcheck(tree->nodes[nodeindex].zero, haschar, tree) +
-        one ? 1 : leafcheck(tree->nodes[nodeindex].one, haschar, tree);
+    return
+        (zero < 0 ? 1 : leafcheck(tree->nodes[nodeindex].zero, haschar, tree)) +
+        (one < 0 ? 1 : leafcheck(tree->nodes[nodeindex].one, haschar, tree));
 }
 
 int nodecheck(int nodeindex, const struct HuffmanTree *tree) {
-    return 1 + tree->nodes[nodeindex].zero < 0 ? 1 :
-        nodecheck(tree->nodes[nodeindex].zero, tree) +
-        tree->nodes[nodeindex].one < 0 ? 1 :
-        nodecheck(tree->nodes[nodeindex].one, tree);
+    return 1 +
+        (tree->nodes[nodeindex].zero < 0 ?
+            1 : nodecheck(tree->nodes[nodeindex].zero, tree)) +
+        (tree->nodes[nodeindex].one < 0 ?
+            1 : nodecheck(tree->nodes[nodeindex].one, tree));
 }
 
 int checktree(const struct HuffmanTree *tree) {
     int haschar[256];
-    memset(haschar, 0, 256);
+    memset(haschar, 0, 256 * 4);
     /* Make sure we have 256 leaves. */
-    assert(leafcheck(0, haschar, tree) == 256);
+    int leaves = leafcheck(0, haschar, tree);
+    assert(leaves == 256);
     /* Make sure we saw all 256 leaves. */
     for (int i = 0; i < 256; i++) {
         assert(haschar[i] == 1);
