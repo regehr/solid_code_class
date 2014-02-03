@@ -1,6 +1,8 @@
 #ifndef HUFF_INTERNAL_H
 #define HUFF_INTERNAL_H
 
+#define UNUSED(x) __attribute__((unused)) x
+
 /* Size typedefs because typing 'unsigned' all the time is a pain */
 typedef unsigned long long uint64_t;
 typedef unsigned char uint8_t;

@@ -7,12 +7,6 @@
 #include "parser.h"
 #include "huff.h"
 
-static void DEBUG_print_freqtable(uint64_t table[256]) {
-    for (int i = 0; i < 256; i++) {
-        printf("0x%2X: %lld\n", i, table[i]);
-    }
-}
-
 /* build a frequency table from the given file. If for some strange reason
  * the file is larger than uint64_t (which I'm pretty sure is impossible),
  * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the
@@ -32,11 +26,11 @@ static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) 
     return 0;
 }
 
-static int compress(FILE * file, char * filename) {
+static int compress(UNUSED(FILE * file), UNUSED(char * filename)) {
     return HUFF_FAILURE;
 }
 
-static int decompress(FILE * file, char * filename) {
+static int decompress(UNUSED(FILE * file), UNUSED(char * filename)) {
     return HUFF_FAILURE;
 }
 
@@ -44,9 +38,8 @@ static int table(FILE * file, char * filename) {
     struct huff_header header;
     int code = huff_read_header(file, filename, &header);
     if (code != 0) {
-        uint64_t size;
         uint64_t ftable[256];
-        build_freqtable(file, ftable, &size);
+        build_freqtable(file, ftable, &header.size);
         huff_make_table(ftable, header.table);
     }
 
