@@ -14,6 +14,17 @@ const char HUFF_EXT[] = ".huff";
 const int HUFF_MAGICLEN = sizeof(HUFF_MAGIC) - 1;
 const int HUFF_EXTLEN = sizeof(HUFF_EXT) - 1;
 
+const int EFILETOOLONG = -1;
+
+typedef unsigned long long uint64_t;
+typedef unsigned char uint8_t;
+
+void DEBUG_print_freqtable(uint64_t table[256]) {
+    for (int i = 0; i < 256; i++) {
+        printf("0x%2X: %lld\n", i, table[i]);
+    }
+}
+
 void usage(FILE * to) {
     fputs("usage: huff [-t | -c | -d] FILE\n"
           "Arguments:\n"
@@ -47,6 +58,25 @@ bool is_huff(FILE * file, char * filename) {
     return true;
 }
 
+/* build a frequency table from the given file. If for some strange reason
+ * the file is larger than uint64_t (which I'm pretty sure is impossible),
+ * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the 
+ * supplied 'table', and the size of the file is written into 'length'. */
+int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
+    uint8_t current = 0;
+    uint64_t bytes_read = 0;
+    memset(table, 0, 256 * sizeof(uint64_t));
+
+    for (; fread(&current, 1, 1, input); table[current] += 1) {
+        bytes_read += 1;
+        /* if the byte counter overflows, then the file is too long */
+        if (bytes_read == 0) { return EFILETOOLONG; }
+    }
+
+    *length = bytes_read;
+    return 0;
+}
+
 int compress(FILE * file, char * filename) { 
     return ERROR_EXIT; 
 }
@@ -56,6 +86,13 @@ int decompress(FILE * file, char * filename) {
 }
 
 int table(FILE * file, char * filename) { 
+    if (! is_huff(file, filename)) {
+        uint64_t size;
+        uint64_t table[256];
+        build_freqtable(file, table, &size);
+        printf("Filesize: %lld\n", size);
+        DEBUG_print_freqtable(table);
+    }
     return ERROR_EXIT; 
 }
 
@@ -87,5 +124,6 @@ int main(int argc, char *argv[]) {
         usage(stderr); 
     }
 
+    fclose(input);
     return exit_code;
 }
