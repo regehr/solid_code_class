@@ -100,7 +100,7 @@ bool is_huff(FILE * file, char * filename) {
  * a parsing error occurs */
 int huff_read_header(FILE * file, char * filename, struct huff_header * header) {
     /* zero the translation table, so that all pointers are null pointers */
-    memset(&header->table, 0, 255 * sizeof(char *));
+    memset(&header->table, 0, 256 * sizeof(char *));
     int code = _huff_read_header(file, filename, header);
     /* if we failed to read a valid header, then clear the input struct and
      * seek back to the beginning of the file. */
