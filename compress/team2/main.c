@@ -7,7 +7,7 @@
 #include "parser.h"
 #include "huff.h"
 
-void DEBUG_print_freqtable(uint64_t table[256]) {
+static void DEBUG_print_freqtable(uint64_t table[256]) {
     for (int i = 0; i < 256; i++) {
         printf("0x%2X: %lld\n", i, table[i]);
     }
@@ -17,7 +17,7 @@ void DEBUG_print_freqtable(uint64_t table[256]) {
  * the file is larger than uint64_t (which I'm pretty sure is impossible),
  * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the
  * supplied 'table', and the size of the file is written into 'length'. */
-int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
+static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
     uint8_t current = 0;
     uint64_t bytes_read = 0;
     memset(table, 0, 256 * sizeof(uint64_t));
@@ -32,39 +32,33 @@ int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
     return 0;
 }
 
-int compress(FILE * file, char * filename) {
+static int compress(FILE * file, char * filename) {
     return HUFF_FAILURE;
 }
 
-int decompress(FILE * file, char * filename) {
+static int decompress(FILE * file, char * filename) {
     return HUFF_FAILURE;
 }
 
-int table(FILE * file, char * filename) {
+static int table(FILE * file, char * filename) {
     struct huff_header header;
     int code = huff_read_header(file, filename, &header);
     if (code != 0) {
         uint64_t size;
-        uint64_t table[256];
-        build_freqtable(file, table, &size);
-        /*printf("Filesize: %lld\n", size);
-        DEBUG_print_freqtable(table);
-        return HUFF_FAILURE;*/
-        char *out_table[256];
-        huff_tablefromfreq(table, out_table);
-        for (int i = 0; i < 256; i++) {
-            printf("%s\n", out_table[i]);
-        }
-        return HUFF_SUCCESS;
+        uint64_t ftable[256];
+        build_freqtable(file, ftable, &size);
+        huff_make_table(ftable, header.table);
     }
+
     for (int i = 0; i < 256; i++) {
         printf("%s\n", header.table[i]);
     }
+
     huff_free_hdrtable(&header);
     return HUFF_SUCCESS;
 }
 
-void usage(FILE * to) {
+static void usage(FILE * to) {
     fputs("usage: huff [-t | -c | -d] FILE\n"
           "Arguments:\n"
           " -c      Compress the given file.\n"

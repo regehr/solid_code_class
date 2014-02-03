@@ -8,6 +8,7 @@ bin = huff
 
 default: $(bin)
 
+huff.o: huff.h internal.h
 internal.o: internal.h
 parser.o: parser.h internal.h
 main.o: huff.h parser.h internal.h
