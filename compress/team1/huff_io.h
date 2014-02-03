@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 #define MAGIC_NUM "HUFF"
 #define HUFF_EXT ".huff"
 #define ERR_CODE 255
