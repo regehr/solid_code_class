@@ -4,3 +4,7 @@
 compress/team1/huff
 
 *.txt
+
+*.dot
+
+*.huff

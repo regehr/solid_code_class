@@ -1,11 +1,3 @@
-//
-//  huff_io.h
-//  Compress
-//
-//  Created by Andres Monroy on 2/3/14.
-//  Copyright (c) 2014 Andres Monroy. All rights reserved.
-//
-
 #ifndef Compress_huff_io_h
 #define Compress_huff_io_h
 

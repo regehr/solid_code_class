@@ -1,11 +1,3 @@
-//
-//  huff_io.c
-//  Compress
-//
-//  Created by Andres Monroy on 2/3/14.
-//  Copyright (c) 2014 Andres Monroy. All rights reserved.
-//
-
 #include <stdio.h>
 #include "huff_io.h"
 #include "huff_table.h"
@@ -37,6 +29,10 @@ int get_frequencies(FILE* file, uint64_t* frequencies){
 
 int get_huff_tree(FILE* file, char** huff_table){
     uint64_t frequencies[256];
+    int i;
+    for (i = 0; i < 256; i++){
+        frequencies[i] = 0;
+    }
     int code = 0;
     code = get_frequencies(file, frequencies);
     if (!code) gen_huff_table(frequencies, huff_table);
