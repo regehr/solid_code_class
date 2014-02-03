@@ -1,14 +1,18 @@
-all: huff
-	gcc -std=c99 huff_table.o huff_io.o huff.o -o huff
+.PHONY: clean
 
-huff: table io huff.o
-	gcc -c huff.c
+CC = gcc
+CFLAGS = -std=c99 -O2 -g
 
-table: huff_table.o
-	gcc -c huff_table.c
-    
-io: huff_io.o
-	gcc -c huff_io.c
+objects = huff.o huff_table.o huff_io.o
+bin = huff
+
+default: $(bin)
+
+huff_table.o: huff_table.h
+huff_io.o: huff_io.h
+
+$(bin): $(objects)
+	$(CC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
 clean:
-	rm -f *.o huff
+	-rm -f $(bin) $(objects)
