@@ -10,7 +10,7 @@
 static int _huff_read_header(FILE *, char * filename, struct huff_header *);
 
 /* return true if 'filename' ends with a '.huff' extension */
-bool has_huff_ext(const char * filename) {
+static bool has_huff_ext(const char * filename) {
     /* make sure the name is at least as long as HUFF_EXT */
     size_t name_length = strlen(filename);
     if (name_length < HUFF_EXTLEN) { return false; }
@@ -22,7 +22,7 @@ bool has_huff_ext(const char * filename) {
 }
 
 /* return true if 'file' begins with HUFF_MAGIC */
-bool has_huff_magic(FILE * file) {
+static bool has_huff_magic(FILE * file) {
     /* prepare a buffer for reading. */
     char magic[HUFF_MAGICLEN];
     memset(magic, 0, HUFF_MAGICLEN);
