@@ -1,0 +1,9 @@
+Working:
+
+* Command line options are parsed correctly, and checking is done to see if the
+  input file exists. 
+* Correct status codes will be returned if the file doesn't exist, or if improper
+  flags are passed to the program.
+* ./huff -t <inputfile> will print out a frequency table (*not* a translation file
+  like it should) if the input file is not a huff file, so huff file validation
+  is also working.

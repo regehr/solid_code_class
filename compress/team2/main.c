@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     int exit_code = ERROR_EXIT;
     FILE * input = NULL;
 
-    if (argc < 3) { usage(stderr); exit(ERROR_EXIT); }
+    if (argc != 3) { usage(stderr); exit(ERROR_EXIT); }
 
     /* attempt to open the input file for reading */
     input = fopen(argv[2], "r");
@@ -107,6 +107,7 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(argv[1], "-t") == 0) {
         exit_code = table(input, argv[2]);
     } else {
+        fprintf(stderr, "Invalid mode of operation: '%s'.\n", argv[1]);
         usage(stderr); 
     }
 
