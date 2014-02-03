@@ -24,7 +24,7 @@ int print_tree(FILE *file, char* filename){
     }
     
     // Else, calculate the table
-    
+    gen_huff_table(frequencies, huff_table);
     
     return 0;
 }
@@ -38,6 +38,11 @@ int main(int argc, const char *argv[])
         fprintf(stderr, "Proper use:\n huff [ -c | -d | -t ] file\n");
         exit(exit_code);
     }
+
+    // I had that function setup initially to accept a filestream,
+// but I think it would be a better idea to keep the file stuff separate
+// in here. Also that function takes an array of node pointers which would
+// also break the modularity.
     
     // Valid file
     FILE *fp;
