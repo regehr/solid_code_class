@@ -1,2 +1,7 @@
+C_FLAGS = -std=c99
+
 all:
-	gcc -std=c99 huff.c -o huff
+	gcc -c huff.c
+	gcc -c huff_table.c
+	gcc -std=c99 huff_table.o huff.o -o huff
+
