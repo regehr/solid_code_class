@@ -5,10 +5,10 @@
 #include "huff_table.h"
 
 //#define DBG_FRQ
-#define DBG_SORT
+//#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
-#define GEN_DOT
+//#define GEN_DOT
 
 unsigned s;
 
@@ -288,10 +288,12 @@ void tree_dot(node *root)
     fputs("digraph G {\n", dot);
     for (int i = 0; i < 511; i++)
     {
-        if (i < 91 && i > 47)
+        if (i > 31 && i < 127 && i != 34)
             fprintf(dot, "%u [label=\"%c: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq);
+        else if (i < 256)
+            fprintf(dot, "%u [label=\"%llu\"];\n", all_nodes[i]->serial, all_nodes[i]->freq);
         else
-            fprintf(dot, "%u [label=\"%u: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq);
+            fprintf(dot, "%u [label=\"internal: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->freq);
     }
 
     tree_dot_dfs(root, dot);
