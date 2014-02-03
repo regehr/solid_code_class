@@ -3,36 +3,60 @@
  */
 
 #include "huff_table.h"
+#include "huff_io.h"
+#define ERR_CODE 255
 
-int main(int argc, const char *argv[])
-{
-    
-    FILE *file;
-    file = fopen(argv[1], "r");
-    if (file == NULL || file == 0)
-        return -1; /* Need error message. */
-    
+int compress(FILE *file, char* filename){
+    return ERR_CODE;
+}
+
+int decompress(FILE *file, char* filename){
+    return ERR_CODE;
+}
+
+int print_tree(FILE *file, char* filename){
     char *huff_table[256];
     uint64_t frequencies[256];
     
-
-    // I had that function setup initially to accept a filestream,
-// but I think it would be a better idea to keep the file stuff separate
-// in here. Also that function takes an array of node pointers which would
-// also break the modularity.
+    if (is_huff_file(filename) && is_huff_header(file)){
+        // get the table from the file
+        return ERR_CODE;
+    }
     
-// You could do something like this to read each character from the file.
-    int c;
-    do {
-        c = fgetc(file); /* Get the next character from the file stream. */
-        if (c != EOF)
-            frequencies[c]++; /* Increment the frequency of specific character. */
-    } while (c != EOF); /* May have to check errno here e.g. (... && ferror(file) == 0) */
-    
-    // Andres, if you pass me a sorted array of frequencies and an empty char * array
-    // here, I will give you a sorted array of char *s representing
-    // the huff table coding.
+    // Else, calculate the table
     gen_huff_table(frequencies, huff_table);
     
     return 0;
+}
+
+int main(int argc, const char *argv[])
+{
+    int exit_code = ERR_CODE;
+    
+    // Proper use
+    if (argc != 3){
+        fprintf(stderr, "Proper use:\n huff [ -c | -d | -t ] file\n");
+        exit(exit_code);
+    }
+
+    // Valid file
+    FILE *fp;
+    fp = fopen(argv[2], "r");
+    if (fp == NULL){
+        fprintf(stderr, "Could not open file %s\n", argv[2]);
+        exit(exit_code);
+    }
+    
+    if (strcmp(argv[1], "-c") == 0){
+        exit_code = compress(fp, argv[2]);
+    } else if (strcmp(argv[1], "-d") == 0){
+        exit_code = decompress(fp, argv[2]);
+    } else if (strcmp(argv[1], "-t") == 0){
+        exit_code = print_tree(fp, argv[2]);
+    } else {
+        fprintf(stderr, "Invalid operation %s\n", argv[1]);
+    }
+    
+    fclose(fp);
+    return exit_code;
 }
