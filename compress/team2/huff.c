@@ -98,7 +98,7 @@ int nodecheck(int nodeindex, const struct HuffmanTree *tree) {
 
 int checktree(const struct HuffmanTree *tree) {
     int haschar[256];
-    memset(haschar, 0, 256 * 4);
+    memset(haschar, 0, 256 * sizeof(int));
     /* Make sure we have 256 leaves. */
     int leaves = leafcheck(0, haschar, tree);
     assert(leaves == 256);
