@@ -18,7 +18,7 @@
 #define HUFF_EXT ".huff"
 
 
-bool is_huff_file(char* filename);
+bool is_huff_file(const char* filename);
 
 bool is_huff_header(FILE* file);
 

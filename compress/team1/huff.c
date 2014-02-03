@@ -6,15 +6,15 @@
 #include "huff_io.h"
 #define ERR_CODE 255
 
-int compress(FILE *file, char* filename){
+int compress(FILE *file, const char* filename){
     return ERR_CODE;
 }
 
-int decompress(FILE *file, char* filename){
+int decompress(FILE *file, const char* filename){
     return ERR_CODE;
 }
 
-int print_tree(FILE *file, char* filename){
+int print_tree(FILE *file, const char* filename){
     char *huff_table[256];
     uint64_t frequencies[256];
     

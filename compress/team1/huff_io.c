@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "huff_io.h"
 
-bool is_huff_file(char* filename){
+bool is_huff_file(const char* filename){
     return true;
 }
 
