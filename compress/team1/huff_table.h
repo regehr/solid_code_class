@@ -14,9 +14,9 @@
 
 typedef struct node node;
 
-/* Driver function for this module. Takes an unsorted array
+/* Driver function for this module. Takes an sorted array
  * of frequencies of type uint64_t and returns sorted huffman
- * coding of type unsigned. 
+ * coding. 
  * Functionality is not yet implemented. */
 void gen_huff_table(uint64_t[256], char*[256]);
 
@@ -27,7 +27,7 @@ void init_nodes(node **);
 /* Copys file stream data to int array.
  * Creates a count af each possible character.
  */
-void byte_freq(node **, FILE *);
+void byte_freq(node **, uint64_t[256]);
 /* Sets all nodes to unvisited. */
 void clear_visited();
 void sort_nodes(node **);
@@ -63,5 +63,8 @@ void code_dfs(node *);
 
 /* Builds a compression table from huffman tree. */
 void create_compression_table(node **);
+
+void tree_dot(node *);
+
 
 #endif

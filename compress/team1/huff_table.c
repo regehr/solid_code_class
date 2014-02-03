@@ -5,12 +5,16 @@
 #include "huff_table.h"
 
 //#define DBG_FRQ
-#define DBG_SORT
+//#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
 
+unsigned s;
+
+
 struct node
 {
+    unsigned serial;
     char code[256];
     struct node *left; /* The left child of this node. Null if leaf node. */
     struct node *right; /* The right child of this node. Null if leaf node. */
@@ -19,15 +23,27 @@ struct node
     char c; /* The character this node represents. Null if non-leaf node. */
 };
 
-void init_node(node **, char);
-void init_nodes(node **);
-void byte_freq(node **, FILE *);
-void sort_nodes(node **);
-void build_tree(node **);
-void create_compression_table(node **);
-
 node *all_nodes[511];
 int all_node_curr = 0;
+
+void gen_huff_table(uint64_t freq[256], char *table[256])
+{
+    node *nodes[256];
+    init_nodes(nodes);
+    byte_freq(nodes, freq); /* Determine the frequency of occurrence of each byte in the input file. */
+    sort_nodes(nodes); /* Sort nodes before building tree. */
+    build_tree(nodes);
+    tree_dot(*nodes);
+    //    create_compression_table(nodes);
+    
+    /* Tree is built and leaves contains huffman codes.
+     * Need to output to file.
+     */
+    
+    for (int i = 0; i < 511; i++)
+        free(all_nodes[i]);
+    
+}
 
 /* Initialize node. */
 void init_node(node **n, char c)
@@ -40,6 +56,7 @@ void init_node(node **n, char c)
     (*n)->freq = 0;
     (*n)->visited = false;
     (*n)->c = c;
+    (*n)->serial = s++;
 }
 
 /* Initialize all nodes. */
@@ -55,15 +72,12 @@ void init_nodes(node *nodes[256])
 /* Copys file stream data to int array.
  * Creates a count af each possible character.
  */
-void byte_freq(node **nodes, FILE *file)
+void byte_freq(node **nodes, uint64_t freq[256])
 {
-    int c;
-    do {
-        c = fgetc(file); /* Get the next character from the file stream. */
-        if (c != EOF)
-            nodes[c]->freq++; /* Increment the frequency of specific character. */
-    } while (c != EOF); /* May have to check errno here e.g. (... && ferror(file) == 0) */
-    
+    for (int i = 0; i < 256; i++)
+    {
+        nodes[i]->freq = freq[i];
+    }
 #ifdef DBG_FRQ
     int i;
     for(i = 0; i < 256; i++)
@@ -92,14 +106,20 @@ void dfs(node *root, char *lowest)
     if (root->left != NULL)
     {
         if (root->left->visited == false)
+        {
+            
             dfs(root->left, lowest);
+        }
     }
     if (root->right != NULL)
     {
         if (root->right->visited == false)
+        {
+            
             dfs(root->right, lowest);
+        }
     }
-    if(root->left == NULL && root->right == NULL);
+    if(root->left == NULL && root->right == NULL)
     if (root->c < *lowest)
         *lowest = root->c;
 }
@@ -166,6 +186,9 @@ void sort_nodes(node **nodes)
 
 void build_tree(node **nodes)
 {
+    
+
+
     /* N-1 steps to create tree. */
     for (int i = 0; i < 255; i++)
     {
@@ -191,6 +214,7 @@ void build_tree(node **nodes)
         /* Sort. */
         sort_nodes(nodes);
     }
+    
 #ifdef DBG_BLD_TREE
     printf("%d:\t%lld\n", nodes[0]->c, nodes[0]->freq);
     for (int i = 1; i < 256; i++)
@@ -233,3 +257,47 @@ void create_compression_table(node **nodes)
     clear_visited();
     code_dfs(*nodes);
 }
+
+/* Depth first search tree traversal from given root node.
+ * Sets second parameter to the node with lowest valued
+ * character in subtree. */
+void tree_dot_dfs(node *root, FILE *dot)
+{
+    root->visited = true;
+    if (root->left != NULL)
+    {
+        if (root->left->visited == false)
+        {
+            fprintf(dot, "%d -> %d;\n", root->serial, root->left->serial);
+            tree_dot_dfs(root->left, dot);
+        }
+    }
+    if (root->right != NULL)
+    {
+        if (root->right->visited == false)
+        {
+            fprintf(dot, "%d -> %d;\n", root->serial, root->right->serial);
+            tree_dot_dfs(root->right, dot);
+        }
+    }
+}
+
+void tree_dot(node *root)
+{
+    clear_visited();
+    FILE *dot = fopen("tree.dot", "w");
+    fputs("digraph G {\n", dot);
+    for (int i = 0; i < 511; i++)
+    {
+        if (i < 91 && i > 47)
+            fprintf(dot, "%u [label=\"%c: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq);
+        else
+            fprintf(dot, "%u [label=\"%u: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq);
+    }
+
+    tree_dot_dfs(root, dot);
+        fputs("}", dot);
+    fclose(dot);
+}
+
+
