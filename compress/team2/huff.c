@@ -1,9 +1,22 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "internal.h"
 #include "huff.h"
+
+static bool IS_BYTE(short path) { 
+    return path < 0;
+}
+
+static bool IS_BRANCH(short path) {
+    return ! IS_BYTE(path); 
+}
+
+static bool BYTE_INDEX(short path) {
+    return -(path + 1);
+}
 
 /* Represents a node which points to other nodes. */
 struct HuffmanNode {
@@ -46,9 +59,9 @@ void filltable(char *code, int node, struct HuffmanTree *tree,
     char zerostring[strlen(code) + 2];
     strcpy(zerostring, code);
     strcat(zerostring, "0");
-    if (zero < 0) {
-        out_table[-(zero + 1)] = xmalloc((strlen(zerostring) + 1));
-        strcpy(out_table[-(zero + 1)], zerostring);
+    if (IS_BYTE(zero)) {
+        out_table[BYTE_INDEX(zero)] = xmalloc((strlen(zerostring) + 1));
+        strcpy(out_table[BYTE_INDEX(zero)], zerostring);
     } else {
         filltable(zerostring, zero, tree, out_table);
     }
@@ -58,9 +71,9 @@ void filltable(char *code, int node, struct HuffmanTree *tree,
     char onestring[strlen(code) + 2];
     strcpy(onestring, code);
     strcat(onestring, "1");
-    if (one < 0) {
-        out_table[-(one + 1)] = xmalloc((strlen(onestring) + 1));
-        strcpy(out_table[-(one + 1)], onestring);
+    if (IS_BYTE(zero)) {
+        out_table[BYTE_INDEX(zero)] = xmalloc((strlen(onestring) + 1));
+        strcpy(out_table[BYTE_INDEX(zero)], onestring);
     } else {
         filltable(onestring, one, tree, out_table);
     }
@@ -73,26 +86,26 @@ int leafcheck(int nodeindex, int haschar[256], const struct HuffmanTree *tree) {
     short zero = tree->nodes[nodeindex].zero;
     short one = tree->nodes[nodeindex].one;
 
-    if (zero < 0) {
-        assert(haschar[-(zero + 1)] == 0);
-        haschar[-(zero + 1)] = 1;
+    if (IS_BYTE(zero)) {
+        assert(haschar[BYTE_INDEX(0)] == 0);
+        haschar[BYTE_INDEX(zero)] = 1;
     }
 
-    if (one < 0) {
-        assert(haschar[-(one + 1)] == 0);
-        haschar[-(one + 1)] = 1;
+    if (IS_BYTE(one)) {
+        assert(haschar[BYTE_INDEX(one)] == 0);
+        haschar[BYTE_INDEX(one)] = 1;
     }
 
     return
-        (zero < 0 ? 1 : leafcheck(tree->nodes[nodeindex].zero, haschar, tree)) +
-        (one < 0 ? 1 : leafcheck(tree->nodes[nodeindex].one, haschar, tree));
+        (IS_BYTE(zero) ? 1 : leafcheck(tree->nodes[nodeindex].zero, haschar, tree)) +
+        (IS_BYTE(one)  ? 1 : leafcheck(tree->nodes[nodeindex].one, haschar, tree));
 }
 
 int nodecheck(int nodeindex, const struct HuffmanTree *tree) {
     return 1 +
-        (tree->nodes[nodeindex].zero < 0 ?
+        (IS_BYTE(tree->nodes[nodeindex].zero) ?
             1 : nodecheck(tree->nodes[nodeindex].zero, tree)) +
-        (tree->nodes[nodeindex].one < 0 ?
+        (IS_BYTE(tree->nodes[nodeindex].one) ?
             1 : nodecheck(tree->nodes[nodeindex].one, tree));
 }
 
@@ -136,7 +149,7 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]) {
 
     for (int i = 0; i < 256; i++) {
         nodelist[i] = (struct PrioritizedNode) { .priority = freq[i],
-                                                 .node = -(i + 1),
+                                                 .node = BYTE_INDEX(i),
                                                  .minbyte = i };
     }
 
