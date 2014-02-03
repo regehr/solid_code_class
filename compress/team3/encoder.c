@@ -13,18 +13,7 @@
 #include <assert.h>
 #include <string.h>
 
-typedef struct huffNode huffNode;
-struct huffNode{
-    
-    long long sum;
-    int representedByte;
-    int used;
-    
-    huffNode* parent;
-    huffNode* leftLeaf;
-    huffNode* rightLeaf;
-    
-};
+
 
 
 
@@ -35,6 +24,9 @@ huffNode* calculateTree(huffNode *nodes, int count);
 huffNode* minNode(huffNode *nodes, int count);
 void printNode(huffNode *node, char *currentString);
 void fillResultArray(huffResult* resultArray, huffNode *node, char *currentString);
+
+
+
 
 char* concat(char *s1, char *s2);
 
@@ -223,6 +215,9 @@ char* concat(char *s1, char *s2)
     strcat(result, s2);
     return result;
 }
+
+
+
 
 void freeResultArray(huffResult *resultArray)
 {

@@ -11,7 +11,9 @@
 #include "frequencyCounter.h"
 #include "compressedOutputFileWriter.h"
 #include <assert.h>
+#include <string.h>
 #include "encoder.h"
+#include "decoder.h"
 
 long long lengthOfFile(FILE *file);
 
@@ -35,8 +37,20 @@ int main(int argc, const char * argv[])
     
     huffResult* resultArray = createHuffmanTree(frequencies);
     
+    char * test = calloc(2048,sizeof(char));
+    for(int i = 0; i < 256; i++)
+    {
+        huffResult *result = &resultArray[i];
+        strcat(test, result->string);
+        strcat(test, "\n");
+        
+    }
+    
+    createHuffmanTreeFromFileEncodings(test);
+    
+    char *newFileName = strcat((char *)argv[2], ".huff");
     //////for debugging, just send in a file called testinput.txt...////
-    writeFileToOutput(file, "testinput.huff", length, resultArray);
+    writeFileToOutput(file, newFileName, length, resultArray);
     printf("Hello, World!\n");
     return 0;
 }

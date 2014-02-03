@@ -9,12 +9,28 @@
 #ifndef huff_encoder_h
 #define huff_encoder_h
 
+
 typedef struct huffResult{
     char * string;
     int value;
 }huffResult;
 
+typedef struct huffNode huffNode;
+struct huffNode{
+    
+    long long sum;
+    int representedByte;
+    int used;
+    
+    huffNode* parent;
+    huffNode* leftLeaf;
+    huffNode* rightLeaf;
+    
+};
+
 huffResult* createHuffmanTree(unsigned *frequencies);
+
+
 
 void freeReusltArray(huffResult *);
 
