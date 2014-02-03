@@ -40,7 +40,7 @@ static node *mk_node(int value);
 static node *mk_combined_node(node *left, node *right);
 void free_tree(node *ht);
 void print_list(table_row *list);
-void check_huff(FILE *in_file);
+
 
 /* 
  * main - Main routine 
@@ -154,16 +154,6 @@ void print_list(table_row *list){
 }
 
 
-void check_huff(FILE *in_file){
-
-  int c;
-  while ((c = fgetc(in_file)) != EOF)
-    {
-    
-
-
-    }
-}
 
 node *tree_io(FILE *in_file){
 
