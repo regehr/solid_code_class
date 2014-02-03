@@ -1,4 +1,4 @@
-.PHONY: clean
+.PHONY: clean gdb
 
 CC = clang
 CFLAGS = -Wall -Wextra -O0 -g
