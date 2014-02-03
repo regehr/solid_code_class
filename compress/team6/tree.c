@@ -1,4 +1,4 @@
-/* Author: John Clukey
+/* John Clukey
  * Date: January 30 - ...
  * 
  * A tree data structure for Huffman Encoding.
@@ -10,7 +10,7 @@
 #include <assert.h>
 #include "tree.h"
 
-/* Nodes must be freed by calling function or later function.
+/* Nodes must be freed by calling function.
  */
 tree make_node_from_ascii_freq(char c, long long frequency) {
   tree t;
@@ -18,7 +18,6 @@ tree make_node_from_ascii_freq(char c, long long frequency) {
   t->freq = frequency;
   t->parent = t->zero = t->one = NULL;
   t->ascii = c;
-  t->is_leaf = true;
   return t;
 }
 
@@ -28,7 +27,6 @@ tree make_node_from_trees(tree zero, tree one) {
   t->freq = zero->freq + one->freq;
   zero->parent = one->parent = t;
   t->ascii = 0;
-  t->is_leaf = false;
   t->zero = zero;
   t->one = one;
   return t;
@@ -51,14 +49,12 @@ void free_tree(tree t) {
  * second node's ascii value.
  */
 int compare_trees(const void *a, const void *b) {
-  unsigned long long comp;
   tree t1, t2;
   int r;
   t1 = *(tree *)a;
   t2 = *(tree *)b;
-  comp = t1->freq - t2->freq;
   if (t1->freq == t2->freq) {
-    r = t1->ascii <= t2->ascii ? -1 : 1;
+    r = (unsigned char)t1->ascii <= (unsigned char)t2->ascii ? -1 : 1;
   }
   else {
     r = t1->freq < t2->freq ? -1 : 1;
@@ -69,36 +65,121 @@ int compare_trees(const void *a, const void *b) {
 static void check_rep(tree t) {
   assert((t->zero == NULL && t->one == NULL)
 	 || (t->zero != NULL && t->one != NULL));
+  if (t->zero == NULL) {
+    assert(t->freq == t->zero->freq + t->one->freq);
+    assert(t->zero->freq <= t->one->freq);
+  }
   /* TODO: Assert more. */
 }
 
+tree get_next_from_queues(tree leaf_array[256], tree branch_array[128],
+			  int *lhd, int *bhd) {
+  tree a;
+  if (branch_array[*bhd] == NULL) {
+      a = leaf_array[*lhd];
+      leaf_array[*lhd] = NULL;
+      *lhd = (*lhd + 1) % 256;
+    }
+    else if (leaf_array[*lhd] == NULL) {
+      a = branch_array[*bhd];
+      branch_array[*bhd] = NULL;
+      *bhd = (*bhd + 1) % 128;
+    }
+    else if (leaf_array[*lhd]->freq < branch_array[*bhd]->freq) {
+      a = leaf_array[*lhd];
+      leaf_array[*lhd] = NULL;
+      *lhd = (*lhd + 1) % 256;
+    }
+    else {
+      a = branch_array[*bhd];
+      branch_array[*bhd] = NULL;
+      *bhd = (*bhd + 1) % 128;
+    }
+  return a;
+}
+
+void find_char(tree t, char code[257], int *length, char c) {
+  tree current;
+  tree stack[511] = {NULL};
+  int top;
+  *length = top = 0;
+  current = t;
+  /* Post-order traversal of tree searching for given char */
+  do {
+    while (current) {
+      if (current->one) {
+	stack[top++] = current->one;
+      }
+      stack[top++] = current;
+      if (current->ascii == c && current->zero == NULL) {
+	code[(*length)++] = '\n';
+	return;
+      }
+      current = current->zero;
+      code[(*length)++] = '0';
+    }
+    (*length)--;
+    current = stack[--top];
+    if (current->one && stack[top - 1] == current->one) {
+      stack[top - 1] = current;
+      current = current->one;
+      code[(*length)++] = '1';
+    }
+    else if (current->ascii == c && current->one == NULL) {
+      code[(*length)++] = '\n';
+      return;
+    }
+    else {
+      current = NULL;
+    }
+  } while (top != 0);
+}
+
+char *tree2table(tree t) {
+  char temp[257] = {'\0'};
+  int top, i, n, c;
+  char *table = calloc(33153, sizeof(char));
+  top = i = n = 0;
+  for (c = 0; c < 256; c++) {
+    find_char(t, temp, &i, c);
+    strncpy(&table[n], temp, i);
+    n = n + i;
+  }
+  table[n] = '\0';
+  return table;
+}
+
 char *get_huffman_table(unsigned long long ascii_counts[256]) {
-  int i, hdt, tlt, hds, tls;
+  int i, hdt, hds, tls;
+  char *table;
   tree zero, one, t;
   tree tree_array[256];
   tree second_array[128] = {NULL};
 
   hdt = hds = tls = 0;
-  tlt = 255;
 
   for (i = 0; i < 256; i++) {
     tree_array[i] = make_node_from_ascii_freq((char)i, ascii_counts[i]);
   }
   
   qsort(tree_array, 256, sizeof(tree), compare_trees);
-  
-  for (i = 0; i < 256; i++) {
-    printf("%u freq: %llu; ", (unsigned int)tree_array[i]->ascii, tree_array[i]->freq);
-  }
-  
-  /* TODO: Finish implementing the two queue huffman tree
-   * creation algorithm.
+
   while (tree_array[hdt] != NULL || second_array[hds] != NULL) {
-    t = make_node_from_trees(zero, one);
-    check_rep(t);
+    zero = get_next_from_queues(tree_array, second_array, &hdt, &hds);
+    one = get_next_from_queues(tree_array, second_array, &hdt, &hds);
+    
+    if (zero != NULL && one != NULL) {
+      t = make_node_from_trees(zero, one);
+      second_array[tls] = t;
+      tls = (tls + 1) % 128;
+      check_rep(t);
+    }
+    else {
+      t = zero != NULL ? zero : one;
+    }
   }
-   * TODO: build return string;
-  free_tree(t); */
-  
-  return "TODO";
+  /* TODO: build return string; */
+  table = tree2table(t);
+  free_tree(t);
+  return table;
 }
