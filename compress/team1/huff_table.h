@@ -32,7 +32,7 @@ void byte_freq(node **, uint64_t[256]);
 void clear_visited();
 void sort_nodes(node **);
 void build_tree(node **);
-void create_compression_table(node **);
+void create_compression_table(node **, char **);
 
 node *all_nodes[511];
 int all_node_curr;
@@ -59,10 +59,7 @@ void sort_nodes(node **);
 void build_tree(node **);
 
 /* Depth first search tree traversal from given root node. */
-void code_dfs(node *);
-
-/* Builds a compression table from huffman tree. */
-void create_compression_table(node **);
+void code_dfs(node *, char **);
 
 void tree_dot(node *);
 

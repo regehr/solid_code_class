@@ -5,9 +5,10 @@
 #include "huff_table.h"
 
 //#define DBG_FRQ
-//#define DBG_SORT
+#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
+#define GEN_DOT
 
 unsigned s;
 
@@ -33,16 +34,14 @@ void gen_huff_table(uint64_t freq[256], char *table[256])
     byte_freq(nodes, freq); /* Determine the frequency of occurrence of each byte in the input file. */
     sort_nodes(nodes); /* Sort nodes before building tree. */
     build_tree(nodes);
-    tree_dot(*nodes);
-    //    create_compression_table(nodes);
+    create_compression_table(nodes, table);
     
-    /* Tree is built and leaves contains huffman codes.
-     * Need to output to file.
-     */
+#ifdef GEN_DOT
+    tree_dot(*nodes);
+#endif
     
     for (int i = 0; i < 511; i++)
         free(all_nodes[i]);
-    
 }
 
 /* Initialize node. */
@@ -186,9 +185,6 @@ void sort_nodes(node **nodes)
 
 void build_tree(node **nodes)
 {
-    
-
-
     /* N-1 steps to create tree. */
     for (int i = 0; i < 255; i++)
     {
@@ -223,7 +219,7 @@ void build_tree(node **nodes)
 }
 
 /* Depth first search tree traversal from given root node. */
-void code_dfs(node *root)
+void code_dfs(node *root, char *table[256])
 {
     root->visited = true;
     if (root->left != NULL)
@@ -231,7 +227,7 @@ void code_dfs(node *root)
         if (root->left->visited == false)
         {
             strcat(strcat(root->left->code, root->code), "0");
-            code_dfs(root->left);
+            code_dfs(root->left, table);
         }
     }
     if (root->right != NULL)
@@ -239,23 +235,26 @@ void code_dfs(node *root)
         if (root->right->visited == false)
         {
             strcat(strcat(root->right->code, root->code), "1");
-            code_dfs(root->right);
+            code_dfs(root->right, table);
         }
     }
-#ifdef DBG_TABLE
+
     if(root->right == NULL && root->left == NULL);
     {
         /* This might be a good place to get information from leaf nodes. */
+        table[root->c] = root->code;
+        #ifdef DBG_TABLE
         printf("%c:\t%llu\t%s\n", root->c, root->freq, root->code);
+        #endif
     }
-#endif
+
 }
 
 /* Builds a compression table from huffman tree. */
-void create_compression_table(node **nodes)
+void create_compression_table(node **nodes, char *table[256])
 {
     clear_visited();
-    code_dfs(*nodes);
+    code_dfs(*nodes, table);
 }
 
 /* Depth first search tree traversal from given root node.
