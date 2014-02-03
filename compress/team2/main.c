@@ -3,39 +3,14 @@
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
+#include "internal.h"
+#include "parser.h"
 #include "huff.h"
 
 void DEBUG_print_freqtable(uint64_t table[256]) {
     for (int i = 0; i < 256; i++) {
         printf("0x%2X: %lld\n", i, table[i]);
     }
-}
-
-/* Returns 'true' when the given file has all the markings of a huff file,
- * returns 'false' when the given file lacks a marker. */
-bool is_huff(FILE * file, char * filename) {
-    /* make sure the name is at least as long as HUFF_EXT */
-    size_t name_length = strlen(filename);
-    if (name_length < HUFF_EXTLEN) { return false; }
-
-    /* make sure the filename ends with HUFF_EXT */
-    char * ext_start = &filename[name_length - HUFF_EXTLEN];
-    if (! (strcmp(ext_start, HUFF_EXT) == 0)) { return false; }
-
-    /* prepare a buffer for reading. */
-    char magic[HUFF_MAGICLEN];
-    memset(magic, 0, HUFF_MAGICLEN);
-
-    /* check if the given file has the HUFF magic number */
-    int items = fread(magic, HUFF_MAGICLEN, 1, file);
-    if (items < 1 || ! (strncmp(magic, HUFF_MAGIC, HUFF_MAGICLEN) == 0)) {
-        return false;
-    }
-
-    /* seek back to the beginning of the file. */
-    fseek(file, 0L, SEEK_SET);
-
-    return true;
 }
 
 /* build a frequency table from the given file. If for some strange reason
@@ -58,22 +33,29 @@ int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
 }
 
 int compress(FILE * file, char * filename) { 
-    return ERROR_EXIT; 
+    return HUFF_FAILURE; 
 }
 
 int decompress(FILE * file, char * filename) { 
-    return ERROR_EXIT; 
+    return HUFF_FAILURE; 
 }
 
 int table(FILE * file, char * filename) { 
-    if (! is_huff(file, filename)) {
+    struct huff_header header;
+    int code = huff_read_header(file, filename, &header);
+    if (code != 0) {
         uint64_t size;
         uint64_t table[256];
         build_freqtable(file, table, &size);
         printf("Filesize: %lld\n", size);
         DEBUG_print_freqtable(table);
+        return HUFF_FAILURE;
     }
-    return ERROR_EXIT; 
+    for (int i = 0; i < 256; i++) {
+        printf("%s\n", header.table[i]);
+    }
+    huff_free_hdrtable(&header);
+    return HUFF_SUCCESS; 
 }
 
 void usage(FILE * to) {
@@ -86,10 +68,10 @@ void usage(FILE * to) {
 }
 
 int main(int argc, char *argv[]) {
-    int exit_code = ERROR_EXIT;
+    int exit_code = HUFF_FAILURE;
     FILE * input = NULL;
 
-    if (argc != 3) { usage(stderr); exit(ERROR_EXIT); }
+    if (argc != 3) { usage(stderr); exit(HUFF_FAILURE); }
 
     /* attempt to open the input file for reading */
     input = fopen(argv[2], "r");
@@ -99,7 +81,7 @@ int main(int argc, char *argv[]) {
         } else {
             perror("Error opening file");
         }
-        exit(ERROR_EXIT);
+        exit(HUFF_FAILURE);
     }
 
     /* run the appropriate subroutine for the given option */
