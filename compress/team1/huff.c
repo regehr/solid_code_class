@@ -4,7 +4,28 @@
 
 #include "huff_table.h"
 #include "huff_io.h"
-#define ERR_CODE 255
+
+int print_tree(FILE* file, const char* filename){
+    char* huff_table[256];
+    int code = 0;
+
+    if (is_huff_file(filename) && is_huff_header(file)){
+        // get the table from the file
+        fprintf(stderr, "ERROR: Get table from huff file not implemented\n");
+		code = ERR_CODE;
+    } else {
+        code = get_huff_tree(file, huff_table);
+    }
+    
+    // Print table
+    if (!code){
+    	int i;
+    	printf("HUFF TABLE:\n");
+    	for(i = 0; huff_table[i] != '\0'; i++)
+	        printf("%s\n", huff_table[i]);
+    }
+    return code;
+}
 
 int compress(FILE *file, const char* filename){
     return ERR_CODE;
@@ -14,28 +35,13 @@ int decompress(FILE *file, const char* filename){
     return ERR_CODE;
 }
 
-int print_tree(FILE *file, const char* filename){
-    char *huff_table[256];
-    uint64_t frequencies[256];
-    
-    if (is_huff_file(filename) && is_huff_header(file)){
-        // get the table from the file
-        return ERR_CODE;
-    }
-    
-    // Else, calculate the table
-    gen_huff_table(frequencies, huff_table);
-    
-    return 0;
-}
-
 int main(int argc, const char *argv[])
 {
     int exit_code = ERR_CODE;
     
     // Proper use
     if (argc != 3){
-        fprintf(stderr, "Proper use:\n huff [ -c | -d | -t ] file\n");
+        fprintf(stderr, "ERROR:\nProper use:\n huff [ -c | -d | -t ] file\n");
         exit(exit_code);
     }
 
@@ -43,7 +49,7 @@ int main(int argc, const char *argv[])
     FILE *fp;
     fp = fopen(argv[2], "r");
     if (fp == NULL){
-        fprintf(stderr, "Could not open file %s\n", argv[2]);
+        fprintf(stderr, "ERROR:\nCould not open file %s\n", argv[2]);
         exit(exit_code);
     }
     
@@ -54,7 +60,7 @@ int main(int argc, const char *argv[])
     } else if (strcmp(argv[1], "-t") == 0){
         exit_code = print_tree(fp, argv[2]);
     } else {
-        fprintf(stderr, "Invalid operation %s\n", argv[1]);
+        fprintf(stderr, "ERROR:\nInvalid operation %s\n", argv[1]);
     }
     
     fclose(fp);
