@@ -47,7 +47,7 @@ void filltable(char *code, int node, struct HuffmanTree *tree,
     strcpy(zerostring, code);
     strcat(zerostring, "0");
     if (zero < 0) {
-        out_table[-(zero + 1)] = xmalloc((strlen(zerostring) + 1) * 8);
+        out_table[-(zero + 1)] = xmalloc((strlen(zerostring) + 1));
         strcpy(out_table[-(zero + 1)], zerostring);
     } else {
         filltable(zerostring, zero, tree, out_table);
@@ -59,7 +59,7 @@ void filltable(char *code, int node, struct HuffmanTree *tree,
     strcpy(onestring, code);
     strcat(onestring, "1");
     if (one < 0) {
-        out_table[-(one + 1)] = xmalloc((strlen(onestring) + 1) * 8);
+        out_table[-(one + 1)] = xmalloc((strlen(onestring) + 1));
         strcpy(out_table[-(one + 1)], onestring);
     } else {
         filltable(onestring, one, tree, out_table);
