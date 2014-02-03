@@ -15,7 +15,7 @@ void DEBUG_print_freqtable(uint64_t table[256]) {
 
 /* build a frequency table from the given file. If for some strange reason
  * the file is larger than uint64_t (which I'm pretty sure is impossible),
- * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the 
+ * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the
  * supplied 'table', and the size of the file is written into 'length'. */
 int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
     uint8_t current = 0;
@@ -32,30 +32,36 @@ int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
     return 0;
 }
 
-int compress(FILE * file, char * filename) { 
-    return HUFF_FAILURE; 
+int compress(FILE * file, char * filename) {
+    return HUFF_FAILURE;
 }
 
-int decompress(FILE * file, char * filename) { 
-    return HUFF_FAILURE; 
+int decompress(FILE * file, char * filename) {
+    return HUFF_FAILURE;
 }
 
-int table(FILE * file, char * filename) { 
+int table(FILE * file, char * filename) {
     struct huff_header header;
     int code = huff_read_header(file, filename, &header);
     if (code != 0) {
         uint64_t size;
         uint64_t table[256];
         build_freqtable(file, table, &size);
-        printf("Filesize: %lld\n", size);
+        /*printf("Filesize: %lld\n", size);
         DEBUG_print_freqtable(table);
-        return HUFF_FAILURE;
+        return HUFF_FAILURE;*/
+        char *out_table[256];
+        huff_tablefromfreq(table, out_table);
+        for (int i = 0; i < 256; i++) {
+            printf("%s\n", out_table[i]);
+        }
+        return HUFF_SUCCESS;
     }
     for (int i = 0; i < 256; i++) {
         printf("%s\n", header.table[i]);
     }
     huff_free_hdrtable(&header);
-    return HUFF_SUCCESS; 
+    return HUFF_SUCCESS;
 }
 
 void usage(FILE * to) {
@@ -93,7 +99,7 @@ int main(int argc, char *argv[]) {
         exit_code = table(input, argv[2]);
     } else {
         fprintf(stderr, "Invalid mode of operation: '%s'.\n", argv[1]);
-        usage(stderr); 
+        usage(stderr);
     }
 
     fclose(input);
