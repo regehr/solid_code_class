@@ -1,4 +1,4 @@
-CFLAGS = -Wall -MMD
+CFLAGS = -Wall -MMD -std=c99
 BIN = huff
 SRCS = huff.c tree.c io.c
 OBJS = ${SRCS:.c=.o}
