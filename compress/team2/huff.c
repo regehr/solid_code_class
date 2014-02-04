@@ -6,12 +6,12 @@
 #include "internal.h"
 #include "huff.h"
 
-static bool IS_BYTE(short path) { 
+static bool IS_BYTE(short path) {
     return path < 0;
 }
 
 static bool IS_BRANCH(short path) {
-    return ! IS_BYTE(path); 
+    return ! IS_BYTE(path);
 }
 
 static bool BYTE_INDEX(short path) {
@@ -183,9 +183,16 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]) {
 /* Decompression
 ----------------------------------------------------------------------------- */
 
+struct decoder {
+    struct HuffmanTree tree;
+    uint8_t current_node;
+};
 
 /* Frees a decoder struct. Returns 1 on success, 0 otherwise. */
-int huff_free_decoder(struct decoder *);
+int huff_free_decoder(struct decoder *) {
+    free(decoder);
+    return 1;
+}
 
 /* Returns a pointer to a new decoder struct generated from a
    translation table, which is an array of 256 char *s which are the ASCII
