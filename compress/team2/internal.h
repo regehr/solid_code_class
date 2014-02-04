@@ -13,6 +13,8 @@ typedef unsigned char uint8_t;
 
 /* return a pointer to 'size' bytes of memory. Fails the program with
  * HUFF_ERROR if the system is out of memory. */
+
 void * xmalloc(size_t size); 
+void * xrealloc(void *ptr, size_t size);
 
 #endif

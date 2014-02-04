@@ -69,7 +69,7 @@ int huff_read_entry(FILE * file, char **out) {
         free(buffer);
     /* otherwise, re-size the buffer to the actual size of the entry */
     } else {
-        *out = realloc(buffer, byte_count + 1);
+        *out = xrealloc(buffer, byte_count + 1);
     }
 
     assert(strlen(buffer) == ((size_t) byte_count) && 

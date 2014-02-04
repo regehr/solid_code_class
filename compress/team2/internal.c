@@ -10,3 +10,12 @@ void * xmalloc(size_t size) {
     }
     return out;
 }
+
+void * xrealloc(void * ptr, size_t size) {
+    void * out = realloc(ptr, size);
+    if (out == NULL && size != 0) {
+        fputs("Out of memory.\n", stderr);
+        exit(HUFF_FAILURE);
+    }
+    return out;
+}
