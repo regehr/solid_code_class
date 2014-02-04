@@ -196,7 +196,7 @@ struct decoder *huff_make_decoder(char *table[256]) {
     /* initialize current_node to 0 which is the root and where decoding
        should always start. */
     struct decoder *decoder = xmalloc(sizeof(struct decoder));
-    memset(decoder, 0, sizeof(struct decoder);
+    memset(decoder, 0, sizeof(struct decoder));
 
     /* Represents the next "unallocated" node. */
     int next_empty = 1;
