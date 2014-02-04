@@ -3,9 +3,34 @@
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "internal.h"
 #include "parser.h"
 #include "huff.h"
+#include "encode.h"
+
+/* fopen the given file, print an error message and terminate with
+ * HUFF_FAILURE if we're unable to open the file. */
+FILE* xfopen(const char * path, const char * mode) {
+    FILE *file = fopen(path, mode);
+    if (file == NULL) {
+        if (errno == ENOENT) {
+            fprintf(stderr, "Couldn't open '%s'.\n", path);
+        } else {
+            perror("Error opening file");
+        }
+        exit(HUFF_FAILURE);
+    }
+    return file;
+}
+
+int pfclose(FILE * file) {
+    if (fclose(file) != 0) {
+        perror("Couldn't close output file");
+        return -1;
+    }
+    return 0;
+}
 
 /* build a frequency table from the given file. If for some strange reason
  * the file is larger than uint64_t (which I'm pretty sure is impossible),
@@ -26,8 +51,70 @@ static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) 
     return 0;
 }
 
-static int compress(UNUSED(FILE * file), UNUSED(char * filename)) {
-    return HUFF_FAILURE;
+static int compress_file(FILE * output, FILE * input, struct huff_header * header) {
+    struct huff_encoder encoder;
+    huff_make_encoder(&encoder, header->table);
+    fseek(input, 0L, SEEK_SET);
+    fseek(output, 0L, SEEK_SET);
+
+    int code = huff_write_header(output, header);
+    if (code != 0) { return code; }
+
+    int encoded = 0;
+    uint8_t current, buffer[32]; 
+    while (fread(&current, 1, 1, input)) {
+        encoded = huff_encode(current, buffer, &encoder);
+        /* If there is encoded output, write it to the output file. If the write
+         * fails exit with ENOWRITE. */
+        if (encoded && ! fwrite(buffer, encoded, 1, output)) {
+            return ENOWRITE;
+        }
+    }
+    if (! feof(input)) { return ETRUNC; }
+
+    /* Theres an extra byte to be written, write it out and fail with ENOWRITE
+     * if the write fails */
+    if (encoder.buffer != 0 && 
+        ! fwrite(&encoder.buffer, 1, 1, output)) { 
+        return ENOWRITE; 
+    }
+
+    return 0;
+}
+
+static int compress(FILE * file, char * filename) {
+    uint64_t ftable[256];
+    struct huff_header header;
+    char * huff_filename = NULL;
+    FILE * output = NULL;
+
+    huff_filename = xmalloc(strlen(filename) + HUFF_EXTLEN + 1);
+    memcpy(huff_filename, filename, strlen(filename) + 1);
+    strcat(huff_filename, HUFF_EXT);
+
+    assert(strlen(huff_filename) == strlen(filename) + HUFF_EXTLEN &&
+           "Likely memory corruption building compression output file name");
+
+    output = xfopen(huff_filename, "w");
+    free(huff_filename);
+
+    /* build our translation table and header, then seek to the 
+     * start of the file */
+    build_freqtable(file, ftable, &header.size);
+    huff_make_table(ftable, header.table);
+
+    int code = compress_file(output, file, &header);
+
+    huff_free_hdrtable(&header);
+
+    /* close our files */
+    if (pfclose(output)) {
+        return HUFF_FAILURE;
+    } else if (code) {
+        printf("%s\n", huff_error(code));
+        return HUFF_FAILURE;
+    }
+    return HUFF_SUCCESS;
 }
 
 static int decompress(UNUSED(FILE * file), UNUSED(char * filename)) {
@@ -67,15 +154,7 @@ int main(int argc, char *argv[]) {
     if (argc != 3) { usage(stderr); exit(HUFF_FAILURE); }
 
     /* attempt to open the input file for reading */
-    input = fopen(argv[2], "r");
-    if (input == NULL) {
-        if (errno == ENOENT) {
-            fprintf(stderr, "Couldn't open '%s' for reading.\n", argv[2]);
-        } else {
-            perror("Error opening file");
-        }
-        exit(HUFF_FAILURE);
-    }
+    input = xfopen(argv[2], "r"); 
 
     /* run the appropriate subroutine for the given option */
     if (strcmp(argv[1], "-c") == 0) {
@@ -89,6 +168,9 @@ int main(int argc, char *argv[]) {
         usage(stderr);
     }
 
-    fclose(input);
+    if (pfclose(input)) {
+        exit_code = HUFF_FAILURE;
+    }
+
     return exit_code;
 }

@@ -15,8 +15,9 @@
 #define EBADENTRY  (-3)   // Bad entry in translation table
 #define ETRUNC     (-4)   // Either file truncated, or a non-terminated entry
                           // the translation table.
-                          //
-#define EFILETOOLONG (-5);    // The file was too long to be stored in a uint64_t
+#define ENOWRITE   (-6)   // Could not write to the file.
+
+#define EFILETOOLONG (-5)    // The file was too long to be stored in a uint64_t
 
 struct huff_header {
     uint64_t size;
@@ -41,4 +42,6 @@ int huff_write_header(FILE *, struct huff_header *);
  * huff file. Returns false otherwise. Non side-effecting. */
 bool is_huff(FILE *, char * filename);
 
+/* Return the error string corresponding to the given code. */
+const char * huff_error(int code);
 #endif

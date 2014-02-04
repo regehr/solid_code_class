@@ -6,6 +6,17 @@
 #include "internal.h"
 #include "parser.h"
 
+static const char * const ERROR_STRINGS[] = {
+    [-EBADEXT]      = "Extension was not a .huff extension.",
+    [-ENOMAGIC]     = "No magic number in the input file.",
+    [-EBADENTRY]    = "Bad entry in file translation table.",
+    [-ETRUNC]       = "An input file was truncated, or a translation table entry"
+                      "was too long.",
+    [-ENOWRITE]     = "An error occured while writing to the output file.",
+    [-EFILETOOLONG] = "Input file's size could not be represented. Kudos on making"
+                      "a file larger than 16,384 Petabytes.",
+};
+
 /* header reading helper */
 static int _huff_read_header(FILE *, char * filename, struct huff_header *);
 
@@ -140,7 +151,7 @@ static int _huff_read_header(FILE * file, char * filename, struct huff_header * 
 int huff_write_header(FILE * file, struct huff_header * header) {
     if (! (fwrite(HUFF_MAGIC, HUFF_MAGICLEN, 1, file) &&
            fwrite(&header->size, sizeof(uint64_t), 1, file))) {
-        return -1;
+        return ENOWRITE;
     }
 
     /* buffer needs to be at least 255+1 bytes long since we need to store
@@ -155,7 +166,7 @@ int huff_write_header(FILE * file, struct huff_header * header) {
         memcpy(buffer, header->table[i], entry_length);
         buffer[entry_length] = '\n';
         if (! fwrite(buffer, entry_length + 1, 1, file)) {
-            return -1;
+            return ENOWRITE;
         }
     }
 
@@ -168,4 +179,8 @@ int huff_free_hdrtable(struct huff_header * header) {
     }
     memset(header->table, 0, 256 * sizeof(char *));
     return 0;
+}
+
+const char * huff_error(int code) {
+    return ERROR_STRINGS[-code];
 }
