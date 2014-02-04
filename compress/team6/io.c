@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <assert.h>
 #include "io.h"
 
 int index_of(char* arr[256], char* string)
@@ -129,27 +130,32 @@ void write_decompressed_file(unsigned char* file_pointer, size_t file_length, ch
     if(pch != NULL)
       map[index++] = pch;
   }
-  
-  unsigned long long bit_index = (start_of_compressed+1)*8;
-  unsigned char to_write[file_length];
-  unsigned long long to_write_index = 0;
-
   unsigned long long size = get_size_from_file(file_pointer, file_length);
+  unsigned long long bit_index = (start_of_compressed+1)*8;
+  unsigned char to_write[size];
+  unsigned long long to_write_index = 0;
    
   for(int i = 0; i < size; i++)
   {
    int string_index = 0;
-   char curr_string[256] = {0};
+   char curr_string[257] = {0};
    int complete = 0;
    while(!complete)
    {
+     assert(string_index < 256);
+     assert(bit_at(file_pointer, file_length, bit_index) != -1);
+
      if(bit_at(file_pointer, file_length, bit_index++))
        curr_string[string_index++] = '1';
      else
+     {
        curr_string[string_index++] = '0';
+     }
      int index = index_of(map, curr_string);
      if(index != -1)
      {
+       assert(index < 256);
+       assert(to_write_index <= size);
        to_write[to_write_index++] = (unsigned char)index;
        complete = 1;
       }
