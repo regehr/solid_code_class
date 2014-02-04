@@ -193,13 +193,11 @@ int huff_free_decoder(struct decoder *decoder) {
 struct decoder *huff_make_decoder(char *table[256]) {
     assert(check_table(table) == 1);
 
-    /* calloc will not only make our tree completely empty, but will
-       also initialize current_node to 0 which is the root and where decoding
+    /* initialize current_node to 0 which is the root and where decoding
        should always start. */
-    struct decoder *decoder = calloc(1, sizeof(struct decoder));
-    if (decoder == NULL) {
-        return NULL;
-    }
+    struct decoder *decoder = xmalloc(sizeof(struct decoder));
+    memset(decoder, 0, sizeof(struct decoder);
+
     /* Represents the next "unallocated" node. */
     int next_empty = 1;
 
