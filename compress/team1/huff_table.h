@@ -12,6 +12,8 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#define ERR_CODE 255
+
 /* Node for huffman tree coding. */
 typedef struct node node;
 
@@ -20,7 +22,7 @@ node *all_nodes[511];
 int all_node_curr;
 
 /* Type of depth first search. */
-typedef enum { SORT, TABLE, DOT }dfs_t;
+typedef enum { SORT, TABLE, DOT, CHECK}dfs_t;
 dfs_t dfs_type;
 
 /* Unique serial number for each node. */
@@ -70,7 +72,16 @@ char find_lowest(node *);
  * but it wouldn't work with fewer comparisons. */
 int compare_nodes(const void*, const void*);
 
+/* Checks built huffman tree. */
+void check_tree(node **);
+
 /* Generates a dot file from huffman tree. */
 void tree_dot(node *);
+
+/* Checks if leaf node. */
+bool is_leaf(node *);
+
+/* Malloc wrapper for node initialization. */
+node * malloc_n(node *);
 
 #endif
