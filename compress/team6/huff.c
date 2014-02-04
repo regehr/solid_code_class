@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
     printf("Error opening file\n");
     exit(-1);
   }
-  unsigned char file_pointer[file_length];
+  unsigned char* file_pointer = (unsigned char*)malloc(file_length * sizeof(unsigned char));
   if(file_length != 0)
   {
     fread(file_pointer, file_length, 1, file);
@@ -102,5 +102,6 @@ int main(int argc, char* argv[])
     print_table(file_pointer, file_length, argv[2]);
   }
 
+  free(file_pointer);
   return 0;
 }
