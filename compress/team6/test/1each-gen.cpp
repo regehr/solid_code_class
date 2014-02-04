@@ -13,8 +13,10 @@ int main(int argc, char* argv[]) {
   assert(out != NULL);
 
   // Ain't nobody got time for write errors
-  assert(fwrite(bytes, sizeof(char), 256, out) == 256);
-  assert(fclose(out) == 0);
+  int res = fwrite(bytes, sizeof(char), 256, out);
+  assert(res == 256);
+  res = fclose(out);
+  assert(res == 0);
 
   return 0;
 }
