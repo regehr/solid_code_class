@@ -25,7 +25,8 @@ int huff_free_decoder(struct decoder *);
 
 /* Returns a pointer to a new decoder struct generated from a
    translation table, which is an array of 256 char *s which are the ASCII
-   representations of that byte index's translation. */
+   representations of that byte index's translation. Returns the null pointer
+   if any errors occur. */
 struct decoder *huff_make_decoder(char *table[256]);
 
 /* Takes the next bit to decode. Returns an unsigned char converted to an int if

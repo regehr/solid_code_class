@@ -14,118 +14,110 @@ static bool IS_BRANCH(short path) {
     return ! IS_BYTE(path);
 }
 
-static bool BYTE_INDEX(short path) {
+static short BYTE_INDEX(short path) {
     return -(path + 1);
 }
 
+static char MIN_CHAR(char a, char b) {
+    return a < b ? a : b;
+}
+
 /* Represents a node which points to other nodes. */
-struct HuffmanNode {
-    /* The zero path. If positive, represents an index into nodes. If
-       negative, |zero + 1| represents the byte value at pointed to leaf. */
-    short zero;
-    /* The one path. If positive, represents an index into branches. If
-       negative, |zero + 1| represents the byte value at pointed to leaf. */
-    short one;
+struct node {
+    /* The tree paths. If a path is non-negative, represents an index into
+       nodes. Else, |zero + 1| represents the byte value at pointed to leaf. */
+    short paths[2];
 };
 
-struct HuffmanTree {
+struct tree {
     /* The nodes of the tree. nodes[0] is the root. */
-    struct HuffmanNode nodes[255];
+    struct node nodes[255];
 };
 
-struct PrioritizedNode {
+struct prioritized_node {
     uint64_t priority;
     /* If positive, represents an index into branches. If negative, |zero + 1|
        represents the byte value at pointed to leaf. */
     short node;
-    uint8_t minbyte;
+    uint8_t smallest_byte;
 };
 
-int compareprioritizednodes(const void *a, const void *b) {
-    struct PrioritizedNode *nodea = (struct PrioritizedNode *) a;
-    struct PrioritizedNode *nodeb = (struct PrioritizedNode *) b;
+int compare_prioritized_nodes(const void *a, const void *b) {
+    struct prioritized_node *node_a = (struct prioritized_node *) a;
+    struct prioritized_node *node_b = (struct prioritized_node *) b;
 
-    int result = nodea->priority - nodeb->priority;
-    return result == 0 ? nodea->minbyte - nodeb->minbyte : result;
+    int result = node_a->priority - node_b->priority;
+    return result == 0 ? node_a->smallest_byte - node_b->smallest_byte : result;
 }
 
 /* A Huffman table specifies an encoding for all 256 bytes as a null terminated
    string: char * HuffmanTable[256] */
 
-void filltable(char *code, int node, struct HuffmanTree *tree,
+void fill_table(char *code, int node, struct tree *tree,
                char *out_table[256]) {
-    short zero = tree->nodes[node].zero;
+    for (int i = 0; i < 2; i++) {
+        int code_length = strlen(code);
+        char new_code[code_length + 2];
+        strcpy(new_code, code);
+        new_code[code_length] = i + '0';
+        new_code[code_length + 1] = 0;
 
-    char zerostring[strlen(code) + 2];
-    strcpy(zerostring, code);
-    strcat(zerostring, "0");
-    if (IS_BYTE(zero)) {
-        out_table[BYTE_INDEX(zero)] = xmalloc((strlen(zerostring) + 1));
-        strcpy(out_table[BYTE_INDEX(zero)], zerostring);
-    } else {
-        filltable(zerostring, zero, tree, out_table);
-    }
-
-    short one = tree->nodes[node].one;
-
-    char onestring[strlen(code) + 2];
-    strcpy(onestring, code);
-    strcat(onestring, "1");
-    if (IS_BYTE(zero)) {
-        out_table[BYTE_INDEX(zero)] = xmalloc((strlen(onestring) + 1));
-        strcpy(out_table[BYTE_INDEX(zero)], onestring);
-    } else {
-        filltable(onestring, one, tree, out_table);
+        short path = tree->nodes[node].paths[i];
+        if (IS_BYTE(path)) {
+            out_table[BYTE_INDEX(path)] = xmalloc((strlen(new_code) + 1));
+            strcpy(out_table[BYTE_INDEX(path)], new_code);
+        } else {
+            fill_table(new_code, path, tree, out_table);
+        }
     }
 }
 
-int leafcheck(int nodeindex, int haschar[256], const struct HuffmanTree *tree) {
-    assert(nodeindex > -256);
-    assert(nodeindex < 255);
+int leaf_check(int node, int has_char[256], const struct tree *tree) {
+    assert(node > -256);
+    assert(node < 255);
 
-    short zero = tree->nodes[nodeindex].zero;
-    short one = tree->nodes[nodeindex].one;
-
-    if (IS_BYTE(zero)) {
-        assert(haschar[BYTE_INDEX(0)] == 0);
-        haschar[BYTE_INDEX(zero)] = 1;
+    int result = 0;
+    for (int i = 0; i < 2; i++) {
+        short path = tree->nodes[node].paths[i];
+        if (IS_BYTE(path)) {
+            assert(has_char[BYTE_INDEX(path)] == 0);
+            has_char[BYTE_INDEX(path)] = 1;
+        }
+        result += IS_BYTE(path) ?
+            1 : leaf_check(tree->nodes[node].paths[i], has_char, tree);
     }
 
-    if (IS_BYTE(one)) {
-        assert(haschar[BYTE_INDEX(one)] == 0);
-        haschar[BYTE_INDEX(one)] = 1;
+    return result;
+}
+
+int node_check(int node, const struct tree *tree) {
+    int result = 1;
+
+    for (int i = 0; i < 2; i++) {
+        result += IS_BYTE(tree->nodes[node].paths[i]) ?
+            1 : node_check(tree->nodes[node].paths[i], tree);
     }
 
-    return
-        (IS_BYTE(zero) ? 1 : leafcheck(tree->nodes[nodeindex].zero, haschar, tree)) +
-        (IS_BYTE(one)  ? 1 : leafcheck(tree->nodes[nodeindex].one, haschar, tree));
+    return result;
 }
 
-int nodecheck(int nodeindex, const struct HuffmanTree *tree) {
-    return 1 +
-        (IS_BYTE(tree->nodes[nodeindex].zero) ?
-            1 : nodecheck(tree->nodes[nodeindex].zero, tree)) +
-        (IS_BYTE(tree->nodes[nodeindex].one) ?
-            1 : nodecheck(tree->nodes[nodeindex].one, tree));
-}
-
-int checktree(const struct HuffmanTree *tree) {
-    int haschar[256];
-    memset(haschar, 0, 256 * sizeof(int));
-    /* Make sure we have 256 leaves. */
-    int leaves = leafcheck(0, haschar, tree);
+int check_tree(const struct tree *tree) {
+    int has_char[256];
+    memset(has_char, 0, 256 * sizeof(int));
+    /* Make sure we have 256 unique leaves. */
+    int leaves = leaf_check(0, has_char, tree);
     assert(leaves == 256);
     /* Make sure we saw all 256 leaves. */
     for (int i = 0; i < 256; i++) {
-        assert(haschar[i] == 1);
+        assert(has_char[i] == 1);
     }
     /* Make sure we have 511 nodes (including implicit leaves). */
-    assert(nodecheck(0, tree) == 511);
+    assert(node_check(0, tree) == 511);
 
     return 1;
 }
 
-int checktable(char *table[256]) {
+int check_table(char *table[256]) {
     for (int i = 0; i < 256; i++) {
         assert(strlen(table[i]) > 0);
 
@@ -145,37 +137,37 @@ int checktable(char *table[256]) {
    unsigned long longs representing the number of times the byte index has
    appeared in a file. Allocates (strlen(i) + 1) * 8 memory for each string. */
 int huff_make_table(uint64_t freq[256], char *out_table[256]) {
-    struct PrioritizedNode nodelist[256];
+    struct prioritized_node node_list[256];
 
     for (int i = 0; i < 256; i++) {
-        nodelist[i] = (struct PrioritizedNode) { .priority = freq[i],
-                                                 .node = BYTE_INDEX(i),
-                                                 .minbyte = i };
+        node_list[i] = (struct prioritized_node) { .priority = freq[i],
+                                                   .node = BYTE_INDEX(i),
+                                                   .smallest_byte = i };
     }
 
-    /* Fill the HuffmanTree backwards so the last element added, which will be
+    /* Fill the tree backwards so the last element added, which will be
        the root of the tree, will also be the first item in the nodes array */
-    struct HuffmanTree tree;
+    struct tree tree;
     for (int i = 0; i < 255; i++) {
-        qsort(nodelist + i, 256 - i, sizeof(struct PrioritizedNode),
-              compareprioritizednodes);
-        int huffindex = 254 - i;
-        tree.nodes[huffindex] = (struct HuffmanNode) {
-            .zero = nodelist[i].node,
-            .one = nodelist[i + 1].node };
-        nodelist[i + 1] = (struct PrioritizedNode) {
-            .priority = nodelist[i].priority +
-                        nodelist[i + 1].priority,
-            .node = huffindex,
-            .minbyte = nodelist[i].minbyte < nodelist[i + 1].minbyte ?
-                       nodelist[i].minbyte : nodelist[i + 1].minbyte };
+        qsort(node_list + i, 256 - i, sizeof(struct prioritized_node),
+              compare_prioritized_nodes);
+        int huff_index = 254 - i;
+        tree.nodes[huff_index] =
+            (struct node) { .paths = { node_list[i].node,
+                                       node_list[i + 1].node } };
+        node_list[i + 1] =
+            (struct prioritized_node) {
+                .priority = node_list[i].priority + node_list[i + 1].priority,
+                .node = huff_index,
+                .smallest_byte = MIN_CHAR(node_list[i].smallest_byte,
+                                          node_list[i + 1].smallest_byte) };
     }
 
-    assert(checktree(&tree) == 1);
+    assert(check_tree(&tree) == 1);
 
-    filltable("", 0, &tree, out_table);
+    fill_table("", 0, &tree, out_table);
 
-    assert(checktable(out_table) == 1);
+    assert(check_table(out_table) == 1);
 
     return 1;
 }
@@ -184,24 +176,30 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]) {
 ----------------------------------------------------------------------------- */
 
 struct decoder {
-    struct HuffmanTree tree;
+    struct tree tree;
     short current_node;
 };
 
 /* Frees a decoder struct. Returns 1 on success, 0 otherwise. */
-int huff_free_decoder(struct decoder *) {
+int huff_free_decoder(struct decoder *decoder) {
     free(decoder);
     return 1;
 }
 
 /* Returns a pointer to a new decoder struct generated from a
    translation table, which is an array of 256 char *s which are the ASCII
-   representations of that byte index's translation. */
+   representations of that byte index's translation. Returns the null pointer
+   if any errors occur. */
 struct decoder *huff_make_decoder(char *table[256]) {
-    /* xcalloc will not only make our HuffmanTree completely empty, but will
+    assert(check_table(table) == 1);
+
+    /* calloc will not only make our tree completely empty, but will
        also initialize current_node to 0 which is the root and where decoding
        should always start. */
-    struct decoder *dec = xcalloc(sizeof(struct decoder));
+    struct decoder *decoder = calloc(1, sizeof(struct decoder));
+    if (decoder == NULL) {
+        return NULL;
+    }
     /* Represents the next "unallocated" node. */
     int next_empty = 1;
 
@@ -211,56 +209,38 @@ struct decoder *huff_make_decoder(char *table[256]) {
         int j;
         /* Check table[i][j + 1] because our last path is an implicit node. */
         for (j = 0; table[i][j + 1] != 0; j++) {
-            switch (table[i][j]) {
-            case '0':
-                if (dec->tree.nodes[current_node].zero == 0) {
-                    assert(next_empty < 255);
-                    dec->tree.nodes[current_node].zero = next_empty;
-                    next_empty++;
-                }
-                current_node = dec->tree.nodes[current_node].zero;
-                break;
-            case '1':
-                if (dec->tree.nodes[current_node].one == 0) {
-                    assert(next_empty < 255);
-                    dec->tree.nodes[current_node].one = next_empty;
-                    next_empty++;
-                }
-                current_node = dec->tree.nodes[current_node].one;
-                break;
+            int direction = table[i][j] - '0';
+            if (decoder->tree.nodes[current_node].paths[direction] == 0) {
+                assert(next_empty < 255);
+                decoder->tree.nodes[current_node].paths[direction] = next_empty;
+                next_empty++;
             }
+            current_node = decoder->tree.nodes[current_node].paths[direction];
         }
-        switch (table[i][j]) {
-        case '0':
-            assert(dec->tree.nodes[current_node].zero == 0);
-            dec->tree.nodes[current_node].zero == BYTE_INDEX(i);
-            break;
-        case '1':
-            assert(dec->tree.nodes[current_node].one == 0);
-            dec->tree.nodes[current_node].one == BYTE_INDEX(i);
-            break;
-        }
+
+        int direction = table[i][j] - '0';
+        assert(decoder->tree.nodes[current_node].paths[direction] == 0);
+        decoder->tree.nodes[current_node].paths[direction] == BYTE_INDEX(i);
     }
 
-    assert(checktree(&dec->tree));
+    assert(check_tree(&decoder->tree));
 
-    return dec;
+    return decoder;
 }
 
 /* Takes the next bit to decode. Returns an unsigned char converted to an int if
    a character is decoded, returns -1 otherwise. If an error occurs, -2 or lower
    is returned */
-int huff_decode(int bit, struct decoder*) {
+int huff_decode(int bit, struct decoder *decoder) {
     assert(bit == 0 || bit == 1);
 
-    decoder->current_node = bit == 0 ?
-        decoder->tree[decoder->current_node].zero :
-        decoder->tree[decoder->current_node].one;
+    decoder->current_node =
+        decoder->tree.nodes[decoder->current_node].paths[bit];
 
+    int result = -1;
     if (IS_BYTE(decoder->current_node)) {
-        int result = BYTE_INDEX(decoder->current_node);
+        result = BYTE_INDEX(decoder->current_node);
         decoder->current_node = 0;
-        return result;
     }
-    return -1;
+    return result;
 }
