@@ -8,23 +8,25 @@
 #ifndef HUFF_TABLE_H
 #define	HUFF_TABLE_H
 
+ typedef struct huff_node
+{
+	struct huff_node* left_child;
+	struct huff_node* right_child;
+	int char_number;
+	int frequency;
+}huff_node;
+
 typedef struct huff_root
 {
-	Huff_Node* left_child;
-	Huff_Node* right_child;
+	struct huff_node* left_child;
+	struct huff_node* right_child;
 	int frequency;
 	//not really needed. Just there to help make sure mem is freed.
 	int node_count;
 
-}Huff_Root;
+}huff_root;
 
-typedef struct huff_node
-{
-	Huff_Node* left_child;
-	Huff_Node* right_child;
-	int char_number;
-	int frequency;
-}Huff_Node;
+
 
 /*  This method will create a huff tree based on an array containing ascii
  *  character frequencies.  The array is assumed to be of length 256.
@@ -32,7 +34,7 @@ typedef struct huff_node
  *  The array should contain the count of each ascii character to encode.  
  *
  */
-Huff_Root create_huff_tree_from_frequency(int[] frequencyArray);
+huff_root create_huff_tree_from_frequency(int frequencyArray[]);
 
 /*  This method will create a huff tree based on an array containing
  *  encodings for each ascii character 0 to 255.  Element 0 referes to 
@@ -40,12 +42,12 @@ Huff_Root create_huff_tree_from_frequency(int[] frequencyArray);
  *
  *  Encodings are currently setup as strings of '0's and '1's.
  */
-Huff_Root create_huff_tree_from_encoding(char** encoding);
+huff_root create_huff_tree_from_encoding(char** encoding);
 
 /*  This method will free all the memory used by a huff_root "object"
  *
  */
-void destroy_huff_tree(Huff_Root root);
+void destroy_huff_tree(huff_root root);
 
 /*  get_encoding will return an array of size 256.  This array will contain
  *  the encoding for each ascii character.  Element 0 is ascii 0, element 1 
@@ -55,7 +57,7 @@ void destroy_huff_tree(Huff_Root root);
  *  Encodings are currently setup as strings of '0's and '1's.
  *
  */  
-char** get_encoding(Huff_Root root);
+char** get_encoding(huff_root root);
 
 
 //Not sure how to do the decoding yet.  
@@ -64,6 +66,5 @@ char** get_encoding(Huff_Root root);
 
 
 
-#endif
 
 #endif	/* HUFF_TABLE_H */
