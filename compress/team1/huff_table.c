@@ -35,8 +35,8 @@ void gen_huff_table(uint64_t freq[256], char *table[256])
     tree_dot(*nodes);
 #endif
     
-    for (int i = 0; i < 511; i++)
-        free(all_nodes[i]);
+    //for (int i = 0; i < 511; i++)
+      //  free(all_nodes[i]);
 }
 
 void init_node(node **n, char c)
@@ -193,8 +193,8 @@ void dfs(node *root, void *p)
     {
         if (root->left->visited == false)
         {
-            if (dfs_type == DOT)
-                fprintf((FILE *)p, "%d -> %d [label=\"0\"];\n", root->id, root->left->id);
+            if (dfs_type == DOT && root->right->freq > 0)
+                fprintf((FILE *)p, "%d -> %d [color=\"red\" label=\"0\"];\n", root->id, root->left->id);
             if (dfs_type == TABLE)
                 strcat(strcat(root->left->code, root->code), "0");
             if (dfs_type == CHECK)
@@ -206,8 +206,8 @@ void dfs(node *root, void *p)
     {
         if (root->right->visited == false)
         {
-            if (dfs_type == DOT)
-                fprintf((FILE *)p, "%d -> %d [label=\"1\"];\n", root->id, root->right->id);
+            if (dfs_type == DOT && root->right->freq > 0)
+                fprintf((FILE *)p, "%d -> %d [color=\"blue\" label=\"1\"];\n", root->id, root->right->id);
             if (dfs_type == TABLE)
                 strcat(strcat(root->right->code, root->code), "1");
             if (dfs_type == CHECK)
@@ -240,12 +240,16 @@ void tree_dot(node *root)
     fputs("digraph G {\n", dot);
     for (int i = 0; i < 511; i++)
     {
-        if (i > 31 && i < 127 && i != 34 && all_nodes[i]->freq > 0)
-            fprintf(dot, "%u [label=\"'%c' frq: %llu code:%s\"];\n", all_nodes[i]->id, all_nodes[i]->c, all_nodes[i]->freq, all_nodes[i]->freq > 0 ? all_nodes[i]->code : "");
-        else if (i < 256)
-            fprintf(dot, "%u [label=\"'\\%u' frq: %llu code:%s\"];\n", all_nodes[i]->id, all_nodes[i]->c, all_nodes[i]->freq, all_nodes[i]->freq > 0 ? all_nodes[i]->code : "");
-        else
-            fprintf(dot, "%u [label=\"INNER frq: %llu\"];\n", all_nodes[i]->id, all_nodes[i]->freq);
+        node * n = all_nodes[i];
+        if (n->freq > 0)
+        {
+            if (i > 31 && i < 127 && i != 34 && all_nodes[i]->freq > 0)
+                fprintf(dot, "%u [label=\"'%c' frq: %llu code:%s\"];\n", n->id, n->c, n->freq, n->freq > 0 ? n->code : "");
+            else if (i < 256)
+                fprintf(dot, "%u [label=\"\\%u'frq: %llu code:%s\"];\n", n->id, n->c, n->freq, n->freq > 0 ? n->code : "");
+            else
+                fprintf(dot, "%u [color=\"green\" shape=\"box\" label=\"INNER %.2Lf%%\"];\n", n->id, ((long double)n->freq / (long double)root->freq) * 100);
+        }
     }
     
     dfs(root, dot);

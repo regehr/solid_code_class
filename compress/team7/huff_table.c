@@ -3,6 +3,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+void* Malloc(int size){
+	void* temp = malloc(size);
+	if(temp == 0){
+		printf("%s", "Malloc failed");
+		exit(-1);
+	}
+	return temp;
+}
+
 
 
 //Queue objects
@@ -24,21 +33,57 @@ typedef struct queue_head
 //returns the reference of the object while keeping it in the front of the queue.
 huff_node* peek(queue_head* head)
 {
-
+	return head->next_node->object;
 }
 //returns the reference of the object in addition to removing the reference from the queue. 
-huff_node* dequeue(queue_head head)
+huff_node* dequeue(queue_head* head)
 {
+	if(head->next_node == NULL){
+		return NULL;
+	}
+	queue_node* q_node = head->next_node;
+	huff_node* h_node = q_node->object;
+	head->next_node = q_node->next_node;
+	free (q_node);
+
+	return h_node;
+
 
 }
 //Adds a huff_node* to the end of the queue.
-void enqueue(queue_head head, huff_node* node)
+void enqueue(queue_head* head, huff_node* h_node)
 {
-	
+	assert(head !=0);
+	assert(h_node != 0);
+	//new q_node
+	queue_node* q_node = Malloc(sizeof(queue_node));
+	q_node->next_node = NULL;
+	q_node->object = h_node;
+
+	//add q_node to the end
+	if(head->tail != NULL){
+		head->tail->next_node = q_node;
+	} 
+	head->tail = q_node;
 }
 
-void init_queue(queue_head* root){
+//Sets up the queue
+void init_queue(queue_head* head){
+	head->next_node = NULL;
+	head->tail = NULL;
+}
 
+
+void delete_queue(queue_head* head){
+	queue_node* current = head->next_node;
+	queue_node* previous = current;
+	while(current != NULL){
+		previous = current;
+		current = current->next_node;
+		free(previous);
+	}
+	head->next_node = NULL;
+	head->tail = NULL;
 }
 
 
@@ -46,6 +91,9 @@ void init_queue(queue_head* root){
 
 
 //************************  Tree Code  ****************************//
+
+huff_node* create_parent_node(huff_node* left_child, huff_node* right_child);
+
 void init_huff_node(huff_node* node, int char_number, int frequency){
 	node->left_child = 0;
 	node->right_child = 0;
@@ -63,7 +111,7 @@ int huff_node_frequency_comparer(const void * a, const void * b)
 /*  Description in header file
  * 
  */
-huff_root create_huff_tree_from_frequency(int frequencyArray[])
+huff_root* create_huff_tree_from_frequency(int frequencyArray[])
 {
 	int i = 0;
 	huff_node* nodes[256];
@@ -77,20 +125,22 @@ huff_root create_huff_tree_from_frequency(int frequencyArray[])
 	queue_head queue1;
 	queue_head queue2;
 	for(i = 0; i < 256; i++){
-		enqueue(queue1, nodes[i]);
+		enqueue(&queue1, nodes[i]);
 	}
 
 
-
-
+	huff_root* root = 0;
+	return root;
 }
 
 /*  
  *  Description in header file
  */
-huff_root create_huff_tree_from_encoding(char** encoding)
+huff_root* create_huff_tree_from_encoding(char** encoding)
 {
+	huff_root* root = NULL;
 
+	return root;
 }
 
 /*  Description in header file
@@ -106,8 +156,13 @@ void destroy_huff_tree(huff_root* root)
  */  
 char** get_encoding(huff_root* root)
 {
+	char** encodings = 0;
 
+	return encodings;
 }
+
+
+//**************************** End Tree Code  *****************************//
 
 
 

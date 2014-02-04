@@ -5,17 +5,13 @@
  * Created on February 1, 2014, 12:04 PM
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #ifndef HUFF_TABLE_H
 #define	HUFF_TABLE_H
 
-void* Malloc(int size){
-	void* temp = malloc(size);
-	if(temp == 0){
-		printf("%s", "Malloc failed");
-		exit(-1);
-	}
-	return temp;
-}
+
 
 
 
@@ -45,7 +41,7 @@ typedef struct huff_root
  *  The array should contain the count of each ascii character to encode.  
  *
  */
-huff_root create_huff_tree_from_frequency(int frequencyArray[]);
+huff_root* create_huff_tree_from_frequency(int frequencyArray[]);
 
 /*  This method will create a huff tree based on an array containing
  *  encodings for each ascii character 0 to 255.  Element 0 referes to 
@@ -53,7 +49,7 @@ huff_root create_huff_tree_from_frequency(int frequencyArray[]);
  *
  *  Encodings are currently setup as strings of '0's and '1's.
  */
-huff_root create_huff_tree_from_encoding(char** encoding);
+huff_root* create_huff_tree_from_encoding(char** encoding);
 
 /*  This method will free all the memory used by a huff_root "object"
  *

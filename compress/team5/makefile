@@ -1,6 +1,6 @@
 
 CC = clang
-CFLAGS = -Wall -O2 
+CFLAGS = -Wall -O2 -g
 OPTIONAL_CFLAGS = -fsanitize=undefined,unsigned-integer-overflow
 
 BINARY = huff

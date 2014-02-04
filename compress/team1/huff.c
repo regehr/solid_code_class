@@ -21,7 +21,7 @@ int print_tree(FILE* file, const char* filename){
     if (!code){
     	int i;
     	printf("HUFF TABLE:\n");
-    	for(i = 0; huff_table[i] != '\0'; i++)
+    	for(i = 0; i < 256; i++)
 	        printf("%s\n", huff_table[i]);
     }
     return code;
