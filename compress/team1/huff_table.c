@@ -8,7 +8,7 @@
 //#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
-//#define GEN_DOT
+#define GEN_DOT
 
 struct node
 {
@@ -114,8 +114,7 @@ void sort_nodes(node **nodes)
     qsort(nodes, 256, sizeof(node*), compare_nodes);
     
 #ifdef DBG_SORT
-    int i;
-    for(i = 0; i < 256; i++)
+    for(int i = 0; i < 256; i++)
          if (nodes[i] != NULL)
             printf("%c:\t%lld\n", nodes[i]->c, nodes[i]->freq);
  #endif
@@ -129,6 +128,7 @@ void build_tree(node **nodes)
         /* Remove first two elements. */
         node* node1 = nodes[0];
         node* node2 = nodes[1];
+        assert(node1 != NULL && node2 != NULL);
         nodes[0] = NULL;
         nodes[1] = NULL;
         
