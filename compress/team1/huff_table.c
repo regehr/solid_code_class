@@ -41,7 +41,7 @@ void gen_huff_table(uint64_t freq[256], char *table[256])
 #endif
     
     for (int i = 0; i < 511; i++)
-        free(all_nodes[i]);
+      free(all_nodes[i]);
 }
 
 /* Initialize node. */
@@ -241,8 +241,7 @@ void code_dfs(node *root, char *table[256])
 
     if(root->right == NULL && root->left == NULL);
     {
-        /* This might be a good place to get information from leaf nodes. */
-        table[root->c] = root->code;
+        table[(uint8_t)root->c] = root->code;
         #ifdef DBG_TABLE
         printf("%c:\t%llu\t%s\n", root->c, root->freq, root->code);
         #endif
