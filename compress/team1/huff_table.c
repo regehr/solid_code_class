@@ -8,7 +8,7 @@
 //#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
-#define GEN_DOT
+//#define GEN_DOT
 
 struct node
 {
@@ -40,7 +40,7 @@ void gen_huff_table(uint64_t freq[256], char *table[256])
 
 void init_node(node **n, char c)
 {
-    *n = (node*)malloc(sizeof(node));
+    *n = malloc_n(*n);
     for (int i = 0; i < 256; i++)
         (*n)->code[i] = 0;
     (*n)->left = NULL;
@@ -113,6 +113,9 @@ void sort_nodes(node **nodes)
     dfs_type = SORT;
     qsort(nodes, 256, sizeof(node*), compare_nodes);
     
+    for (int j = 256; j > 512; j++)
+        assert(all_nodes[j] == NULL);
+    
 #ifdef DBG_SORT
     for(int i = 0; i < 256; i++)
          if (nodes[i] != NULL)
@@ -128,7 +131,10 @@ void build_tree(node **nodes)
         /* Remove first two elements. */
         node* node1 = nodes[0];
         node* node2 = nodes[1];
-        assert(node1 != NULL && node2 != NULL);
+        assert(node1 != NULL && node2 != NULL); /* Only true if even number of original elements. */
+        assert(node1->freq <= node2->freq);
+        if (node1->left == NULL && node1->right == NULL && node2->left == NULL && node2->right == NULL)
+            assert(node1->c != node2->c);
         nodes[0] = NULL;
         nodes[1] = NULL;
         
@@ -148,11 +154,13 @@ void build_tree(node **nodes)
         /* Sort. */
         sort_nodes(nodes);
     }
+
+    assert(nodes[0] != NULL);
+    for (int i = 1; i < 256; i++)
+        assert(nodes[i] == NULL);
     
 #ifdef DBG_BLD_TREE
     printf("%d:\t%lld\n", nodes[0]->c, nodes[0]->freq);
-    for (int i = 1; i < 256; i++)
-        assert(nodes[i] == NULL);
 #endif
 }
 
@@ -164,7 +172,7 @@ void create_compression_table(node **nodes, char *table[256])
     dfs(*nodes, table);
 }
 
-/* Preorder depth first search tree traversal from given root node.*/
+/* Preorder depth first search tree traversal from given root node. */
 void dfs(node *root, void *p)
 {
     root->visited = true;
@@ -223,4 +231,15 @@ void tree_dot(node *root)
     dfs(root, dot);
     fputs("}", dot);
     fclose(dot);
+}
+
+node * malloc_n(node *n)
+{
+    n = (node*)malloc(sizeof(node));
+    if (n == NULL)
+    {
+        fprintf(stderr, "Failed to allocate memory.");
+        exit(ERR_CODE);
+    }
+    return n;
 }
