@@ -9,50 +9,39 @@
 #include <limits.h>
 #include <errno.h>
 #include <time.h>
-
-void compress_file (const char *fn)
-{
-  int fd = open (fn, O_RDWR);
-  if (fd == -1) {
-    printf ("oops -- couldn't open '%s'\n", fn);
-    exit (-1);
-  }
-  int res;
-  off_t len;
-  {
-    struct stat sb;
-    res = fstat(fd, &sb);
-    assert (res != -1);
-    len = sb.st_size;
-  }
-  char *base = (char *)mmap (NULL, len, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-  assert (base != MAP_FAILED);
-
-  res = munmap (base, len);
-  assert (res == 0);
-
-  res = close (fd);
-  assert (res == 0);
-}
+#include <string.h>
+#include "huff_table.h"
 
 int main (int argc, char *argv[])
 {
   srand (getpid() + time (NULL));
   
   if (argc != 3) {
-    exit (-1);
+  	printf("Must have 2 arguments, -t, -c, or -d filename\n");
+    exit (255);
+  }
+
+  FILE *input = NULL;
+  
+  input = fopen(argv[2], "r");
+  
+  if(input == NULL) {
+  	printf("Couldn't open file, error code: %i\n", errno);
+  	exit(255);
   }
   
-  const char *tablePrint = "-t";
-  const char *compress = "-c";
-  const char *decompress = "-d";
-  
-  if(argv[1] == compress || argv[1] == tablePrint) {
-  	compress_file(argv[2]);
-  } else if(argv[1] == decompress) {
-  	printf("decompress to come soon");
+  if(strncmp(argv[1], "-t", 2) == 0) {
+  	print_huff_table(input);
+  } else if(strncmp(argv[1], "-c", 2) == 0) {
+  	printf("Compress to come soon");  	
+  } else if(strncmp(argv[1], "-d", 2) == 0) {
+  	printf("Decompress to come soon");
+  } else {
+  	printf("First argument must be -t, -c or -d\n");
+  	exit(255); 
   }
   
-  return 0;
+  fclose(input);
+  exit(0);
 }
 
