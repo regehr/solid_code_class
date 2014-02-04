@@ -3,7 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "huff_tree.h"
+#include "huff_table.h"
+
+#define CHAR_RANGE 10 // I dont know
+
+
+
 
 /* free the memory of a single huff_tree struct. */
 void free_huff_tree(huff_tree *tree) {
@@ -105,6 +110,7 @@ void print_huff_table(FILE *input) {
 	huff_table = build_huff_table(frequencies);
 
 	for(i = 0; i < sizeof(huff_table); i++) {
-		printf("%s\n", );
+	        printf("%s\n", huff_table[i]);
 	}
 }
+

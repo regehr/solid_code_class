@@ -3,7 +3,7 @@
 
 
 /* struct used to represent a node in the huffman tree. */
-typedef struct huff_tree() {
+typedef struct huff_tree {
 	int frequency;
 	int character;
 	struct huff_tree *zero_tree;
@@ -14,3 +14,4 @@ typedef struct huff_tree() {
 void print_huff_table(FILE *input);
 
 #endif
+
