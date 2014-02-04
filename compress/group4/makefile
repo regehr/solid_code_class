@@ -1,5 +1,5 @@
 all:
-	clang huff.c -o huff -Wall -fsanitize=undefined
+	clang huff.c huff_io.c -o huff -Wall -fsanitize=undefined
 
 clean:
 	rm -f ./huff
