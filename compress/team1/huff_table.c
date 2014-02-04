@@ -21,7 +21,7 @@ struct node
     struct node *right; /* The right child of this node. Null if leaf node. */
     uint64_t freq; /* The frequency of this node. Combined value if non-leaf node. */
     bool visited; /* Used for searching algorithms. */
-    char c; /* The character this node represents. Null if non-leaf node. */
+    uint8_t c; /* The character this node represents. Null if non-leaf node. */
 };
 
 node *all_nodes[511];
@@ -41,7 +41,7 @@ void gen_huff_table(uint64_t freq[256], char *table[256])
 #endif
     
     for (int i = 0; i < 511; i++)
-      free(all_nodes[i]);
+        free(all_nodes[i]);
 }
 
 /* Initialize node. */
@@ -241,7 +241,7 @@ void code_dfs(node *root, char *table[256])
 
     if(root->right == NULL && root->left == NULL);
     {
-        table[(uint8_t)root->c] = root->code;
+        table[root->c] = root->code;
         #ifdef DBG_TABLE
         printf("%c:\t%llu\t%s\n", root->c, root->freq, root->code);
         #endif
@@ -266,7 +266,7 @@ void tree_dot_dfs(node *root, FILE *dot)
     {
         if (root->left->visited == false)
         {
-            fprintf(dot, "%d -> %d;\n", root->serial, root->left->serial);
+            fprintf(dot, "%d -> %d [label=\"0\"];\n", root->serial, root->left->serial);
             tree_dot_dfs(root->left, dot);
         }
     }
@@ -274,7 +274,7 @@ void tree_dot_dfs(node *root, FILE *dot)
     {
         if (root->right->visited == false)
         {
-            fprintf(dot, "%d -> %d;\n", root->serial, root->right->serial);
+            fprintf(dot, "%d -> %d [label=\"1\"];\n", root->serial, root->right->serial);
             tree_dot_dfs(root->right, dot);
         }
     }
@@ -288,11 +288,11 @@ void tree_dot(node *root)
     for (int i = 0; i < 511; i++)
     {
         if (i > 31 && i < 127 && i != 34)
-            fprintf(dot, "%u [label=\"%c: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq);
+            fprintf(dot, "%u [label=\"'%c' frq: %llu code:%s\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq, all_nodes[i]->code);
         else if (i < 256)
-            fprintf(dot, "%u [label=\"%llu\"];\n", all_nodes[i]->serial, all_nodes[i]->freq);
+            fprintf(dot, "%u [label=\"'\\%u' frq: %llu code:%s\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq, all_nodes[i]->code);
         else
-            fprintf(dot, "%u [label=\"internal: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->freq);
+            fprintf(dot, "%u [label=\"INNER frq: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->freq);
     }
 
     tree_dot_dfs(root, dot);
