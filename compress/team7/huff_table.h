@@ -8,6 +8,17 @@
 #ifndef HUFF_TABLE_H
 #define	HUFF_TABLE_H
 
+void* Malloc(int size){
+	void* temp = malloc(size);
+	if(temp == 0){
+		printf("%s", "Malloc failed");
+		exit(-1);
+	}
+	return temp;
+}
+
+
+
  typedef struct huff_node
 {
 	struct huff_node* left_child;
@@ -47,7 +58,7 @@ huff_root create_huff_tree_from_encoding(char** encoding);
 /*  This method will free all the memory used by a huff_root "object"
  *
  */
-void destroy_huff_tree(huff_root root);
+void destroy_huff_tree(huff_root* root);
 
 /*  get_encoding will return an array of size 256.  This array will contain
  *  the encoding for each ascii character.  Element 0 is ascii 0, element 1 
@@ -57,7 +68,7 @@ void destroy_huff_tree(huff_root root);
  *  Encodings are currently setup as strings of '0's and '1's.
  *
  */  
-char** get_encoding(huff_root root);
+char** get_encoding(huff_root* root);
 
 
 //Not sure how to do the decoding yet.  
