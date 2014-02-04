@@ -5,17 +5,13 @@
  * Created on February 1, 2014, 12:04 PM
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #ifndef HUFF_TABLE_H
 #define	HUFF_TABLE_H
 
-void* Malloc(int size){
-	void* temp = malloc(size);
-	if(temp == 0){
-		printf("%s", "Malloc failed");
-		exit(-1);
-	}
-	return temp;
-}
+
 
 
 

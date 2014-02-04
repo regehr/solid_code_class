@@ -3,6 +3,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+void* Malloc(int size){
+	void* temp = malloc(size);
+	if(temp == 0){
+		printf("%s", "Malloc failed");
+		exit(-1);
+	}
+	return temp;
+}
+
 
 
 //Queue objects
@@ -29,16 +38,37 @@ huff_node* peek(queue_head* head)
 //returns the reference of the object in addition to removing the reference from the queue. 
 huff_node* dequeue(queue_head head)
 {
+	if(head.next_node == NULL){
+		return NULL;
+	}
+	queue_node* q_node = head.next_node;
+	huff_node* h_node = q_node->object;
+	head.next_node = q_node->next_node;
+	free (q_node);
+
+	return h_node;
+
 
 }
 //Adds a huff_node* to the end of the queue.
-void enqueue(queue_head head, huff_node* node)
+void enqueue(queue_head head, huff_node* h_node)
 {
-	
+	//new q_node
+	queue_node* q_node = Malloc(sizeof(queue_node));
+	q_node->next_node = NULL;
+	q_node->object = h_node;
+
+	//add q_node to the end
+	if(head.tail != NULL){
+		head.tail->next_node = q_node;
+	} 
+	head.tail = q_node;
 }
 
-void init_queue(queue_head* root){
-
+//Sets up the queue
+void init_queue(queue_head* head){
+	head->next_node = NULL;
+	head->tail = NULL;
 }
 
 
