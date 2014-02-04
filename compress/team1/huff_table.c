@@ -12,10 +12,10 @@
 
 struct node
 {
-    unsigned serial;
-    char code[256];
+    char code[256]; /* This node's huffman code. */
     struct node *left; /* The left child of this node. Null if leaf node. */
     struct node *right; /* The right child of this node. Null if leaf node. */
+    unsigned id; /* Unique id for this node. */
     uint64_t freq; /* The frequency of this node. Combined value if non-leaf node. */
     bool visited; /* Used for searching algorithms. */
     uint8_t c; /* The character this node represents. Null if non-leaf node. */
@@ -28,6 +28,7 @@ void gen_huff_table(uint64_t freq[256], char *table[256])
     byte_freq(nodes, freq); /* Determine the frequency of occurrence of each byte in the input file. */
     sort_nodes(nodes); /* Sort nodes before building tree. */
     build_tree(nodes);
+    check_tree(nodes);
     create_compression_table(nodes, table);
     
 #ifdef GEN_DOT
@@ -48,7 +49,7 @@ void init_node(node **n, char c)
     (*n)->freq = 0;
     (*n)->visited = false;
     (*n)->c = c;
-    (*n)->serial = serial++;
+    (*n)->id = serial++;
 }
 
 void init_nodes(node *nodes[256])
@@ -118,9 +119,17 @@ void sort_nodes(node **nodes)
     
 #ifdef DBG_SORT
     for(int i = 0; i < 256; i++)
-         if (nodes[i] != NULL)
+        if (nodes[i] != NULL)
             printf("%c:\t%lld\n", nodes[i]->c, nodes[i]->freq);
- #endif
+#endif
+}
+
+void check_build(node *node0, node *node1)
+{
+    assert(node0 != NULL && node1 != NULL); /* Only true if even number of original elements. */
+    assert(node0->freq <= node1->freq);
+    if (is_leaf(node0) && is_leaf(node1))
+        assert(node0->c != node1->c);
 }
 
 void build_tree(node **nodes)
@@ -129,23 +138,20 @@ void build_tree(node **nodes)
     for (int i = 0; i < 255; i++)
     {
         /* Remove first two elements. */
-        node* node1 = nodes[0];
-        node* node2 = nodes[1];
-        assert(node1 != NULL && node2 != NULL); /* Only true if even number of original elements. */
-        assert(node1->freq <= node2->freq);
-        if (node1->left == NULL && node1->right == NULL && node2->left == NULL && node2->right == NULL)
-            assert(node1->c != node2->c);
+        node* node0 = nodes[0];
+        node* node1 = nodes[1];
+        check_build(node0, node1);
         nodes[0] = NULL;
         nodes[1] = NULL;
         
         /* Combine into new node whose frequency is the sum of frequency of removed nodes. */
         node* new_node;
         init_node(&new_node, 0); /* Character value shouldn't matter here because char comparisons are only done on leaf nodes. */
-        new_node->freq = (*node1).freq + (*node2).freq;
+        new_node->freq = (*node0).freq + (*node1).freq;
         
         /* New node should contain the removed nodes as subtrees. */
-        new_node->left = node1;
-        new_node->right = node2;
+        new_node->left = node0;
+        new_node->right = node1;
         
         /* Insert new element into list.*/
         nodes[0] = new_node;
@@ -154,7 +160,7 @@ void build_tree(node **nodes)
         /* Sort. */
         sort_nodes(nodes);
     }
-
+    
     assert(nodes[0] != NULL);
     for (int i = 1; i < 256; i++)
         assert(nodes[i] == NULL);
@@ -164,7 +170,13 @@ void build_tree(node **nodes)
 #endif
 }
 
-/* Builds a compression table from huffman tree. */
+void check_tree(node **nodes)
+{
+    dfs_type = CHECK;
+    clear_visited();
+    dfs(*nodes, NULL);
+}
+
 void create_compression_table(node **nodes, char *table[256])
 {
     dfs_type = TABLE;
@@ -172,18 +184,21 @@ void create_compression_table(node **nodes, char *table[256])
     dfs(*nodes, table);
 }
 
-/* Preorder depth first search tree traversal from given root node. */
 void dfs(node *root, void *p)
 {
+    if (dfs_type == CHECK)
+        assert(root);
     root->visited = true;
     if (root->left != NULL)
     {
         if (root->left->visited == false)
         {
             if (dfs_type == DOT)
-                fprintf((FILE *)p, "%d -> %d [label=\"0\"];\n", root->serial, root->left->serial);
+                fprintf((FILE *)p, "%d -> %d [label=\"0\"];\n", root->id, root->left->id);
             if (dfs_type == TABLE)
                 strcat(strcat(root->left->code, root->code), "0");
+            if (dfs_type == CHECK)
+                assert(root->freq >= root->left->freq);
             dfs(root->left, p);
         }
     }
@@ -192,16 +207,18 @@ void dfs(node *root, void *p)
         if (root->right->visited == false)
         {
             if (dfs_type == DOT)
-                fprintf((FILE *)p, "%d -> %d [label=\"1\"];\n", root->serial, root->right->serial);
+                fprintf((FILE *)p, "%d -> %d [label=\"1\"];\n", root->id, root->right->id);
             if (dfs_type == TABLE)
                 strcat(strcat(root->right->code, root->code), "1");
+            if (dfs_type == CHECK)
+                assert(root->freq >= root->right->freq);
             dfs(root->right, p);
         }
     }
-    if(root->right == NULL && root->left == NULL);
+    if(is_leaf(root))
     {
         if (dfs_type == SORT && root->c < *(char *)p)
-                *(char *)p = root->c;
+            *(char *)p = root->c;
         if (dfs_type == TABLE)
         {
             ((char **)p)[root->c] = root->code;
@@ -210,6 +227,9 @@ void dfs(node *root, void *p)
 #endif
         }
     }
+    else
+        if (dfs_type == CHECK)
+            assert(root->c == 0);
 }
 
 void tree_dot(node *root)
@@ -221,16 +241,23 @@ void tree_dot(node *root)
     for (int i = 0; i < 511; i++)
     {
         if (i > 31 && i < 127 && i != 34 && all_nodes[i]->freq > 0)
-            fprintf(dot, "%u [label=\"'%c' frq: %llu code:%s\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq, all_nodes[i]->freq > 0 ? all_nodes[i]->code : "");
+            fprintf(dot, "%u [label=\"'%c' frq: %llu code:%s\"];\n", all_nodes[i]->id, all_nodes[i]->c, all_nodes[i]->freq, all_nodes[i]->freq > 0 ? all_nodes[i]->code : "");
         else if (i < 256)
-            fprintf(dot, "%u [label=\"'\\%u' frq: %llu code:%s\"];\n", all_nodes[i]->serial, all_nodes[i]->c, all_nodes[i]->freq, all_nodes[i]->freq > 0 ? all_nodes[i]->code : "");
+            fprintf(dot, "%u [label=\"'\\%u' frq: %llu code:%s\"];\n", all_nodes[i]->id, all_nodes[i]->c, all_nodes[i]->freq, all_nodes[i]->freq > 0 ? all_nodes[i]->code : "");
         else
-            fprintf(dot, "%u [label=\"INNER frq: %llu\"];\n", all_nodes[i]->serial, all_nodes[i]->freq);
+            fprintf(dot, "%u [label=\"INNER frq: %llu\"];\n", all_nodes[i]->id, all_nodes[i]->freq);
     }
     
     dfs(root, dot);
     fputs("}", dot);
     fclose(dot);
+}
+
+bool is_leaf(node *n)
+{
+    if (n->left == NULL && n->right == NULL)
+        return true;
+    return false;
 }
 
 node * malloc_n(node *n)
