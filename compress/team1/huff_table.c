@@ -8,7 +8,7 @@
 //#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
-#define GEN_DOT
+//#define GEN_DOT
 
 struct node
 {
