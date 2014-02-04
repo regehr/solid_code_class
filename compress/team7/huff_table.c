@@ -33,7 +33,7 @@ typedef struct queue_head
 //returns the reference of the object while keeping it in the front of the queue.
 huff_node* peek(queue_head* head)
 {
-
+	return head->next_node->object;
 }
 //returns the reference of the object in addition to removing the reference from the queue. 
 huff_node* dequeue(queue_head head)
@@ -111,8 +111,8 @@ huff_root create_huff_tree_from_frequency(int frequencyArray[])
 	}
 
 
-
-
+	huff_root root = {};
+	return root;
 }
 
 /*  
@@ -120,7 +120,9 @@ huff_root create_huff_tree_from_frequency(int frequencyArray[])
  */
 huff_root create_huff_tree_from_encoding(char** encoding)
 {
+	huff_root root = {};
 
+	return root;
 }
 
 /*  Description in header file
@@ -136,7 +138,9 @@ void destroy_huff_tree(huff_root* root)
  */  
 char** get_encoding(huff_root* root)
 {
+	char** encodings = 0;
 
+	return encodings;
 }
 
 
