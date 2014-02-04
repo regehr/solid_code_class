@@ -72,6 +72,19 @@ void init_queue(queue_head* head){
 }
 
 
+void delete_queue(queue_head head){
+	queue_node* current = head.next_node;
+	queue_node* previous = current;
+	while(current != NULL){
+		previous = current;
+		current = current->next_node;
+		free(previous);
+	}
+	head.next_node = NULL;
+	head.tail = NULL;
+}
+
+
 //************************  End Queue  ****************************//
 
 
