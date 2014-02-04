@@ -35,8 +35,8 @@ void gen_huff_table(uint64_t freq[256], char *table[256])
     tree_dot(*nodes);
 #endif
     
-    for (int i = 0; i < 511; i++)
-        free(all_nodes[i]);
+    //for (int i = 0; i < 511; i++)
+      //  free(all_nodes[i]);
 }
 
 void init_node(node **n, char c)
