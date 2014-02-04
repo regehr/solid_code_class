@@ -95,8 +95,7 @@ int main(int argc, char* argv[])
   }
   else if(strcmp(argv[1], "-d") == 0)
   {
-    /* decompress(file_pointer, file_length, argv[2]); */
-    printf("Unimplemented: Decompress\n");
+    decompress(file_pointer, file_length, argv[2]);
   }
   else if(strcmp(argv[1], "-t") == 0)
   {

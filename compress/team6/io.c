@@ -6,7 +6,7 @@
 
 int index_of(char* arr[256], char* string)
 {
-  for(int i = 0; i <= 255; i++)
+  for(int i = 0; i < 256; i++)
   {
     if(strcmp(arr[i], string) == 0)
     {
@@ -16,12 +16,20 @@ int index_of(char* arr[256], char* string)
   return -1;
 }
 
+int bit_at(unsigned char* pointer, size_t length, unsigned long long index)
+{
+  if(index/8 >= length)
+    return -1;
+  unsigned char byte = pointer[index/8];
+  int remaining = index % 8;
+  return (byte >> (7 - remaining)) & 0x1;
+}
+
 unsigned long long get_size_from_file(unsigned char* file_pointer, size_t file_length)
 {
   unsigned char num[8];
   for(int i = 0; i < 8; i++)
   {
-    printf("%u\n", file_pointer[i+4]);
     num[i] = file_pointer[i+4];
   }
   unsigned long long value = 
@@ -122,9 +130,39 @@ void write_decompressed_file(unsigned char* file_pointer, size_t file_length, ch
       map[index++] = pch;
   }
   
-  /* TODO: Actually do the decompression */
-  printf("Decompress not implemented\n");
-  exit(-1);
+  unsigned long long bit_index = (start_of_compressed+1)*8;
+  unsigned char to_write[file_length];
+  unsigned long long to_write_index = 0;
+
+  unsigned long long size = get_size_from_file(file_pointer, file_length);
+   
+  for(int i = 0; i < size; i++)
+  {
+   int string_index = 0;
+   char curr_string[256] = {0};
+   int complete = 0;
+   while(!complete)
+   {
+     if(bit_at(file_pointer, file_length, bit_index++))
+       curr_string[string_index++] = '1';
+     else
+       curr_string[string_index++] = '0';
+     int index = index_of(map, curr_string);
+     if(index != -1)
+     {
+       to_write[to_write_index++] = (unsigned char)index;
+       complete = 1;
+      }
+    }
+  }
+
+  /* Remove.huff and write out file */
+  filename[strlen(filename)-5] = '\0';
+  FILE* f = fopen(filename, "w");
+  fwrite(to_write, sizeof(unsigned char), size, f);
+  fclose(f);
+  
+  
 }
 
 int check_format(unsigned char* file_pointer, size_t file_length, char* filename)
