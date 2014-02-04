@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     /* Check command line args */
     if (argc != 3) {
 	fprintf(stderr, "usage: %s -t <file>\n", argv[0]);
-	exit(-1);
+	exit(255);
     }
 
     char *in = argv[2];
@@ -69,7 +69,7 @@ int get_tree(char *inFile){
     table_row *list = (table_row*)Calloc(257, sizeof(struct table_row));
 
     if ((fpIn = Fopen(inFile, "rb")) == NULL)
-      exit(-1);
+      exit(255);
 
 
     /* build tree */
