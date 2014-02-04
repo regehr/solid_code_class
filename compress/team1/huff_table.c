@@ -8,7 +8,7 @@
 //#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
-//#define GEN_DOT
+#define GEN_DOT
 
 struct node
 {
@@ -35,8 +35,8 @@ void gen_huff_table(uint64_t freq[256], char *table[256])
     tree_dot(*nodes);
 #endif
     
-    for (int i = 0; i < 511; i++)
-        free(all_nodes[i]);
+    //for (int i = 0; i < 511; i++)
+      //  free(all_nodes[i]);
 }
 
 void init_node(node **n, char c)
