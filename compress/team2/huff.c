@@ -185,7 +185,7 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]) {
 
 struct decoder {
     struct HuffmanTree tree;
-    uint8_t current_node;
+    short current_node;
 };
 
 /* Frees a decoder struct. Returns 1 on success, 0 otherwise. */
@@ -197,9 +197,70 @@ int huff_free_decoder(struct decoder *) {
 /* Returns a pointer to a new decoder struct generated from a
    translation table, which is an array of 256 char *s which are the ASCII
    representations of that byte index's translation. */
-struct decoder *huff_make_decoder(char *table[256]);
+struct decoder *huff_make_decoder(char *table[256]) {
+    /* xcalloc will not only make our HuffmanTree completely empty, but will
+       also initialize current_node to 0 which is the root and where decoding
+       should always start. */
+    struct decoder *dec = xcalloc(sizeof(struct decoder));
+    /* Represents the next "unallocated" node. */
+    int next_empty = 1;
+
+    for (int i = 0; i < 256; i++) {
+        int current_node = 0;
+
+        int j;
+        /* Check table[i][j + 1] because our last path is an implicit node. */
+        for (j = 0; table[i][j + 1] != 0; j++) {
+            switch (table[i][j]) {
+            case '0':
+                if (dec->tree.nodes[current_node].zero == 0) {
+                    assert(next_empty < 255);
+                    dec->tree.nodes[current_node].zero = next_empty;
+                    next_empty++;
+                }
+                current_node = dec->tree.nodes[current_node].zero;
+                break;
+            case '1':
+                if (dec->tree.nodes[current_node].one == 0) {
+                    assert(next_empty < 255);
+                    dec->tree.nodes[current_node].one = next_empty;
+                    next_empty++;
+                }
+                current_node = dec->tree.nodes[current_node].one;
+                break;
+            }
+        }
+        switch (table[i][j]) {
+        case '0':
+            assert(dec->tree.nodes[current_node].zero == 0);
+            dec->tree.nodes[current_node].zero == BYTE_INDEX(i);
+            break;
+        case '1':
+            assert(dec->tree.nodes[current_node].one == 0);
+            dec->tree.nodes[current_node].one == BYTE_INDEX(i);
+            break;
+        }
+    }
+
+    assert(checktree(&dec->tree));
+
+    return dec;
+}
 
 /* Takes the next bit to decode. Returns an unsigned char converted to an int if
    a character is decoded, returns -1 otherwise. If an error occurs, -2 or lower
    is returned */
-int huff_decode(int bit, struct decoder*);
+int huff_decode(int bit, struct decoder*) {
+    assert(bit == 0 || bit == 1);
+
+    decoder->current_node = bit == 0 ?
+        decoder->tree[decoder->current_node].zero :
+        decoder->tree[decoder->current_node].one;
+
+    if (IS_BYTE(decoder->current_node)) {
+        int result = BYTE_INDEX(decoder->current_node);
+        decoder->current_node = 0;
+        return result;
+    }
+    return -1;
+}
