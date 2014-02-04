@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "huff_table.h"
 
-#define CHAR_RANGE 256 // I dont know
+
+#define CHAR_RANGE 256
 
 /* free the memory of a single huff_tree struct. */
 void free_huff_tree(huff_tree *tree) {
@@ -109,13 +111,14 @@ void print_huff_table(FILE *input) {
 	while((character = fgetc(input)) != EOF) {
 		frequencies[character]++;
 	}
+	printf("%d\n", frequencies[109]);
 
 	/* builds huff_table based on frequencies. */
 	huff_table = build_huff_table(frequencies);
-
-	/* prints out each line of huff table. */
+	 
+	/* prints out each line of huff table. 
 	for(i = 0; i < CHAR_RANGE; i++) {
 	        printf("%s\n", huff_table[i]);
-	}
+	}*/
 }
 
