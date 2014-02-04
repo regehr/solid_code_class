@@ -24,13 +24,21 @@ for filename in os.listdir("."):
         #compress the file
         call(["./huff", "-c", filename])
 
-    #get the table (saved as filename.comp)
-    call(["./huff", "-t", filename, ">>", filename[:-4]+".comp")]
-    
-#make sure it's right
-    
+        #get the table (saved as filename.tbl)
+        writeTo = open(filename[:-4]+".tbl", "w")
+        call(["./huff", "-t", filename], stdout=writeTo)
+        writeTo.close()
+        
+        #make sure it's right (has 256 lines)
+        readFrom = open(filename[:-4]+".tbl", "r")
+        lines = []
+        for line in readFrom:
+            lines.append(line)
+        if(len(lines) != 257):
+            print "Size of tree for " + filename + " is " + str(len(lines))
+        
 #print out if correct or wrong
-    
+"""    
 #read in the original file
 originalFile = open(filename, "r")
 originalText = []
@@ -51,3 +59,5 @@ for line in uncompressedFile:
 #make sure the uncompressed file matches the original
 print filename
 print originalText == uncompressedText
+"""
+print "Testing done"
