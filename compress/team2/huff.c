@@ -22,18 +22,6 @@ static char MIN_CHAR(char a, char b) {
     return a < b ? a : b;
 }
 
-/* Represents a node which points to other nodes. */
-struct node {
-    /* The tree paths. If a path is non-negative, represents an index into
-       nodes. Else, |zero + 1| represents the byte value at pointed to leaf. */
-    short paths[2];
-};
-
-struct tree {
-    /* The nodes of the tree. nodes[0] is the root. */
-    struct node nodes[255];
-};
-
 struct prioritized_node {
     uint64_t priority;
     /* If positive, represents an index into branches. If negative, |zero + 1|
@@ -174,11 +162,6 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]) {
 
 /* Decompression
 ----------------------------------------------------------------------------- */
-
-struct huff_decoder {
-    struct tree tree;
-    short current_node;
-};
 
 /* Returns a pointer to a new decoder struct generated from a
    translation table, which is an array of 256 char *s which are the ASCII

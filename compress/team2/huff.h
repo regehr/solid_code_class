@@ -3,6 +3,24 @@
 #ifndef HUFF_H
 #define HUFF_H
 
+/* Represents a node which points to other nodes. */
+struct node {
+    /* The tree paths. If a path is non-negative, represents an index into
+       nodes. Else, |zero + 1| represents the byte value at pointed to leaf. */
+    short paths[2];
+};
+
+struct tree {
+    /* The nodes of the tree. nodes[0] is the root. */
+    struct node nodes[255];
+};
+
+/* A decompression context */
+struct huff_decoder {
+    struct tree tree;
+    short current_node;
+};
+
 /* A translation table specifies an encoding for all 256 bytes as a null terminated
    string: uint8_t * translation_table[256] */
 
@@ -16,9 +34,6 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]);
 
 /* Decompression
 ----------------------------------------------------------------------------- */
-
-/* A decompression context */
-struct huff_decoder;
 
 /* Build a new decoder struct from a
    translation table, which is an array of 256 char *s which are the ASCII
