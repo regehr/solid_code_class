@@ -3,16 +3,16 @@
 CC = clang
 CFLAGS = -Wall -Wextra -pedantic -O0 -g
 
-objects = main.o internal.o parser.o huff.o encoder.o
+objects = main.o internal.o header.o huff.o encoder.o
 bin = huff
 
 default: $(bin)
 
-encode.o: internal.h
+encoder.o: encoder.h internal.h
 huff.o: huff.h internal.h
 internal.o: internal.h
-parser.o: parser.h internal.h
-main.o: huff.h parser.h internal.h encoder.h
+header.o: header.h internal.h
+main.o: huff.h header.h internal.h encoder.h
 
 $(bin): $(objects)
 	$(CC) -o $@ $(LDFLAGS) $^ $(LDLIBS)

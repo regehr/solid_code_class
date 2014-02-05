@@ -4,19 +4,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "internal.h"
-#include "parser.h"
-
-static const char * const ERROR_STRINGS[] = {
-    [-EBADEXT]      = "Extension was not a .huff extension.",
-    [-ENOMAGIC]     = "No magic number in the input file.",
-    [-EBADENTRY]    = "Bad entry in file translation table.",
-    [-ETRUNC]       = "Input file ended before we finished reading.",
-    [-EENTRY]       = "Impropery formatted translation table entry.",
-    [-ENOWRITE]     = "An error occured while writing to the output file.",
-    [-EFILETOOLONG] = "Input file's size could not be represented. Kudos on making"
-                      "a file larger than 16,384 Petabytes.",
-};
-
+#include "header.h"
 /* header reading helper */
 static int _huff_read_header(FILE *, char * filename, struct huff_header *);
 
@@ -157,8 +145,4 @@ int huff_free_hdrtable(struct huff_header * header) {
     }
     memset(header->table, 0, 256 * sizeof(char *));
     return 0;
-}
-
-const char * huff_error(int code) {
-    return ERROR_STRINGS[-code];
 }

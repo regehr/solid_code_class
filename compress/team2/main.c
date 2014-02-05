@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "internal.h"
-#include "parser.h"
+#include "header.h"
 #include "huff.h"
 #include "encoder.h"
 
