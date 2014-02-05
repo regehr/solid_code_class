@@ -7,3 +7,10 @@ Working:
 * ./huff -t <inputfile> will correctly generate and print a translation table 
   if the file is not a valid .huff file, and will print the translation table
   included in a compressed file if the file is a valid .huff file.
+* ./huff -c <inputfile> will correctly compress the given input file and write
+  the compressed file to <inputfile>.huff. Error checking is done on all writes
+  and reads.
+* ./huff -d <inputfile>.huff will correctly decompress a compressed huff file
+  to the original file. Checks are made to ensure that <inputfile>.huff is actually
+  a compressed file.
+* The program has no memory leaks.
