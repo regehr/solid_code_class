@@ -101,7 +101,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
     int decoded = 0;
     huff_make_decoder(&decoder, header->table);
 
-    while (fread(&current, 1, 1, input)) {
+    while (fread(&current, 1, 1, input) && decoded_bytes < header->size) {
         for (int i = 7; i >= 0 && decoded_bytes < header->size; i--) {
             decoded = huff_decode((current >> i) & 0x1, &decoder);
             if (decoded > -1) {
@@ -114,7 +114,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
 
     long here = ftell(input);
     fseek(input, 0L, SEEK_END);
-    if (ftell(input) - here > 0 || decoded_bytes < header->size) {
+    if ((ftell(input) - here) > 0 || decoded_bytes < header->size) {
         return ETRUNC;
     }
 
@@ -129,7 +129,8 @@ static int decompress(FILE * file, char * filename) {
     int code = huff_read_header(file, filename, &header);
     /* Our header table is implicitly free-d when huff_read_header fails */
     if (code != 0) {
-        fputs("Cannot decompress a compressed file.\n", stderr);
+        fprintf(stderr, "Cannot decompress an uncompressed file: %s\n", 
+                huff_error(code));
         return HUFF_FAILURE;
     }
 
@@ -144,9 +145,9 @@ static int decompress(FILE * file, char * filename) {
 
     huff_free_hdrtable(&header);
 
-    if (! pfclose(output)) { return HUFF_FAILURE; }
+    if (pfclose(output)) { return HUFF_FAILURE; }
     if (code != 0) {
-        printf("Couldn't decompress: %s.\n", huff_error(code));
+        fprintf(stderr, "Couldn't decompress: %s\n", huff_error(code));
         return HUFF_FAILURE;
     }
 

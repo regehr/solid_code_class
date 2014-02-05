@@ -10,8 +10,8 @@ static const char * const ERROR_STRINGS[] = {
     [-EBADEXT]      = "Extension was not a .huff extension.",
     [-ENOMAGIC]     = "No magic number in the input file.",
     [-EBADENTRY]    = "Bad entry in file translation table.",
-    [-ETRUNC]       = "An input file was truncated, or a translation table entry"
-                      "was too long.",
+    [-ETRUNC]       = "Input file ended before we finished reading.",
+    [-EENTRY]       = "Impropery formatted translation table entry.",
     [-ENOWRITE]     = "An error occured while writing to the output file.",
     [-EFILETOOLONG] = "Input file's size could not be represented. Kudos on making"
                       "a file larger than 16,384 Petabytes.",
@@ -61,7 +61,7 @@ int huff_read_entry(FILE * file, char **out) {
         /* if an entry is larger than the buffer we've allocated, it's
          * an invalid entry. */
         } else if (byte_count == 256) {
-            status = ETRUNC;
+            status = EENTRY;
             break;
         }
         buffer[byte_count] = current;
