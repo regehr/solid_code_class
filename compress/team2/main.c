@@ -7,7 +7,7 @@
 #include "internal.h"
 #include "parser.h"
 #include "huff.h"
-#include "encode.h"
+#include "encoder.h"
 
 /* build a frequency table from the given file. If for some strange reason
  * the file is larger than uint64_t (which I'm pretty sure is impossible),
@@ -94,8 +94,59 @@ static int compress(FILE * file, char * filename) {
     return HUFF_SUCCESS;
 }
 
-static int decompress(UNUSED(FILE * file), UNUSED(char * filename)) {
-    return HUFF_FAILURE;
+static int decompress_file(FILE * output, FILE * input, struct huff_header * header) {
+    struct huff_decoder decoder;
+    uint64_t decoded_bytes = 0;
+    uint8_t current = 0;
+    int decoded = 0;
+    huff_make_decoder(&decoder, header->table);
+
+    while (fread(&current, 1, 1, input) && decoded_bytes < header->size) {
+        for (int i = 7; i >= 0; i++) {
+            decoded = huff_decode((current >> i) & 0x1, decoder);
+            if (decoded != -1) {
+                decoded_bytes += 1;
+                if (! fwrite(&decoded, 1, 1, output)) { return ENOWRITE; }
+            }
+        }
+    }
+
+    long here = ftell(input);
+    fseek(input, 0L, SEEK_END);
+    if (ftell(input) - here > 0 || decoded_bytes < header->size) { 
+        return ETRUNC;
+    }
+
+    return 0;
+}
+
+static int decompress(FILE * file, char * filename) {
+    struct huff_header header;
+    FILE * output = NULL;
+    char * ext_index = NULL;
+
+    int code = huff_read_header(file, filename, &header);
+    if (code != 0) {
+        fputs("Cannot decompress a compressed file.\n", stderr);
+        return HUFF_FAILURE;
+    }
+
+    ext_index = filename + (strlen(filename) - (HUFF_EXTLEN + 1));
+    assert(strcmp(ext_index, HUFF_EXT) == 0 &&
+           "Our file to decompress does not have a .huff extension.");
+    /* Remove the extension */
+    *ext_index = '\0';
+
+    output = xfopen(filename, "w");
+    code = decompress_file(output, file, &header);
+
+    if (! pfclose(output)) { return HUFF_FAILURE; }
+    if (code != 0) {
+        printf("Couldn't decompress: %s.\n", huff_error(code));
+        return HUFF_FAILURE;
+    }
+
+    return HUFF_SUCCESS;
 }
 
 static int table(FILE * file, char * filename) {
