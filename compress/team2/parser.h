@@ -39,10 +39,6 @@ int huff_free_hdrtable(struct huff_header *);
 /* write the supplied huff header to the current position in the supplied file. */
 int huff_write_header(FILE *, struct huff_header *);
 
-/* Returns 'true' if a file pointed to by FILE and named 'filename' is a valid
- * huff file. Returns false otherwise. Non side-effecting. */
-bool is_huff(FILE *, char * filename);
-
 /* Return the error string corresponding to the given code. */
 const char * huff_error(int code);
 #endif
