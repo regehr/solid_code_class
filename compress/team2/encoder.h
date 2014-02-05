@@ -1,4 +1,4 @@
-#ifndef HUFF_ENCODE_H_
+#ifndef HUFF_ENCODE_H
 #define HUFF_ENCODE_H
 
 #include "internal.h"
