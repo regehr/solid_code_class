@@ -7,11 +7,11 @@
 #include "huff.h"
 
 static bool IS_BYTE(short path) {
-    return path < 0;
+    return path > -257 && path < 0;
 }
 
 static bool IS_BRANCH(short path) {
-    return ! IS_BYTE(path);
+    return path > -1 && path < 256;
 }
 
 static short BYTE_INDEX(short path) {
@@ -165,7 +165,7 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]) {
 
 /* Returns a pointer to a new decoder struct generated from a
    translation table, which is an array of 256 char *s which are the ASCII
-   representations of that byte index's translation. Returns zero on 
+   representations of that byte index's translation. Returns zero on
    success, non-zero on failure. Should not fail. */
 int huff_make_decoder(struct huff_decoder * decoder, char *table[256]) {
     assert(check_table(table) == 1);
@@ -194,7 +194,7 @@ int huff_make_decoder(struct huff_decoder * decoder, char *table[256]) {
 
         int direction = table[i][j] - '0';
         assert(decoder->tree.nodes[current_node].paths[direction] == 0);
-        decoder->tree.nodes[current_node].paths[direction] == BYTE_INDEX(i);
+        decoder->tree.nodes[current_node].paths[direction] = BYTE_INDEX(i);
     }
 
     assert(check_tree(&decoder->tree));
