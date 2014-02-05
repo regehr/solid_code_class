@@ -45,7 +45,7 @@ static bool has_huff_magic(FILE * file) {
 int huff_read_entry(FILE * file, char **out) {
     char current;
     int byte_count = 0;
-    char * buffer = xmalloc(256);
+    char * buffer = xmalloc(257);
     int status = 0;
 
     for (; fread(&current, 1, 1, file); byte_count++) {
@@ -71,17 +71,16 @@ int huff_read_entry(FILE * file, char **out) {
         status = ETRUNC;
     }
 
-    /* if there was an error, free the buffer. */
-    if (status != 0) {
-        free(buffer);
-    /* otherwise, re-size the buffer to the actual size of the entry */
-    } else {
-        *out = xrealloc(buffer, byte_count + 1);
-    }
-
     assert(strlen(buffer) == ((size_t) byte_count) &&
            "Translation table entry length and number of bytes read don't match.");
     assert(byte_count <= 256 && "Translation table longer than max length.");
+
+    if (status == 0) {
+        /* re-size the buffer to the actual size of the entry */
+        *out = xrealloc(buffer, byte_count + 1);
+    } else {
+        free(buffer);
+    }
 
     return status;
 }

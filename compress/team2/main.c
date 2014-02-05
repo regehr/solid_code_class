@@ -127,6 +127,7 @@ static int decompress(FILE * file, char * filename) {
     char * ext_index = NULL;
 
     int code = huff_read_header(file, filename, &header);
+    /* Our header table is implicitly free-d when huff_read_header fails */
     if (code != 0) {
         fputs("Cannot decompress a compressed file.\n", stderr);
         return HUFF_FAILURE;
@@ -140,6 +141,8 @@ static int decompress(FILE * file, char * filename) {
 
     output = xfopen(filename, "w");
     code = decompress_file(output, file, &header);
+
+    huff_free_hdrtable(&header);
 
     if (! pfclose(output)) { return HUFF_FAILURE; }
     if (code != 0) {
