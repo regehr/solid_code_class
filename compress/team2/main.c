@@ -94,12 +94,6 @@ static int compress(FILE * file, char * filename) {
     return HUFF_SUCCESS;
 }
 
-static void DEBUG_PRINT_BITS(uint8_t byte) {
-    for (int i = 7; i >= 0; i--) {
-        printf("%c", ((byte >> i) & 0x1) + '0');
-    }
-}
-
 static int decompress_file(FILE * output, FILE * input, struct huff_header * header) {
     struct huff_decoder decoder;
     uint64_t decoded_bytes = 0;
@@ -112,8 +106,8 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
             decoded = huff_decode((current >> i) & 0x1, &decoder);
             if (decoded > -1) {
                 decoded_bytes += 1;
-                /* Warning: I'm pretty sure this is little-endian specific. */
-                if (! fwrite(&decoded_char, 1, 1, output)) { return ENOWRITE; }
+                /* Warning: I beleive this is little-endian dependent */
+                if (! fwrite(&decoded, 1, 1, output)) { return ENOWRITE; }
             }
         }
     }
