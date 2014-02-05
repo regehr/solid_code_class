@@ -9,29 +9,6 @@
 #include "huff.h"
 #include "encode.h"
 
-/* fopen the given file, print an error message and terminate with
- * HUFF_FAILURE if we're unable to open the file. */
-FILE* xfopen(const char * path, const char * mode) {
-    FILE *file = fopen(path, mode);
-    if (file == NULL) {
-        if (errno == ENOENT) {
-            fprintf(stderr, "Couldn't open '%s'.\n", path);
-        } else {
-            perror("Error opening file");
-        }
-        exit(HUFF_FAILURE);
-    }
-    return file;
-}
-
-int pfclose(FILE * file) {
-    if (fclose(file) != 0) {
-        perror("Couldn't close output file");
-        return -1;
-    }
-    return 0;
-}
-
 /* build a frequency table from the given file. If for some strange reason
  * the file is larger than uint64_t (which I'm pretty sure is impossible),
  * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the

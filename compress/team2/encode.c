@@ -9,10 +9,16 @@ static void SET_BIT(int index, int value, uint8_t *byte) {
     *byte = (*byte & (1 << index)) | value << index;
 }
 
+static void DEBUG_PRINT_BITS(uint8_t byte) {
+    for (int i = 7; i >= 0; i--) {
+        printf("%c", ((byte >> i) & 0x1) + '0');
+    }
+}
+
 static int build_bits(struct huff_enc_entry * entry, char * str_bits) {
     memset(entry->bits, 0, sizeof(entry->bits));
     for (int i = 0; i < entry->bitlen; i++) {
-        SET_BIT(i % 8, str_bits[i] - '0', &entry->bits[i / 8]);
+        SET_BIT(7 - (i % 8), str_bits[i] - '0', &entry->bits[i / 8]);
     }
     return 0;
 }
