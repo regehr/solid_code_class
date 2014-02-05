@@ -39,7 +39,7 @@ static bool has_huff_magic(FILE * file) {
 
     /* check if the given file has the HUFF magic number */
     int items = fread(magic, HUFF_MAGICLEN, 1, file);
-    return items > 0 && ! (strncmp(magic, HUFF_MAGIC, HUFF_MAGICLEN) == 0);
+    return items > 0 && strncmp(magic, HUFF_MAGIC, HUFF_MAGICLEN) == 0;
 }
 
 int huff_read_entry(FILE * file, char **out) {
