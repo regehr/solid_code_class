@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "internal.h"
 
 void * xmalloc(size_t size) {
@@ -18,4 +19,27 @@ void * xrealloc(void * ptr, size_t size) {
         exit(HUFF_FAILURE);
     }
     return out;
+}
+
+/* fopen the given file, print an error message and terminate with
+ * HUFF_FAILURE if we're unable to open the file. */
+FILE* xfopen(const char * path, const char * mode) {
+    FILE *file = fopen(path, mode);
+    if (file == NULL) {
+        if (errno == ENOENT) {
+            fprintf(stderr, "Couldn't open '%s'.\n", path);
+        } else {
+            perror("Error opening file");
+        }
+        exit(HUFF_FAILURE);
+    }
+    return file;
+}
+
+int pfclose(FILE * file) {
+    if (fclose(file) != 0) {
+        perror("Couldn't close output file");
+        return -1;
+    }
+    return 0;
 }
