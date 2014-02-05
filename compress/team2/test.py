@@ -6,19 +6,18 @@ from subprocess import call
 #Function to find the number of elements in the file
 def file_len(fileName):
 	with open(fileName) as f:
-		for i, l in enumerate(f):
-            pass
-        return i + 1
+		f.seek(0, 2)    # Seek to the end of the file
+		return f.tell()
 
 #Function to ensure all elements are unique 		
 def unique(filename):
 	with open(filename) as f:
-    seen = set()
-    for line in f:
-        if line in seen:
-            print "Error. Contains Duplicate " + line
-        else:
-            seen.add(line)
+		seen = set()
+		for line in f:
+			if line in seen:
+				print "Error. Contains Duplicate " + line
+			else:
+				seen.add(line)
 
 #Generate and print a translation table for a non .huff file(.txt)
 #Check for correct length and uniqueness
