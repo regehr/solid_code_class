@@ -175,28 +175,21 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]) {
 /* Decompression
 ----------------------------------------------------------------------------- */
 
-struct decoder {
+struct huff_decoder {
     struct tree tree;
     short current_node;
 };
 
-/* Frees a decoder struct. Returns 1 on success, 0 otherwise. */
-int huff_free_decoder(struct decoder *decoder) {
-    free(decoder);
-    return 1;
-}
-
 /* Returns a pointer to a new decoder struct generated from a
    translation table, which is an array of 256 char *s which are the ASCII
-   representations of that byte index's translation. Returns the null pointer
-   if any errors occur. */
-struct decoder *huff_make_decoder(char *table[256]) {
+   representations of that byte index's translation. Returns zero on 
+   success, non-zero on failure. Should not fail. */
+int huff_make_decoder(struct huff_decoder * decoder, char *table[256]) {
     assert(check_table(table) == 1);
 
     /* initialize current_node to 0 which is the root and where decoding
        should always start. */
-    struct decoder *decoder = xmalloc(sizeof(struct decoder));
-    memset(decoder, 0, sizeof(struct decoder));
+    memset(decoder, 0, sizeof(struct huff_decoder));
 
     /* Represents the next "unallocated" node. */
     int next_empty = 1;
@@ -223,13 +216,13 @@ struct decoder *huff_make_decoder(char *table[256]) {
 
     assert(check_tree(&decoder->tree));
 
-    return decoder;
+    return 0;
 }
 
 /* Takes the next bit to decode. Returns an unsigned char converted to an int if
    a character is decoded, returns -1 otherwise. If an error occurs, -2 or lower
    is returned */
-int huff_decode(int bit, struct decoder *decoder) {
+int huff_decode(int bit, struct huff_decoder *decoder) {
     assert(bit == 0 || bit == 1);
 
     decoder->current_node =
