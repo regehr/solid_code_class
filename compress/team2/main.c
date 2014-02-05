@@ -102,6 +102,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
     huff_make_decoder(&decoder, header->table);
 
     while (fread(&current, 1, 1, input) && decoded_bytes < header->size) {
+        printf("Decompressing...\n");
         for (int i = 7; i >= 0; i++) {
             decoded = huff_decode((current >> i) & 0x1, &decoder);
             if (decoded != -1) {
@@ -131,7 +132,7 @@ static int decompress(FILE * file, char * filename) {
         return HUFF_FAILURE;
     }
 
-    ext_index = filename + (strlen(filename) - (HUFF_EXTLEN + 1));
+    ext_index = filename + (strlen(filename) - HUFF_EXTLEN);
     assert(strcmp(ext_index, HUFF_EXT) == 0 &&
            "Our file to decompress does not have a .huff extension.");
     /* Remove the extension */
