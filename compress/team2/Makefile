@@ -1,7 +1,7 @@
 .PHONY: clean gdb
 
 CC = clang
-CFLAGS = -Wall -Wextra -Wno-unused -O0 -g
+CFLAGS = -Wall -Wextra -pedantic -O0 -g
 
 objects = main.o internal.o parser.o huff.o encoder.o
 bin = huff
