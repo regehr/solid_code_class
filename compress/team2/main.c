@@ -101,11 +101,10 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
     int decoded = 0;
     huff_make_decoder(&decoder, header->table);
 
-    while (fread(&current, 1, 1, input) && decoded_bytes < header->size) {
-        printf("Decompressing...\n");
-        for (int i = 7; i >= 0; i++) {
+    while (fread(&current, 1, 1, input)) {
+        for (int i = 7; i >= 0 && decoded_bytes < header->size; i++) {
             decoded = huff_decode((current >> i) & 0x1, &decoder);
-            if (decoded != -1) {
+            if (decoded > -1) {
                 decoded_bytes += 1;
                 if (! fwrite(&decoded, 1, 1, output)) { return ENOWRITE; }
             }
