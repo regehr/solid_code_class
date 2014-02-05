@@ -38,7 +38,7 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
     if (code != 0) { return code; }
 
     int encoded = 0;
-    uint8_t current, buffer[32]; 
+    uint8_t current, buffer[32];
     while (fread(&current, 1, 1, input)) {
         encoded = huff_encode(current, buffer, &encoder);
         /* If there is encoded output, write it to the output file. If the write
@@ -51,9 +51,9 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
 
     /* Theres an extra byte to be written, write it out and fail with ENOWRITE
      * if the write fails */
-    if (encoder.buffer != 0 && 
-        ! fwrite(&encoder.buffer, 1, 1, output)) { 
-        return ENOWRITE; 
+    if (encoder.buffer != 0 &&
+        ! fwrite(&encoder.buffer, 1, 1, output)) {
+        return ENOWRITE;
     }
 
     return 0;
@@ -75,7 +75,7 @@ static int compress(FILE * file, char * filename) {
     output = xfopen(huff_filename, "w");
     free(huff_filename);
 
-    /* build our translation table and header, then seek to the 
+    /* build our translation table and header, then seek to the
      * start of the file */
     build_freqtable(file, ftable, &header.size);
     huff_make_table(ftable, header.table);
@@ -113,7 +113,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
 
     long here = ftell(input);
     fseek(input, 0L, SEEK_END);
-    if (ftell(input) - here > 0 || decoded_bytes < header->size) { 
+    if (ftell(input) - here > 0 || decoded_bytes < header->size) {
         return ETRUNC;
     }
 
@@ -132,7 +132,7 @@ static int decompress(FILE * file, char * filename) {
     }
 
     ext_index = filename + (strlen(filename) - HUFF_EXTLEN);
-    assert(strcmp(ext_index, HUFF_EXT) == 0 &&
+    assert(ext_index > filename && strcmp(ext_index, HUFF_EXT) == 0 &&
            "Our file to decompress does not have a .huff extension.");
     /* Remove the extension */
     *ext_index = '\0';
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
     if (argc != 3) { usage(stderr); exit(HUFF_FAILURE); }
 
     /* attempt to open the input file for reading */
-    input = xfopen(argv[2], "r"); 
+    input = xfopen(argv[2], "r");
 
     /* run the appropriate subroutine for the given option */
     if (strcmp(argv[1], "-c") == 0) {
