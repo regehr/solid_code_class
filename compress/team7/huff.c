@@ -216,6 +216,8 @@ bool is_huff_header(FILE* file)
 	//Read first 4 bytes of file
 	read_ret = fread(&read_ascii, 4, 1, file);
 	
+	rewind(file);
+	
 	//Ensure we read at least 4 bytes
 	if(read_ret != 4)
 		return false;
