@@ -92,7 +92,31 @@ def emptytest():
   else:
     print("empty.bin test passed")
 
+def rand1test():
+  assert os.path.exists("./rand1")
+  output = codesfrom("rand1")
+  if not generalcheck(output, "rand1"):
+    return
+  print("rand1 test passed")
+
+def rand2test():
+  assert os.path.exists("./rand2")
+  output = codesfrom("rand2")
+  if not generalcheck(output, "rand2"):
+    return
+  print("rand2 test passed")
+
+def rand3test():
+  assert os.path.exists("./rand3")
+  output = codesfrom("rand3")
+  if not generalcheck(output, "rand3"):
+    return
+  print("rand3 test passed")
+
 if __name__ == "__main__":
   oneeachtest()
   increasingtest()
   emptytest()
+  rand1test()
+  rand2test()
+  rand3test()
