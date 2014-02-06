@@ -60,10 +60,30 @@ void build_table (char *file_name, struct frequency table[]) {
     while ((character = fgetc(file)) != EOF) {
         table[(int)character].count++;
     }
-
-    qsort(table, 256, sizeof(struct frequency), compare);
-  
+    qsort(table, 256, sizeof(struct frequency), compare);  
 }
+
+/*
+ * Prints out the compression table from the Huffman tree
+ */
+void dump_table(char* filename, struct frequency table[])
+{
+  //initialize node
+  struct pqNode queue = makePQ(table);
+  printf("%s\n", "made queue");
+  // seg faults here
+  struct treeNode node = build_tree(queue);
+  //printTree(node);
+}
+
+/*
+ * Traverses the Huffman tree and assigns 0 or 1 to children 
+ */
+void traverse_tree(struct treeNode tree)
+{
+  // struct frequency huffTable[256, sizeof(table)];  
+}
+
 
 /*
  * Compares two Huffman nodes using weight
@@ -96,35 +116,52 @@ int compareTo(struct treeNode* left, struct treeNode* right)
     }
 }
 
+/*
+ * Returns the leftmost leaf for inorder sort 
+ */
+int getLeftmost (struct treeNode *  tN)
+{
+  struct treeNode * current;
+  while(current->left != NULL)
+    {
+      current = current->left;
+    }
+  return current->current;
+}
+
 /* 
  * Add a node to the priority queue
  */
 void enqueue (struct pqNode* head, struct pqNode* p)
 {
-  struct pqNode* pq = head; // represents this pq we are adding to  
-   
-  while(p->priority > pq->priority)
+  struct pqNode* prev = NULL; // represents this pq we are adding to  
+  struct pqNode* current = head;
+
+  while(p->priority < current->priority)
     {
-      pq = pq->next;
+      //printf("%d vs %d\n", p->priority, current->priority);
+      prev = current;
+      current = current->next;
     }
   
-  if(p->priority == pq->priority)
+  if(p->priority == current->priority)
     {
       //Tiebreaker code goes here
-      if(p->content->current < pq->content->current)
+      if(getLeftmost(&p->content) < getLeftmost(&current->content))
 	{
-	  p->next = pq->next;
-	  pq->next = p;
+	  p->next = current;
+	  prev->next = p;
 	}
       else
 	{
-	  p->next = pq;
+	  current->next = p;
+	  prev->next = current;
 	}
     }
   else
     {
-      p->next = pq->next;
-      pq->next = p;
+      p->next = current;
+      prev->next = p;
     }
 }
 
@@ -133,37 +170,69 @@ void enqueue (struct pqNode* head, struct pqNode* p)
  */
 struct treeNode dequeue(struct pqNode* head)
 {
-  struct treeNode * ret = head->content;
+  struct treeNode ret = head->content;
   head = head->next;
-  return *ret;
+  return ret;
+}
+
+/*
+ * Prints the characters of nodes in a huffman tree
+ */
+void printTree(struct treeNode head)
+{
+  printTree(*head.left);
+  printf("%d\n", head.current);
+  printTree(*head.right);
+}
+
+/* 
+ * Creates a priority queue (pqNode) of nodes in the Huff tree (treeNode)
+ */
+struct pqNode makePQ(struct frequency table[])
+{
+  struct pqNode full;
+  int i;
+  int nodeCount = 0; // keep track of the number of nodes in the tree for length of huffman tree
+  struct pqNode * head = NULL; // start of pq
+  struct pqNode * prev = NULL; // prev initially NULL  
+  struct pqNode * current = NULL;
+  
+//get all character frequencies in file 
+  // and add to priority queue
+  for(i = 0; i < 256; i++) 
+    {    
+      //  printf("%s\n", "got here");
+      if(table[i].count > 0)
+	{
+	  nodeCount = nodeCount + table[i].count;
+	  struct treeNode  newTNode = {NULL, NULL, NULL, table[i].count, (int)table[i].character};	 
+	  struct pqNode  newQNode = {newTNode.weight, NULL, {&newTNode}}; 
+	  current = &newQNode;
+	  //printf("%s\n", "got here");
+
+	  if(head == NULL)
+	    {
+	      head = current;
+	    }
+	  else
+	    {
+	      prev->next = current;	      
+	    }	  
+	  prev = current;	   
+	} 
+    }
+printf("%s\n", "got here");
+  full = *prev;
+  return full;
 }
 
 /*
  * Builds a Huffman tree for each character in terms of bit codes
  */
-void build_tree(struct frequency table[])
+struct treeNode build_tree(struct pqNode pq)
 {  
-  int i; 
-  struct pqNode * head = NULL; // start of pq
-  struct pqNode * prev = NULL; // head initially NULL
-
-  //get all character frequencies in file 
-  // and add to priority queue
-  for(i = 0; i < 256; i++)
-    {      
-       struct treeNode t = {NULL, NULL, NULL, table[i].count, (int)table[i].character};
-       struct pqNode pq = {t.weight, NULL, &t};
-       //If there is a previous, link it to current.      
-      if(prev != NULL)
-	prev->next = &pq;
-       //If there is no previous, then current is head
-      else
-	head = &pq;
-
-      prev = &pq; 
-    }
-
-  // start building tree
+  struct pqNode * head = &pq;
+   // start building tree
   while(head->next != NULL)
     {
       // grab 2 smallest nodes 
@@ -175,12 +244,15 @@ void build_tree(struct frequency table[])
       lt.parent = &pt;
       rt.parent = &pt;
       // enqueue new node to priority queue
-      struct pqNode newNode = {pt.weight, NULL, &pt};
+      struct pqNode newNode = {pt.weight, NULL, {&pt}};
       enqueue(head, &newNode);
       //exit when there is only one node left in the pq (next is value in pq is null)
     }
   // when the loop ends, set remaining node as tree at root
    struct treeNode root = dequeue(head);  
+   printf("print start:\n");
+printTree(root);
+ printf("print end:\n");
+   return root;
 }
-
 

@@ -1,4 +1,4 @@
-.PHONY: clean
+.PHONY: clean test
 
 CC = gcc
 CFLAGS = -std=c99 -O2 -g
@@ -13,6 +13,11 @@ huff_io.o: huff_io.h
 
 $(bin): $(objects)
 	$(CC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+
+test:
+	python test/makeTestFiles.py
+	python test/runTests.py
+	python test/clearTestFiles.py
 
 clean:
 	-rm -f $(bin) $(objects)

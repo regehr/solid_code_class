@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 			//TODO: Parse table if file is a proper .huff
 			create_table(table, filename);
 			encoded_table = get_encoding(create_huff_tree_from_frequency(table));
-			assert(encoded_table && "Encoded_table is a null pointer");			
+			assert(encoded_table && "Encoded_table is a null pointer");
 			print_table(encoded_table);
 			break;
 		case INVALID:
@@ -114,9 +114,6 @@ void create_table(int table[], char* filename)
 	long long file_length = 0;
 	bool is_huff_file = false;
 	
-	//Determine if huff file
-	is_huff_file = (is_huff_extension && is_huff_header) ? true : false;
-	
 	//Attempt to open the file
 	file = fopen(filename, "rb");
 	
@@ -126,9 +123,12 @@ void create_table(int table[], char* filename)
 		printf("Unable to find/open the file: %s\n", filename);
 		exit(-1);
 	}
+		
+	//Determine if huff file
+	is_huff_file = (is_huff_extension && is_huff_header);
 	
 	//Determine size of file
-	det_file_size(file);
+	file_length = det_file_size(file);
 	
 	//Beginning populating frequency table
 	for(i = 0; i < file_length; i++)
@@ -149,6 +149,13 @@ void create_table(int table[], char* filename)
 	fclose(file);
 }
 
+/*
+ * Determines the file size of the given file. It is assumed the file
+ * given is already opened. Returns the cursor within the file
+ * to the start before returning.
+ *
+ * Author: Thomas Gonsor
+ */
 long long det_file_size(FILE* file)
 {
 	long long length = 0;
@@ -175,18 +182,45 @@ void print_table(char* table[])
 	//Print frequency table to stdout
 	for(i = 0; i < 256; i++)
 	{
-		printf("ascii(%u) -> %s\n", i, table[i]);
+		printf("%s\n", table[i]);
 	}
 }
 
+/*
+ * Determine if the extension type on the given filename
+ * matches a huff file extension.
+ *
+ * Author: Thomas Gonsor
+ */
 bool is_huff_extension(char* filename)
 {
 	char* extension = strstr(filename, ".huff");
 	
-	return (extension != NULL);
+	return strcmp(extension, ".huff");
 }
 
+/*
+ * Determine if the given file has the special "HUFF"
+ * value in bytes 0-3 within the file. It is assumed the file is
+ * already opened. Returns the cursor within the file to the start
+ * before returning.
+ *
+ * Author: Thomas Gonsor
+ */
 bool is_huff_header(FILE* file)
 {
-	return true;
+	//Local vars
+	int read_ret;
+	char* read_ascii;
+	
+	//Read first 4 bytes of file
+	read_ret = fread(&read_ascii, 4, 1, file);
+	
+	rewind(file);
+	
+	//Ensure we read at least 4 bytes
+	if(read_ret != 4)
+		return false;
+		
+	return strcmp(read_ascii, "HUFF");
 }

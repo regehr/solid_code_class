@@ -1,0 +1,10 @@
+---------------------------------------------------------------------------------------------------------
+I wasn't able to work on this project since Tusday because of obligations to other classes. I did realize 
+a problem with my implementation of the Huffman tree however. I am internally storing Huffman bits as 
+chars. It was easier to write the logic this way because I didn't have to worry about bit shifting, but 
+it is a huge waste of memory. It makes Andres's job harder too because he is going to be reading/writing 
+bit streams and having to convert them to/from chars. I don't think it will be too hard to change my 
+current implementation to use bits instead of bytes. Let me know what you guys think. I am happy to change 
+my current implementation. I am curious if a byte based implementation would be faster considering memory 
+is byte based and there wouldn't be any bit shifting overhead in the compressing/decompressing logic. I 
+wanted to consult with you dudes before I coded any further.
