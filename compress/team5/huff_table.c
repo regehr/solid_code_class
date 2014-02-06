@@ -7,7 +7,7 @@
 #include "huff_table.h"
 
 
-#define CHAR_RANGE 256
+#define CHAR_RANGE 257
 
 /* free the memory of a single huff_tree struct. */
 void free_huff_tree(huff_tree *tree) {
@@ -31,6 +31,7 @@ void free_huff_table(char *huff_table[]) {
 /* Used to add a new character to the existing characters in a huff_tree_node. */
 char *concat_characters(char *prefix, char new_char){
 	char *new_prefix = (char *)malloc(strlen(prefix) + 2);
+	sprintf(new_prefix, "%s%c", prefix, new_char);
 	return new_prefix;
 }
 
@@ -49,27 +50,26 @@ int compare_huff_trees(const void *a, const void *b) {
 
 huff_tree *build_huff_tree(int frequencies[]) {
 	int i, length = 0;
-	huff_tree *q[256];
+	huff_tree *q[CHAR_RANGE];
 
 	/* create a huff_tree_node for each character in the frequency table. */
-	for(i = 0; i <= 256; i++) {
+	for(i = 0; i < CHAR_RANGE; i++) {
 		if(frequencies[i]) {
-			huff_tree *new_huff_tree = (huff_tree *)calloc(1, sizeof(huff_tree));
-			new_huff_tree->character = i;
-			new_huff_tree->frequency = frequencies[i];
-			q[length++] = new_huff_tree;
+			huff_tree *htree = (huff_tree *)calloc(1, sizeof(huff_tree));
+			htree->character = i;
+			htree->frequency = frequencies[i];
+			q[length++] = htree;
+			}
 		}
-	}
 
 	/* compare and combine huff_trees */
 	while(length > 1) {
-		huff_tree *new_huff_tree = (huff_tree *)malloc(sizeof(huff_tree));
+		huff_tree *htree = (huff_tree *)malloc(sizeof(huff_tree));
 		qsort(q, length, sizeof(huff_tree *), compare_huff_trees);
-		new_huff_tree->zero_tree = q[--length];
-		new_huff_tree->one_tree = q[--length];
-		new_huff_tree->frequency = new_huff_tree->zero_tree->frequency + new_huff_tree->one_tree->frequency;
-
-		q[length++] = new_huff_tree;
+		htree->zero_tree = q[--length];
+		htree->one_tree = q[--length];
+		htree->frequency = htree->zero_tree->frequency + htree->one_tree->frequency;
+		q[length++] = htree;
 	}
 	/* The queue now has only one huff_tree struct which is the complete huff tree. */
 	return q[0];
@@ -80,11 +80,13 @@ void traverse_huff_tree(huff_tree *tree, char **table, char *prefix)
 {
     if(!tree->zero_tree && !tree->one_tree) {
     	table[tree->character] = prefix;	
-    } 
-    else
-    {
-        if(tree->zero_tree) traverse_huff_tree(tree->zero_tree, table, concat_characters(prefix, '0'));
-        if(tree->one_tree) traverse_huff_tree(tree->one_tree, table, concat_characters(prefix, '1'));
+    } else {
+        if(tree->zero_tree){
+        	traverse_huff_tree(tree->zero_tree, table, concat_characters(prefix, '0'));	
+        } 
+        if(tree->one_tree){
+        	traverse_huff_tree(tree->one_tree, table, concat_characters(prefix, '1'));	
+        } 
         free(prefix);
     }
 }
@@ -101,24 +103,25 @@ char **build_huff_table(int frequencies[]) {
 }
 
 /* This will construct a huff_table and print out each line. */
-void print_huff_table(FILE *input) {
-	int character = 0;
-	int i;
-	int frequencies[256] = { 0 };
+void print_huff_table(FILE *input) {	
+	int i, character, frequencies[CHAR_RANGE] = { 0 };
 	char **huff_table;
 
 	/* calculate character frequencies. */
 	while((character = fgetc(input)) != EOF) {
 		frequencies[character]++;
 	}
-	printf("%d\n", frequencies[109]);
-
+	
 	/* builds huff_table based on frequencies. */
 	huff_table = build_huff_table(frequencies);
 	 
-	/* prints out each line of huff table. 
+	/*prints out each line of huff table.*/
 	for(i = 0; i < CHAR_RANGE; i++) {
-	        printf("%s\n", huff_table[i]);
-	}*/
+	    if(huff_table[i] == NULL) {
+                continue;
+            } else {
+                printf("%s\n", huff_table[i]);
+            }
+	}
 }
 
