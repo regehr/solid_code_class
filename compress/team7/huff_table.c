@@ -137,8 +137,8 @@ int min(int a, int b){
 int huff_node_frequency_comparer(const void * a, const void * b)
 {
 
-	huff_node* node_a = ((huff_node*)a);
-	huff_node* node_b = ((huff_node*)b);
+	huff_node* node_a = *((huff_node**)a);
+	huff_node* node_b = *((huff_node**)b);
 	int result = node_a->frequency - node_b->frequency;
 	if(result == 0){
 		if(node_a->lowest_value < node_b->lowest_value){
@@ -315,7 +315,11 @@ huff_node* create_huff_tree_from_frequency(int frequencyArray[])
 	}
 	qsort(nodes, 256, sizeof(huff_node*),huff_node_frequency_comparer);
 	assert( nodes[0]->frequency <= nodes[255]->frequency);
-
+        /*for(int i = 0; i<255; i++){
+            assert(nodes[i]->char_number == i+1);
+        }
+        assert(nodes[255]->char_number == 0);
+         */
 	queue_head queue1;
 	queue_head queue2;
 	for(i = 0; i < 256; i++){
