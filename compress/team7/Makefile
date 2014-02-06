@@ -1,8 +1,8 @@
 all:
-	clang huff.c huff_table.c -fsanitize=undefined -Wall -o huff -lm
+	clang huff.c huff_table.c -fsanitize=undefined -Wall -g -O0 -o huff -lm
 
 huff: huff.c huff_table.c
-	gcc -fprofile-arcs -ftest-coverage huff.c huff_table.c -o huff -lm
+	gcc -fprofile-arcs -ftest-coverage huff.c huff_table.c -g -O0 -o huff -lm
 
 coverage: huff test.txt
 	./huff -t test.txt
