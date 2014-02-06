@@ -13,11 +13,22 @@
 /* TODO: Write a find_min function for a tree.
  * TODO: Implement get_huffman_tree
  */
+
+/* Error checking call to malloc. */
+void *Malloc(size_t size, char *func) {
+  void *result;
+  if ((result = malloc(size)) == NULL) {
+    fprintf(stderr, "%s: malloc error\n", func);
+    exit(1);
+  }
+  return result;
+}
+
 /* Nodes must be freed by calling function.
  */
 tree make_node_from_ascii_freq(char c, long long frequency) {
   tree t;
-  t = malloc(sizeof(node));
+  t = (tree)Malloc(sizeof(node), "make_node_from_ascii");
   t->freq = frequency;
   t->parent = t->zero = t->one = NULL;
   t->ascii = c;
@@ -26,7 +37,7 @@ tree make_node_from_ascii_freq(char c, long long frequency) {
 
 tree make_node_from_trees(tree zero, tree one) {
   tree t;
-  t = malloc(sizeof(node));
+  t = (tree)Malloc(sizeof(node), "make_node_from_trees");
   t->freq = zero->freq + one->freq;
   zero->parent = one->parent = t;
   t->ascii = 0;
@@ -146,7 +157,11 @@ void find_char(tree t, char code[257], int *length, char c) {
 char *tree2table(tree t) {
   char temp[257] = {'\0'};
   int i, n, c;
-  char *table = calloc(33153, sizeof(char));
+  char *table;
+  if ((table = (char *)calloc(33153, sizeof(char))) == NULL) {
+    fprintf(stderr, "tree2table: calloc error\n");
+    exit(1);
+  }
   i = n = 0;
   for (c = 0; c < 256; c++) {
     find_char(t, temp, &i, c);
@@ -195,7 +210,7 @@ char *get_huffman_table(unsigned long long ascii_counts[256]) {
 tree get_huffman_tree(char *encodings[256]) {
   tree root, current, next;
   int i, j;
-  root = malloc(sizeof(node));
+  root = (tree)Malloc(sizeof(node), "get_huffman_tree");
   root->freq = 0;
   root->parent = root->zero = root->one = NULL;
   root->ascii = '\0';
@@ -208,11 +223,13 @@ tree get_huffman_tree(char *encodings[256]) {
 	  current = current->zero;
 	}
 	else {
-	  next = malloc(sizeof(node));
+	  next = (tree)Malloc(sizeof(node), "get_huffman_tree");
+	  current->zero = next;
 	  next->freq = 0;
 	  next->parent = current;
 	  next->zero = next->one = NULL;
 	  next->ascii = '\0';
+	  current = next;
 	}
       }
       else {
@@ -220,11 +237,13 @@ tree get_huffman_tree(char *encodings[256]) {
 	  current = current->one;
 	}
 	else {
-	  next = malloc(sizeof(node));
+	  next = (tree)Malloc(sizeof(node), "get_huffman_tree");
+	  current->one = next;
 	  next->freq = 0;
 	  next->parent = current;
 	  next->zero = next->one = NULL;
 	  next->ascii = '\0';
+	  current = next;
 	}
       }
     }
