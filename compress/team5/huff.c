@@ -11,37 +11,47 @@
 #include <time.h>
 #include <string.h>
 #include "huff_table.h"
+int CHECK_REP;
 
 int main (int argc, char *argv[])
 {
-  srand (getpid() + time (NULL));
+    srand (getpid() + time (NULL));
   
-  if (argc != 3) {
-  	printf("Must have 2 arguments, -t, -c, or -d filename\n");
-    exit (255);
-  }
+    if (argc < 3) {
+	printf("Must have 2 arguments, -t, -c, or -d filename\n");
+	exit (255);
+    }
 
-  FILE *input = NULL;
+    CHECK_REP = 0;
+    // if the last item is the string test, we are going to run the check rep
+    if (argc == 4 && !strncmp(argv[argc - 1], "check", 4))
+    {
+	printf("RUNNING CHECK_REP with file: %s\n", argv[2]);
+	CHECK_REP = 1;
+    }
+
+
+    FILE *input = NULL;
   
-  input = fopen(argv[2], "r");
-  
-  if(input == NULL) {
+    input = fopen(argv[2], "r");
+    
+    if(input == NULL) {
   	printf("Couldn't open file, error code: %i\n", errno);
   	exit(255);
-  }
-  
-  if(strncmp(argv[1], "-t", 2) == 0) {
+    }
+    
+    if(strncmp(argv[1], "-t", 2) == 0) {
   	print_huff_table(input);
-  } else if(strncmp(argv[1], "-c", 2) == 0) {
+    } else if(strncmp(argv[1], "-c", 2) == 0) {
   	printf("Compress to come soon");  	
-  } else if(strncmp(argv[1], "-d", 2) == 0) {
+    } else if(strncmp(argv[1], "-d", 2) == 0) {
   	printf("Decompress to come soon");
-  } else {
+    } else {
   	printf("First argument must be -t, -c or -d\n");
   	exit(255); 
-  }
-  
-  fclose(input);
-  exit(0);
+    }
+    
+    fclose(input);
+    exit(0);
 }
 

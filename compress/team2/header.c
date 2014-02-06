@@ -4,19 +4,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "internal.h"
-#include "parser.h"
-
-static const char * const ERROR_STRINGS[] = {
-    [-EBADEXT]      = "Extension was not a .huff extension.",
-    [-ENOMAGIC]     = "No magic number in the input file.",
-    [-EBADENTRY]    = "Bad entry in file translation table.",
-    [-ETRUNC]       = "Input file ended before we finished reading.",
-    [-EENTRY]       = "Impropery formatted translation table entry.",
-    [-ENOWRITE]     = "An error occured while writing to the output file.",
-    [-EFILETOOLONG] = "Input file's size could not be represented. Kudos on making"
-                      "a file larger than 16,384 Petabytes.",
-};
-
+#include "header.h"
 /* header reading helper */
 static int _huff_read_header(FILE *, char * filename, struct huff_header *);
 
@@ -83,23 +71,6 @@ int huff_read_entry(FILE * file, char **out) {
     }
 
     return status;
-}
-
-/* This function returns true when a valid header can be parsed with
- * huff_read_header. Like all good predicates, this one should have no
- * side-effects. */
-bool is_huff(FILE * file, char * filename) {
-    struct huff_header header;
-    int code = huff_read_header(file, filename, &header);
-    if (code != 0) {
-        return false;
-    /* if the code isn't zero, then huff_read_header hasn't re-wound the file
-     * for us, so we have to do that now */
-    } else {
-        huff_free_hdrtable(&header);
-        fseek(file, 0L, SEEK_SET);
-    }
-    return true;
 }
 
 /* huff_read_header helper that cleans up the file and header structure when
@@ -174,8 +145,4 @@ int huff_free_hdrtable(struct huff_header * header) {
     }
     memset(header->table, 0, 256 * sizeof(char *));
     return 0;
-}
-
-const char * huff_error(int code) {
-    return ERROR_STRINGS[-code];
 }

@@ -1,5 +1,5 @@
-#ifndef HUFF_PARSER_H
-#define HUFF_PARSER_H
+#ifndef HUFF_HEADER_H
+#define HUFF_HEADER_H
 
 #include <stdio.h>
 
@@ -9,16 +9,6 @@
 
 #define HUFF_MAGICLEN (sizeof(HUFF_MAGIC) - 1)
 #define HUFF_EXTLEN   (sizeof(HUFF_EXT) - 1)
-
-#define EBADEXT      (-1)   // Non .huff file extension 
-#define ENOMAGIC     (-2)   // No magic number in file
-#define EBADENTRY    (-3)   // Bad entry in translation table
-#define ETRUNC       (-4)   // A file we were reading  from ended before we
-                            // finished reading from it. 
-#define EENTRY       (-7)   // An entry in a file's translation table was too long
-#define ENOWRITE     (-6)   // Could not write to the file.
-
-#define EFILETOOLONG (-5)    // The file was too long to be stored in a uint64_t
 
 struct huff_header {
     uint64_t size;
@@ -38,11 +28,4 @@ int huff_free_hdrtable(struct huff_header *);
 
 /* write the supplied huff header to the current position in the supplied file. */
 int huff_write_header(FILE *, struct huff_header *);
-
-/* Returns 'true' if a file pointed to by FILE and named 'filename' is a valid
- * huff file. Returns false otherwise. Non side-effecting. */
-bool is_huff(FILE *, char * filename);
-
-/* Return the error string corresponding to the given code. */
-const char * huff_error(int code);
 #endif

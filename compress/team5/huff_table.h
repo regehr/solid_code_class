@@ -1,6 +1,8 @@
 #ifndef HUFF_TABLE_H
 #define HUFF_TABLE_H
 
+extern int CHECK_REP;
+
 /* struct used to represent a node in the huffman tree. */
 typedef struct huff_tree {
 	struct huff_tree *zero_tree;

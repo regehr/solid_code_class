@@ -3,21 +3,6 @@
 #include "internal.h"
 #include "encoder.h"
 
-static void DEBUG_PRINT_BITS(uint8_t byte) {
-    for (int i = 7; i >= 0; i--) {
-        printf("%c", ((byte >> i) & 0x1) + '0');
-    }
-}
-
-
-static void DEBUG_PRINT_BYTES(uint8_t bytes[], int len) {
-    for (int i = 0; i < len; i++) {
-        DEBUG_PRINT_BITS(bytes[i]);
-        printf(" ");
-    }
-}
-
-
 static void SET_BIT(int index, int value, uint8_t *byte) {
     assert(index < 8); assert(value == 0 || value == 1);
     /*         Clear the bit         Set it to 'value' */

@@ -62,4 +62,62 @@ void build_table (char *file_name, struct frequency table[]) {
     }
 
     qsort(table, 256, sizeof(struct frequency), compare);
+  
 }
+
+void enqueue (struct pqNode* head, struct pqNode* p)
+{
+   struct pqNode* temp = head;
+  while(p->priority > temp->priority)
+    {
+      temp = temp->link;
+    }
+  
+  if(p->priority == temp->priority)
+    {
+      //Tiebreaker code goes here
+    }
+  else
+    {
+      p->link = temp->link;
+      temp->link = p;
+    }
+}
+
+struct treeNode dequeue(struct pqNode* head)
+{
+ struct treeNode * ret = head->content;
+  head = head->link;
+  return *ret;
+}
+
+void build_tree(struct frequency table[])
+{  
+  int i;
+  struct pqNode * head = NULL;
+  struct pqNode * prev = NULL;
+  for(i = 0; i < 256; i++)
+    {
+      struct treeNode t = {NULL, NULL, NULL, table[i].count, (int)table[i].character};
+       struct pqNode pq = {t.weight, NULL, &t};
+       //If there is a previous, link it to current.
+       //If there is no previous, then current is head
+      if(prev != NULL)
+	prev->link = &pq;
+      else
+	head = &pq;
+
+      prev = &pq;
+    }
+
+  while(head->link != NULL)
+    {
+      // start building tree
+      struct treeNode p1 = dequeue(head);
+      struct treeNode p2 = dequeue(head);
+      struct treeNode parent = {NULL, &p1,&p2, p1.weight+p2.weight, -1};
+    }
+  
+}
+
+
