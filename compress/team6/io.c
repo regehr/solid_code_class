@@ -110,12 +110,12 @@ void write_compressed_file(unsigned char* file_pointer, unsigned long long file_
     }
     to_write[i] = (unsigned char)(strtol(curr_string, NULL, 2) & 0xFF);
   }
-  free(to_write_strings);
   char remaining[9] = {0};
   for(unsigned long long i = 0; i < array_size%8; i++)
   {
     remaining[i] = to_write_strings[(array_size-(array_size%8))+i];
   }
+  free(to_write_strings);
   to_write[array_size/8] = (unsigned char)(strtol(remaining, NULL, 2) & 0xFF) << (8-array_size%8);
 
   /* Append .huff to filename and write out file with header */
