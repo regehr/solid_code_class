@@ -11,6 +11,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
+#include "encoder.h"
 
 #define ENTRIES 256
 #define ENTRY_LENGTH 256
@@ -104,13 +106,14 @@ eFileCode ReadHeader(FILE* pFile, unsigned long long* pHuffmanSize)
  * File stream is expected to already be in the proper location for this call to succeed (must be
  * at the beginning of the compression table section, byte 12).
  */
-eFileCode GetTableForHuff(FILE* pFile, unsigned long long huffmanSize, char pOutCompressionTable[ENTRIES][ENTRY_LENGTH])
+eFileCode GetTableForHuff(FILE* pFile, unsigned long long huffmanSize, huffResult* resultArray)
 {
     int i;
     char* line;
 
     // Go through the next 256 lines of the file, read them out line by line.
-    for (i = 0; i < ENTRIES && fgets(pOutCompressionTable[i], ENTRY_LENGTH, pFile) != NULL; i++);
+    resultArray = calloc(256, sizeof(huffResult));
+    for (i = 0; i < ENTRIES && fgets(resultArray[i].string, ENTRY_LENGTH, pFile) != NULL; resultArray[i].value = i, i++);
 
     // If there weren't 256 entries, the .huff was an invalid format.
     if (i < ENTRIES)
@@ -133,8 +136,10 @@ eFileCode GetTableForHuff(FILE* pFile, unsigned long long huffmanSize, char pOut
  * ...
  * 00001
  */
-eFileCode GetTableForGeneric(unsigned long long pFrequencies[ENTRIES], char pOutCompressionTable[ENTRIES][ENTRY_LENGTH])
+eFileCode GetTableForGeneric(unsigned* pFrequencies, huffResult* resultArray)
 {
+    resultArray = createHuffmanTree(pFrequencies);
+
     return FILE_SUCCESS;
 }
 
@@ -142,7 +147,7 @@ eFileCode GetTableForGeneric(unsigned long long pFrequencies[ENTRIES], char pOut
  * This function will generate a table of how often each character in a file occurs.
  * The result is stored in pOutFrequencies.
  */
-eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned long long pOutFrequencies[ENTRIES])
+eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned* pOutFrequencies)
 {
     int c;
 
@@ -166,11 +171,11 @@ eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned long long pOutFreq
  * ...
  * 00001
  */
-eFileCode GenerateTable(eMode huffmanMode, char* fileName, char pOutTable[ENTRIES][ENTRY_LENGTH])
+eFileCode GenerateTable(eMode huffmanMode, char* fileName, huffResult* resultArray)
 {
     FILE* pFile;
     unsigned long long huffmanSize; // The size of the decompressed file, also the number of Huffman codes in the compressed data of the .huff
-    unsigned long long pFrequencies[ENTRIES] = {0}; // The frequency of occurrence of each character in the uncompressed file.
+    unsigned pFrequencies[ENTRIES] = {0}; // The frequency of occurrence of each character in the uncompressed file.
     eFileCode fileCode; // And error code which tells if the operation was successful or not.
         
     pFile = fopen(fileName, "r"); // Open file for reading.
@@ -186,7 +191,7 @@ eFileCode GenerateTable(eMode huffmanMode, char* fileName, char pOutTable[ENTRIE
         // If the file is a compressed huffman file, then use the get table for huff function to open it.
         if (ReadHeader(pFile, &huffmanSize) == FILE_SUCCESS)
         {
-            fileCode = GetTableForHuff(pFile, huffmanSize, pOutTable);
+            fileCode = GetTableForHuff(pFile, huffmanSize, resultArray);
         }
         else 
         {
@@ -198,7 +203,7 @@ eFileCode GenerateTable(eMode huffmanMode, char* fileName, char pOutTable[ENTRIE
         // If we want a table and the file is .huff, it may or may not be the same .huff we want it to be.
         // We'll try to treat it as a .huff but if it's the wrong format, we will treat it like a generic
         // file.
-        if(ReadHeader(pFile, &huffmanSize) == FILE_SUCCESS && GetTableForHuff(pFile, huffmanSize, pOutTable) == FILE_SUCCESS)
+        if(ReadHeader(pFile, &huffmanSize) == FILE_SUCCESS && GetTableForHuff(pFile, huffmanSize, resultArray) == FILE_SUCCESS)
         {
             fileCode = FILE_SUCCESS;
         }
@@ -210,7 +215,7 @@ eFileCode GenerateTable(eMode huffmanMode, char* fileName, char pOutTable[ENTRIE
             
             if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
             {
-                fileCode = GetTableForGeneric(pFrequencies, pOutTable);
+                fileCode = GetTableForGeneric(pFrequencies, resultArray);
             }
             else
             {
@@ -223,7 +228,7 @@ eFileCode GenerateTable(eMode huffmanMode, char* fileName, char pOutTable[ENTRIE
         // If the file is not a .huff, then generate frequencies and then a table for the file.
         if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
         {
-            fileCode = GetTableForGeneric(pFrequencies, pOutTable);
+            fileCode = GetTableForGeneric(pFrequencies, resultArray);
         }
         else
         {
@@ -247,7 +252,7 @@ int main(int argc, char **argv)
     // If it's -d, file has to be of .huff extension type.
     eMode mode;
     char* fileName; // Name of the file passes in as a commandline arg.
-    char pTable[ENTRIES][ENTRY_LENGTH] = {0}; // The table of 010101001 codes for each ascii character.
+    huffResult* resultArray; // The table of 010101001 codes for each ascii character.
     eFileCode fileCode; // Used for error handling.
 
     mode = getModeOfOperation(argc, argv); // -t, -c, or -d, plus this checks if the file name/extension is valid.
@@ -260,7 +265,7 @@ int main(int argc, char **argv)
     }
     
     fileName = argv[2];
-    fileCode = GenerateTable(mode, fileName, pTable);
+    fileCode = GenerateTable(mode, fileName, resultArray);
 
     // Check if function succeeded.
     if (fileCode != FILE_SUCCESS)
