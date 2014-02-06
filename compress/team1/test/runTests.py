@@ -47,7 +47,7 @@ for filename in os.listdir("."):
                 #add it to the set
                 uniqueLines.add(line)
 
-        if(len(uniqueLines) != 257):
+        if(len(uniqueLines) != 256):
             print "Size of tree for " + filename + " is " + str(len(uniqueLines))
             """
         #compress the file
