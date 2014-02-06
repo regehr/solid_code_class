@@ -133,17 +133,17 @@ int getLeftmost (struct treeNode *  tN)
  * Add a node to the priority queue
  */
 void enqueue (struct pqNode* head, struct pqNode* p)
-{
+{  
   struct pqNode* prev = NULL; // represents this pq we are adding to  
   struct pqNode* current = head;
 
   while(p->priority < current->priority)
     {
-      //printf("%d vs %d\n", p->priority, current->priority);
+      printf("p->priority %d : head->priority %d\n", p->priority, current->priority);
       prev = current;
       current = current->next;
     }
-  
+  printf("%s\n", "in enq");
   if(p->priority == current->priority)
     {
       //Tiebreaker code goes here
@@ -208,7 +208,8 @@ struct pqNode makePQ(struct frequency table[])
 	  struct treeNode  newTNode = {NULL, NULL, NULL, table[i].count, (int)table[i].character};	 
 	  struct pqNode  newQNode = {newTNode.weight, NULL, {&newTNode}}; 
 	  current = &newQNode;
-	  //printf("%s\n", "got here");
+	  // print out to check weights
+	  printf("newQNode->priority %d\n", newQNode.priority);
 
 	  if(head == NULL)
 	    {
@@ -221,8 +222,9 @@ struct pqNode makePQ(struct frequency table[])
 	  prev = current;	   
 	} 
     }
-printf("%s\n", "got here");
-  full = *prev;
+  full = *prev; 
+  printf("full tree->priority %d\n", full.priority);
+  printf("full tree->next->priority %d\n", full.next->priority);
   return full;
 }
 
@@ -230,7 +232,7 @@ printf("%s\n", "got here");
  * Builds a Huffman tree for each character in terms of bit codes
  */
 struct treeNode build_tree(struct pqNode pq)
-{  
+{    
   struct pqNode * head = &pq;
    // start building tree
   while(head->next != NULL)
@@ -242,10 +244,10 @@ struct treeNode build_tree(struct pqNode pq)
       struct treeNode pt = {NULL, &lt, &rt,lt.weight+rt.weight, -1};
       // associate children with parent
       lt.parent = &pt;
-      rt.parent = &pt;
+      rt.parent = &pt;      
       // enqueue new node to priority queue
       struct pqNode newNode = {pt.weight, NULL, {&pt}};
-      enqueue(head, &newNode);
+      enqueue(head, &newNode); // SEG FAULTS HERE
       //exit when there is only one node left in the pq (next is value in pq is null)
     }
   // when the loop ends, set remaining node as tree at root
