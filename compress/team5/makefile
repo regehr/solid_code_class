@@ -1,12 +1,15 @@
 
 CC = clang
-CFLAGS = -Wall -O2 -g
-OPTIONAL_CFLAGS = -fsanitize=undefined,unsigned-integer-overflow
+CFLAGS = -Wall -g #-fsanitize=undefined
 
 BINARY = huff
 
 COMPILE = $(CC) $(CFLAGS) -c
 OBJFILES := $(patsubst %.c,%.o,$(wildcard *.c))
+
+ALL_FILES = $(shell find ../../ -name '*.c')
+
+
 
 all: $(BINARY)
 
@@ -14,11 +17,15 @@ $(BINARY): $(OBJFILES)
 	$(CC) -o $(BINARY) $(OBJFILES)
 
 %.o: %.c
-	$(COMPILE) -o $@ $< 
+	$(COMPILE) -o$@ $< 
 
 clean:
 	-@rm -f $(OBJFILES)
 	-@rm -f $(BINARY)
 
-test: $(BINARY)
-	@echo "no tests quite yet\n"
+
+
+.PHONY: check
+
+check: $(BINARY)
+	@for file in $(ALL_FILES) ; do ./huff -t $$file check ; done

@@ -6,8 +6,42 @@
 #include <assert.h>
 #include "huff_table.h"
 
-
 #define CHAR_RANGE 256
+
+
+// returns the frequencies
+int check_tree(huff_tree *tree)
+{
+    if (!tree->zero_tree && ! tree->one_tree)
+    {
+	return tree->frequency;
+    }
+    int left_freq = 0;
+    int right_freq = 0;
+    int tot_freq = 0;
+    if (tree->zero_tree)
+    {
+	left_freq  = check_tree(tree->zero_tree);
+    }
+    if (tree->one_tree)
+    {
+	right_freq = check_tree(tree->one_tree);
+    }
+    
+    tot_freq = left_freq + right_freq;
+    assert(tot_freq == tree->frequency);
+    return tree->frequency;
+}
+
+
+// Check rep 
+void check_rep(huff_tree *tree)
+{
+
+    // if the table has been built, it should not be null
+    assert(tree);
+    check_tree(tree);
+}
 
 /* free the memory of a single huff_tree struct. */
 void free_huff_tree(huff_tree *tree) {
@@ -95,6 +129,13 @@ char **build_huff_table(int frequencies[]) {
     char *prefix = (char *)calloc(1, sizeof(char));
     huff_tree *tree = build_huff_tree(frequencies);
     traverse_huff_tree(tree, huff_table, prefix);
+
+    /* check rep for a full fledged tree */
+    if (CHECK_REP)
+    {
+	check_rep(tree);
+    }
+    
     free_huff_tree(tree);
     
     return huff_table;
@@ -103,7 +144,6 @@ char **build_huff_table(int frequencies[]) {
 /* This will construct a huff_table and print out each line. */
 void print_huff_table(FILE *input) {
 	int character = 0;
-	int i;
 	int frequencies[256] = { 0 };
 	char **huff_table;
 
@@ -111,14 +151,14 @@ void print_huff_table(FILE *input) {
 	while((character = fgetc(input)) != EOF) {
 		frequencies[character]++;
 	}
-	printf("%d\n", frequencies[109]);
-
+	
 	/* builds huff_table based on frequencies. */
 	huff_table = build_huff_table(frequencies);
-	 
+
+
 	/* prints out each line of huff table. 
-	for(i = 0; i < CHAR_RANGE; i++) {
-	        printf("%s\n", huff_table[i]);
+	for(i = 0; i < CHAR_RANGE; i++)
+	   printf("%s\n", huff_table[i]);
 	}*/
 }
 
