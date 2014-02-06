@@ -26,7 +26,7 @@ int main (int argc, char *argv[])
     // if the last item is the string test, we are going to run the check rep
     if (argc == 4 && !strncmp(argv[argc - 1], "check", 4))
     {
-	printf("RUNNING CHECK_REP with file: %s\n", argv[2]);
+	fprintf(stderr, "RUNNING CHECK_REP with file: %s ... ", argv[2]);
 	CHECK_REP = 1;
     }
 

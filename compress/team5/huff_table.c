@@ -40,6 +40,7 @@ void check_rep(huff_tree *tree)
     // if the table has been built, it should not be null
     assert(tree);
     check_tree(tree);
+    fprintf(stderr, "OK\n");
 }
 
 /* free the memory of a single huff_tree struct. */
