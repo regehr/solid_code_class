@@ -1,7 +1,7 @@
 .PHONY: clean test
 
 CC = gcc
-CFLAGS = -std=c99 -O2 -g
+CFLAGS = -std=c99 -Wall -O2 -g
 
 objects = huff.o huff_table.o huff_io.o
 bin = huff
