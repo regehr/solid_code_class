@@ -44,25 +44,38 @@ def test1():
 	unique("table")
 	
 def test2():
-    print "In progress"
-
+	call(["./huff", "-c", "testFile.txt"])
+	os.path.exists("testFile.txt.huff")
 
 def test3():
-    print "In progress"
+
+	writeTo = open("compressedTable", "w")
+	call(["./huff", "-t", "testFile.txt.huff"], stdout = writeTo)
+
 
 def test4():
-    print "In progress"
+	call(["./huff", "-c", "testFile.txt.huff"])
+	os.path.exists("testFile.txt.huff.huff")
+
+def test5():
+	call(["rm", "-f", "testFile.txt.huff"])
+	call(["./huff", "-d", "testFile.txt.huff.huff"])
+	os.path.exists("testFile.txt.huff")
+
+ 
 			
 if __name__ == "__main__":
 
 	#Test ./huff -t filename.txt
 	test1()
-	#Test ./huff -t filename.huff
-	test2()
 	#Test ./huff -c filename.txt
+	test2()
+	#Test ./huff -t filename.txt.huff
 	test3()
-	#Test ./huff -d filename.huff
+	#Test ./huff -c filename.txt.huff
 	test4()
+	#Test ./huff -d filename.txt.huff
+	test5()
 
 
 
