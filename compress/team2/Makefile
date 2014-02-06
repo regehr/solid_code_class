@@ -25,5 +25,5 @@ gdb: $(bin)
 clean:
 	-rm $(bin) $(objects)
 
-test: clean $(bin)
+test: $(bin)
 	$(python) test.py
