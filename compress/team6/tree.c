@@ -10,6 +10,9 @@
 #include <assert.h>
 #include "tree.h"
 
+/* TODO: Write a find_min function for a tree.
+ * TODO: Implement get_huffman_tree
+ */
 /* Nodes must be freed by calling function.
  */
 tree make_node_from_ascii_freq(char c, long long frequency) {
@@ -65,11 +68,16 @@ int compare_trees(const void *a, const void *b) {
 static void check_rep(tree t) {
   assert((t->zero == NULL && t->one == NULL)
 	 || (t->zero != NULL && t->one != NULL));
-  if (t->zero == NULL) {
+  if (t->zero != NULL) {
     assert(t->freq == t->zero->freq + t->one->freq);
     assert(t->zero->freq <= t->one->freq);
+    if (t->zero->freq == t->one->freq && t->zero->zero == NULL)
+      assert((unsigned char)t->zero->ascii < (unsigned char)t->one->ascii);
   }
-  /* TODO: Assert more. */
+  if (t->zero != NULL) {
+    check_rep(t->zero);
+    check_rep(t->one);
+  }
 }
 
 tree get_next_from_queues(tree leaf_array[256], tree branch_array[128],
@@ -137,9 +145,9 @@ void find_char(tree t, char code[257], int *length, char c) {
 
 char *tree2table(tree t) {
   char temp[257] = {'\0'};
-  int top, i, n, c;
+  int i, n, c;
   char *table = calloc(33153, sizeof(char));
-  top = i = n = 0;
+  i = n = 0;
   for (c = 0; c < 256; c++) {
     find_char(t, temp, &i, c);
     strncpy(&table[n], temp, i);
@@ -178,8 +186,51 @@ char *get_huffman_table(unsigned long long ascii_counts[256]) {
       t = zero != NULL ? zero : one;
     }
   }
-  /* TODO: build return string; */
   table = tree2table(t);
   free_tree(t);
   return table;
+}
+
+
+tree get_huffman_tree(char *encodings[256]) {
+  tree root, current, next;
+  int i, j;
+  root = malloc(sizeof(node));
+  root->freq = 0;
+  root->parent = root->zero = root->one = NULL;
+  root->ascii = '\0';
+  
+  for (i = 0; i < 256; i++) {
+    current = root;
+    for (j = 0; encodings[i][j] != '\0'; j++) {
+      if (encodings[i][j] == '0') {
+	if (current->zero != NULL) {
+	  current = current->zero;
+	}
+	else {
+	  next = malloc(sizeof(node));
+	  next->freq = 0;
+	  next->parent = current;
+	  next->zero = next->one = NULL;
+	  next->ascii = '\0';
+	}
+      }
+      else {
+	if (current->one != NULL) {
+	  current = current->one;
+	}
+	else {
+	  next = malloc(sizeof(node));
+	  next->freq = 0;
+	  next->parent = current;
+	  next->zero = next->one = NULL;
+	  next->ascii = '\0';
+	}
+      }
+    }
+    next->ascii = (char)i;
+  }
+  
+  check_rep(root);
+  return root;
 }
