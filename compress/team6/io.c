@@ -17,7 +17,7 @@ int index_of(char* arr[256], char* string)
   return -1;
 }
 
-int bit_at(unsigned char* pointer, size_t length, unsigned long long index)
+int bit_at(unsigned char* pointer, unsigned long long length, unsigned long long index)
 {
   if(index/8 >= length)
     return -1;
@@ -26,7 +26,7 @@ int bit_at(unsigned char* pointer, size_t length, unsigned long long index)
   return (byte >> (7 - remaining)) & 0x1;
 }
 
-unsigned long long get_size_from_file(unsigned char* file_pointer, size_t file_length)
+unsigned long long get_size_from_file(unsigned char* file_pointer, unsigned long long file_length)
 {
   unsigned char num[8];
   for(int i = 0; i < 8; i++)
@@ -46,7 +46,7 @@ unsigned long long get_size_from_file(unsigned char* file_pointer, size_t file_l
   return value;
 }
 
-void write_compressed_file(unsigned char* file_pointer, size_t file_length, char* filename, char* mapping)
+void write_compressed_file(unsigned char* file_pointer, unsigned long long file_length, char* filename, char* mapping)
 {
   /* Make a copy of the mapping */
   char orig_mapping[strlen(mapping)+1];
@@ -61,7 +61,10 @@ void write_compressed_file(unsigned char* file_pointer, size_t file_length, char
   {
     pch = strtok(NULL, "\n");
     if(pch != NULL)
+    {
+      assert(index < 256);
       map[index++] = pch;
+    }
   }
 
   /* Figure out how large our array needs to be */
@@ -72,7 +75,13 @@ void write_compressed_file(unsigned char* file_pointer, size_t file_length, char
   }
 
   /* Use the map to get the string we need to write */
-  char to_write_strings[array_size]; 
+  char* to_write_strings = malloc(array_size*sizeof(char)); 
+  if(to_write_strings == NULL)
+  {
+    printf("Malloc failed, exiting.\n");
+    exit(-1);
+  }  
+
   unsigned long long count = 0;
   for(unsigned long long i = 0; i < file_length; i++)
   {
@@ -80,22 +89,28 @@ void write_compressed_file(unsigned char* file_pointer, size_t file_length, char
     int j = 0;
     while(mapped[j] != '\0')
     {
+      assert(count < array_size);
       to_write_strings[count++] = mapped[j++];
     }
   }
  
   /* Convert String array to Byte array. */
-  unsigned char to_write[(array_size/8)+1];
+  unsigned char* to_write = malloc(((array_size/8)+1) * sizeof(unsigned char));
+  if(to_write == NULL)
+  {
+    printf("Malloc failed, exiting.\n");
+    exit(-1);
+  }  
   for(unsigned long long i = 0; i < array_size/8; i++)
   {
-    char curr_string[9];
+    char curr_string[9] = {0};
     for(int j = 0; j < 8; j++)
     {
       curr_string[j] = to_write_strings[(i*8)+j];
     }
-    curr_string[8] = '\0';
     to_write[i] = (unsigned char)(strtol(curr_string, NULL, 2) & 0xFF);
   }
+  free(to_write_strings);
   char remaining[9] = {0};
   for(unsigned long long i = 0; i < array_size%8; i++)
   {
@@ -109,15 +124,30 @@ void write_compressed_file(unsigned char* file_pointer, size_t file_length, char
   strcat(new_filename, ".huff");
 
   FILE* f = fopen(new_filename, "w");
+  if(f == NULL)
+  {
+    printf("Error opening file to write\n");
+    exit(-1);
+  }
+
   char* magic_number = "HUFF";
-  fwrite(magic_number, sizeof(char), strlen(magic_number), f);
-  fwrite(&file_length, sizeof(size_t), 1, f);
-  fwrite(orig_mapping, sizeof(char), strlen(orig_mapping), f);
-  fwrite(to_write, sizeof(unsigned char), array_size/8+1, f);
+  int result = 1;
+  result = result && fwrite(magic_number, sizeof(char), strlen(magic_number), f);
+  result = result && fwrite(&file_length, sizeof(unsigned long long), 1, f);
+  result = result && fwrite(orig_mapping, sizeof(char), strlen(orig_mapping), f);
+  result = result && fwrite(to_write, sizeof(unsigned char), array_size/8+1, f);
+  if(!result)
+  {
+    printf("Error on write\n");
+    exit(-1);
+  }
+
   fclose(f);
+  free(to_write);
 }
 
-void write_decompressed_file(unsigned char* file_pointer, size_t file_length, char* filename, char* mapping, unsigned long long start_of_compressed)
+/* This decompress is very slow, but seems to be working */
+void write_decompressed_file(unsigned char* file_pointer, unsigned long long file_length, char* filename, char* mapping, unsigned long long start_of_compressed)
 {
   /* Convert string to array */
   char* map[256];
@@ -128,11 +158,20 @@ void write_decompressed_file(unsigned char* file_pointer, size_t file_length, ch
   {
     pch = strtok(NULL, "\n");
     if(pch != NULL)
+    {
+      assert(index < 256);
       map[index++] = pch;
+    }
   }
   unsigned long long size = get_size_from_file(file_pointer, file_length);
   unsigned long long bit_index = (start_of_compressed+1)*8;
-  unsigned char to_write[size];
+  unsigned char* to_write = malloc(size * sizeof(unsigned char));
+  if(to_write == NULL)
+  {
+    printf("Malloc failed, exiting.\n");
+    exit(-1);
+  }  
+  
   unsigned long long to_write_index = 0;
    
   for(int i = 0; i < size; i++)
@@ -143,9 +182,11 @@ void write_decompressed_file(unsigned char* file_pointer, size_t file_length, ch
    while(!complete)
    {
      assert(string_index < 256);
-     assert(bit_at(file_pointer, file_length, bit_index) != -1);
 
-     if(bit_at(file_pointer, file_length, bit_index++))
+     int bit = bit_at(file_pointer, file_length, bit_index++);
+     assert(bit != -1);
+
+     if(bit)
        curr_string[string_index++] = '1';
      else
      {
@@ -165,13 +206,16 @@ void write_decompressed_file(unsigned char* file_pointer, size_t file_length, ch
   /* Remove.huff and write out file */
   filename[strlen(filename)-5] = '\0';
   FILE* f = fopen(filename, "w");
+  if(f == NULL)
+  {
+    printf("Error opening file to write\n");
+    exit(-1);
+  }
   fwrite(to_write, sizeof(unsigned char), size, f);
   fclose(f);
-  
-  
 }
 
-int check_format(unsigned char* file_pointer, size_t file_length, char* filename)
+int check_format(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
   if(strlen(filename) <= 5 || strcmp(filename + strlen(filename) - 5, ".huff") != 0)
   {
@@ -191,21 +235,27 @@ int check_format(unsigned char* file_pointer, size_t file_length, char* filename
   return 1;
 }
 
-char* get_mapping_from_file(unsigned char* file_pointer, size_t file_length, unsigned long long* start_of_compressed)
+char* get_mapping_from_file(unsigned char* file_pointer, unsigned long long file_length, unsigned long long* start_of_compressed)
 {
   char* table = calloc(33153, sizeof(char));
+  if(table == NULL)
+  {
+    printf("Calloc failed, exiting.\n");
+    exit(-1);
+  }  
   unsigned long long pos = 0;
   int newline_count = 0;
   while(newline_count < 256)
   {
+    assert(pos < 33153);
     table[pos] = (char)(file_pointer[pos+12]);
     pos++;
+    assert(pos+12 < file_length);
     if(file_pointer[pos+12] == '\n')
     { 
       newline_count++;
     }
   }
-  table[pos] = '\0';
   *start_of_compressed = pos+12;
   return table;
 }

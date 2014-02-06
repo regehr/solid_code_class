@@ -5,7 +5,7 @@
 #include "tree.h"
 #include "io.h"
 
-void compress(unsigned char* file_pointer, size_t file_length, char* filename)
+void compress(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
   /* Find the frequency of each char */
   unsigned long long frequencies[256] = {0}; 
@@ -19,7 +19,7 @@ void compress(unsigned char* file_pointer, size_t file_length, char* filename)
   free(mapping);
 }
 
-void decompress(unsigned char* file_pointer, size_t file_length, char* filename)
+void decompress(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
   if(!check_format(file_pointer, file_length, filename))
   {
@@ -33,7 +33,7 @@ void decompress(unsigned char* file_pointer, size_t file_length, char* filename)
   free(mapping);
 }
 
-void print_table(unsigned char* file_pointer, size_t file_length, char* filename)
+void print_table(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
   /* If this is a huff file, get it from the table in the file. Otherwise calculate it from the file */
   if(check_format(file_pointer, file_length, filename))
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
   }
 
   /* Open the file in a buffer */
-  size_t file_length;
+  unsigned long long file_length;
   struct stat sb;
 
   if(stat(argv[2], &sb) < 0)
@@ -75,16 +75,26 @@ int main(int argc, char* argv[])
     exit(-1);
   }
   FILE* file = fopen(argv[2], "r");
-  file_length = sb.st_size;
   if(file == NULL)
   {
     printf("Error opening file\n");
     exit(-1);
   }
-  unsigned char* file_pointer = (unsigned char*)malloc(file_length * sizeof(unsigned char));
+  file_length = sb.st_size;
+  unsigned char* file_pointer = malloc(file_length * sizeof(unsigned char));
+  if(file_pointer == NULL)
+  {
+    printf("Malloc failed, exiting.\n");
+    exit(-1);
+  }
+
   if(file_length != 0)
   {
-    fread(file_pointer, file_length, 1, file);
+    if(!fread(file_pointer, file_length, 1, file))
+    {
+      printf("Error reading file\n");
+      exit(-1);
+    }
     fclose(file);
   }
 
