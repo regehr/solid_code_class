@@ -4,6 +4,7 @@ all:
 clean:
 	rm -f ./huff
 	rm -f ./test.o
+	rm -f *.gch
 
 test: test.py test.o huff
 	clang huff.c -o huff -Wall -fsanitize=undefined

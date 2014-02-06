@@ -20,16 +20,16 @@ struct frequency {
 
  struct treeNode {
   struct treeNode* parent;
-  struct treeNode* left;
-  struct treeNode* right;
-  int weight;
-  int current;
+   struct treeNode* left; //0
+   struct treeNode* right; //1
+   int weight; // frequency of character in file
+   int current; //ascii value of character (int)char
  };
 
 
 struct pqNode {
   int priority;
-  struct pqNode* link;//next
+  struct pqNode* next;
   struct treeNode* content;
 };
 
@@ -40,3 +40,4 @@ void build_table (char *, struct frequency []);
 void build_tree(struct frequency[]);
 void enqueue(struct pqNode*, struct pqNode*);
 struct treeNode dequeue(struct pqNode*);
+int compareTo(struct treeNode*, struct treeNode*);
