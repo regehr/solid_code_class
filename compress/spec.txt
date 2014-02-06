@@ -69,17 +69,18 @@ huff file format
 A file is a valid huff file only if it meets all of the following
 requirements:
 
-1. its filename ends with ".huff"
-2. bytes 0-3 are the magic number: the ASCII characters HUFF
-3. bytes 4-11 are the length field: a 64-bit unsigned integer in
+1. Its filename ends with ".huff"
+2. Bytes 0-3 are the magic number: the ASCII characters HUFF
+3. Bytes 4-11 are the length field: a 64-bit unsigned integer in
    little endian format indicating the size of the decompressed file,
    which is also the number of Huffman codes in the compressed data
    section
-4. a valid compression table (see format below) begins at byte 12
-5. the remainder of the file contains compressed data; the number of
+4. A valid compression table (see format below) begins at byte 12
+5. The remainder of the file contains compressed data; the number of
    items must match the length field; the only exception is that the
    final byte of the file, if it is not filled, is padded with
-   1-7 bits whose value is unspecified
+   1-7 bits whose value is unspecified. Bits are placed into bytes
+   in big-endian order.
 
 A valid compression table is comprised of a sequence of 256 strings, 
 each of which matches this Perl regex:

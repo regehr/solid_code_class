@@ -1,7 +1,18 @@
-C_FLAGS = -std=c99
+.PHONY: clean
 
-all:
-	gcc -c huff.c
-	gcc -c huff_table.c
-	gcc -std=c99 huff_table.o huff.o -o huff
+CC = gcc
+CFLAGS = -std=c99 -O2 -g
 
+objects = huff.o huff_table.o huff_io.o
+bin = huff
+
+default: $(bin)
+
+huff_table.o: huff_table.h
+huff_io.o: huff_io.h
+
+$(bin): $(objects)
+	$(CC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+
+clean:
+	-rm -f $(bin) $(objects)

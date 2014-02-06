@@ -3,77 +3,44 @@
  *
  * Jonathon McDonald, Lynn Gao, Taylor Stapleton
  */
+#include "huff_io.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-typedef enum {
-    COMPRESS,
-    DECOMPRESS,
-    TABLE,
-    UNHANDLED
-} flags;
-
-struct frequency {
-    unsigned int count;
-    char character;
-};
+#define CHAR_COUNT = 257 // number of characters
+#define CHAR_EOF = 256 // represents end of file
 
 
+/* Returns true if the file is a huff file, else otherwise */
+bool huff_file(char* filename)
+{
+  char* ext = strrchr(filename, '.');
+  char* result = ext+1;
+ 
+    
+  return false;
+} 
+
+    
 /*
- * Parses the arguments passed by the user, returning the operation to be used.
+ * Dump the compression table for a file
  */
-flags parse_args (char *argv[], char **out) {
-    char *operation;
-
-    operation = argv[1];
-    *out = argv[2];
-
-    if (strcmp(operation, "-c") == 0)
-        return COMPRESS;
-    else if (strcmp(operation, "-d") == 0)
-        return DECOMPRESS;
-    else if (strcmp(operation, "-t") == 0)
-        return TABLE;
-    else
-        return UNHANDLED;
-}
-
-
-/*
- * Compares two frequency table rows' respective character counts.
- */
-int compare (const void * p1, const void * p2) {
-    const struct frequency *row1 = p1;
-    const struct frequency *row2 = p2;
-
-    if (row1->count != row2->count) 
-        return ((int)row2->count - (int)row1->count);
-    else
-        return ((int)row2->character - (int)row1->character);
-}
-
-
-/*
- * Fills the provided frequency table using the file name, sorted highest 
- * frequency to lowest.
- */
-void build_table (char *file_name, struct frequency table[]) {
-    FILE * file;
-    char character;
-
-    file = fopen(file_name, "rb");
-    if (NULL == file) {
-        printf("Unable to open file.\n");
-        exit(-1);
+void display_table (char* file, struct frequency table[])
+{
+  //check if the file is a huff file
+  //bool isHuff = huff_file(file);
+  // if not a huff file, compute compression table    
+  int i;
+  for(i=0; i < 256; i++)
+    {
+      printf("%c %i\n", table[i].character, table[i].count);
     }
-
-    while ((character = fgetc(file)) != EOF) {
-        table[(int)character].count++;
-    }
-
-    qsort(table, 256, sizeof(struct frequency), compare);
-}
+ }
 
 
 int main (int argc, char *argv[]) {
@@ -96,8 +63,9 @@ int main (int argc, char *argv[]) {
         break;
         case DECOMPRESS:
         break;
-        case TABLE: 
-            build_table(file, table); 
+        case TABLE:
+	    build_table(file, table); 
+	    display_table(file, table);
         break;
         case UNHANDLED:
         break;

@@ -4,8 +4,13 @@ Working:
   input file exists. 
 * Correct status codes will be returned if the file doesn't exist, or if improper
   flags are passed to the program.
-* ./huff -t <inputfile> will print out a frequency table (*not* a translation file
-  like it should) if the input file is not a huff file, so huff file validation
-  is also working.
-* ./huff -t <inputfile>, when input file has a valid .huff extension and a valid
-  HUFF header, will properly print out the translation table for that .huff file.
+* ./huff -t <inputfile> will correctly generate and print a translation table 
+  if the file is not a valid .huff file, and will print the translation table
+  included in a compressed file if the file is a valid .huff file.
+* ./huff -c <inputfile> will correctly compress the given input file and write
+  the compressed file to <inputfile>.huff. Error checking is done on all writes
+  and reads.
+* ./huff -d <inputfile>.huff will correctly decompress a compressed huff file
+  to the original file. Checks are made to ensure that <inputfile>.huff is actually
+  a compressed file.
+* The program has no memory leaks.

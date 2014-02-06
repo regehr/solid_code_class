@@ -25,6 +25,18 @@ def makeTest(prog , file , test , moq , message , type):
 	return test
 
 
+def outputLineTest(programName , fileName , testNum , numberOfLines , type):
+	output = ""
+	try:
+		output = subprocess.check_output([os.getcwd() + "/" + programName , type , fileName])
+	except subprocess.CalledProcessError, e:
+		return testNum
+	
+	if(output.count('\n') == numberOfLines):
+		return 0
+	else:
+		return testNum
+
 def successTest(programName , fileName , testNum , moq , type):
 	try:
 		if(moq == 1):
@@ -66,15 +78,14 @@ def main():
 	results = list()
 	successList = list()
 	failureList = list()
+	outputList = list()
 	fileList = list()
-
 
 	successList.append(makeTest(sys.argv[1] , makeFile("test0file" , 2000000 , fileList) , 0 , moq , "large file success test failed" , "-t"))
 	successList.append(makeTest(sys.argv[1] , makeFile("test1file" , 0 , fileList) , 1 , moq , "empty file test failed" , "-t"))
 	successList.append(makeTest(sys.argv[1] , makeFile("test2file" , 1024 , fileList) , 2 , moq , "medium size file failed" , "-t"))
 	failureList.append(makeTest(sys.argv[1] , "badFile" , 3 , moq , "bad filename test failed" , "-t"))
 	failureList.append(makeTest(sys.argv[1] , "" , 4 , moq , "no argument test failed" , "-t"))
-
 	
         successList.append(makeTest(moqTesterName , makeFile("test3file" , 2000000 , fileList) , 5 , moq2 , "moq large file test failed" , "-t"))
         successList.append(makeTest(moqTesterName , makeFile("test4file" , 0 , fileList) , 6 , moq2 , "moq empty file test failed" , "-t"))
@@ -82,6 +93,12 @@ def main():
         failureList.append(makeTest(moqTesterName , "badFile" , 8 , moq2 , "moq bad file name test failed" , "-t"))
         failureList.append(makeTest(moqTesterName , "" , 9 , moq2 , "moq incorrect arguments failed" , "-t"))
 
+	outputList.append(makeTest(sys.argv[1] , makeFile("test10file" , 0 , fileList) ,  10 , 257, "check number of output lines for table failed for small file." , "-t"))
+	outputList.append(makeTest(sys.argv[1] , makeFile("test11file" , 300 , fileList) ,  11 , 257, "check number of output lines for table failed for regular size file." , "-t"))
+	outputList.append(makeTest(sys.argv[1] , makeFile("test12file" , 2000000 , fileList) ,  12 , 257, "check number of output lines for table failed for large file." , "-t"))
+
+	for i in range(0 , 1024):
+		 outputList.append(makeTest(sys.argv[1] , makeFile("test" + str(i + 13) + "file" , i , fileList) ,  13 + i , 257, "check number of output lines for table failed for iteration file." , "-t"))
 
 
 	for test in successList:
@@ -90,10 +107,15 @@ def main():
 	for test in failureList:
 		results.append(failureTest(test.programName , test.fileName , test.testNum , test.moq , test.type))
 
+	for test in outputList:
+		results.append(outputLineTest(test.programName , test.fileName , test.testNum , test.moq , test.type))
+
 	totalTests = list()
 	for test in successList:
 		totalTests.append(test)
 	for test in failureList:
+		totalTests.append(test)
+	for test in outputList:
 		totalTests.append(test)
 
 	testFailure = 0;

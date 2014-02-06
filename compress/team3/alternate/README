@@ -1,0 +1,8 @@
+To run:
+      make
+      ./huff -t <textfile>
+
+     
+to run example:
+      make
+      ./huff -t ex.txt

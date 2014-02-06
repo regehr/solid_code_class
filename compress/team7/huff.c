@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-#define READ_BINARY "rb"
+#include <assert.h>
+#include <string.h>
+#include <stdbool.h>
+#include "huff_table.h"
 
 //Enum used to determine the operation for the program
 enum Flags
@@ -15,14 +17,23 @@ enum Flags
 //Forward declarations
 enum Flags determine_flag(char* user_flag);
 void create_table(int table[], char* filename);
+long long det_file_size(FILE *file);
+void print_table(char* table[]);
+bool is_huff_extension(char* filename);
+bool is_huff_header(FILE* file);
 
-
+/*
+ *
+ * "Do something reasonable." ~ A Certain Professor
+ *
+ */
 int main(int argc, char* argv[])
 {
 	//Local vars
 	enum Flags given_flag;
 	int i, table[256];
 	char* filename;
+	char** encoded_table;
 	
 	//Initial check for correct arg count
 	if(argc != 3)
@@ -37,17 +48,28 @@ int main(int argc, char* argv[])
 	
 	//Zero out table entries
 	for(i = 0; i < 256; i++)
+	{
 		table[i] = 0;
+	}
 	
 	switch(given_flag)
 	{
 		case COMPRESS:
+			//TODO: Write huff header, uncompressed size, and encoded table to file
+			//TODO: Use encoded table to given file
+			create_table(table, filename);
+			encoded_table = get_encoding(create_huff_tree_from_frequency(table));
+			assert(encoded_table && "Encoded_table is a null pointer");
 			break;
 		case DECOMPRESS:
+			//TODO: decompress the file
 			break;
 		case DUMP:
+			//TODO: Parse table if file is a proper .huff
 			create_table(table, filename);
-			//TODO: write table info to stdout
+			encoded_table = get_encoding(create_huff_tree_from_frequency(table));
+			assert(encoded_table && "Encoded_table is a null pointer");			
+			print_table(encoded_table);
 			break;
 		case INVALID:
 			printf("Invalid flag given. Expected one of the following: -c, -d, -t.\n");
@@ -78,7 +100,8 @@ enum Flags determine_flag(char* user_flag)
 /*
  * Populates given table with the char frequencies in
  * file with the given filename. If the file doesn't exist
- * or is not openable, the program exits
+ * or is not openable, the program exits. THIS DOES NOT SORT
+ * THE TABLE. ASSUMES TABLE HAS ALREADY BEEN ZEROED.
  *
  * Author: Thomas Gonsor
  */
@@ -86,9 +109,16 @@ void create_table(int table[], char* filename)
 {
 	//Local vars
 	FILE* file;
+	char curr_char;
+	int i, read_ret;
+	long long file_length = 0;
+	bool is_huff_file = false;
+	
+	//Determine if huff file
+	is_huff_file = (is_huff_extension && is_huff_header) ? true : false;
 	
 	//Attempt to open the file
-	file = fopen(filename, READ_BINARY);
+	file = fopen(filename, "rb");
 	
 	//Ensure we can open the file
 	if(file == NULL)
@@ -97,5 +127,66 @@ void create_table(int table[], char* filename)
 		exit(-1);
 	}
 	
-	//TODO: actually read file and populate table
+	//Determine size of file
+	det_file_size(file);
+	
+	//Beginning populating frequency table
+	for(i = 0; i < file_length; i++)
+	{
+		//Ensure we don't encounter an error
+		read_ret = fread(&curr_char, 1, 1, file);
+		
+		//If not 1, we didn't read anything else
+		if(read_ret != 1)
+			break;
+		
+		//Casting char correctly converts to its ascii value
+		//So we increment that index
+		table[(int)curr_char]++;
+	}
+	
+	//Close the file
+	fclose(file);
+}
+
+long long det_file_size(FILE* file)
+{
+	long long length = 0;
+	
+	//Go to end, determine curr pos, then return to start
+	fseek(file, 0L, SEEK_END);
+	length = ftell(file);
+	rewind(file);
+	
+	return length;
+}
+
+/*
+ * Prints the given table, who's size is assumed to be 256,
+ * to stdout.
+ *
+ * Author: Thomas Gonsor
+ */
+void print_table(char* table[])
+{
+	//Local vars
+	int i;
+	
+	//Print frequency table to stdout
+	for(i = 0; i < 256; i++)
+	{
+		printf("ascii(%u) -> %s\n", i, table[i]);
+	}
+}
+
+bool is_huff_extension(char* filename)
+{
+	char* extension = strstr(filename, ".huff");
+	
+	return (extension != NULL);
+}
+
+bool is_huff_header(FILE* file)
+{
+	return true;
 }
