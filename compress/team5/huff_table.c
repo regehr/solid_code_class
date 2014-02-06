@@ -185,7 +185,7 @@ void print_huff_table(FILE *input) {
 
 	/* calculate character frequencies. */
 	while((character = fgetc(input)) != EOF) {
-		frequencies[character]++;
+	    frequencies[character]++;
 	}
 	
 	/* builds huff_table based on frequencies. */
@@ -193,8 +193,9 @@ void print_huff_table(FILE *input) {
 	 
 	/*prints out each line of huff table.*/
 	for(i = 0; i < CHAR_RANGE; i++) {
+	    printf("%d - ", i);
 	    if(huff_table[i] == NULL) {
-                continue;
+                printf("\n");
 	    } else {
 		printf("%s\n", huff_table[i]);
 	    }
