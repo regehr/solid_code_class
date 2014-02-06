@@ -2,12 +2,9 @@
 import os
 from subprocess import call
 
-
-#Function to find the number of elements in the file
-def file_len(fileName):
+def line_count(fileName):
 	with open(fileName) as f:
-		f.seek(0, 2)    # Seek to the end of the file
-		return f.tell()
+		return f.read().count("\n")
 
 #Function to ensure all elements are unique 		
 def unique(filename):
@@ -39,7 +36,7 @@ def test1():
 	call(["valgrind", "--leak-check=yes", "./huff", "-t", "testFile.txt"])
 
 	#Check that the file has 256 lines
-	mylen = file_len("table")
+	mylen = line_count("table")
 	if mylen != 256:
 		print "File should be 256 lines. Actual " + str(mylen)
 
