@@ -51,7 +51,7 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
 
     /* Theres an extra byte to be written, write it out and fail with ENOWRITE
      * if the write fails */
-    if (encoder.buffer != 0 &&
+    if (encoder.buffer_used &&
         ! fwrite(&encoder.buffer, 1, 1, output)) {
         return ENOWRITE;
     }
