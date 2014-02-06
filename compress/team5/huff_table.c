@@ -9,39 +9,74 @@
 #define CHAR_RANGE 257
 
 // returns the frequencies
-int check_tree(huff_tree *tree)
+int check_tree_df(huff_tree *node)
 {
-    if (!tree->zero_tree && ! tree->one_tree)
+    if (!node->zero_tree && ! node->one_tree)
     {
-	return tree->frequency;
+	assert(node->character < 257);
+	assert(node->character >= 0);
+	return node->frequency;
     }
+
     int left_freq = 0;
     int right_freq = 0;
-    int tot_freq = 0;
-    if (tree->zero_tree)
+
+    if (node->zero_tree)
     {
-	left_freq  = check_tree(tree->zero_tree);
+	left_freq  = check_tree_df(node->zero_tree);
     }
-    if (tree->one_tree)
+    if (node->one_tree)
     {
-	right_freq = check_tree(tree->one_tree);
+	right_freq = check_tree_df(node->one_tree);
     }
     
-    tot_freq = left_freq + right_freq;
-    assert(tot_freq == tree->frequency);
-    return tree->frequency;
+    assert(left_freq + right_freq == node->frequency);
+    return node->frequency;
 }
 
 
-// Check rep 
-void check_rep(huff_tree *tree)
+// returns the number of leaf nodes in a tree
+int count_leaf_nodes(huff_tree *node)
 {
+    if (!node->zero_tree && !node->one_tree)
+    {
+	return 1;
+    }
 
+    int l_count = 0;
+    int r_count = 0;
+
+    if (node->zero_tree)
+    {
+	l_count  = count_leaf_nodes(node->zero_tree);
+    }
+    if (node->one_tree)
+    {
+	r_count = count_leaf_nodes(node->one_tree);
+    }
+    
+    return l_count + r_count;
+}
+
+
+// Check rep for the tree, not the table
+void check_rep_tree(huff_tree *tree)
+{
     // if the table has been built, it should not be null
     assert(tree);
-    check_tree(tree);
+
+    // recursivly assert frequencies are consistent
+    check_tree_df(tree);
+
+    // check that the count of leaf nodes is bounded
+    int num_leaf_nodes = count_leaf_nodes(tree);
+    assert(num_leaf_nodes <= 265);
+
+    // must be okay
     fprintf(stderr, "OK\n");
 }
+
+
 
 /* free the memory of a single huff_tree struct. */
 void free_huff_tree(huff_tree *tree) {
@@ -135,7 +170,7 @@ char **build_huff_table(int frequencies[]) {
     /* check rep for a full fledged tree */
     if (CHECK_REP)
     {
-	check_rep(tree);
+	check_rep_tree(tree);
     }
     
     free_huff_tree(tree);
@@ -160,8 +195,8 @@ void print_huff_table(FILE *input) {
 	for(i = 0; i < CHAR_RANGE; i++) {
 	    if(huff_table[i] == NULL) {
                 continue;
-        } else {
-            printf("%s\n", huff_table[i]);
-        }
+	    } else {
+		printf("%s\n", huff_table[i]);
+	    }
 	}
 }
