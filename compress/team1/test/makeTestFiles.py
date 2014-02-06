@@ -1,6 +1,16 @@
 #!/bin/usr/python
 
 from random import randint
+import os
+from subprocess import call
+
+#check the current working directory
+if("test" not in os.getcwd()):
+    os.chdir("test")
+
+#make sure the directory for the test files is there
+if(not os.path.exists("./testFiles")):
+    call(["mkdir", "./testFiles"])
 
 #set up a file to write to
 fh = open("testFiles/allChars.txt", "w");

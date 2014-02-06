@@ -1,7 +1,8 @@
 from subprocess import call
+import os
 
-#remove the directory that has all of the test files in it
-call(["rm", "-r", "testFiles"])
+#switch to the directory with the test files in it
+os.chdir("test/testFiles")
 
-#replace it with a clean one
-call(["mkdir", "testFiles"])
+#remote the .tbl files (this has to be run in a shell for the wildcard to work correctly)
+call(["sh", "-c", "rm *.tbl"])
