@@ -22,17 +22,10 @@
 	int char_number;
 	int lowest_value;
 	int frequency;
+	struct huff_node* parent;
+	char* encoding;
 }huff_node;
 
-typedef struct huff_root
-{
-	struct huff_node* left_child;
-	struct huff_node* right_child;
-	int frequency;
-	//not really needed. Just there to help make sure mem is freed.
-	int node_count;
-
-}huff_root;
 
 
 
@@ -42,7 +35,7 @@ typedef struct huff_root
  *  The array should contain the count of each ascii character to encode.  
  *
  */
-huff_root* create_huff_tree_from_frequency(int frequencyArray[]);
+huff_node* create_huff_tree_from_frequency(int frequencyArray[]);
 
 /*  This method will create a huff tree based on an array containing
  *  encodings for each ascii character 0 to 255.  Element 0 referes to 
@@ -50,12 +43,12 @@ huff_root* create_huff_tree_from_frequency(int frequencyArray[]);
  *
  *  Encodings are currently setup as strings of '0's and '1's.
  */
-huff_root* create_huff_tree_from_encoding(char** encoding);
+huff_node* create_huff_tree_from_encoding(char** encoding);
 
-/*  This method will free all the memory used by a huff_root "object"
+/*  This method will free all the memory used by a huff_node "object"
  *
  */
-void destroy_huff_tree(huff_root* root);
+void destroy_huff_tree(huff_node* root);
 
 /*  get_encoding will return an array of size 256.  This array will contain
  *  the encoding for each ascii character.  Element 0 is ascii 0, element 1 
@@ -65,7 +58,7 @@ void destroy_huff_tree(huff_root* root);
  *  Encodings are currently setup as strings of '0's and '1's.
  *
  */  
-char** get_encoding(huff_root* root);
+char** get_encoding(huff_node* root);
 
 
 //Not sure how to do the decoding yet.  
