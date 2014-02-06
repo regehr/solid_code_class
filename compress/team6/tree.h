@@ -12,10 +12,9 @@ typedef struct node {
 } node;
 typedef node *tree;
 
-
+/* hi */
 char *get_huffman_table(unsigned long long ascii_counts[256]);
-/* TODO: Get tree from file table. */
-tree get_huffman_tree(char *table);
+tree get_huffman_tree(char *table[256]);
 void free_tree(tree t);
 
 #endif
