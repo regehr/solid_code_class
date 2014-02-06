@@ -1,10 +1,12 @@
-.PHONY: clean gdb
+.PHONY: clean gdb test
 
 CC = clang
 CFLAGS = -Wall -Wextra -pedantic -O0 -g
 
 objects = main.o internal.o header.o huff.o encoder.o
 bin = huff
+
+python = python27
 
 default: $(bin)
 
@@ -22,3 +24,6 @@ gdb: $(bin)
 
 clean:
 	-rm $(bin) $(objects)
+
+test: clean $(bin)
+	$(python) test.py
