@@ -20,6 +20,7 @@
 	struct huff_node* left_child;
 	struct huff_node* right_child;
 	int char_number;
+	int lowest_value;
 	int frequency;
 }huff_node;
 
