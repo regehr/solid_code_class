@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <sys/stat.h>
+#include "huff_tree.h"
 #define MAGIC_NUM "HUFF"
 #define HUFF_EXT ".huff"
 #define ERR_CODE 255
@@ -20,18 +21,17 @@ bool is_huff_file(const char*);
 /**
  *	Returns true if the file contains a valid huff header. The string array must be of length 256.
  */
-bool get_huff_header(FILE* file, unsigned long long* size, char** huff_table);
+bool get_huff_header(FILE* file, unsigned long long* size);
 
 /**
  *	Writes the huff header to the file. The character array must be of length 256.
  */
-void write_huff_header(FILE*, unsigned long long, char**);
+void write_huff_header(FILE*, unsigned long long);
 
 /**
- *	Outputs the huffman tree from the file given to the character array given. The
- *	The array length must be 256.
+ *	Generates the huffman tree from the file.
  */
-void get_huff_tree(FILE*, char**);
+void gen_huff_tree(FILE*);
 
 /**
  *	Returns the size of the file in bytes.
@@ -41,6 +41,11 @@ unsigned long long get_file_size(const char*);
 /**
  *	Writes out the body of compressed.
  */
-void write_huff_body(FILE*, FILE*, unsigned long long, char**);
+void write_huff_body(FILE*, FILE*, unsigned long long);
+
+/**
+ *	Read the huffman body from the file and output.
+ */
+void read_huff_body(FILE*, FILE*, unsigned long long);
 
 #endif

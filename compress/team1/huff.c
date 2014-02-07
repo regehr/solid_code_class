@@ -2,28 +2,30 @@
  *
  */
 
-#include "huff_treee.h"
+#include "huff_tree.h"
 #include "huff_io.h"
 
 void print_tree(FILE* file, const char* filename){
-    char* huff_table[256];
-
+    
     // Get table from file or generate
     if (is_huff_file(filename)){
         unsigned long long size = get_file_size(filename);
-        get_huff_header(file, &size, huff_table);
+        if(!get_huff_header(file, &size)){
+            fprintf(stderr, "File is in incorrect format\n.");
+            exit(ERR_CODE);
+        }
     } else {
-        get_huff_tree(file, huff_table);
+        gen_huff_tree(file);
     }
     
     // Print table
     int i;
     for(i = 0; i < 256; i++)
-        printf("%s\n", huff_table[i]);
+        printf("%s\n", get_code(i));
+    free_huff_tree();
 }
 
 void compress(FILE *original_file, const char* filename){
-    char* huff_table[256];
     unsigned long long size = get_file_size(filename);
 
     // Ignore files with huff extension
@@ -40,20 +42,20 @@ void compress(FILE *original_file, const char* filename){
     }
     
     // Write header
-    get_huff_tree(original_file, huff_table);
-    write_huff_header(newfile, size, huff_table);
+    gen_huff_tree(original_file);
+    write_huff_header(newfile, size);
     
     // Write body
-    write_huff_body(original_file, newfile, size, huff_table);
+    write_huff_body(original_file, newfile, size);
     
+    free_huff_tree();
     if (EOF == fclose(newfile)){
         fprintf(stderr, "ERROR: Could save file %s\n", filename);
         exit(ERR_CODE);
     }
 }
 
-void decompress(FILE *file, const char* filename){
-    char* huff_table[256];
+void decompress(FILE *compressed, const char* filename){
     unsigned long long size;
     
     if(!is_huff_file(filename)){
@@ -61,9 +63,25 @@ void decompress(FILE *file, const char* filename){
         exit(ERR_CODE);
     }
     
+    // Get the header
     size = get_file_size(filename);
-    get_huff_header(file, &size, huff_table);
+    if(!get_huff_header(compressed, &size)){
+        fprintf(stderr, "File is in incorrect format\n.");
+        exit(ERR_CODE);
+    }
     
+    // Create file from huff
+    strcat((char*)filename, HUFF_EXT);
+    FILE* decompressed = fopen((filename), "w");
+    if (decompressed == NULL){
+        fprintf(stderr, "ERROR: Could not create file %s\n", filename);
+        exit(ERR_CODE);
+    }
+    
+    // Write out decompressed file
+    read_huff_body(compressed, decompressed, size);
+    
+    free_huff_tree();
 }
 
 int main(int argc, const char *argv[])

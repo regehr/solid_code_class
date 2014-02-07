@@ -1,6 +1,4 @@
-#include <stdio.h>
 #include "huff_io.h"
-#include "huff_table.h"
 
 bool is_huff_file(const char* filename){
     const char *dot = strrchr(filename, '.');
@@ -23,8 +21,9 @@ static void write_body_error(){
     exit(ERR_CODE);
 }
 
-bool get_huff_header(FILE* file, unsigned long long* size, char** huff_table){
+bool get_huff_header(FILE* file, unsigned long long* size){
     char magic[5];
+    char* huff_table[256];
     
     // Read magic number
     magic[0] = fgetc(file);
@@ -53,7 +52,7 @@ bool get_huff_header(FILE* file, unsigned long long* size, char** huff_table){
         }
         huff_table[i] = line;
     }
-
+	gen_tree_tbl(huff_table);
     return true;
 }
 
@@ -74,7 +73,7 @@ static void get_frequencies(FILE* file, uint64_t* frequencies){
     } while(c != EOF);
 }
 
-void get_huff_tree(FILE* file, char** huff_table){
+void gen_huff_tree(FILE* file){
     uint64_t frequencies[256];
     
     // Initialize frequencies
@@ -83,7 +82,7 @@ void get_huff_tree(FILE* file, char** huff_table){
         frequencies[i] = 0;
     }
     get_frequencies(file, frequencies);
-    gen_huff_table(frequencies, huff_table);
+    gen_tree_frq(frequencies);
 }
 
 unsigned long long get_file_size(const char* filename){
@@ -92,7 +91,7 @@ unsigned long long get_file_size(const char* filename){
     return (unsigned long long)st.st_size;
 }
 
-void write_huff_header(FILE* file, unsigned long long filesize, char** huff_table){
+void write_huff_header(FILE* file, unsigned long long filesize){
     
     // Write magic number
     if (fprintf(file, MAGIC_NUM) < 0){
@@ -107,7 +106,7 @@ void write_huff_header(FILE* file, unsigned long long filesize, char** huff_tabl
     // Write huff_table
     int i;
     for (i = 0; i < 256; i++){
-       	if (fputs(huff_table[i], file) 	== EOF
+       	if (fputs(get_code(i), file) 	== EOF
             || fputc('\0', file) 		== EOF
             || fputc('\n', file) 		== EOF)
         {
@@ -116,7 +115,7 @@ void write_huff_header(FILE* file, unsigned long long filesize, char** huff_tabl
     }
 }
 
-void write_huff_body(FILE* original, FILE* newfile, unsigned long long size, char** huff_table){
+void write_huff_body(FILE* original, FILE* newfile, unsigned long long size){
     rewind(original);
     
     // Read character and output corresponding encoding
@@ -124,11 +123,17 @@ void write_huff_body(FILE* original, FILE* newfile, unsigned long long size, cha
     do {
         c = fgetc(original);
         if (c != EOF){
-            if(fputs(huff_table[c], newfile) == EOF){
+            char* code_string = get_code(c);
+            if(fputs(code_string, newfile) == EOF){
                 write_body_error();
             }
         } else if (ferror(original)){
             write_body_error();
         }
     } while (c != EOF);
+}
+
+void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long size){
+    
+    // Read characters 
 }

@@ -8,7 +8,7 @@ bin = huff
 
 default: $(bin)
 
-huff_table.o: huff_tree.h
+huff_tree.o: huff_tree.h
 huff_io.o: huff_io.h
 
 $(bin): $(objects)

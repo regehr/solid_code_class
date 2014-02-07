@@ -8,3 +8,5 @@ tree before the program exits.
 To use the encoding function, call gen_tree_frq with a sorted array of char frequencies. Then you can 
 use the get_code function to get the corresponding huffman code for a given character. Also call 
 free_huff_tree before exiting program.
+
+Ive implemented compression. Should be working, but the build_tree_tbl/gen_tree_tbl function is not implemented. Compression should work. Decompression will be a snap to finish once the function is implemented.
