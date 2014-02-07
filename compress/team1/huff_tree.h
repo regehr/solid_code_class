@@ -28,7 +28,7 @@ void gen_tree_frq(uint64_t freq[256]);
 bool get_char(char *, char *);
 
 /* Takes a character and returns the matching huffman code *. */
-char * get_code(char code);
+char * get_code(char);
 
 /* Frees heap memory allocated for huffman tree nodes. */
 void free_huff_tree();
@@ -41,10 +41,11 @@ typedef struct node
     char code[257]; /* This node's huffman code. Null terminated string. */
     struct node *left; /* The left child of this node. Null if leaf node. */
     struct node *right; /* The right child of this node. Null if leaf node. */
+    uint64_t freq; /* The frequency of this node. Combined value if non-leaf node. */    
     unsigned id; /* Unique id for this node. */
-    uint64_t freq; /* The frequency of this node. Combined value if non-leaf node. */
     bool visited; /* Used for searching algorithms. */
     uint8_t c; /* The character this node represents. Null if non-leaf node. */
+    uint8_t lowest; /* The lowest value character of this subtree. */
 }node;
 
 /* Character nodes. */
@@ -58,7 +59,7 @@ node *all_nodes[511];
 int all_node_curr;
 
 /* Type of depth first search. */
-typedef enum { SORT, TABLE, DOT, CHECK, DECODE }dfs_t;
+typedef enum { SORT, TABLE, DOT, CHECK }dfs_t;
 dfs_t dfs_type;
 
 /* Unique serial number for each node. */
@@ -109,7 +110,7 @@ void check_tree();
 void check_build(node *, node *);
 
 /* Generates a dot file from huffman tree. */
-void tree_dot(node *);
+void tree_dot();
 
 /* Checks if leaf node. */
 bool is_leaf(node *);

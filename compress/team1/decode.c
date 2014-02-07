@@ -26,11 +26,13 @@ bool get_char(char *huff_bit, char *character)
     if (*huff_bit == 48 && curr_node->left != NULL)
     {
         curr_node = curr_node->left;
+        character = NULL;
         return false;
     }
     if (*huff_bit == 49 && curr_node->right != NULL)
     {
         curr_node = curr_node->right;
+        character = NULL;
         return false;
     }
     *character = curr_node->c;
