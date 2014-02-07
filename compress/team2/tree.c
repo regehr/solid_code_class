@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "internal.h"
-#include "huff.h"
+#include "tree.h"
 
 static bool IS_BYTE(short path) {
     return path > -257 && path < 0;

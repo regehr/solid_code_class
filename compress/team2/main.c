@@ -6,7 +6,7 @@
 #include <assert.h>
 #include "internal.h"
 #include "header.h"
-#include "huff.h"
+#include "tree.h"
 #include "encoder.h"
 
 /* build a frequency table from the given file. If for some strange reason
@@ -129,7 +129,7 @@ static int decompress(FILE * file, char * filename) {
     int code = huff_read_header(file, filename, &header);
     /* Our header table is implicitly free-d when huff_read_header fails */
     if (code != 0) {
-        fprintf(stderr, "Cannot decompress an uncompressed file: %s\n", 
+        fprintf(stderr, "Cannot decompress an uncompressed file: %s\n",
                 huff_error(code));
         return HUFF_FAILURE;
     }
