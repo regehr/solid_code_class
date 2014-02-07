@@ -162,7 +162,7 @@ void dfs(node *root, void *p)
             assert(root->c == 0);
 }
 
-void tree_dot(node *root)
+void tree_dot()
 {
     dfs_type = DOT;
     clear_visited();
@@ -178,11 +178,11 @@ void tree_dot(node *root)
             else if (i < 256)
                 fprintf(dot, "%u [label=\"\\%u'frq: %llu code:%s\"];\n", n->id, n->c, n->freq, n->freq > 0 ? n->code : "");
             else
-                fprintf(dot, "%u [color=\"green\" shape=\"box\" label=\"INNER %.2Lf%%\"];\n", n->id, ((long double)n->freq / (long double)root->freq) * 100);
+                fprintf(dot, "%u [color=\"green\" shape=\"box\" label=\"INNER %.2Lf%%\"];\n", n->id, ((long double)n->freq / (long double)nodes[0]->freq) * 100);
         }
     }
     
-    dfs(root, dot);
+    dfs(nodes[0], dot);
     fputs("}", dot);
     fclose(dot);
 }

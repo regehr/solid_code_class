@@ -8,11 +8,6 @@ void build_tree_tbl();
 void init_all_nodes();
 bool get_char(char *, char *);
 
-typedef struct decode_info {
-    char *huff_bit;
-    char *character;
-}decode_info;
-
 bool char_found = false;
 node *curr_node;
 

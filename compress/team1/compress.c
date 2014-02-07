@@ -18,13 +18,12 @@ void gen_tree_frq(uint64_t freq[256])
     sort_nodes(); /* Sort nodes before building tree. */
     build_tree_frq();
 #ifdef CHECK_REP
-    check_tree(nodes);
+    check_tree();
 #endif
     create_table();
 #ifdef GEN_DOT
-    tree_dot(*nodes);
+    tree_dot();
 #endif
-    printf("***%lu***", sizeof(node) * 511);
 }
 
 void byte_freq(uint64_t freq[256])
