@@ -31,7 +31,8 @@ static uint8_t MIN_UINT8(uint8_t a, uint8_t b) {
 }
 
 static bool IS_CODE(const char *string) {
-	for (short i = 0; string[i] != 0; i++) {
+	short i;
+	for (i = 0; string[i] != 0; i++) {
 		char c = string[i];
 		if ((c != '0' && c != '1') || i > 255)
 			return false;
