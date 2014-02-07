@@ -26,4 +26,5 @@ clean:
 	-rm $(bin) $(objects)
 
 test: $(bin)
-	$(python) test.py
+	cp $(bin) test
+	cd test; $(python) test.py
