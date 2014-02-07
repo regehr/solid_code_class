@@ -2,7 +2,7 @@
  *
  */
 
-#include "huff_table.h"
+#include "huff_treee.h"
 #include "huff_io.h"
 
 int print_tree(FILE* file, const char* filename){
