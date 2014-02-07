@@ -10,9 +10,9 @@ static bool IS_BYTE(short path) {
     return path > -257 && path < 0;
 }
 
-static bool IS_BRANCH(short path) {
+UNUSED(static bool IS_BRANCH(short path) {
     return path > -1 && path < 256;
-}
+})
 
 static short BYTE_INDEX(short path) {
     return -(path + 1);

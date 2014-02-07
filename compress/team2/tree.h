@@ -3,6 +3,8 @@
 
 #include "internal.h"
 
+#define UNUSED(x) __attribute__((unused)) x
+
 /* Represents a node which points to other nodes. */
 struct node {
     /* The tree paths. If a path is non-negative, represents an index into
