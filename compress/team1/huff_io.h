@@ -7,6 +7,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdint.h>
+#include <sys/stat.h>
 #define MAGIC_NUM "HUFF"
 #define HUFF_EXT ".huff"
 #define ERR_CODE 255
@@ -17,25 +18,29 @@
 bool is_huff_file(const char*);
 
 /**
- *	Returns true if the file contains a valid huff header
+ *	Returns true if the file contains a valid huff header. The string array must be of length 256.
  */
-bool is_huff_header(FILE*);
+bool get_huff_header(FILE* file, unsigned long long* size, char** huff_table);
 
 /**
- *	Writes the huff header to the file. Returns 0 if the write succeded.
+ *	Writes the huff header to the file. The character array must be of length 256.
  */
-int write_huff_header(FILE*);
-
-/**
- *	Gets the character frequencies from the file given and outputs them to the integer array. 
- * 	The array must be a length of 256. Returns 0 if the operation succeded.
- */
-int get_frequencies(FILE*, uint64_t*);
+void write_huff_header(FILE*, unsigned long long, char**);
 
 /**
  *	Outputs the huffman tree from the file given to the character array given. The
- *	The array length must be 256. Returns 0 if the operation succeded.
+ *	The array length must be 256.
  */
-int get_huff_tree(FILE*, char**);
+void get_huff_tree(FILE*, char**);
+
+/**
+ *	Returns the size of the file in bytes.
+ */
+unsigned long long get_file_size(const char*);
+
+/**
+ *	Writes out the body of compressed.
+ */
+void write_huff_body(FILE*, FILE*, unsigned long long, char**);
 
 #endif
