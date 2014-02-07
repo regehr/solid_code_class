@@ -11,6 +11,57 @@ def codesfrom(filename):
   output = output.decode('utf-8')
   return [ x.strip() for x in output.split('\n') if len(x) > 0 ]
 
+class Leaf(object):
+  def __init__(self, char):
+    self.char = char
+    self.left = None
+    self.right = None
+
+# Left = 0 bit, Right = 1 bit
+class Node(object):
+  def __init__(self, left, right):
+    self.left = left
+    self.right = right
+    self.char = -1
+
+def buildWithBit(tree, bit):
+  assert bit == "0" or bit == "1", "bad bit"
+
+  if bit == "0":
+    if tree.left == None:
+      tree.left = Node(None, None)
+    return tree.left
+  else:
+    if tree.right == None:
+      tree.right = Node(None, None)
+    return tree.right
+
+def buildTree(output):
+  root = Node(None, None)
+
+  for i,code in enumerate(output):
+    leaf = Leaf(i)
+    cur = root
+    for bit in code[:-1]:
+      cur = buildWithBit(cur, bit)
+    if code[-1] == "0":
+      cur.left = leaf
+    else:
+      cur.right = leaf
+
+  return root
+
+def checkTree(tree):
+  if tree.left == None and tree.right == None:
+    # Make sure the only leaves are the ones that hold chars
+    return tree.char >= 0
+  elif tree.left != None and tree.right != None:
+    # If it's an internal node, check both children
+    return checkTree(tree.left) and checkTree(tree.right)
+  else:
+    # No nodes with only one child
+    return False
+
 def generalcheck(output, filename):
   """Checks to make sure no encoding is the prefix of another, and other universal properties."""
   if len(output) != 256:
@@ -23,8 +74,14 @@ def generalcheck(output, filename):
       if code2.startswith(code1):
         print("Error in {0}: {1} is the prefix of {2}, both codes".format(filename, code1, code2))
         return False
-  # TODO: verify that the only tree leaves are the chars
+
+  tree = buildTree(output)
+  if not checkTree(tree):
+    print("Error in {0}: not all tree leaves are chars".format(filename))
+    return False
+
   # I was going to add another test here, but I forgot what it was... I'll probably remember sometime
+
   return True
 
 def oneeachtest():
