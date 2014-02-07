@@ -24,7 +24,8 @@ gdb: $(bin)
 
 clean:
 	-rm $(bin) $(objects)
+	$(MAKE) -C test clean
 
 test: $(bin)
 	cp $(bin) test
-	cd test; $(python) test.py
+	$(MAKE) -C test test python=$(python)
