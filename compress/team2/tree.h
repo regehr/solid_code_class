@@ -1,7 +1,7 @@
-#include "internal.h"
-
 #ifndef HUFF_H
 #define HUFF_H
+
+#include "internal.h"
 
 /* Represents a node which points to other nodes. */
 struct node {
@@ -37,7 +37,7 @@ int huff_make_table(uint64_t freq[256], char *out_table[256]);
 
 /* Build a new decoder struct from a
    translation table, which is an array of 256 char *s which are the ASCII
-   representations of that byte index's translation. Returns 0 on success, 
+   representations of that byte index's translation. Returns 0 on success,
    non-zero on failure. Should not fail. */
 int huff_make_decoder(struct huff_decoder *, char *table[256]);
 
