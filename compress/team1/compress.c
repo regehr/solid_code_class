@@ -15,15 +15,13 @@ void gen_tree_frq(uint64_t freq[256])
 {
     init_nodes();
     byte_freq(freq); /* Determine the frequency of occurrence of each byte in the input file. */
-    sort_nodes(); /* Sort nodes before building tree. */
+    sort_nodes(256); /* Sort nodes before building tree. */
     build_tree_frq();
 #ifdef CHECK_REP
     check_tree();
 #endif
     create_table();
-#ifdef GEN_DOT
     tree_dot();
-#endif
 }
 
 void byte_freq(uint64_t freq[256])
@@ -51,9 +49,10 @@ void build_tree_frq()
         
         /* Combine into new node whose frequency is the sum of frequency of removed nodes. */
         node* new_node;
-        /// DON'T MALLOC HERE ///
-        init_node(&new_node, 0); /* Character value shouldn't matter here because char comparisons are only done on leaf nodes. */
-        new_node->freq = (*node0).freq + (*node1).freq;
+        
+        init_node(&new_node, 0); /* Character value shouldn't matter here because char comparisons are only done on subtree lowest chars. */
+        new_node->freq = node0->freq + node1->freq;
+        new_node->lowest = node0->lowest < node1->lowest ? node0->lowest : node0->lowest == node1->lowest ? node1->lowest : node1->lowest;
         
         /* New node should contain the removed nodes as subtrees. */
         new_node->left = node0;
@@ -64,7 +63,7 @@ void build_tree_frq()
         all_nodes[all_node_curr++] = new_node;
         
         /* Sort. */
-        sort_nodes();
+        sort_nodes(256);
     }
     
     assert(nodes[0] != NULL);

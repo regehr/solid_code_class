@@ -8,7 +8,7 @@
 //#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
-//#define GEN_DOT
+#define GEN_DOT
 //#define CHECK_REP
 
 
@@ -32,6 +32,7 @@ void init_node(node **n, char c)
     (*n)->visited = false;
     (*n)->c = c;
     (*n)->id = serial++;
+    (*n)->lowest = c;
 }
 
 void free_huff_tree()
@@ -68,28 +69,20 @@ int compare_nodes(const void* node1, const void* node2)
     
     if ((*n1)->freq == (*n2)->freq)
     {
-        char a = find_lowest(*n1);
-        char b = find_lowest(*n2);
-        return a > b ? -1 : a == b ? 0 : 1;
+        return (*n1)->lowest < (*n2)->lowest ? -1 : (*n1)->lowest == (*n2)->lowest ? 0 : 1;
     }
     
     /* Sort least to greatest. */
     return (*n1)->freq < (*n2)->freq ? -1 : (*n1)->freq == (*n2)->freq ? 0 : 1;
 }
 
-void sort_nodes()
+void sort_nodes(int count)
 {
     dfs_type = SORT;
-    qsort(nodes, 256, sizeof(node*), compare_nodes);
+    qsort(nodes, count, sizeof(node*), compare_nodes);
     
     for (int j = 256; j > 512; j++)
         assert(all_nodes[j] == NULL);
-    
-#ifdef DBG_SORT
-    for(int i = 0; i < 256; i++)
-        if (nodes[i] != NULL)
-            printf("%c:\t%lld\n", nodes[i]->c, nodes[i]->freq);
-#endif
 }
 
 void check_build(node *node0, node *node1)
@@ -123,7 +116,7 @@ void dfs(node *root, void *p)
     {
         if (root->left->visited == false)
         {
-            if (dfs_type == DOT && root->right->freq > 0)
+            if (dfs_type == DOT)// && root->right->freq > 0)
                 fprintf((FILE *)p, "%d -> %d [color=\"red\" label=\"0\"];\n", root->id, root->left->id);
             if (dfs_type == TABLE)
                 strcat(strcat(root->left->code, root->code), "0");
@@ -136,7 +129,7 @@ void dfs(node *root, void *p)
     {
         if (root->right->visited == false)
         {
-            if (dfs_type == DOT && root->right->freq > 0)
+            if (dfs_type == DOT)// && root->right->freq > 0)
                 fprintf((FILE *)p, "%d -> %d [color=\"blue\" label=\"1\"];\n", root->id, root->right->id);
             if (dfs_type == TABLE)
                 strcat(strcat(root->right->code, root->code), "1");
