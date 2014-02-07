@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <assert.h>
+#include "tree.h"
 #include "io.h"
 
 int index_of(char* arr[256], char* string)
@@ -163,6 +164,9 @@ void write_decompressed_file(unsigned char* file_pointer, unsigned long long fil
       map[index++] = pch;
     }
   }
+  
+  tree root = get_huffman_tree(map);
+
   unsigned long long size = get_size_from_file(file_pointer, file_length);
   unsigned long long bit_index = (start_of_compressed+1)*8;
   unsigned char* to_write = malloc(size * sizeof(unsigned char));
@@ -171,37 +175,36 @@ void write_decompressed_file(unsigned char* file_pointer, unsigned long long fil
     printf("Malloc failed, exiting.\n");
     exit(-1);
   }  
-  
+ 
   unsigned long long to_write_index = 0;
-   
+    
   for(int i = 0; i < size; i++)
   {
-   int string_index = 0;
-   char curr_string[257] = {0};
-   int complete = 0;
-   while(!complete)
+   tree current_node = root;
+   while(1)
    {
-     assert(string_index < 256);
+     if(current_node->ascii != '\0')
+     {
+       to_write[to_write_index++] = current_node->ascii;
+       break;
+     }
 
      int bit = bit_at(file_pointer, file_length, bit_index++);
      assert(bit != -1);
 
      if(bit)
-       curr_string[string_index++] = '1';
+     {
+       assert(current_node->one != NULL);
+       current_node = current_node->one;
+     }
      else
      {
-       curr_string[string_index++] = '0';
+       assert(current_node->zero != NULL);
+       current_node = current_node->zero;
      }
-     int index = index_of(map, curr_string);
-     if(index != -1)
-     {
-       assert(index < 256);
-       assert(to_write_index <= size);
-       to_write[to_write_index++] = (unsigned char)index;
-       complete = 1;
-      }
     }
   }
+  free_tree(root);
 
   /* Remove.huff and write out file */
   filename[strlen(filename)-5] = '\0';
