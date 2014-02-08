@@ -1,7 +1,7 @@
 .PHONY: clean gdb test
 
 CC = clang
-CFLAGS = -Wall -Wextra -pedantic -Werror -O3
+CFLAGS = -std=c99 -Wall -Wextra -pedantic -Werror -O3
 
 PY = python27
 
