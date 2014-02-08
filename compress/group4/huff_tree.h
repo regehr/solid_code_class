@@ -1,3 +1,8 @@
+/*
+ * Huff tree model.
+ *
+ * Jonathon McDonald, Lynn Gao, Taylor Stapleton
+ */
 // represents nodes in the Huffman tree
 typedef struct tree_node tree_node;
 struct tree_node {
@@ -13,6 +18,11 @@ struct pq_node {
     int priority;
     struct pq_node *next; // a pointer to the next node in the queue
     struct tree_node content;
+};
+
+struct frequency {
+    unsigned int count;
+    char character;
 };
 
 void enqueue (struct pq_node *, struct pq_node *);

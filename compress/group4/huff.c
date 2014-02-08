@@ -3,6 +3,7 @@
  *
  * Jonathon McDonald, Lynn Gao, Taylor Stapleton
  */
+#include "huff_tree.h"
 #include "huff_io.h"
 #include <stdio.h>
 #include <stdlib.h>

@@ -12,13 +12,6 @@ typedef enum {
     UNHANDLED
 } flags;
 
-
-struct frequency {
-    unsigned int count;
-    char character;
-};
-
-
 flags parse_args (char *[], char **);
 int compare (const void *, const void *);
 void build_table (char *, struct frequency []);

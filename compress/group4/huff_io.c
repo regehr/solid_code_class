@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "huff_tree.h"
 #include "huff_io.h"
 
 /*
