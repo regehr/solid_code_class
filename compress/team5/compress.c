@@ -52,6 +52,10 @@ void compress(FILE *input, char* filename, unsigned long long length, unsigned c
  	printf("%llu size \n", size);
  	
  	char* string = malloc(size*sizeof(char));
+ 	if(string == NULL) {
+ 		printf("Malloc failed \n");
+    	exit(255);
+ 	}
  	
  	rewind(input);
 	character = 0;
