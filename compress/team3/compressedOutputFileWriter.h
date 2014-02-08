@@ -10,7 +10,7 @@
 #define huff_compressedOutputFileWriter_h
 #include "encoder.h"
 
-
-void writeFileToOutput(FILE* nonCompressedFile, char* newFileName, unsigned long long length, huffResult* resultArray);
+//writes an encoded version of the nonCompressedfile with the given filename.
+void writeNonCompressedFileToCompressedOutput(FILE* nonCompressedFile, char* newFileName, unsigned long long length, huffResult* resultArray);
 
 #endif

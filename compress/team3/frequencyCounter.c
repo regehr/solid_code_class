@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 #include <assert.h>
+
+//gives every byte a bin and simply increments the bin.
 void generateFrequencyTable(FILE* file, long long length, unsigned *frequencys )
 {
     long long i;
@@ -26,6 +28,7 @@ void generateFrequencyTable(FILE* file, long long length, unsigned *frequencys )
     }
 }
 
+//prints out the frequency array
 void printFrequencyArray(unsigned* frequencies)
 {
     for(int i = 0; i < 256; i++)

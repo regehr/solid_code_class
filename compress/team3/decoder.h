@@ -9,7 +9,15 @@
 #ifndef huff_decoder_h
 #define huff_decoder_h
 
-huffNode* createHuffmanTreeFromFileEncodings(char * encodings);
+//returns the encodings from a given file, as a string including 256strings returns null if there is an error
+//if successful the number of decoded bytes will be placed in the decoded length variable.
+char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength);
+
+//creates an array of huffResults using the encodings
+huffResult* createHuffResultArrayFromFileEncodings(char * encodings);
+
+//creates a tree from huffResults
+huffNode* createDecodeTreeFromResultArray(huffResult *resultArray);
 
 
 
