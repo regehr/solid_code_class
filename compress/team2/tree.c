@@ -185,8 +185,8 @@ void huff_make_table(const uint64_t freq[256], char *out_table[256]) {
    translation table, which is an array of 256 char *s which are the ASCII
    representations of that byte index's translation. Returns zero on
    success, non-zero on failure. Should not fail. */
-void huff_make_decoder(struct huff_decoder *decoder,
-		const char *const table[256]) {
+void huff_make_decoder(struct huff_decoder *decoder, 
+                       const char * const table[256]) {
 	assert(check_table(table) == true);
 
 	/* initialize current_node to 0 which is the root and where decoding

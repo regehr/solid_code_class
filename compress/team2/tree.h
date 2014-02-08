@@ -38,7 +38,7 @@ void huff_make_table(const uint64_t freq[256], char *out_table[256]);
 /* Build a decoder struct from a translation table, which is an array of 256
    char *s which are the ASCII representations of that byte index's translation.
    Should not fail. */
-void huff_make_decoder(struct huff_decoder *, const char *const table[256]);
+void huff_make_decoder(struct huff_decoder *, const char * const table[256]);
 
 /* Takes the next bit to decode. Returns an unsigned char converted to an int if
    a character is decoded, returns -1 otherwise. If an error occurs, -2 or lower

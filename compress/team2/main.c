@@ -100,7 +100,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
     uint64_t decoded_bytes = 0;
     uint8_t current = 0;
     int decoded = 0;
-    huff_make_decoder(&decoder, (const char *const *)header->table);
+    huff_make_decoder(&decoder, (const char **) header->table);
 
     while (fread(&current, 1, 1, input) && decoded_bytes < header->size) {
         for (int i = 7; i >= 0 && decoded_bytes < header->size; i--) {
