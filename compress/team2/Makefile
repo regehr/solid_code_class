@@ -23,8 +23,8 @@ gdb: $(bin)
 	gdb $(bin)
 
 clean:
-	-rm $(bin) $(objects)
-	$(MAKE) -C test clean
+	-rm -f $(bin) $(objects)
+	-$(MAKE) -C test clean
 
 test: $(bin)
 	cp $(bin) test

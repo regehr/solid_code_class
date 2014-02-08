@@ -78,7 +78,7 @@ static int compress(FILE * file, char * filename) {
 
     /* build our translation table and header, then seek to the
      * start of the file */
-    build_freqtable(file, ftable, &header.size);
+    build_freqtable(file, ftable, &header.length);
     huff_make_table(ftable, header.table);
 
     int code = compress_file(output, file, &header);
@@ -102,8 +102,8 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
     int decoded = 0;
     huff_make_decoder(&decoder, (const char **) header->table);
 
-    while (fread(&current, 1, 1, input) && decoded_bytes < header->size) {
-        for (int i = 7; i >= 0 && decoded_bytes < header->size; i--) {
+    while (fread(&current, 1, 1, input) && decoded_bytes < header->length) {
+        for (int i = 7; i >= 0 && decoded_bytes < header->length; i--) {
             decoded = huff_decode((current >> i) & 0x1, &decoder);
             if (decoded > -1) {
                 decoded_bytes += 1;
@@ -115,7 +115,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
 
     long here = ftell(input);
     fseek(input, 0L, SEEK_END);
-    if ((ftell(input) - here) > 0 || decoded_bytes < header->size) {
+    if ((ftell(input) - here) > 0 || decoded_bytes < header->length) {
         return ETRUNC;
     }
 
@@ -160,7 +160,7 @@ static int table(FILE * file, char * filename) {
     int code = huff_read_header(file, filename, &header);
     if (code != 0) {
         uint64_t ftable[256];
-        build_freqtable(file, ftable, &header.size);
+        build_freqtable(file, ftable, &header.length);
         huff_make_table(ftable, header.table);
     }
 

@@ -31,18 +31,18 @@ static bool has_huff_magic(FILE * file) {
 }
 
 int huff_read_entry(FILE * file, char **out) {
-    char current;
-    int byte_count = 0;
-    char * buffer = xmalloc(257);
+    char current = 0;
     int status = 0;
+    int byte_count = 0;
+    char * buffer = xmalloc(256);
 
     for (; fread(&current, 1, 1, file); byte_count++) {
-        /* when we hit a newline, the entry is finished */
+        /* When we hit a newline, the entry is finished. */
         if (current == '\n') {
             buffer[byte_count] = '\0';
             break;
-        /* if an entry contains something that isn't a zero or a one,
-         * is malformed */
+        /* if an entry contains something that isn't a zero or a one, it
+         * is malformed. */
         } else if (current != '0' && current != '1') {
             status = EBADENTRY;
             break;
@@ -59,9 +59,9 @@ int huff_read_entry(FILE * file, char **out) {
         status = ETRUNC;
     }
 
-    assert(strlen(buffer) == ((size_t) byte_count) &&
+    /* status == 0 implies that strlen(buffer) == byte_count */
+    assert(status != 0 || strlen(buffer) == ((size_t) byte_count) &&
            "Translation table entry length and number of bytes read don't match.");
-    assert(byte_count <= 256 && "Translation table longer than max length.");
 
     if (status == 0) {
         /* re-size the buffer to the actual size of the entry */
@@ -73,13 +73,13 @@ int huff_read_entry(FILE * file, char **out) {
     return status;
 }
 
-/* huff_read_header helper that cleans up the file and header structure when
- * a parsing error occurs */
+/* Helper that cleans up the file and header structure when a parsing error 
+ * occurs, _huff_read_header does the actual parsing. */
 int huff_read_header(FILE * file, char * filename, struct huff_header * header) {
     /* zero the translation table, so that all pointers are null pointers */
     memset(&header->table, 0, 256 * sizeof(char *));
     int code = _huff_read_header(file, filename, header);
-    /* if we failed to read a valid header, then clear the input struct and
+    /* If we failed to read a valid header, then clear the input struct and
      * seek back to the beginning of the file. */
     if (code != 0) {
         huff_free_hdrtable(header);
@@ -99,7 +99,7 @@ static int _huff_read_header(FILE * file, char * filename, struct huff_header * 
     }
 
     /* read out the number of bytes. If the file is too short, return ETRUNC. */
-    if (! fread(&header->size, sizeof(uint64_t), 1, file)) {
+    if (! fread(&header->length, sizeof(uint64_t), 1, file)) {
         return ETRUNC;
     }
 
@@ -116,7 +116,7 @@ static int _huff_read_header(FILE * file, char * filename, struct huff_header * 
 
 int huff_write_header(FILE * file, struct huff_header * header) {
     if (! (fwrite(HUFF_MAGIC, HUFF_MAGICLEN, 1, file) &&
-           fwrite(&header->size, sizeof(uint64_t), 1, file))) {
+           fwrite(&header->length, sizeof(uint64_t), 1, file))) {
         return ENOWRITE;
     }
 
