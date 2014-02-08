@@ -3,38 +3,14 @@
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
+#include "huff.h"
 #include "huff_table.h"
 
-//Enum used to determine the operation for the program
-enum Flags
-{
-	COMPRESS,
-	DECOMPRESS,
-	DUMP,
-	INVALID
-};
-
-//Forward declarations
-enum Flags determine_flag(char* user_flag);
-void create_table(int table[], char* filename);
-long long det_file_size(FILE *file);
-void print_table(char* table[]);
-bool is_huff_extension(char* filename);
-bool is_huff_header(FILE* file);
-
 /*
- *
  * "Do something reasonable." ~ A Certain Professor
- *
  */
 int main(int argc, char* argv[])
 {
-	//Local vars
-	enum Flags given_flag;
-	int i, table[256];
-	char* filename;
-	char** encoded_table;
-	
 	//Initial check for correct arg count
 	if(argc != 3)
 	{
@@ -43,48 +19,204 @@ int main(int argc, char* argv[])
 	}
 	
 	//Determine flag and filename
-	given_flag 	= determine_flag(argv[1]);
-	filename 	= argv[2];
+	enum Flags given_flag = determine_flag(argv[1]);
+	char* filename = argv[2];
 	
-	//Zero out table entries
-	for(i = 0; i < 256; i++)
-	{
-		table[i] = 0;
-	}
+	FILE* file = open_file(filename, "r");
 	
 	switch(given_flag)
 	{
 		case COMPRESS:
-			//TODO: Write huff header, uncompressed size, and encoded table to file
-			//TODO: Use encoded table to given file
-			create_table(table, filename);
-			encoded_table = get_encoding(create_huff_tree_from_frequency(table));
-			assert(encoded_table && "Encoded_table is a null pointer");
+			compress(file, filename);
 			break;
 		case DECOMPRESS:
-			//TODO: decompress the file
+			decompress(file, filename);
 			break;
 		case DUMP:
-			//TODO: Parse table if file is a proper .huff
-			create_table(table, filename);
-			encoded_table = get_encoding(create_huff_tree_from_frequency(table));
-			assert(encoded_table && "Encoded_table is a null pointer");
-			print_table(encoded_table);
+			dump(file, filename);
 			break;
 		case INVALID:
 			printf("Invalid flag given. Expected one of the following: -c, -d, -t.\n");
 			return -1;
 	}
 	
+	fclose(file);
+	
 	return 0;
 }
 
-/* 
- * Compares given string with the list of supported flags.
- * Returns the enum value that corresponds to the given flag.
- * 
- * Author: Thomas Gonsor
- */
+FILE* open_file(char* filename, char* permission)
+{
+	//Attempt to open the file
+	FILE* file = fopen(filename, permission);
+	
+	//Ensure we can open the file
+	if(file == NULL)
+	{
+		printf("Unable to open file: %s, with given permission: %s\n", filename, permission);
+		exit(-1);
+	}
+	
+	return file;
+}
+
+void compress(FILE* file, char* filename)
+{
+	//Check if file is already a .huff
+	if(is_huff_file(filename))
+		return;
+		
+	//Cat filename with extension
+	strcat(filename, EXT);
+	
+	//Open the file
+	FILE* comp_file = open_file(filename, "w");
+	
+	//TODO:Write magic number
+	
+	//TODO:Write length
+	
+	//TODO:Write table
+	
+	//TODO:Write compressed file
+	
+	//TODO:Close the file
+}
+
+//TODO: finish me!
+void decompress(FILE* file, char* filename)
+{
+	//Check if file isnt a .huff
+	if(!is_huff_file(filename))
+		Printf("Given file is not a .huff\n");
+		
+	//TODO:Get huff table
+	
+	//TODO:Decode data based on table
+	
+	//TODO:Open new file
+	
+	//TODO:Write decompressed data to file
+	
+	//TODO:Close the file
+}
+
+void dump(FILE* file, char* filename)
+{
+	char** encoded_table = NULL;
+	int i;		
+	unsigned long long file_size = det_file_size(file);
+	
+	//Check if file is .huff
+	if(is_huff_type(filename))
+	{
+		file_size = det_file_size(file);
+		get_huff_table(encoded_table, file, file_size);
+	}
+	else
+	{
+		int freq_table[256];
+		for(i = 0; i < 256; i++)
+			freq_table[i] = 0;
+			
+		create_freq_table(freq_table, file, file_size);
+		
+		//for(i = 0; i < 256; i++)
+		//	printf("%i\n", freq_table[i]);
+		
+		encoded_table = get_encoding(create_huff_tree_from_frequency(freq_table));
+	}
+	
+	assert(encoded_table != NULL);
+
+	for(i = 0; i < 256; i++)
+		printf("%s", encoded_table[i]);
+}
+
+void create_freq_table(int table[], FILE* file, unsigned long long size)
+{
+	unsigned long long i;
+	char c;
+	
+	for(i = 0; i < size; i++)
+	{
+		c = fgetc(file);
+		table[(int)c]++;
+	}
+}
+
+bool is_huff_type(char* filename)
+{
+	//Last occurance of "."
+	char* file_type = strrchr(filename, '.');
+	
+	//Error check
+	if(file_type == NULL)
+		return false;
+		
+	//Compare with huff extension
+	return (strcmp(file_type, EXT) == 0);
+}
+
+unsigned long long det_file_size(FILE* file)
+{
+	//Go to end
+	fseek(file, 0L, SEEK_END);
+	
+	//Count bytes
+	unsigned long long file_length = ftell(file);
+	
+	//Rewind file
+	rewind(file);
+	
+	//assert(seek_res && "Failed to rewind the given file after determining length.");
+	
+	return file_length;
+}
+
+void get_huff_table(char** huff_table, FILE* file, unsigned long long size)
+{
+	char* magic_num = "";
+	
+	//Read magic number
+	fread(magic_num, 4, 1, file);
+	
+	//If not the proper number
+	if(strcmp(magic_num, NUM) != 0)
+	{
+		printf("Improper huff magic number.\n");
+		exit(-1);
+	}
+	
+	//Get huff length
+	unsigned long long res = 0;
+	fread(&res, 8, 1, file);
+	
+	//Check that sizes match
+	if(res != size)
+	{
+		printf("Size mismatch of huff length.\n");
+		exit(-1);
+	}
+	
+	//Generate the encoded table
+	char max_line_length[258]; //258 since max length is 256, plus 2 for the \n
+	int i;
+	
+	for(i = 0; i < 256; i++)
+	{
+		fgets(max_line_length, 258, file);
+		
+		if(max_line_length == NULL)
+		{
+			printf("Improper huff encoding table.\n");
+			exit(-1);
+		}
+		
+		huff_table[i] = max_line_length;
+	}
+}
+
 enum Flags determine_flag(char* user_flag)
 {
 	if(strcmp(user_flag, "-c") == 0)
@@ -95,132 +227,4 @@ enum Flags determine_flag(char* user_flag)
 		return DUMP;
 	else
 		return INVALID;
-}
-
-/*
- * Populates given table with the char frequencies in
- * file with the given filename. If the file doesn't exist
- * or is not openable, the program exits. THIS DOES NOT SORT
- * THE TABLE. ASSUMES TABLE HAS ALREADY BEEN ZEROED.
- *
- * Author: Thomas Gonsor
- */
-void create_table(int table[], char* filename)
-{
-	//Local vars
-	FILE* file;
-	char curr_char;
-	int i, read_ret;
-	long long file_length = 0;
-	bool is_huff_file = false;
-	
-	//Attempt to open the file
-	file = fopen(filename, "rb");
-	
-	//Ensure we can open the file
-	if(file == NULL)
-	{
-		printf("Unable to find/open the file: %s\n", filename);
-		exit(-1);
-	}
-		
-	//Determine if huff file
-	is_huff_file = (is_huff_extension && is_huff_header);
-	
-	//Determine size of file
-	file_length = det_file_size(file);
-	
-	//Beginning populating frequency table
-	for(i = 0; i < file_length; i++)
-	{
-		//Ensure we don't encounter an error
-		read_ret = fread(&curr_char, 1, 1, file);
-		
-		//If not 1, we didn't read anything else
-		if(read_ret != 1)
-			break;
-		
-		//Casting char correctly converts to its ascii value
-		//So we increment that index
-		table[(int)curr_char]++;
-	}
-	
-	//Close the file
-	fclose(file);
-}
-
-/*
- * Determines the file size of the given file. It is assumed the file
- * given is already opened. Returns the cursor within the file
- * to the start before returning.
- *
- * Author: Thomas Gonsor
- */
-long long det_file_size(FILE* file)
-{
-	long long length = 0;
-	
-	//Go to end, determine curr pos, then return to start
-	fseek(file, 0L, SEEK_END);
-	length = ftell(file);
-	rewind(file);
-	
-	return length;
-}
-
-/*
- * Prints the given table, who's size is assumed to be 256,
- * to stdout.
- *
- * Author: Thomas Gonsor
- */
-void print_table(char* table[])
-{
-	//Local vars
-	int i;
-	
-	//Print frequency table to stdout
-	for(i = 0; i < 256; i++)
-	{
-		printf("%s\n", table[i]);
-	}
-}
-
-/*
- * Determine if the extension type on the given filename
- * matches a huff file extension.
- *
- * Author: Thomas Gonsor
- */
-bool is_huff_extension(char* filename)
-{
-	char* extension = strstr(filename, ".huff");
-	
-	return strcmp(extension, ".huff");
-}
-
-/*
- * Determine if the given file has the special "HUFF"
- * value in bytes 0-3 within the file. It is assumed the file is
- * already opened. Returns the cursor within the file to the start
- * before returning.
- *
- * Author: Thomas Gonsor
- */
-bool is_huff_header(FILE* file)
-{
-	//Local vars
-	int read_ret;
-	char* read_ascii;
-	
-	//Read first 4 bytes of file
-	read_ret = fread(&read_ascii, 4, 1, file);
-	
-	rewind(file);
-	
-	//Ensure we read at least 4 bytes
-	if(read_ret != 4)
-		return false;
-		
-	return strcmp(read_ascii, "HUFF");
 }
