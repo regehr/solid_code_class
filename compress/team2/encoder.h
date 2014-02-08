@@ -1,5 +1,5 @@
-#ifndef HUFF_ENCODE_H
-#define HUFF_ENCODE_H
+#ifndef HUFF_ENCODER_H
+#define HUFF_ENCODER_H
 
 #include "common.h"
 
