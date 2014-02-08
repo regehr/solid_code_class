@@ -3,18 +3,18 @@
 CC = clang
 CFLAGS = -Wall -Wextra -pedantic -Werror -O3
 
-objects = main.o internal.o header.o tree.o encoder.o
-bin = huff
+PY = python27
 
-python = python27
+objects = main.o header.o tree.o encoder.o common.o 
+bin = huff
 
 default: $(bin)
 
-encoder.o: encoder.h internal.h
-tree.o: tree.h internal.h
-internal.o: internal.h
-header.o: header.h internal.h
-main.o: tree.h header.h internal.h encoder.h
+encoder.o: encoder.h common.h
+tree.o: tree.h common.h
+common.o: common.h
+header.o: header.h common.h
+main.o: tree.h header.h common.h encoder.h
 
 $(bin): $(objects)
 	$(CC) -o $@ $(LDFLAGS) $^ $(LDLIBS)
@@ -28,4 +28,4 @@ clean:
 
 test: $(bin)
 	cp $(bin) test
-	$(MAKE) -C test test python=$(python)
+	$(MAKE) -C test all PY=$(PY)

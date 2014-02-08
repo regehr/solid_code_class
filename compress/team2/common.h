@@ -1,5 +1,5 @@
-#ifndef HUFF_INTERNAL_H
-#define HUFF_INTERNAL_H
+#ifndef HUFF_COMMON_H
+#define HUFF_COMMON_H
 
 #include <stdio.h>
 

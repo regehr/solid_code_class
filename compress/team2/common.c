@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "internal.h"
+#include "common.h"
 
 static const char * const ERROR_STRINGS[] = {
     [-EBADEXT]      = "Extension was not a .huff extension.",

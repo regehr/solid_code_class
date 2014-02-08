@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "internal.h"
+#include "common.h"
 #include "header.h"
 /* header reading helper */
 static int _huff_read_header(FILE *, char * filename, struct huff_header *);

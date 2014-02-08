@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "internal.h"
+#include "common.h"
 #include "header.h"
 #include "tree.h"
 #include "encoder.h"

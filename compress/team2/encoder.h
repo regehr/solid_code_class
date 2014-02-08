@@ -1,7 +1,7 @@
 #ifndef HUFF_ENCODE_H
 #define HUFF_ENCODE_H
 
-#include "internal.h"
+#include "common.h"
 
 /* the 8k overhead of 256 32-byte buffers was deemed less of a penalty
  * than trying to deal with memory allocation issues. */

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "internal.h"
+#include "common.h"
 #include "tree.h"
 
 static bool IS_BYTE(short path) {

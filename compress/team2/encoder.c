@@ -1,6 +1,6 @@
 #include <string.h>
 #include <assert.h>
-#include "internal.h"
+#include "common.h"
 #include "encoder.h"
 
 static void SET_BIT(int index, int value, uint8_t *byte) {
