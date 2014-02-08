@@ -1,7 +1,7 @@
-#ifndef HUFF_H
-#define HUFF_H
+#ifndef HUFF_TREE_H 
+#define HUFF_TREE_H 
 
-#include "internal.h"
+#include "common.h"
 
 /* Represents a node which points to other nodes. */
 struct node {
