@@ -6,7 +6,7 @@
 #include <assert.h>
 #include "internal.h"
 #include "header.h"
-#include "huff.h"
+#include "tree.h"
 #include "encoder.h"
 
 /* build a frequency table from the given file. If for some strange reason
@@ -14,15 +14,20 @@
  * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the
  * supplied 'table', and the size of the file is written into 'length'. */
 static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
-    uint8_t current = 0;
     uint64_t bytes_read = 0;
     memset(table, 0, 256 * sizeof(uint64_t));
 
-    for (; fread(&current, 1, 1, input); table[current] += 1) {
-        bytes_read += 1;
-        /* if the byte counter overflows, then the file is too long */
-        if (bytes_read == 0) { return EFILETOOLONG; }
-    }
+    do {
+        uint8_t current;
+        size_t read = fread(&current, 1, 1, input);
+        assert(read == 0 || read == 1);
+        if (read == 0 && ferror(input) != 0)
+            return ENOREAD;
+        if (read == 1 && bytes_read == UINT64_MAX)
+            return EFILETOOLONG;
+        table[current] += read;
+        bytes_read += read;
+    } while (feof(input) == 0);
 
     *length = bytes_read;
     return 0;
@@ -51,7 +56,7 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
 
     /* Theres an extra byte to be written, write it out and fail with ENOWRITE
      * if the write fails */
-    if (encoder.buffer != 0 &&
+    if (encoder.buffer_used &&
         ! fwrite(&encoder.buffer, 1, 1, output)) {
         return ENOWRITE;
     }
@@ -99,7 +104,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
     uint64_t decoded_bytes = 0;
     uint8_t current = 0;
     int decoded = 0;
-    huff_make_decoder(&decoder, header->table);
+    huff_make_decoder(&decoder, (const char *const *)header->table);
 
     while (fread(&current, 1, 1, input) && decoded_bytes < header->size) {
         for (int i = 7; i >= 0 && decoded_bytes < header->size; i--) {
@@ -129,7 +134,7 @@ static int decompress(FILE * file, char * filename) {
     int code = huff_read_header(file, filename, &header);
     /* Our header table is implicitly free-d when huff_read_header fails */
     if (code != 0) {
-        fprintf(stderr, "Cannot decompress an uncompressed file: %s\n", 
+        fprintf(stderr, "Cannot decompress an uncompressed file: %s\n",
                 huff_error(code));
         return HUFF_FAILURE;
     }

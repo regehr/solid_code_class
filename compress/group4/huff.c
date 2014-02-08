@@ -16,14 +16,23 @@
 #define CHAR_EOF = 256 // represents end of file
 
 
-/* Returns true if the file is a huff file, else otherwise */
-bool huff_file(char* filename)
+/* Returns true if the file is a huff file, false otherwise */
+bool huff_ext(char* filename)
 {
   char* ext = strrchr(filename, '.');
-  char* result = ext+1;
- 
-    
-  return false;
+  char* c = ".huff";
+  if(ext == NULL)
+    {
+      return false;
+    } 
+  else if(strcmp(ext, c) == 0)
+    {
+      return true;
+    } 
+  else
+    {
+      return false;
+    }
 } 
 
     
@@ -32,15 +41,8 @@ bool huff_file(char* filename)
  */
 void display_table (char* file, struct frequency table[])
 {
-  //check if the file is a huff file
-  //bool isHuff = huff_file(file);
-  // if not a huff file, compute compression table    
-  int i;
-  for(i=0; i < 256; i++)
-    {
-      printf("%c %i\n", table[i].character, table[i].count);
-    }
- }
+  // TODO: call dump_table from huff_io.h and tree table
+}
 
 
 int main (int argc, char *argv[]) {
@@ -64,8 +66,8 @@ int main (int argc, char *argv[]) {
         case DECOMPRESS:
         break;
         case TABLE:
-	    build_table(file, table); 
-	    display_table(file, table);
+	         build_table(file, table); 	
+                 dump_table(file, table);
         break;
         case UNHANDLED:
         break;
