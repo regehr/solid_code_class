@@ -14,20 +14,16 @@
  * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the
  * supplied 'table', and the size of the file is written into 'length'. */
 static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
+    uint8_t current = 0; 
     uint64_t bytes_read = 0;
     memset(table, 0, 256 * sizeof(uint64_t));
 
-    do {
-        uint8_t current;
-        size_t read = fread(&current, 1, 1, input);
-        assert(read == 0 || read == 1);
-        if (read == 0 && ferror(input) != 0)
-            return ENOREAD;
-        if (read == 1 && bytes_read == UINT64_MAX)
-            return EFILETOOLONG;
-        table[current] += read;
-        bytes_read += read;
-    } while (feof(input) == 0);
+    for(; fread(&current, 1, 1, input); table[current] += 1) {
+        bytes_read += 1;
+        if (bytes_read == 0) { return EFILETOOLONG; }
+    }
+    
+    if (! feof(input)) { return ENOREAD; }
 
     *length = bytes_read;
     return 0;
