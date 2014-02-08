@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-/* magic indentfiers and their sizes */
+/* magic identifiers and their sizes */
 #define HUFF_MAGIC "HUFF"
 #define HUFF_EXT   ".huff"
 
@@ -11,7 +11,7 @@
 #define HUFF_EXTLEN   (sizeof(HUFF_EXT) - 1)
 
 struct huff_header {
-    uint64_t size;
+    uint64_t length;
     char * table[256];
 };
 

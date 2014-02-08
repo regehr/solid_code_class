@@ -14,8 +14,8 @@
 #include "compressedOutputFileWriter.h"
 
 
-long long currentFileByteIndex = 0;
-long long currentFileLength = 0;
+long long currentEncodeFileByteIndex = 0;
+long long currentEncodeFileLength = 0;
 
 //private headers
 void writeHeader(FILE *file,unsigned long long length);
@@ -25,7 +25,7 @@ char getNextByte(FILE *file);
 void writeByte(FILE *file, char byte);
 char byteFromString(char *string);
 
-void writeFileToOutput(FILE* nonCompressedFile, char* newFileName, unsigned long long length, huffResult* resultArray)
+void writeNonCompressedFileToCompressedOutput(FILE* nonCompressedFile, char* newFileName, unsigned long long length, huffResult* resultArray)
 {
     assert(resultArray);
     assert(newFileName);
@@ -33,22 +33,27 @@ void writeFileToOutput(FILE* nonCompressedFile, char* newFileName, unsigned long
     
     
     //reset the file.
-    currentFileLength = length;
-    currentFileByteIndex = 0;
+    currentEncodeFileLength = length;
+    currentEncodeFileByteIndex = 0;
     rewind(nonCompressedFile);
     
     //make a new file to save our output
-    
     FILE *compressedFile = fopen(newFileName, "w");
     assert(compressedFile);
     
+    //writes the HUFF and length
     writeHeader(compressedFile, length);
+    
+    //writes out the encodings
     writeHuffmanTable(compressedFile, resultArray);
     
-    
+    //writes out the encoded data
     writeEncodedFile(nonCompressedFile, compressedFile, resultArray);
 
+    
     fclose(compressedFile);
+    
+    return;
 }
 
 void writeHeader(FILE *file,unsigned long long length)
@@ -56,31 +61,29 @@ void writeHeader(FILE *file,unsigned long long length)
     char *header = "HUFF";
     fwrite(header, sizeof(char), strlen(header), file);
     fwrite(&length, sizeof(unsigned long long), 1, file);
-    
 }
 
 void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult *resultArray)
 {
-    
-    
-    //lets get some space to work in
+    //lets get some space to work in, in reality we only need 2 bytes, but we have memory to spare.
     char *currentRead = calloc(512, sizeof(char));
     int currentStringLength = 0;
     
-    while (currentFileByteIndex < currentFileLength)
+    while (currentEncodeFileByteIndex < currentEncodeFileLength)
     {
         char nextByte = getNextByte(nonCompressedFile);
-        currentFileByteIndex++;
+        currentEncodeFileByteIndex++;
         
+        //get the huffresult at the index of the nextbyte
+        huffResult *result = &resultArray[(u_int8_t)nextByte];
         
-        
-        
-        //get the string value for the representation
-        huffResult *result = &resultArray[(int)nextByte];
-        
+        //adjust the current string length
         currentStringLength += strlen(result->string);
         
+        //concat the encoding to the currentRead
         strcat(currentRead, result->string);
+        
+        //writes out byte by byte.
         while(strlen(currentRead) > 7)
         {
             char output = byteFromString(currentRead);
@@ -88,27 +91,29 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
             memcpy(currentRead, currentRead+8, strlen(currentRead));
             currentStringLength -= 8;
         }
-
     }
     
+    //we may have some leftover bits
     if(currentStringLength > 0)
     {
+        //pad the bits with 0's
         while (currentStringLength < 8)
         {
             strcat(currentRead, "0");
             currentStringLength++;
-            
         }
+        
+        //add the last byte to the output
         char output = byteFromString(currentRead);
         writeByte(compressedFile,output);
         memcpy(currentRead, currentRead+8, strlen(currentRead));
         currentStringLength -= 8;
         
         assert(currentStringLength == 0);
-    
     }
 }
 
+//given a string of 8 chars containing 1's and 0's, this will return a byte with the same 1's and 0's set.
 char byteFromString(char *string)
 {
     uint8_t result;
@@ -124,6 +129,7 @@ char byteFromString(char *string)
     return (char)result;
 }
 
+//writes a huffresult array to the file.
 void writeHuffmanTable(FILE *file, huffResult * resultArray)
 {
     char * newLine = "\n";
@@ -133,8 +139,6 @@ void writeHuffmanTable(FILE *file, huffResult * resultArray)
         fwrite(currentResult->string, sizeof(char), strlen(currentResult->string), file);
         fwrite(newLine, sizeof(char), strlen(newLine), file);
     }
-    
-    
 }
 
 void writeByte(FILE *file, char byte)

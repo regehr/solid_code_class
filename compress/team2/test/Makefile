@@ -8,7 +8,7 @@ python = python27
 all:
 
 clean:
-	-rm $(generated)
+	-rm -f $(generated)
 
 test:
 	$(python) test.py
