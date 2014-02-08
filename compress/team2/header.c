@@ -61,8 +61,8 @@ int huff_read_entry(FILE * file, char **out) {
     }
 
     /* status == 0 implies that strlen(buffer) == byte_count */
-    assert((status != 0) || strlen(buffer) == ((size_t) byte_count) &&
-           "Translation table entry length and number of bytes read don't match.");
+    assert(status != 0 || (strlen(buffer) == ((size_t) byte_count) &&
+           "Translation table entry length and number of bytes read don't match."));
 
     if (status == 0) {
         /* re-size the buffer to the actual size of the entry */

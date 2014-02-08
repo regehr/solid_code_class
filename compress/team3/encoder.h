@@ -9,17 +9,18 @@
 #ifndef huff_encoder_h
 #define huff_encoder_h
 
-
+//this struct is used to hold encodings and values
 typedef struct huffResult{
     char * string;
     int value;
 }huffResult;
 
+//this struct is what creates the tree.  a right leaf denotes a 1, left leaf denotes 0.
 typedef struct huffNode huffNode;
 struct huffNode{
     
     long long sum;
-    int representedByte;
+    unsigned representedByte;
     int used;
     
     huffNode* parent;
@@ -28,10 +29,13 @@ struct huffNode{
     
 };
 
-huffResult* createHuffmanTree(unsigned *frequencies);
+//creates an array of huffresults, or encodings for give frequencies
+huffResult* createHuffResultArray(unsigned *frequencies);
 
+//prints out a huffresult array
+void printHuffResult(huffResult *result);
 
-
+//frees elements of a huff result array.
 void freeReusltArray(huffResult *);
 
 #endif
