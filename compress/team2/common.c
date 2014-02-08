@@ -8,8 +8,8 @@ static const char * const ERROR_STRINGS[] = {
     [-ENOMAGIC]     = "No magic number in the input file.",
     [-EBADENTRY]    = "Bad entry in file translation table.",
     [-ETRUNC]       = "Input file ended before we finished reading.",
-    [-EENTRY]       = "Impropery formatted translation table entry.",
-    [-ENOWRITE]     = "An error occured while writing to the output file.",
+    [-EENTRY]       = "Improperly formatted translation table entry.",
+    [-ENOWRITE]     = "An error occurred while writing to the output file.",
     [-EFILETOOLONG] = "Input file's size could not be represented. Kudos on making"
                       "a file larger than 16,384 Petabytes.",
 };

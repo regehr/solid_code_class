@@ -5,10 +5,11 @@
 #include <assert.h>
 #include "common.h"
 #include "header.h"
-/* header reading helper */
+
+/* Header reading helper */
 static int _huff_read_header(FILE *, char * filename, struct huff_header *);
 
-/* return true if 'filename' ends with a '.huff' extension */
+/* Return true if 'filename' ends with a '.huff' extension */
 static bool has_huff_ext(const char * filename) {
     /* make sure the name is at least as long as HUFF_EXT */
     size_t name_length = strlen(filename);
@@ -19,7 +20,7 @@ static bool has_huff_ext(const char * filename) {
     return strcmp(ext_start, HUFF_EXT) == 0;
 }
 
-/* return true if 'file' begins with HUFF_MAGIC */
+/* Return true if 'file' begins with HUFF_MAGIC */
 static bool has_huff_magic(FILE * file) {
     /* prepare a buffer for reading. */
     char magic[HUFF_MAGICLEN];

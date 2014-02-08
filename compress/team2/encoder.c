@@ -22,7 +22,6 @@ int huff_make_encoder(struct huff_encoder * encoder, char *ttable[256]) {
     encoder->buffer_used = 0;
     for (int i = 0; i < 256; i++) {
         encoder->table[i].bitlen = strlen(ttable[i]);
-        //printf("Building for: %d\n", i);
         build_bits(&encoder->table[i], ttable[i]);
     }
     return 0;

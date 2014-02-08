@@ -9,10 +9,11 @@
 #include "tree.h"
 #include "encoder.h"
 
-/* build a frequency table from the given file. If for some strange reason
- * the file is larger than uint64_t (which I'm pretty sure is impossible),
- * it will return EFILETOOLONG. Otherwise, byte frequencies are filled into the
- * supplied 'table', and the size of the file is written into 'length'. */
+/* Build a frequency table from the given file. Byte frequencies are filled 
+ * into the supplied 'table', and the size of the file is written into 'length'.
+ * If for some strange reason  the file is larger than uint64_t (which I'm 
+ * pretty sure is impossible), it will return EFILETOOLONG. If a read error 
+ * occurs, ENOREAD is returned. */
 static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
     uint8_t current = 0; 
     uint64_t bytes_read = 0;
@@ -43,14 +44,14 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
     while (fread(&current, 1, 1, input)) {
         encoded = huff_encode(current, buffer, &encoder);
         /* If there is encoded output, write it to the output file. If the write
-         * fails exit with ENOWRITE. */
+         * fails, exit with ENOWRITE. */
         if (encoded && ! fwrite(buffer, encoded, 1, output)) {
             return ENOWRITE;
         }
     }
     if (! feof(input)) { return ETRUNC; }
 
-    /* Theres an extra byte to be written, write it out and fail with ENOWRITE
+    /* If there's an extra byte to be written, write it out. Fail with ENOWRITE
      * if the write fails */
     if (encoder.buffer_used &&
         ! fwrite(&encoder.buffer, 1, 1, output)) {
@@ -107,7 +108,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
             decoded = huff_decode((current >> i) & 0x1, &decoder);
             if (decoded > -1) {
                 decoded_bytes += 1;
-                /* Warning: I beleive this is little-endian dependent */
+                /* Warning: I believe this is little-endian dependent */
                 if (! fwrite(&decoded, 1, 1, output)) { return ENOWRITE; }
             }
         }
@@ -128,7 +129,7 @@ static int decompress(FILE * file, char * filename) {
     char * ext_index = NULL;
 
     int code = huff_read_header(file, filename, &header);
-    /* Our header table is implicitly free-d when huff_read_header fails */
+    /* Our header table is implicitly free'd when huff_read_header fails */
     if (code != 0) {
         fprintf(stderr, "Cannot decompress an uncompressed file: %s\n",
                 huff_error(code));
@@ -187,10 +188,10 @@ int main(int argc, char *argv[]) {
 
     if (argc != 3) { usage(stderr); exit(HUFF_FAILURE); }
 
-    /* attempt to open the input file for reading */
+    /* Attempt to open the input file for reading. */
     input = xfopen(argv[2], "r");
 
-    /* run the appropriate subroutine for the given option */
+    /* Run the appropriate subroutine for the given option. */
     if (strcmp(argv[1], "-c") == 0) {
         exit_code = compress(input, argv[2]);
     } else if (strcmp(argv[1], "-d") == 0) {

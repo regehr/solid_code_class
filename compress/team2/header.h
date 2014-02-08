@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-/* magic indentfiers and their sizes */
+/* magic identifiers and their sizes */
 #define HUFF_MAGIC "HUFF"
 #define HUFF_EXT   ".huff"
 
