@@ -1,5 +1,6 @@
 #define EXT ".huff"
 #define NUM "HUFF"
+#define ERR 255
 
 enum Flags
 {
@@ -52,10 +53,12 @@ unsigned long long det_file_size(FILE* file);
 	Otherwise, encodes given huff_table with the tree paths corresponding to the encoded
 	table.
 */
-void get_huff_table(char** huff_table, FILE* file, unsigned long long size);
+void get_huff_table(char** huff_table, FILE* file, unsigned long long* size);
 
 /* Determines which flag we are given from the user. */
 enum Flags determine_flag(char* user_flag);
 
 /* Wrapper function for fopen. Performs check to ensure file is opened. */
 FILE* open_file(char* filename, char* permission);
+
+void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_table, unsigned long long file_size);

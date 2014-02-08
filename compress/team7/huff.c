@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 	if(argc != 3)
 	{
 		printf("Invalid number of parameters. Huff requires a flag (-c, -d, -t), and a filename as parameters.\n");
-		return -1;
+		return ERR;
 	}
 	
 	//Determine flag and filename
@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 			break;
 		case INVALID:
 			printf("Invalid flag given. Expected one of the following: -c, -d, -t.\n");
-			return -1;
+			return ERR;
 	}
 	
 	fclose(file);
@@ -54,7 +54,7 @@ FILE* open_file(char* filename, char* permission)
 	if(file == NULL)
 	{
 		printf("Unable to open file: %s, with given permission: %s\n", filename, permission);
-		exit(-1);
+		exit(ERR);
 	}
 	
 	return file;
@@ -63,7 +63,7 @@ FILE* open_file(char* filename, char* permission)
 void compress(FILE* file, char* filename)
 {
 	//Check if file is already a .huff
-	if(is_huff_file(filename))
+	if(is_huff_type(filename))
 		return;
 		
 	//Cat filename with extension
@@ -72,23 +72,31 @@ void compress(FILE* file, char* filename)
 	//Open the file
 	FILE* comp_file = open_file(filename, "w");
 	
-	//TODO:Write magic number
+	unsigned long long size = det_file_size(file);
 	
-	//TODO:Write length
+	int i;
+	int freq_table[256];
+	for(i = 0; i < 256; i++)
+		freq_table[i] = 0;
 	
-	//TODO:Write table
+	//Determine frequency/encoding tables
+	create_freq_table(freq_table, file, size);	
+	char** encoded_table = get_encoding(create_huff_tree_from_frequency(freq_table));
 	
-	//TODO:Write compressed file
+	assert(encoded_table != NULL);
 	
-	//TODO:Close the file
+	//Write data
+	write_compressed_file(comp_file, file, encoded_table, size);
+	
+	//Close the file
+	fclose(comp_file);
 }
 
-//TODO: finish me!
 void decompress(FILE* file, char* filename)
 {
 	//Check if file isnt a .huff
-	if(!is_huff_file(filename))
-		Printf("Given file is not a .huff\n");
+	if(!is_huff_type(filename))
+		printf("Given file is not a .huff\n");
 		
 	//TODO:Get huff table
 	
@@ -111,7 +119,7 @@ void dump(FILE* file, char* filename)
 	if(is_huff_type(filename))
 	{
 		file_size = det_file_size(file);
-		get_huff_table(encoded_table, file, file_size);
+		get_huff_table(encoded_table, file, &file_size);
 	}
 	else
 	{
@@ -169,12 +177,10 @@ unsigned long long det_file_size(FILE* file)
 	//Rewind file
 	rewind(file);
 	
-	//assert(seek_res && "Failed to rewind the given file after determining length.");
-	
 	return file_length;
 }
 
-void get_huff_table(char** huff_table, FILE* file, unsigned long long size)
+void get_huff_table(char** huff_table, FILE* file, unsigned long long* size)
 {
 	char* magic_num = "";
 	
@@ -185,18 +191,17 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long size)
 	if(strcmp(magic_num, NUM) != 0)
 	{
 		printf("Improper huff magic number.\n");
-		exit(-1);
+		exit(ERR);
 	}
 	
 	//Get huff length
-	unsigned long long res = 0;
-	fread(&res, 8, 1, file);
+	int res = fread(size, 8, 1, file);
 	
-	//Check that sizes match
-	if(res != size)
+	//Check that we read a file length
+	if(res != 1)
 	{
-		printf("Size mismatch of huff length.\n");
-		exit(-1);
+		printf("Improper huff uncompressed file length.\n");
+		exit(ERR);
 	}
 	
 	//Generate the encoded table
@@ -210,7 +215,7 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long size)
 		if(max_line_length == NULL)
 		{
 			printf("Improper huff encoding table.\n");
-			exit(-1);
+			exit(ERR);
 		}
 		
 		huff_table[i] = max_line_length;
@@ -227,4 +232,29 @@ enum Flags determine_flag(char* user_flag)
 		return DUMP;
 	else
 		return INVALID;
+}
+
+void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_table, unsigned long long file_size)
+{
+	int res;
+	//Write magic number
+	//Apparently fprintf is used for strings?
+	res = fprintf(comp_file, NUM);
+	assert(res > 0 && "Error occured when writing magic number to file.");
+	
+	//Write file size
+	//And fwrite is for binary data >.>
+	res = fwrite(&file_size, 8, 1, comp_file);
+	assert(res != 8 && "Error occured when writing length to file.");
+	
+	//Write encoded table
+	//Also, fputs apparently appends "\n" for you, what the hell C
+	int i;
+	for(i = 0; i < 256; i++)
+	{
+		res = fputs(encoded_table[i], comp_file);
+		assert(res > 0 && "Error occured when writing huff table to file.");
+	}
+	
+	//TODO:Write compressed data
 }
