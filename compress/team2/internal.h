@@ -7,7 +7,6 @@
 
 /* Size typedefs because typing 'unsigned' all the time is a pain */
 typedef unsigned long long uint64_t;
-#define UINT64_MAX (18446744073709551615ULL)
 typedef unsigned char uint8_t;
 
 /* Return-value constants for success and failure */

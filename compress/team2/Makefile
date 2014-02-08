@@ -1,7 +1,7 @@
 .PHONY: clean gdb test
 
 CC = clang
-CFLAGS = -Wall -Wextra -pedantic -O2 -g
+CFLAGS = -Wall -Wextra -pedantic -Werror -O3
 
 objects = main.o internal.o header.o tree.o encoder.o
 bin = huff
