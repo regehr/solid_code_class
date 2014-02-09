@@ -21,8 +21,8 @@ static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) 
     memset(table, 0, 256 * sizeof(uint64_t));
 
     for(; fread(&current, 1, 1, input); table[current] += 1) {
+        if (bytes_read == UINT64_MAX) { return EFILETOOLONG; }
         bytes_read += 1;
-        if (bytes_read == 0) { return EFILETOOLONG; }
     }
 
     if (! feof(input)) { return ENOREAD; }
