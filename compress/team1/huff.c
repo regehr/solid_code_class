@@ -2,47 +2,94 @@
  *
  */
 
-#include "huff_table.h"
+#include "huff_tree.h"
 #include "huff_io.h"
 
-int print_tree(FILE* file, const char* filename){
-    char* huff_table[256];
-    int code = 0;
-
-    if (is_huff_file(filename) && is_huff_header(file)){
-        // get the table from the file
-        fprintf(stderr, "ERROR: Get table from huff file not implemented\n");
-		code = ERR_CODE;
+void print_tree(FILE* file, const char* filename){
+    
+    // Get table from file or generate
+    if (is_huff_file(filename)){
+        unsigned long long size = get_file_size(filename);
+        if(!get_huff_header(file, &size)){
+            fprintf(stderr, "File is in incorrect format\n.");
+            exit(ERR_CODE);
+        }
     } else {
-        code = get_huff_tree(file, huff_table);
+        gen_huff_tree(file);
     }
     
     // Print table
-    if (!code){
-    	int i;
-    	printf("HUFF TABLE:\n");
-    	for(i = 0; i < 256; i++)
-	        printf("%s\n", huff_table[i]);
+    int i;
+    for(i = 0; i < 256; i++)
+        printf("%s\n", get_code(i));
+    free_huff_tree();
+}
+
+void compress(FILE *original_file, const char* filename){
+    unsigned long long size = get_file_size(filename);
+
+    // Ignore files with huff extension
+    if (is_huff_file(filename)){
+        return;
     }
-    return code;
+    
+    // Create huff file
+    strcat((char*)filename, HUFF_EXT);
+    FILE* newfile = fopen((filename), "w");
+    if (newfile == NULL){
+        fprintf(stderr, "ERROR: Could not create file %s\n", filename);
+        exit(ERR_CODE);
+    }
+    
+    // Write header
+    gen_huff_tree(original_file);
+    write_huff_header(newfile, size);
+    
+    // Write body
+    write_huff_body(original_file, newfile, size);
+    
+    free_huff_tree();
+    if (EOF == fclose(newfile)){
+        fprintf(stderr, "ERROR: Could save file %s\n", filename);
+        exit(ERR_CODE);
+    }
 }
 
-int compress(FILE *file, const char* filename){
-    return ERR_CODE;
-}
-
-int decompress(FILE *file, const char* filename){
-    return ERR_CODE;
+void decompress(FILE *compressed, const char* filename){
+    unsigned long long size;
+    
+    if(!is_huff_file(filename)){
+        fprintf(stderr, "File is not a huff file.\n");
+        exit(ERR_CODE);
+    }
+    
+    // Get the header
+    size = get_file_size(filename);
+    if(!get_huff_header(compressed, &size)){
+        fprintf(stderr, "File is in incorrect format\n.");
+        exit(ERR_CODE);
+    }
+    
+    // Create file from huff
+    strcat((char*)filename, HUFF_EXT);
+    FILE* decompressed = fopen((filename), "w");
+    if (decompressed == NULL){
+        fprintf(stderr, "ERROR: Could not create file %s\n", filename);
+        exit(ERR_CODE);
+    }
+    
+    // Write out decompressed file
+    read_huff_body(compressed, decompressed, size);
+    
+    free_huff_tree();
 }
 
 int main(int argc, const char *argv[])
 {
-    int exit_code = ERR_CODE;
-    
     // Proper use
     if (argc != 3){
         fprintf(stderr, "ERROR:\nProper use:\n huff [ -c | -d | -t ] file\n");
-        exit(exit_code);
+        exit(ERR_CODE);
     }
 
     // Valid file
@@ -50,19 +97,19 @@ int main(int argc, const char *argv[])
     fp = fopen(argv[2], "r");
     if (fp == NULL){
         fprintf(stderr, "ERROR:\nCould not open file %s\n", argv[2]);
-        exit(exit_code);
+        exit(ERR_CODE);
     }
     
     if (strcmp(argv[1], "-c") == 0){
-        exit_code = compress(fp, argv[2]);
+        compress(fp, argv[2]);
     } else if (strcmp(argv[1], "-d") == 0){
-        exit_code = decompress(fp, argv[2]);
+        decompress(fp, argv[2]);
     } else if (strcmp(argv[1], "-t") == 0){
-        exit_code = print_tree(fp, argv[2]);
+        print_tree(fp, argv[2]);
     } else {
         fprintf(stderr, "ERROR:\nInvalid operation %s\n", argv[1]);
     }
     
     fclose(fp);
-    return exit_code;
+    return 0;
 }

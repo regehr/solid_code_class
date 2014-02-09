@@ -7,12 +7,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include "huff_tree.h"
 #include "huff_io.h"
 
 /*
  * Parses the arguments passed by the user, returning the operation to be used.
  */
-flags parse_args (char *argv[], char **out) {
+flags parse_args (char *argv[], char **out) 
+{
     char *operation;
 
     operation = argv[1];
@@ -32,7 +35,8 @@ flags parse_args (char *argv[], char **out) {
 /*
  * Compares two frequency table rows' respective character counts.
  */
-int compare (const void *p1, const void *p2) {
+int compare (const void *p1, const void *p2) 
+{
     const struct frequency *row1 = p1;
     const struct frequency *row2 = p2;
 
@@ -47,15 +51,41 @@ int compare (const void *p1, const void *p2) {
  * Fills the provided frequency table using the file name, sorted highest 
  * frequency to lowest.
  */
-void build_table (char *file_name, struct frequency table[]) {
+void build_table (char *filename, struct frequency table[]) 
+{
     FILE *file;
-    char character;
+    int i;
 
-    file = fopen(file_name, "rb");
+    assert(filename != NULL && table != NULL);
+
+    for (i = 0; i < 256; i++) {
+        table[i].character = (char)i;
+        table[i].count = 0;
+        table[i].sequence = NULL;
+    }
+
+    file = fopen(filename, "rb");
     if (NULL == file) {
         printf("Unable to open file.\n");
         exit(-1);
     }
+
+    if (is_huff(file, filename))
+        build_from_huff(file, table);
+    else 
+        build_from_normal(file, table);
+}
+
+
+/*
+ * Builds a frequency table from a normal file.
+ */
+void build_from_normal (void *file_ptr, struct frequency table[])
+{
+    char character;
+
+    assert(file_ptr != NULL && table != NULL);
+    FILE *file = (FILE *)file_ptr;
 
     while ((character = fgetc(file)) != EOF) {
         table[(int)character].count++;
@@ -63,196 +93,89 @@ void build_table (char *file_name, struct frequency table[]) {
     qsort(table, 256, sizeof(struct frequency), compare);  
 }
 
-/*
- * Prints out the compression table from the Huffman tree
- */
-void dump_table(char* filename, struct frequency table[])
-{
-  //initialize node
-  struct pqNode queue = makePQ(table);
-  printf("%s\n", "made queue");
-  // seg faults here
-  struct treeNode node = build_tree(queue);
-  //printTree(node);
-}
 
 /*
- * Traverses the Huffman tree and assigns 0 or 1 to children 
+ * Builds a frequency table from a huff file.
  */
-void traverse_tree(struct treeNode tree)
+void build_from_huff (void *file_ptr, struct frequency table[])
 {
-  // struct frequency huffTable[256, sizeof(table)];  
-}
+    char *sequence = new_string(256);
+    int i = 0;
 
+    assert(file_ptr != NULL && table != NULL);
+    FILE *file = (FILE *)file_ptr;
 
-/*
- * Compares two Huffman nodes using weight
- */
-int compareTo(struct treeNode* left, struct treeNode* right)
-{
-  if(left->weight < right->weight)
-    {
-      return -1; // if right greater than left
-    }
-  else if(left->weight > right->weight)
-    {
-      return 1; // if left greater than right
-    }
-  else
-    {
-      // use a tie breaker if nodes have equal weights
-      if(left->current < right->current)
-	{
-	  return -1; // left node goes before
-	}
-      else if(left->current > right->current)
-	{
-	  return 1; // right node goes before
-	}
-      else
-	{
-	  return 0; // nodes are assumed equal, this should never happen
-	}      
+    // Set the pointer on byte 12
+    fseek(file, 12, SEEK_SET);
+    while (fgets(sequence, 256, file) != NULL && i < 256) {
+        strtok(sequence, "\n");
+        table[i].character = (char)i;
+        table[i].sequence = sequence;
+
+        sequence = new_string(256);
+        i++;
     }
 }
 
+
 /*
- * Returns the leftmost leaf for inorder sort 
+ * Prints out the compression table from the Huffman tree.
  */
-int getLeftmost (struct treeNode *  tN)
+void dump_table (char *filename, struct frequency table[])
 {
-  struct treeNode * current;
-  while(current->left != NULL)
-    {
-      current = current->left;
-    }
-  return current->current;
+    struct pq_node *queue = make_pq(table);
+    struct tree_node node = build_tree(queue);
+    print_tree(node);
 }
+
+
+/*
+ * Determines if this file is a huff file with proper headers.
+ */
+int is_huff (void *file_ptr, char *filename)
+{
+    size_t result;
+    char word[5];
+    word[4] = '\0';
+
+    assert(file_ptr != NULL);
+
+    if (!huff_ext(filename))
+        return 0;
+
+    FILE *file = (FILE *)file_ptr;
+    rewind(file);
+    fseek(file, 0L, SEEK_END);
+
+    // There must be at least 268 bytes in a proper huff file
+    result = ftell(file);
+    if (result < 268)
+        return 0;
+
+    rewind(file);
+    result = fread(word, 1, 4, file);
+
+    return (result == 4 && (strcmp(word, "HUFF") == 0));
+}
+
 
 /* 
- * Add a node to the priority queue
+ * Returns true if the file is a huff file, false otherwise 
  */
-void enqueue (struct pqNode* head, struct pqNode* p)
+int huff_ext (char *filename) 
 {
-  struct pqNode* prev = NULL; // represents this pq we are adding to  
-  struct pqNode* current = head;
+    char *ext = strrchr(filename, '.');
+    char *c = ".huff";
 
-  while(p->priority < current->priority)
-    {
-      //printf("%d vs %d\n", p->priority, current->priority);
-      prev = current;
-      current = current->next;
-    }
-  
-  if(p->priority == current->priority)
-    {
-      //Tiebreaker code goes here
-      if(getLeftmost(&p->content) < getLeftmost(&current->content))
-	{
-	  p->next = current;
-	  prev->next = p;
-	}
-      else
-	{
-	  current->next = p;
-	  prev->next = current;
-	}
-    }
-  else
-    {
-      p->next = current;
-      prev->next = p;
-    }
+    return ((ext != NULL) && (strcmp(ext, c) == 0));
 }
 
-/*
- * Remove a node from the priority queue 
- */
-struct treeNode dequeue(struct pqNode* head)
+
+char * new_string (int size)
 {
-  struct treeNode ret = head->content;
-  head = head->next;
-  return ret;
+    char *str;
+    size++;
+    str = (char *)malloc(sizeof(char) * size);
+
+    return str;
 }
-
-/*
- * Prints the characters of nodes in a huffman tree
- */
-void printTree(struct treeNode head)
-{
-  printTree(*head.left);
-  printf("%d\n", head.current);
-  printTree(*head.right);
-}
-
-/* 
- * Creates a priority queue (pqNode) of nodes in the Huff tree (treeNode)
- */
-struct pqNode makePQ(struct frequency table[])
-{
-  struct pqNode full;
-  int i;
-  int nodeCount = 0; // keep track of the number of nodes in the tree for length of huffman tree
-  struct pqNode * head = NULL; // start of pq
-  struct pqNode * prev = NULL; // prev initially NULL  
-  struct pqNode * current = NULL;
-  
-//get all character frequencies in file 
-  // and add to priority queue
-  for(i = 0; i < 256; i++) 
-    {    
-      //  printf("%s\n", "got here");
-      if(table[i].count > 0)
-	{
-	  nodeCount = nodeCount + table[i].count;
-	  struct treeNode  newTNode = {NULL, NULL, NULL, table[i].count, (int)table[i].character};	 
-	  struct pqNode  newQNode = {newTNode.weight, NULL, {&newTNode}}; 
-	  current = &newQNode;
-	  //printf("%s\n", "got here");
-
-	  if(head == NULL)
-	    {
-	      head = current;
-	    }
-	  else
-	    {
-	      prev->next = current;	      
-	    }	  
-	  prev = current;	   
-	} 
-    }
-printf("%s\n", "got here");
-  full = *prev;
-  return full;
-}
-
-/*
- * Builds a Huffman tree for each character in terms of bit codes
- */
-struct treeNode build_tree(struct pqNode pq)
-{  
-  struct pqNode * head = &pq;
-   // start building tree
-  while(head->next != NULL)
-    {
-      // grab 2 smallest nodes 
-      struct treeNode lt = dequeue(head);
-      struct treeNode rt = dequeue(head);
-      // create a new node with smallest nodes as children
-      struct treeNode pt = {NULL, &lt, &rt,lt.weight+rt.weight, -1};
-      // associate children with parent
-      lt.parent = &pt;
-      rt.parent = &pt;
-      // enqueue new node to priority queue
-      struct pqNode newNode = {pt.weight, NULL, {&pt}};
-      enqueue(head, &newNode);
-      //exit when there is only one node left in the pq (next is value in pq is null)
-    }
-  // when the loop ends, set remaining node as tree at root
-   struct treeNode root = dequeue(head);  
-   printf("print start:\n");
-printTree(root);
- printf("print end:\n");
-   return root;
-}
-

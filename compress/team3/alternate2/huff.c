@@ -38,6 +38,8 @@ eMode getModeOfOperation(int argc, char **argv)
         return INVALID_MODE;
     }
 
+    assert(argv != NULL);
+
     int isT = !strcmp(argv[1], "-t"); // strcmp returns 0 when strings are equal.
     int isC = !strcmp(argv[1], "-c");
     int isD = !strcmp(argv[1], "-d");
@@ -75,8 +77,11 @@ eMode getModeOfOperation(int argc, char **argv)
 eFileCode ReadHeader(FILE* pFile, unsigned long long* pHuffmanSize)
 {
     int i = 0;
+    *pHuffmanSize = 0;
     int c;
     char* header = "HUFF";
+
+    assert(pFile != NULL);
 
     // First check the first four letters to see if they are valid.
     for (i = 0, c = fgetc(pFile); i < 4 && c == header[i] && c != EOF; i++, c = fgetc(pFile));
@@ -96,6 +101,8 @@ eFileCode ReadHeader(FILE* pFile, unsigned long long* pHuffmanSize)
         return FILE_INVALID_FORMAT;
     }
 
+    assert(i == 64);
+
     return FILE_SUCCESS;
 }
 
@@ -106,10 +113,12 @@ eFileCode ReadHeader(FILE* pFile, unsigned long long* pHuffmanSize)
  * File stream is expected to already be in the proper location for this call to succeed (must be
  * at the beginning of the compression table section, byte 12).
  */
-eFileCode GetTableForHuff(FILE* pFile, unsigned long long huffmanSize, huffResult* resultArray)
+eFileCode GetTableForHuff(FILE* pFile, huffResult* resultArray)
 {
     int i;
     char* line;
+    
+    assert(pFile != NULL);
 
     // Go through the next 256 lines of the file, read them out line by line.
     resultArray = calloc(256, sizeof(huffResult));
@@ -151,6 +160,8 @@ eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned* pOutFrequencies)
 {
     int c;
 
+    assert(pFile != NULL);
+
     for (c = fgetc(pFile); c != EOF; c = fgetc(pFile))
     {
         pOutFrequencies[c]++;
@@ -191,7 +202,7 @@ eFileCode GenerateTable(eMode huffmanMode, char* fileName, huffResult* resultArr
         // If the file is a compressed huffman file, then use the get table for huff function to open it.
         if (ReadHeader(pFile, &huffmanSize) == FILE_SUCCESS)
         {
-            fileCode = GetTableForHuff(pFile, huffmanSize, resultArray);
+            fileCode = GetTableForHuff(pFile, resultArray);
         }
         else 
         {
@@ -203,7 +214,7 @@ eFileCode GenerateTable(eMode huffmanMode, char* fileName, huffResult* resultArr
         // If we want a table and the file is .huff, it may or may not be the same .huff we want it to be.
         // We'll try to treat it as a .huff but if it's the wrong format, we will treat it like a generic
         // file.
-        if(ReadHeader(pFile, &huffmanSize) == FILE_SUCCESS && GetTableForHuff(pFile, huffmanSize, resultArray) == FILE_SUCCESS)
+        if(ReadHeader(pFile, &huffmanSize) == FILE_SUCCESS && GetTableForHuff(pFile, resultArray) == FILE_SUCCESS)
         {
             fileCode = FILE_SUCCESS;
         }

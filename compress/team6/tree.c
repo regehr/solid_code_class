@@ -11,13 +11,13 @@
 #include "tree.h"
 
 /* TODO: Write a find_min function for a tree.
- * TODO: Implement get_huffman_tree
+ * TODO: Finish implementing get_huffman_tree
  */
 
 /* Error checking call to malloc. */
-void *Malloc(size_t size, char *func) {
-  void *result;
-  if ((result = malloc(size)) == NULL) {
+static void *Malloc(size_t size, char *func) {
+  void *result = malloc(size);
+  if (result == NULL) {
     fprintf(stderr, "%s: malloc error\n", func);
     exit(1);
   }
@@ -26,7 +26,7 @@ void *Malloc(size_t size, char *func) {
 
 /* Nodes must be freed by calling function.
  */
-tree make_node_from_ascii_freq(char c, long long frequency) {
+static tree make_node_from_ascii_freq(char c, long long frequency) {
   tree t;
   t = (tree)Malloc(sizeof(node), "make_node_from_ascii");
   t->freq = frequency;
@@ -35,7 +35,7 @@ tree make_node_from_ascii_freq(char c, long long frequency) {
   return t;
 }
 
-tree make_node_from_trees(tree zero, tree one) {
+static tree make_node_from_trees(tree zero, tree one) {
   tree t;
   t = (tree)Malloc(sizeof(node), "make_node_from_trees");
   t->freq = zero->freq + one->freq;
@@ -62,7 +62,7 @@ void free_tree(tree t) {
  * first node is less if its ascii value is less than or equal to
  * second node's ascii value.
  */
-int compare_trees(const void *a, const void *b) {
+static int compare_trees(const void *a, const void *b) {
   tree t1, t2;
   int r;
   t1 = *(tree *)a;
@@ -91,7 +91,7 @@ static void check_rep(tree t) {
   }
 }
 
-tree get_next_from_queues(tree leaf_array[256], tree branch_array[128],
+static tree get_next_from_queues(tree leaf_array[256], tree branch_array[128],
 			  int *lhd, int *bhd) {
   tree a;
   if (branch_array[*bhd] == NULL) {
@@ -117,7 +117,7 @@ tree get_next_from_queues(tree leaf_array[256], tree branch_array[128],
   return a;
 }
 
-void find_char(tree t, char code[257], int *length, char c) {
+static void find_char(tree t, char code[257], int *length, char c) {
   tree current;
   tree stack[511] = {NULL};
   int top;
@@ -154,7 +154,7 @@ void find_char(tree t, char code[257], int *length, char c) {
   } while (top != 0);
 }
 
-char *tree2table(tree t) {
+static char *tree2table(tree t) {
   char temp[257] = {'\0'};
   int i, n, c;
   char *table;
@@ -206,6 +206,14 @@ char *get_huffman_table(unsigned long long ascii_counts[256]) {
   return table;
 }
 
+static void check_rep_decode(tree t) {
+  assert((t->zero == NULL && t->one == NULL) ||
+	 (t->zero != NULL && t->zero != NULL));
+  if (t->zero != NULL) {
+    check_rep_decode(t->zero);
+    check_rep_decode(t->one);
+  }
+}
 
 tree get_huffman_tree(char *encodings[256]) {
   tree root, current, next;
@@ -214,7 +222,7 @@ tree get_huffman_tree(char *encodings[256]) {
   root->freq = 0;
   root->parent = root->zero = root->one = NULL;
   root->ascii = '\0';
-  
+
   for (i = 0; i < 256; i++) {
     current = root;
     for (j = 0; encodings[i][j] != '\0'; j++) {
@@ -247,9 +255,9 @@ tree get_huffman_tree(char *encodings[256]) {
 	}
       }
     }
-    next->ascii = (char)i;
+    current->ascii = (unsigned char)i;
   }
   
-  check_rep(root);
+  check_rep_decode(root);
   return root;
 }

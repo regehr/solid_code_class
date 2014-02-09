@@ -24,7 +24,11 @@ huffNode* calculateTree(huffNode *nodes, int count);
 huffNode* minNode(huffNode *nodes, int count);
 void printNode(huffNode *node, char *currentString);
 void fillResultArray(huffResult* resultArray, huffNode *node, char *currentString);
-
+/** Check rep **/
+void checkTree(huffNode *rootNode);
+int countLeaves(huffNode *rootNode);
+void checkTable(huffResult *resultArray);
+void checkValidCode (char *s);
 
 
 
@@ -60,10 +64,14 @@ huffResult* createHuffmanTree(unsigned *frequencies)
     }
     
     huffNode *rootNode = calculateTree(nodes, nodeCount);
-    
-    
-    
+     
     huffResult *result = calcResult(rootNode);
+    
+#ifdef CHECK_REP
+    checkTree(rootNode);
+    checkTable(result);
+    exit(0);
+#endif 
     
     for(int i = 0; i < 256; i++)
     {
@@ -232,4 +240,52 @@ void freeResultArray(huffResult *resultArray)
 
 
 
+void checkTree(huffNode *rootNode){
 
+  // Tree must exist
+  assert(rootNode);
+  int leafCount = countLeaves(rootNode);
+  assert (leafCount <= 256);
+
+}
+
+
+
+void checkTable(huffResult *resultArray){
+
+  int i;
+  for (i = 0; i < 256; i++) {
+    char *s = resultArray->string;
+    checkValidCode(s);
+    resultArray++;
+  }
+
+}
+
+
+
+int countLeaves(huffNode *rootNode){
+
+  if (rootNode) {
+    
+      int count = countLeaves(rootNode->leftLeaf)+
+	          countLeaves(rootNode->rightLeaf);
+      return (count == 0) ? 1: count;
+      
+   }
+   return 0;  
+}
+
+
+
+void checkValidCode (char *s){
+
+  int i = 0;
+  while (s[i] != '\0') {
+    
+    char c = s[i];
+    assert (c == '1' || c == '0');
+    i++;
+    
+  }
+}

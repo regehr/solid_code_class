@@ -9,6 +9,10 @@ DEPS = ${SRCS:.c=.d}
 ${BIN}: ${OBJS}
 	${CC} ${CFLAGS} -o ${BIN} ${OBJS}
 
+.PHONY: test
+test:
+	./test.sh
+
 clean:
 	@rm -f huff ${OBJS} ${DEPS}
 

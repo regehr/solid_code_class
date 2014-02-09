@@ -6,3 +6,4 @@ os.chdir("test/testFiles")
 
 #remote the .tbl files (this has to be run in a shell for the wildcard to work correctly)
 call(["sh", "-c", "rm *.tbl"])
+call(["rm", "huff"])

@@ -3,6 +3,7 @@
  *
  * Jonathon McDonald, Lynn Gao, Taylor Stapleton
  */
+#include "huff_tree.h"
 #include "huff_io.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,61 +17,36 @@
 #define CHAR_EOF = 256 // represents end of file
 
 
-/* Returns true if the file is a huff file, false otherwise */
-bool huff_ext(char* filename)
-{
-  char* ext = strrchr(filename, '.');
-  char* c = ".huff";
-  if(ext == NULL)
-    {
-      return false;
-    } 
-  else if(strcmp(ext, c) == 0)
-    {
-      return true;
-    } 
-  else
-    {
-      return false;
-    }
-} 
-
-    
 /*
  * Dump the compression table for a file
  */
-void display_table (char* file, struct frequency table[])
+void display_table (char *file, struct frequency table[])
 {
-  // TODO: call dump_table from huff_io.h and tree table
+    // TODO: call dump_table from huff_io.h and tree table
 }
 
 
-int main (int argc, char *argv[]) {
+int main (int argc, char *argv[]) 
+{
     char *file = "";
     struct frequency table[256];
-    int i;
 
     if (argc != 3) {
         printf("Incorrect amount of arguments supplied.\n");
         return -1;
     }
 
-    for (i = 0; i < 256; i++) {
-        table[i].character = (char)i;
-        table[i].count = 0;
-    }
-
     switch (parse_args(argv, &file)) {
         case COMPRESS:
-        break;
+            break;
         case DECOMPRESS:
-        break;
+            break;
         case TABLE:
-	         build_table(file, table); 	
-                 dump_table(file, table);
-        break;
+            build_table(file, table); 	
+            dump_table(file, table);
+            break;
         case UNHANDLED:
-        break;
+            break;
     }
 
     return 0;

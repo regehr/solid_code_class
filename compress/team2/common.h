@@ -1,5 +1,5 @@
-#ifndef HUFF_INTERNAL_H
-#define HUFF_INTERNAL_H
+#ifndef HUFF_COMMON_H
+#define HUFF_COMMON_H
 
 #include <stdio.h>
 
@@ -14,19 +14,19 @@ typedef unsigned char uint8_t;
 #define HUFF_SUCCESS 0
 
 /* Common error codes */
-#define EBADEXT      (-1)   // Non .huff file extension 
+#define EBADEXT      (-1)   // Non .huff file extension
 #define ENOMAGIC     (-2)   // No magic number in file
 #define EBADENTRY    (-3)   // Bad entry in translation table
 #define ETRUNC       (-4)   // A file we were reading  from ended before we
-                            // finished reading from it. 
-#define EENTRY       (-7)   // An entry in a file's translation table was too long
+                            // finished reading from it.
+#define EFILETOOLONG (-5)   // The file was too long to be stored in a uint64_t
 #define ENOWRITE     (-6)   // Could not write to the file.
-
-#define EFILETOOLONG (-5)    // The file was too long to be stored in a uint64_t
+#define EENTRY       (-7)   // An entry in a file's translation table was too long
+#define ENOREAD      (-8)   // Could not read from the file.
 
 /* return a pointer to 'size' bytes of memory. Fails the program with
  * HUFF_FAILURE if the system is out of memory. */
-void * xmalloc(size_t size); 
+void * xmalloc(size_t size);
 void * xrealloc(void *ptr, size_t size);
 
 /* fopen the given file, print an error message and terminate with

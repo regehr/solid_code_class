@@ -11,6 +11,8 @@
 #include <time.h>
 #include <string.h>
 #include "huff_table.h"
+#include "compress.h"
+
 int CHECK_REP;
 
 int main (int argc, char *argv[])
@@ -32,7 +34,15 @@ int main (int argc, char *argv[])
 
 
     FILE *input = NULL;
-  
+	struct stat sb;
+	unsigned long long length = 0;
+	
+	if(stat(argv[2], &sb) < 0)
+  	{
+    printf("File not found\n");
+    exit(255);
+  	}
+  	
     input = fopen(argv[2], "r");
     
     if(input == NULL) {
@@ -40,10 +50,20 @@ int main (int argc, char *argv[])
   	exit(255);
     }
     
+    length = sb.st_size;
+
+//     unsigned char *fp = malloc(length * sizeof(unsigned char));
+// 
+//     if(fp == NULL) {
+//     	printf("Malloc failed \n");
+//     	exit(255);
+//     }
+     
     if(strncmp(argv[1], "-t", 2) == 0) {
   	print_huff_table(input);
     } else if(strncmp(argv[1], "-c", 2) == 0) {
-  	printf("Compress to come soon");  	
+    printf("compressing\n");
+  	compress(input, argv[2], length);  	
     } else if(strncmp(argv[1], "-d", 2) == 0) {
   	printf("Decompress to come soon");
     } else {

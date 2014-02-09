@@ -1,10 +1,12 @@
 ---------------------------------------------------------------------------------------------------------
-I wasn't able to work on this project since Tusday because of obligations to other classes. I did realize 
-a problem with my implementation of the Huffman tree however. I am internally storing Huffman bits as 
-chars. It was easier to write the logic this way because I didn't have to worry about bit shifting, but 
-it is a huge waste of memory. It makes Andres's job harder too because he is going to be reading/writing 
-bit streams and having to convert them to/from chars. I don't think it will be too hard to change my 
-current implementation to use bits instead of bytes. Let me know what you guys think. I am happy to change 
-my current implementation. I am curious if a byte based implementation would be faster considering memory 
-is byte based and there wouldn't be any bit shifting overhead in the compressing/decompressing logic. I 
-wanted to consult with you dudes before I coded any further.
+To use the decoding function, first call build_tree_tbl with a huffman table. The memory needed for the 
+huff table is no longer needed after this point because all data is saved in the tree. Then, to decode 
+bit vectors from the file, call the get_char function. We talked about that function in class, it will 
+return when a character is found. Be sure to call free_huff_tree() to free all allocated memory in the 
+tree before the program exits.
+
+To use the encoding function, call gen_tree_frq with a sorted array of char frequencies. Then you can 
+use the get_code function to get the corresponding huffman code for a given character. Also call 
+free_huff_tree before exiting program.
+
+Ive implemented compression. Should be working, but the build_tree_tbl/gen_tree_tbl function is not implemented. Compression should work. Decompression will be a snap to finish once the function is implemented.
