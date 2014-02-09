@@ -46,11 +46,10 @@ int compare_to(struct tree_node* left, struct tree_node* right)
  */
 int get_leftmost (struct tree_node *tn)
 {
-    struct tree_node * current;
-    while (current->left != NULL) {
-        current = current->left;
+    while (tn->left != NULL) {
+        tn = tn->left;
     }
-    return current->current;
+    return tn->current;
 }
 
 
@@ -63,20 +62,22 @@ void enqueue (struct pq_node *head, struct pq_node *p)
     struct pq_node* current = head;
 
     while (p->priority < current->priority) {
-        printf("p->priority %d : head->priority %d\n", p->priority, current->priority);
         prev = current;
         current = current->next;
     }
-    printf("%s\n", "in enq");
+
     if (p->priority == current->priority) {
         //Tiebreaker code goes here
     }
+
     if (get_leftmost(p->content) < get_leftmost(current->content)) {
         p->next = current;
-        prev->next = p;
+        if (prev != NULL)
+            prev->next = p;
     } else {
         current->next = p;
-        prev->next = current;
+        if (prev != NULL)
+            prev->next = current;
     }
 }
 
@@ -87,7 +88,6 @@ void enqueue (struct pq_node *head, struct pq_node *p)
 tree_node * dequeue (struct pq_node *head)
 {
     tree_node * ret = head->content;
-    head = head->next;
     return ret;
 }
 
@@ -97,9 +97,12 @@ tree_node * dequeue (struct pq_node *head)
  */
 void print_tree (struct tree_node head)
 {
-    print_tree(*head.left);
-    printf("%d\n", head.current);
-    print_tree(*head.right);
+    printf("%c\n", (char)head.current);
+    if (head.left != NULL)
+        print_tree((*head.left));
+
+    if (head.right != NULL)
+        print_tree((*head.right));
 }
 
 
@@ -134,7 +137,7 @@ struct pq_node * make_pq (struct frequency table[])
             prev = current;    
         } 
     }
-    
+
     return head;
 }
 
@@ -142,17 +145,19 @@ struct pq_node * make_pq (struct frequency table[])
 /*
  * Builds a Huffman tree for each character in terms of bit codes
  */
-struct tree_node build_tree (struct pq_node pq)
+struct tree_node build_tree (struct pq_node * pq)
 {    
-    struct pq_node *head = &pq;
+    struct pq_node *head = pq;
     // start building tree
     while (head->next != NULL) {
         // grab 2 smallest nodes 
         struct tree_node *lt = dequeue(head);
+        head = head->next;
         struct tree_node *rt = dequeue(head);
 
         // create a new node with smallest nodes as children
-        struct tree_node *pt = new_tree_node (NULL, lt, rt, lt->weight+rt->weight, -1);
+        struct tree_node *pt = new_tree_node (NULL, lt, rt, 
+            lt->weight + rt->weight, -1);
 
         // associate children with parent
         lt->parent = pt;
@@ -166,9 +171,6 @@ struct tree_node build_tree (struct pq_node pq)
     
     // when the loop ends, set remaining node as tree at root
     struct tree_node * root = dequeue(head);  
-    printf("print start:\n");
-    print_tree((*root));
-    printf("print end:\n");
     return (*root);
 }
 

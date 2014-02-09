@@ -77,6 +77,6 @@ void dump_table (char *filename, struct frequency table[])
     struct pq_node *queue = make_pq(table);
     printf("%s\n", "made queue");
     // seg faults here
-    // struct tree_node node = build_tree(queue);
-    // print_tree(node);
+    struct tree_node node = build_tree(queue);
+    print_tree(node);
 }
