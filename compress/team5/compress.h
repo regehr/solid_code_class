@@ -3,6 +3,6 @@
 
 extern int CHECK_REP;
 
-void compress(FILE *input, char* filename, unsigned long long length, unsigned char* fp);
+void compress(FILE *input, char* filename, unsigned long long length);
 
 #endif

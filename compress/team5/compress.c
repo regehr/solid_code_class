@@ -6,7 +6,7 @@
 
 #define CHAR_RANGE 257
 
-unsigned long long get_size(char** huff_table, unsigned char* fp, int frequencies[]) {
+unsigned long long get_size(char** huff_table, int frequencies[]) {
 	
 	unsigned long long size = 0;
 	int i;
@@ -32,13 +32,13 @@ char *get_string(char* string, FILE *input, int character, char** huff_table) {
  	return string;
 }
 
-void compress(FILE *input, char* filename, unsigned long long length, unsigned char* fp) {
+void compress(FILE *input, char* filename, unsigned long long length) {
 	int character, frequencies[CHAR_RANGE] = { 0 };
 	char **huff_table;
 	
-	if(length == 0) {
-		printf("length = 0");	
-	}
+// 	if(length == 0) {
+// 		printf("length = 0");	
+// 	}
 		
 	/* calculate character frequencies. */
 	while((character = fgetc(input)) != EOF) {
@@ -47,7 +47,7 @@ void compress(FILE *input, char* filename, unsigned long long length, unsigned c
 	
 	huff_table = build_huff_table(frequencies);
 
-	unsigned long long size = get_size(huff_table, fp, frequencies);
+	unsigned long long size = get_size(huff_table, frequencies);
  	
  	printf("%llu size \n", size);
  	
@@ -60,6 +60,8 @@ void compress(FILE *input, char* filename, unsigned long long length, unsigned c
  	rewind(input);
 	character = 0;
 	string = get_string(string, input, character, huff_table);
+	
+	unsigned char* bytes = malloc(((size/8)+1)*sizeof(unsigned char));
  	
  	printf("%s \n", string);
 }
