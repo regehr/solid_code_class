@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <assert.h>
 #include "common.h"
 #include "header.h"
@@ -74,7 +75,7 @@ int huff_read_entry(FILE * file, char **out) {
     return status;
 }
 
-/* Helper that cleans up the file and header structure when a parsing error 
+/* Helper that cleans up the file and header structure when a parsing error
  * occurs, _huff_read_header does the actual parsing. */
 int huff_read_header(FILE * file, char * filename, struct huff_header * header) {
     /* zero the translation table, so that all pointers are null pointers */

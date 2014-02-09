@@ -3,19 +3,20 @@
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <assert.h>
 #include "common.h"
 #include "header.h"
 #include "tree.h"
 #include "encoder.h"
 
-/* Build a frequency table from the given file. Byte frequencies are filled 
+/* Build a frequency table from the given file. Byte frequencies are filled
  * into the supplied 'table', and the size of the file is written into 'length'.
- * If for some strange reason  the file is larger than uint64_t (which I'm 
- * pretty sure is impossible), it will return EFILETOOLONG. If a read error 
+ * If for some strange reason  the file is larger than uint64_t (which I'm
+ * pretty sure is impossible), it will return EFILETOOLONG. If a read error
  * occurs, ENOREAD is returned. */
 static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
-    uint8_t current = 0; 
+    uint8_t current = 0;
     uint64_t bytes_read = 0;
     memset(table, 0, 256 * sizeof(uint64_t));
 
@@ -23,7 +24,7 @@ static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) 
         bytes_read += 1;
         if (bytes_read == 0) { return EFILETOOLONG; }
     }
-    
+
     if (! feof(input)) { return ENOREAD; }
 
     *length = bytes_read;

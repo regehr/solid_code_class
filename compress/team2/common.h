@@ -5,10 +5,6 @@
 
 #define UNUSED(x) __attribute__((unused)) x
 
-/* Size typedefs because typing 'unsigned' all the time is a pain */
-typedef unsigned long long uint64_t;
-typedef unsigned char uint8_t;
-
 /* Return-value constants for success and failure */
 #define HUFF_FAILURE 255
 #define HUFF_SUCCESS 0

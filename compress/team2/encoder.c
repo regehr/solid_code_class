@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdint.h>
 #include <assert.h>
 #include "common.h"
 #include "encoder.h"
