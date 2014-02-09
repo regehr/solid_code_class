@@ -23,9 +23,10 @@ int huff_make_encoder(struct huff_encoder * encoder, char * ttable[256]);
 /* Given a byte, encode it's bit representation into 'buffer', returns the
  * number of bytes the supplied byte was translated into. Note: Many bytes
  * will encode to a bit-string that isn't divisible by 8. If that's the case,
- * the extra bits are stored in 'buffer' and are appended to the beginning
- * of the next 'encode' call. If the buffer is non-zero, always remember to
- * write the buffer to the file before closing it. */
-int huff_encode(uint8_t byte, uint8_t buffer[256 / 8], struct huff_encoder*);
+ * the extra bits are stored in 'encoder->buffer' and are appended to the
+ * beginning of the next 'huff_encode' call. If 'encoder->buffer_used is
+ * non-zero, always remember to write the buffer to the file before closing it.
+ */
+int huff_encode(uint8_t byte, uint8_t buffer[256 / 8], struct huff_encoder *encoder);
 
 #endif
