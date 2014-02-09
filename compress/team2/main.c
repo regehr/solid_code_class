@@ -45,7 +45,7 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
         int encoded = huff_encode(current, buffer, &encoder);
         /* If there is encoded output, write it to the output file. If the write
          * fails, exit with ENOWRITE. */
-        if (encoded && ! fwrite(buffer, encoded, 1, output)) {
+        if (encoded && ! fwrite(buffer, 1, encoded, output)) {
             return ENOWRITE;
         }
     }
