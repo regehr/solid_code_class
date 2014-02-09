@@ -25,7 +25,7 @@ struct frequency {
     char character;
 };
 
-void enqueue (struct pq_node *, struct pq_node *);
+struct pq_node * enqueue (struct pq_node *, struct pq_node *);
 tree_node * dequeue (struct pq_node*);
 int compare_to (tree_node *, tree_node *);
 void print_tree (tree_node);

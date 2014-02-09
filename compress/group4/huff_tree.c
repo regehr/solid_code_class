@@ -18,6 +18,23 @@ void traverse_tree(struct tree_node tree)
 }
 
 
+void traverse_pq(struct pq_node * node)
+{
+    while (node != NULL) {
+        printf("node->priority: %d ", node->priority);
+        if (node->content != NULL)
+            if (node->content->current != -1)
+                printf("node->char: %c\n", (char)node->content->current);
+            else 
+                printf("empty node\n");
+        else
+            printf("node->content is null\n");
+
+        node = node->next;
+    }
+}
+
+
 /*
  * Compares two Huffman nodes using weight
  */
@@ -56,29 +73,29 @@ int get_leftmost (struct tree_node *tn)
 /* 
  * Add a node to the priority queue
  */
-void enqueue (struct pq_node *head, struct pq_node *p)
+struct pq_node * enqueue (struct pq_node *head, struct pq_node *p)
 {
     struct pq_node* prev = NULL; // represents this pq we are adding to  
     struct pq_node* current = head;
 
-    while (p->priority < current->priority) {
+    if (current->priority < p->priority) {
+        p->next = current;
+        return p;
+    }
+
+    printf("Entered here\n");
+    while (current != NULL) {
+        if (current->priority < p->priority) {
+            break;
+        }
+
         prev = current;
         current = current->next;
     }
 
-    if (p->priority == current->priority) {
-        //Tiebreaker code goes here
-    }
-
-    if (get_leftmost(p->content) < get_leftmost(current->content)) {
-        p->next = current;
-        if (prev != NULL)
-            prev->next = p;
-    } else {
-        current->next = p;
-        if (prev != NULL)
-            prev->next = current;
-    }
+    prev->next = p;
+    p->next = current;
+    return head;
 }
 
 
@@ -97,7 +114,9 @@ tree_node * dequeue (struct pq_node *head)
  */
 void print_tree (struct tree_node head)
 {
-    printf("%c\n", (char)head.current);
+    if (head.current != -1)
+        printf("%c\n", (char)head.current);
+
     if (head.left != NULL)
         print_tree((*head.left));
 
@@ -119,23 +138,20 @@ struct pq_node * make_pq (struct frequency table[])
     //get all character frequencies in file 
     // and add to priority queue
     for (i = 0; i < 256; i++) {    
-        //  printf("%s\n", "got here");
-        if (table[i].count > 0) {
-            node_count = node_count + table[i].count;
-            tree_node * new_tnode = new_tree_node(NULL, NULL, NULL, 
-                table[i].count, (int)table[i].character);
-   
-            struct pq_node * current = new_pq_node(new_tnode->weight, NULL, 
-                new_tnode);
+        node_count = node_count + table[i].count;
+        tree_node * new_tnode = new_tree_node(NULL, NULL, NULL, 
+            table[i].count, (int)table[i].character);
 
-            if (head == NULL)
-                head = current;
-            else 
-                prev->next = current;   
-            
+        struct pq_node * current = new_pq_node(new_tnode->weight, NULL, 
+            new_tnode);
 
-            prev = current;    
-        } 
+        if (head == NULL)
+            head = current;
+        else 
+            prev->next = current;   
+        
+
+        prev = current;    
     }
 
     return head;
@@ -148,29 +164,39 @@ struct pq_node * make_pq (struct frequency table[])
 struct tree_node build_tree (struct pq_node * pq)
 {    
     struct pq_node *head = pq;
+    struct tree_node * root = NULL;
+
     // start building tree
     while (head->next != NULL) {
         // grab 2 smallest nodes 
         struct tree_node *lt = dequeue(head);
         head = head->next;
         struct tree_node *rt = dequeue(head);
+        head = head->next;
 
         // create a new node with smallest nodes as children
         struct tree_node *pt = new_tree_node (NULL, lt, rt, 
             lt->weight + rt->weight, -1);
+
+        if (head == NULL) {
+            root = pt;
+            break;
+        }
 
         // associate children with parent
         lt->parent = pt;
         rt->parent = pt;
 
         // enqueue new node to priority queue
-        struct pq_node * new_node = new_pq_node(pt->weight, NULL, pt);
-        enqueue(head, new_node); // SEG FAULTS HERE
-        //exit when there is only one node left in the pq (next is value in pq is null)
+        struct pq_node *new_node = new_pq_node(pt->weight, NULL, pt);
+        head = enqueue(head, new_node); // SEG FAULTS HERE
     }
     
-    // when the loop ends, set remaining node as tree at root
-    struct tree_node * root = dequeue(head);  
+    if (root == NULL) {
+        // when the loop ends, set remaining node as tree at root
+        root = dequeue(head);  
+    }
+    
     return (*root);
 }
 
