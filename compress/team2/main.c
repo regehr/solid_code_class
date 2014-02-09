@@ -16,11 +16,10 @@
  * pretty sure is impossible), it will return EFILETOOLONG. If a read error
  * occurs, ENOREAD is returned. */
 static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
-    uint8_t current = 0;
     uint64_t bytes_read = 0;
     memset(table, 0, 256 * sizeof(uint64_t));
 
-    for(; fread(&current, 1, 1, input); table[current] += 1) {
+    for(uint8_t current = 0; fread(&current, 1, 1, input); table[current]++) {
         if (bytes_read == UINT64_MAX) { return EFILETOOLONG; }
         bytes_read += 1;
     }
