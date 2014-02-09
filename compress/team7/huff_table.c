@@ -116,6 +116,7 @@ void enqueue(queue_head* head, huff_node* h_node) {
 void init_queue(queue_head* head) {
     head->next_node = NULL;
     head->tail = NULL;
+    head->size = 0;
 }
 
 void delete_queue(queue_head* head) {
@@ -158,6 +159,10 @@ huff_node* create_huff_tree_from_frequency(int frequencyArray[]) {
      */
     queue_head queue1;
     queue_head queue2;
+    
+    init_queue(&queue1);
+    init_queue(&queue2);
+    
     for (i = 0; i < 256; i++) {
         enqueue(&queue1, nodes[i]);
     }
@@ -322,7 +327,7 @@ huff_node* build_tree(queue_head* queue1, queue_head* queue2) {
             // the node with the lowest ascii value.
         else if (size_1 == 0) {
             child_1 = dequeue(queue2);
-            child_2 = dequeue(queue1);
+            child_2 = dequeue(queue2);
             if (child_2->lowest_value < child_1->lowest_value) {
                 huff_node* temp = child_2;
                 child_2 = child_1;
