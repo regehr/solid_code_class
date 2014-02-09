@@ -44,9 +44,8 @@ class HuffTableCount(MyTestCase):
             table = open('random.table', 'w')
             rslt = subprocess.call(['./huff', '-t', 'random.txt'], stdout=table)
             table.close()
-            self.assertEqual(0, rslt) # successful
             numLines = sum(1 for line in open('random.table'))
-            self.assertEqual(257, numLines) 
+            self.assertEqual(256, numLines) 
                 
 
 # Exit status is zero is successful  
