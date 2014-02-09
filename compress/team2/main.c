@@ -39,16 +39,17 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
     int code = huff_write_header(output, header);
     if (code != 0) { return code; }
 
-    int encoded = 0;
-    uint8_t current, buffer[32];
-    while (fread(&current, 1, 1, input)) {
-        encoded = huff_encode(current, buffer, &encoder);
+    for (uint8_t current = 0; fread(&current, 1, 1, input); ) {
+        /* 256 bit buffer */
+        uint8_t buffer[32];
+        int encoded = huff_encode(current, buffer, &encoder);
         /* If there is encoded output, write it to the output file. If the write
          * fails, exit with ENOWRITE. */
         if (encoded && ! fwrite(buffer, encoded, 1, output)) {
             return ENOWRITE;
         }
     }
+
     if (! feof(input)) { return ETRUNC; }
 
     /* If there's an extra byte to be written, write it out. Fail with ENOWRITE
