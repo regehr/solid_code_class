@@ -83,7 +83,6 @@ struct pq_node * enqueue (struct pq_node *head, struct pq_node *p)
         return p;
     }
 
-    printf("Entered here\n");
     while (current != NULL) {
         if (current->priority < p->priority) {
             break;

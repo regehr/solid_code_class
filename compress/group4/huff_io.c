@@ -56,6 +56,8 @@ void build_table (char *filename, struct frequency table[])
     FILE *file;
     int i;
 
+    assert(filename != NULL && table != NULL);
+
     for (i = 0; i < 256; i++) {
         table[i].character = (char)i;
         table[i].count = 0;
@@ -70,7 +72,7 @@ void build_table (char *filename, struct frequency table[])
 
     if (is_huff(file, filename))
         build_from_huff(file, table);
-    else
+    else 
         build_from_normal(file, table);
 }
 
@@ -97,7 +99,7 @@ void build_from_normal (void *file_ptr, struct frequency table[])
  */
 void build_from_huff (void *file_ptr, struct frequency table[])
 {
-    char sequence[256];
+    char *sequence = new_string(256);
     int i = 0;
 
     assert(file_ptr != NULL && table != NULL);
@@ -105,9 +107,13 @@ void build_from_huff (void *file_ptr, struct frequency table[])
 
     // Set the pointer on byte 12
     fseek(file, 12, SEEK_SET);
-    while (fgets(sequence, 256, file) != NULL) {
+    while (fgets(sequence, 256, file) != NULL && i < 256) {
+        strtok(sequence, "\n");
         table[i].character = (char)i;
         table[i].sequence = sequence;
+
+        sequence = new_string(256);
+        i++;
     }
 }
 
@@ -118,7 +124,6 @@ void build_from_huff (void *file_ptr, struct frequency table[])
 void dump_table (char *filename, struct frequency table[])
 {
     struct pq_node *queue = make_pq(table);
-    printf("%s\n", "made queue");
     struct tree_node node = build_tree(queue);
     print_tree(node);
 }
@@ -130,7 +135,8 @@ void dump_table (char *filename, struct frequency table[])
 int is_huff (void *file_ptr, char *filename)
 {
     size_t result;
-    char word[4];
+    char word[5];
+    word[4] = '\0';
 
     assert(file_ptr != NULL);
 
@@ -145,7 +151,8 @@ int is_huff (void *file_ptr, char *filename)
     result = ftell(file);
     if (result < 268)
         return 0;
-    
+
+    rewind(file);
     result = fread(word, 1, 4, file);
 
     return (result == 4 && (strcmp(word, "HUFF") == 0));
@@ -161,4 +168,14 @@ int huff_ext (char *filename)
     char *c = ".huff";
 
     return ((ext != NULL) && (strcmp(ext, c) == 0));
-} 
+}
+
+
+char * new_string (int size)
+{
+    char *str;
+    size++;
+    str = (char *)malloc(sizeof(char) * size);
+
+    return str;
+}
