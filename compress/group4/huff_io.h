@@ -12,14 +12,12 @@ typedef enum {
     UNHANDLED
 } flags;
 
-
-struct frequency {
-    unsigned int count;
-    char character;
-};
-
-
 flags parse_args (char *[], char **);
 int compare (const void *, const void *);
 void build_table (char *, struct frequency []);
-void dump_table (char *, struct frequency[]);
+void dump_table (char *, struct frequency []);
+int is_huff (void *, char *);
+int huff_ext (char *);
+void build_from_normal (void *, struct frequency []);
+void build_from_huff (void *, struct frequency []);
+char * new_string (int);

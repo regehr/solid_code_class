@@ -10,6 +10,7 @@ static const char * const ERROR_STRINGS[] = {
     [-ETRUNC]       = "Input file ended before we finished reading.",
     [-EENTRY]       = "Improperly formatted translation table entry.",
     [-ENOWRITE]     = "An error occurred while writing to the output file.",
+    [-ENOREAD]      = "An error occurred while reading from an input file.",
     [-EFILETOOLONG] = "Input file's size could not be represented. Kudos on making"
                       "a file larger than 16,384 Petabytes.",
 };
