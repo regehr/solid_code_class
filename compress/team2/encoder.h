@@ -18,7 +18,7 @@ struct huff_encoder {
 
 /* Fill the given encoder with the information for the supplied
  * translation table. */
-int huff_make_encoder(struct huff_encoder * encoder, char * ttable[256]);
+void huff_make_encoder(struct huff_encoder * encoder, char * ttable[256]);
 
 /* Given a byte, encode it's bit representation into 'buffer', returns the
  * number of bytes the supplied byte was translated into. Note: Many bytes
