@@ -23,6 +23,7 @@ struct pq_node {
 struct frequency {
     unsigned int count;
     char character;
+    char *sequence;
 };
 
 struct pq_node * enqueue (struct pq_node *, struct pq_node *);
