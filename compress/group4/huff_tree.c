@@ -172,3 +172,39 @@ struct tree_node build_tree (struct pq_node pq)
     printf("print end:\n");
     return root;
 }
+
+
+/*
+ * Initializes a new priority queue node in the heap.
+ */
+struct pq_node * new_pq_node (int priority, struct pq_node * next, 
+    struct tree_node content)
+{
+    char *space = malloc(sizeof(struct pq_node));
+    struct pq_node * node = (struct pq_node *)space;
+
+    node->priority = priority;
+    node->next = next;
+    node->content = content;
+
+    return node;
+}
+
+
+/*
+ * Initializes a new tree node in the heap.
+ */
+tree_node * new_tree_node (tree_node *parent, tree_node *left, tree_node *right,
+    int weight, int current)
+{
+    char *space = malloc(sizeof(tree_node));
+    tree_node * node = (tree_node *)space;
+
+    node->parent = parent;
+    node->left = left;
+    node->right = right;
+    node->weight = weight;
+    node->current = current;
+
+    return node;
+}

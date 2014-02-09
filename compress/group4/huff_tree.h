@@ -32,3 +32,5 @@ void print_tree (tree_node);
 void traverse_tree (tree_node);
 struct pq_node make_pq (struct frequency[]);
 struct tree_node build_tree (struct pq_node);
+struct pq_node * new_pq_node (int, struct pq_node *, tree_node);
+tree_node * new_tree_node (tree_node *, tree_node *, tree_node *, int, int);
