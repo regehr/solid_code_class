@@ -1,11 +1,11 @@
-.PHONY: clean gdb test
+.PHONY: default clean gdb test
 
 CC = clang
 CFLAGS = -std=c99 -Wall -Wextra -pedantic -Werror -O3
 
 PY = python27
 
-objects = main.o header.o tree.o encoder.o common.o 
+objects = main.o header.o tree.o encoder.o common.o
 bin = huff
 
 default: $(bin)
@@ -28,4 +28,4 @@ clean:
 
 test: $(bin)
 	cp $(bin) test
-	$(MAKE) -C test all PY=$(PY)
+	$(MAKE) -C test test PY=$(PY)
