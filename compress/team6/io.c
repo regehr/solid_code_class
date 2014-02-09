@@ -183,7 +183,7 @@ void write_decompressed_file(unsigned char* file_pointer, unsigned long long fil
    tree current_node = root;
    while(1)
    {
-     if(current_node->ascii != '\0')
+     if(/*current_node->ascii != '\0'*/ current_node->one == NULL)
      {
        to_write[to_write_index++] = current_node->ascii;
        break;
