@@ -6,13 +6,18 @@ bool is_huff_file(const char* filename){
     return strcmp(HUFF_EXT, dot) == 0;
 }
 
+static void read_body_error(){
+    fprintf(stderr, "ERROR: Error while reading body from file.\n");
+    exit(ERR_CODE);
+}
+
 static void read_header_error(){
-    fprintf(stderr, "ERROR: Error while header from file\n");
+    fprintf(stderr, "ERROR: Error while reading header from file.\n");
     exit(ERR_CODE);
 }
 
 static void write_header_error(){
-    fprintf(stderr, "ERROR: Error while writing header to file\n");
+    fprintf(stderr, "ERROR: Error while writing header to file.\n");
     exit(ERR_CODE);
 }
 
@@ -21,9 +26,36 @@ static void write_body_error(){
     exit(ERR_CODE);
 }
 
+char* remove_ext(const char* mystr) {
+    char *retstr;
+    char *lastdot;
+    if (mystr == NULL)
+        return NULL;
+    if ((retstr = malloc (strlen (mystr) + 1)) == NULL){
+		fprintf(stderr, "Malloc Error.\n");
+        exit(ERR_CODE);
+    }
+    strcpy (retstr, mystr);
+    lastdot = strrchr (retstr, '.');
+    if (lastdot != NULL)
+        *lastdot = '\0';
+    return retstr;
+}
+
 bool get_huff_header(FILE* file, unsigned long long* size){
+    int num_string = 256;
+    int str_length = 257;
     char magic[5];
-    char* huff_table[256];
+    char* huff_table[num_string];
+    
+    // Init array
+    int i;
+	for (i = 0; i < num_string; i++){
+        huff_table[i] =  malloc(str_length);
+        if (huff_table[i] == NULL){
+            read_header_error();
+        }
+    }
     
     // Read magic number
     magic[0] = fgetc(file);
@@ -44,15 +76,29 @@ bool get_huff_header(FILE* file, unsigned long long* size){
     }
     
     // Read huff table
-    int i;
-    char line[258];
-    for (i = 0; i < 256; i++){
-        if (fgets(line, 258, file) == NULL){
-            read_header_error();
+    int j;
+    for (i = 0; i < num_string; i++){
+        char line[str_length];
+        for(j = 0; j < str_length; j++){
+            int c = fgetc(file);
+            if (ferror(file)){
+                read_header_error();
+            } else if (c != '\n'){
+                line[j] = c;
+            } else {
+                line[j] = '\0';
+                break;
+            }
         }
-        huff_table[i] = line;
+        strcpy(huff_table[i], line);
     }
-	gen_tree_tbl(huff_table);
+	build_tree_tbl(huff_table);
+    
+    // free mem
+    for (i = 0; i < num_string; i++){
+        free(huff_table[i]);
+    }
+    
     return true;
 }
 
@@ -107,7 +153,6 @@ void write_huff_header(FILE* file, unsigned long long filesize){
     int i;
     for (i = 0; i < 256; i++){
        	if (fputs(get_code(i), file) 	== EOF
-            || fputc('\0', file) 		== EOF
             || fputc('\n', file) 		== EOF)
         {
             write_header_error();
@@ -135,5 +180,26 @@ void write_huff_body(FILE* original, FILE* newfile, unsigned long long size){
 
 void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long size){
     
-    // Read characters 
+    // Read characters and write to decompresed file
+    int c;
+    do {
+        char in, out = 0;
+        c = fgetc(compressed);
+        if (c != EOF){
+            
+            // Loop throught the bits of a byte
+            int i;
+            for (i = 7; i >= 0; i--){
+                in = (c >> i) & 0xfe;
+                if (get_char(&in, &out)){
+                    if(fputc(out, decompressed) == EOF){
+                        read_body_error();
+                    }
+                }
+            }
+        } else if (ferror(compressed)){
+            read_body_error();
+        }
+    } while (c != EOF);
 }
+

@@ -81,7 +81,9 @@ void compress(FILE* file, char* filename)
 	
 	//Determine frequency/encoding tables
 	create_freq_table(freq_table, file, size);	
-	char** encoded_table = get_encoding(create_huff_tree_from_frequency(freq_table));
+    huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
+	char** encoded_table = get_encoding(huff_tree);
+        
 	
 	assert(encoded_table != NULL);
 	
@@ -90,6 +92,10 @@ void compress(FILE* file, char* filename)
 	
 	//Close the file
 	fclose(comp_file);
+        
+    //free memory
+    //destroy_huff_tree(huff_tree);
+    free(encoded_table);
 }
 
 void decompress(FILE* file, char* filename)
@@ -98,9 +104,20 @@ void decompress(FILE* file, char* filename)
 	if(!is_huff_type(filename))
 		printf("Given file is not a .huff\n");
 		
+        char** encoding = 0;
 	//TODO:Get huff table
+    huff_node* huff_tree = create_huff_tree_from_encoding(encoding);
 	
 	//TODO:Decode data based on table
+    // 0 for zero bit, true for one bit
+    int one_bit = 1;
+    //get_next_character return -1 if another bit is needed
+    //otherwise it will return 0 - 255
+    int result = get_next_character(huff_tree, one_bit);
+    while(result == -1){
+        //TODO set one_bit
+        result = get_next_character(huff_tree, one_bit);
+    }
 	
 	//TODO:Open new file
 	
@@ -138,7 +155,7 @@ void dump(FILE* file, char* filename)
 	assert(encoded_table != NULL);
 
 	for(i = 0; i < 256; i++)
-		printf("%s", encoded_table[i]);
+		printf("%s\n", encoded_table[i]);
 }
 
 void create_freq_table(int table[], FILE* file, unsigned long long size)
@@ -256,5 +273,20 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
 		assert(res > 0 && "Error occured when writing huff table to file.");
 	}
 	
-	//TODO:Write compressed data
+	//Write compressed data
+	rewind(orig_file);
+	
+	int curr_char;
+	char* encoded_char;
+	curr_char = fgetc(orig_file);
+	
+	while(curr_char != EOF)
+	{
+		encoded_char = encoded_table[(int)curr_char];
+		
+		int write_res = fputs(encoded_char, comp_file);
+		assert(write_res != EOF && "Error occured when writing huff body.");
+		
+		curr_char = fgetc(orig_file);
+	}
 }

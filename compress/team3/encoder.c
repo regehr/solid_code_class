@@ -24,6 +24,11 @@ huffNode* calculateTree(huffNode *nodes, int count);
 huffNode* minNode(huffNode *nodes, int count);
 void fillResultArray(huffResult* resultArray, huffNode *node, char *currentString);
 char* concat(char *s1, char *s2);
+/** Check rep **/
+void checkTree(huffNode *rootNode);
+int countLeaves(huffNode *rootNode);
+void checkTable(huffResult *resultArray);
+void checkValidCode (char *s);
 
 
 //turns an array of frequencies into a an array of huffresults, used for encoding
@@ -62,6 +67,11 @@ huffResult* createHuffResultArray(unsigned *frequencies)
     //we aren't interested in the nodes for encoding, just the results encoding.
     huffResult *result = calcResult(rootNode);
     
+#ifdef CHECK_REP
+    checkTree(rootNode);
+    checkTable(result);
+    exit(0);
+#endif 
     
     //release the nodes
     free(nodes);
@@ -253,6 +263,54 @@ void freeResultArray(huffResult *resultArray)
     free(resultArray);
 }
 
+// Check rep on tree
+void checkTree(huffNode *rootNode){
+
+  // Tree must exist
+  assert(rootNode);
+  int leafCount = countLeaves(rootNode);
+  assert (leafCount <= 256);
+
+}
 
 
+// Check rep on table
+void checkTable(huffResult *resultArray){
+
+  int i;
+  for (i = 0; i < 256; i++) {
+    char *s = resultArray->string;
+    checkValidCode(s);
+    resultArray++;
+  }
+
+}
+
+
+// Count leaves (for checkTree)
+int countLeaves(huffNode *rootNode){
+
+  if (rootNode) {
+    
+      int count = countLeaves(rootNode->leftLeaf)+
+	          countLeaves(rootNode->rightLeaf);
+      return (count == 0) ? 1: count;
+      
+   }
+   return 0;  
+}
+
+
+// Checks valid code (for checkTable)
+void checkValidCode (char *s){
+
+  int i = 0;
+  while (s[i] != '\0') {
+    
+    char c = s[i];
+    assert (c == '1' || c == '0');
+    i++;
+    
+  }
+}
 

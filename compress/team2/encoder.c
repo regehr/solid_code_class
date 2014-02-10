@@ -28,12 +28,12 @@ void huff_make_encoder(struct huff_encoder * encoder, char *ttable[256]) {
 
 int huff_encode(uint8_t byte, uint8_t output[32], struct huff_encoder *encoder) {
     uint8_t buffer[33];
-    memset(buffer, 0, sizeof(uint8_t) * 33);
+    memset(buffer, 0, sizeof(buffer));
     int packed = 0;
     int bitlen = encoder->table[byte].bitlen;
 
     /* get the number of bytes this byte translates too, rounded up. */
-    int trans_bytes = (bitlen / 8) + (bitlen % 8 != 0 ? 1 : 0);
+    int trans_bytes = (bitlen / 8) + (bitlen % 8 ? 1 : 0);
 
     buffer[0] = encoder->buffer;
     memcpy(buffer + 1, encoder->table[byte].bits, trans_bytes);
