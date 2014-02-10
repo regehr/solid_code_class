@@ -8,34 +8,31 @@
 #include <string.h>
 #include "huff_tree.h"
 
+// stores the bit code result from traversing the tree 
+char bit_code[255] = {0};
 
 /*
- * Traverses the Huffman tree and assigns 0 or 1 to children 
+ * Traverses the Huffman tree and assigns 0 or 1 to 
+ * children to create the bit code for a char
  */
 void traverse_tree(struct tree_node * tree, char * bit_code)
 {  
+	
   char temp[255] = ""; //worst case height for huffman tree  
-  if(tree->left != NULL)
-    {    
+  if(tree->left != NULL) {    
       strcpy(temp, bit_code);
       strcat(temp, "0");
       traverse_tree(tree->left, temp);
     }
-  if(tree->right != NULL)
-    { 
+  if(tree->right != NULL) { 
       strcpy(temp, bit_code);
       strcat(temp,"1");
       traverse_tree(tree->right, temp);
     }
-  // get rid of '-' char in first index of temp
-  if(temp[0] == '-')
-  {
-	//printf("BEFORE %c\n", temp[0]);
-	memmove(temp, temp+1, strlen(temp));
-	//printf("AFTER %c\n", temp[0]);
-  }
   printf("%s\n", temp);
+  bit_code = temp; // store bit code in bit_code var
 }
+
 
 
 void traverse_pq(struct pq_node * node)
@@ -53,6 +50,7 @@ void traverse_pq(struct pq_node * node)
         node = node->next;
     }
 }
+
 
 
 /*
@@ -133,6 +131,7 @@ tree_node * dequeue (struct pq_node *head)
  */
 void print_tree (struct tree_node head)
 {
+	 // didn't print the code code on CADE machines?
     if (head.current != -1)
         printf("%c\n", (char)head.current);
 
@@ -141,6 +140,7 @@ void print_tree (struct tree_node head)
 
     if (head.right != NULL)
         print_tree((*head.right));
+	
 }
 
 
@@ -254,5 +254,23 @@ tree_node * new_tree_node (tree_node *parent, tree_node *left, tree_node *right,
 
     return node;
 }
+
+/* 
+ * Returns the number of total leaves in the tree
+ */
+int check_rep(tree_node * parent)
+{
+  if(parent == NULL) {
+    return 0;
+  }
+  else if(parent->left == NULL && parent->right == NULL) {
+    return 1;
+  }
+  else {
+    return (check_rep(parent->left)+check_rep(parent->right));
+  }
+  return 0;  
+}
+
 
 

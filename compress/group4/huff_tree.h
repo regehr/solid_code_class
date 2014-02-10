@@ -4,7 +4,7 @@
  * Jonathon McDonald, Lynn Gao, Taylor Stapleton
  */
 // represents nodes in the Huffman tree
-#include<stdio.h>
+
 typedef struct tree_node tree_node;
 struct tree_node {
     tree_node *parent;
@@ -37,3 +37,4 @@ struct tree_node build_tree (struct pq_node *);
 struct pq_node * new_pq_node (int, struct pq_node *, tree_node *);
 tree_node * new_tree_node (tree_node *, tree_node *, tree_node *, int, int);
 void traverse_pq(struct pq_node *);
+int check_rep(tree_node *);

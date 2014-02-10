@@ -25,6 +25,11 @@ void display_table (char *file, struct frequency table[])
     // TODO: call dump_table from huff_io.h and tree table
 }
 
+void compress(char * file_name)
+{
+	// check 
+}
+
 
 int main (int argc, char *argv[]) 
 {
@@ -38,6 +43,7 @@ int main (int argc, char *argv[])
 
     switch (parse_args(argv, &file)) {
         case COMPRESS:
+            compress(file);
             break;
         case DECOMPRESS:
             break;
