@@ -60,6 +60,22 @@ void destroy_huff_tree(huff_node* root);
  */  
 char** get_encoding(huff_node* root);
 
+/**
+ * Used to get figure out the next character based on the bit passed.
+ * Set one_bit to true for a one bit. Otherwise set one_bit to 0 for zero bit.
+ * 
+ * Returns -1 if another bit is needed to determine the character.
+ * Returns 0 - 255 is the character that was determined based on the bits seen so far.
+ * 
+ * This method is a bit of a object hack using a static variable to keep track
+ * of the current node within the tree.  Only use this with method with one
+ * tree per an execution.
+ * 
+ * @param root
+ * @param zero_bit
+ * @return 
+ */
+int get_next_character(huff_node* root, int one_bit);
 
 //Not sure how to do the decoding yet.  
 //Might just have to manually go through the tree since encodings are varible length.
