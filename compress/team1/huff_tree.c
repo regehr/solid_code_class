@@ -8,7 +8,7 @@
 //#define DBG_SORT
 //#define DBG_BLD_TREE
 //#define DBG_TABLE
-#define GEN_DOT
+//#define GEN_DOT
 //#define CHECK_REP
 
 
@@ -23,9 +23,9 @@ void init_nodes()
 
 void init_node(node **n, char c)
 {
-    *n = malloc_n(*n);
-    for (int i = 0; i < 256; i++)
-        (*n)->code[i] = 0;
+    (*n) = malloc_n(*n);
+    for (int i = 0; i < 257; i++)
+       (*n)->code[i] = 0;
     (*n)->left = NULL;
     (*n)->right = NULL;
     (*n)->freq = 0;
@@ -175,7 +175,7 @@ void tree_dot()
         }
     }
     
-    dfs(nodes[0], dot);
+    dfs(all_nodes[0], dot);
     fputs("}", dot);
     fclose(dot);
 }

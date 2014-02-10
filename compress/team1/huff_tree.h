@@ -19,13 +19,13 @@
 /* Public accessing functions for this module. */
 
 /* Builds a huffman tree from huffman table. */
-void build_tree_tbl(char *table[256]);
+void gen_tree_tbl(char *table[256]);
 
 /* Builds a huffman tree from character frequencies. */
 void gen_tree_frq(uint64_t freq[256]);
 
 /* Takes a huffman code * and returns the matching character. */
-bool get_char(char *, char *);
+bool get_char(char, char *);
 
 /* Takes a character and returns the matching huffman code *. */
 char * get_code(char);
@@ -119,5 +119,7 @@ bool is_leaf(node *);
 node * malloc_n(node *);
 
 void build_tree_frq();
+
+void build_tree_tbl(char **);
 
 #endif
