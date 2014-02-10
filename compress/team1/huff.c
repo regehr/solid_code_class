@@ -71,17 +71,22 @@ void decompress(FILE *compressed, const char* filename){
     }
     
     // Create file from huff
-    strcat((char*)filename, HUFF_EXT);
-    FILE* decompressed = fopen((filename), "w");
+    char* newfile = remove_ext(filename);
+    FILE* decompressed = fopen((newfile), "w");
     if (decompressed == NULL){
-        fprintf(stderr, "ERROR: Could not create file %s\n", filename);
+        fprintf(stderr, "ERROR: Could not create file %s\n", newfile);
         exit(ERR_CODE);
     }
     
     // Write out decompressed file
     read_huff_body(compressed, decompressed, size);
     
+    if (EOF == fclose(decompressed)){
+        fprintf(stderr, "ERROR: Could save file %s\n", filename);
+        exit(ERR_CODE);
+    }
     free_huff_tree();
+    free(newfile);
 }
 
 int main(int argc, const char *argv[])
