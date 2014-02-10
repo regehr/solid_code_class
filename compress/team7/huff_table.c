@@ -38,8 +38,11 @@ void init_queue(queue_head* head);
 void delete_queue(queue_head* head);
 
 /************************ Tree Forwards "private" **************************/
-void init_huff_node(huff_node* node, int char_number, int frequency);
+huff_node* create_huff_node(int char_number, int frequency, char* encoding);
 huff_node* create_parent_node(huff_node* left_child, huff_node* right_child);
+void set_right_child(huff_node* parent, huff_node* right_child);
+void set_left_child(huff_node* parent, huff_node* left_child);
+void set_children_nodes(huff_node* parent, huff_node* left_child, huff_node* right_child);
 int huff_node_frequency_comparer(const void * a, const void * b);
 
 huff_node* build_tree(queue_head* queue1, queue_head* queue2);
@@ -48,10 +51,12 @@ huff_node* find_leaf_node(int char_value, huff_node* root);
 void free_huff_node(huff_node* node);
 
 void generate_encoding_tree(huff_node* root);
+huff_node* build_encoded_tree(huff_node* nodes[], int nodes_size);
 void generate_encoding(huff_node* root, char* path);
 char* encoding_for_char(int char_value, huff_node* root);
 
 int min(int a, int b);
+char* create_string_from_cat(char* start, char* end);
 
 
 // </editor-fold>
@@ -148,8 +153,7 @@ huff_node* create_huff_tree_from_frequency(int frequencyArray[]) {
     huff_node * nodes[256];
     for (; i < 256; i++) {
         nodes[i] = NULL;
-        nodes[i] = (huff_node*) Malloc(sizeof (huff_node));
-        init_huff_node(nodes[i], i, frequencyArray[i]);
+        nodes[i] = create_huff_node(i, frequencyArray[i], NULL);
         
     }
     qsort(nodes, 256, sizeof (huff_node*), huff_node_frequency_comparer);
@@ -178,8 +182,69 @@ huff_node* create_huff_tree_from_frequency(int frequencyArray[]) {
  *  Description in header file
  */
 huff_node* create_huff_tree_from_encoding(char** encoding) {
-    huff_node* root = 0;
 
+    int i = 0;
+    huff_node * nodes[256];
+    for (; i < 256; i++) {
+        nodes[i] = NULL;
+        nodes[i] = create_huff_node(i, -2, encoding[i]);
+    }
+
+    huff_node* root = build_encoded_tree(nodes, 256);
+
+    return root;
+}
+
+void insert_encoded_node(huff_node* root, huff_node* node){
+    int length = strlen(node->encoding);
+    char* encoding = node->encoding;
+    int i = 0;
+    huff_node* current = root;
+    for(; i < length; i++){
+        if(encoding[i] == '0'){
+            if(current->left_child == 0){
+                if(i == length-1){
+                    current->left_child = node;
+                    return;
+                } else{
+                    huff_node* left_child = create_huff_node(-1, -1,create_string_from_cat(current->encoding, "0"));
+                    set_left_child(current, left_child);
+                    current = left_child;
+                    continue;
+                }
+            } else{
+                    current = current->left_child;
+            }
+        } 
+        //next character is a 1
+        else{
+            if(current->right_child == 0){
+                if(i == length-1){
+                    current->right_child = node;
+                    return;
+                } else{
+                    huff_node* right_child = create_huff_node(-1, -1,create_string_from_cat(current->encoding, "1"));
+                    set_right_child(current, right_child);
+                    current = right_child;
+                    continue;
+                }
+            } else{
+                    current = current->right_child;
+            }
+        }
+    }
+}
+
+huff_node* build_encoded_tree(huff_node* nodes[], int nodes_size){
+    assert(nodes_size == 256);
+    int i = 0;
+    huff_node* root = NULL;
+    root = create_huff_node(-1, -2, "");
+    
+    for(;i < 256; i++){
+        insert_encoded_node(root, nodes[i]);
+    }
+    
     return root;
 }
 
@@ -245,14 +310,45 @@ int get_next_character(huff_node* root, int one_bit)
 
 // <editor-fold defaultstate="collapsed" desc="private tree methods">
 
-void init_huff_node(huff_node* node, int char_number, int frequency) {
-    node->left_child = 0;
-    node->right_child = 0;
+huff_node* create_huff_node(int char_number, int frequency, char* encoding) {
+    huff_node * node = (huff_node*) Malloc(sizeof (huff_node));
+    node->left_child = NULL;
+    node->right_child = NULL;
     node->char_number = char_number;
     node->lowest_value = char_number;
     node->frequency = frequency;
     node->parent = NULL;
-    node->encoding = NULL;
+    node->encoding = encoding;
+    
+    return node;
+}
+
+void set_right_child(huff_node* parent, huff_node* right_child){
+    assert(parent != 0 && "Parent can't be NULL");
+    parent->right_child = right_child;
+    if(right_child != 0){
+        right_child ->parent = parent;
+    }
+}
+
+void set_left_child(huff_node* parent, huff_node* left_child){
+    assert(parent != 0 && "Parent can't be NULL");
+    parent->right_child = left_child;
+    if(left_child != 0){
+        left_child ->parent = parent;
+    }
+}
+
+void set_children_nodes(huff_node* parent, huff_node* left_child, huff_node* right_child){
+    assert(parent != 0);
+    parent->left_child = left_child;
+    parent->right_child = right_child;
+    if(left_child != 0){
+        left_child->parent = parent;
+    }
+    if(right_child != 0){
+        right_child->parent = parent;
+    }
 }
 
 //Creates a parent node and fills in all fields.
@@ -261,8 +357,7 @@ void init_huff_node(huff_node* node, int char_number, int frequency) {
 
 huff_node* create_parent_node(huff_node* left_child, huff_node* right_child) {
     //create huff_node
-    huff_node* parent = Malloc(sizeof (huff_node));
-    init_huff_node(parent, -1, left_child->frequency + right_child->frequency);
+    huff_node* parent = create_huff_node( -1, left_child->frequency + right_child->frequency, NULL);
     parent->left_child = left_child;
     parent->right_child = right_child;
     parent->lowest_value = left_child->lowest_value;
@@ -270,7 +365,6 @@ huff_node* create_parent_node(huff_node* left_child, huff_node* right_child) {
     right_child->parent = parent;
 
     return parent;
-
 }
 
 // Returns negative if huff_node* a has a lower frequency or
@@ -409,15 +503,7 @@ void generate_encoding(huff_node* node, char* path) {
         return;
     }
 
-    int length = strlen(node->parent->encoding);
-
-    char* encoding = Malloc(length + 2);
-    int i = 0;
-    for (; i < length + 2; i++) {
-        encoding[i] = '\0';
-    }
-    strcpy(encoding, node->parent->encoding);
-    strcat(encoding, path);
+    char* encoding = create_string_from_cat(node->parent->encoding, path);
     node->encoding = encoding;
     generate_encoding(node->left_child, "0");
     generate_encoding(node->right_child, "1");
@@ -456,14 +542,12 @@ huff_node* find_leaf_node(int char_value, huff_node* root) {
 }
 
 // Gets the encoding for the specified character value.
-
 char* encoding_for_char(int char_value, huff_node* root) {
     huff_node* node = find_leaf_node(char_value, root);
     return node->encoding;
 }
 
 //Returns the smaller of the 2 ints.
-
 int min(int a, int b) {
     if (a > b) {
         return b;
@@ -472,6 +556,14 @@ int min(int a, int b) {
     }
 }// </editor-fold>
 
+char* create_string_from_cat(char* start, char* end){
+    int length_s = strlen(start) +1;
+    int length_e = strlen(end) +1;
+    char* new_string = (char*)Malloc(sizeof(length_s+length_e));
+    strcpy(new_string, start);
+    strcat(new_string, end);
+    return new_string;
+}
 
 //**************************** End Tree Code  *****************************//
 // </editor-fold>
