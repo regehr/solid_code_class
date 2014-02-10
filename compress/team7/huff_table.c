@@ -195,7 +195,6 @@ void destroy_huff_tree(huff_node* root) {
     }
 
     free_huff_node(root);
-    free(root);
     root = NULL;
 }
 

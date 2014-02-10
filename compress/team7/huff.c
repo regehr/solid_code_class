@@ -94,7 +94,7 @@ void compress(FILE* file, char* filename)
 	fclose(comp_file);
         
     //free memory
-    //destroy_huff_tree(huff_tree);
+    destroy_huff_tree(huff_tree);
     free(encoded_table);
 }
 
