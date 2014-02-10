@@ -7,7 +7,7 @@ clean:
 	rm -f *.gch
 	rm -f *.out
 
-test:
-	clang huff.c huff_io.c huff_tree.c -o huff -Wall -fsanitize=undefined
+test: test.py test.o huff
+	clang huff.c -o huff -Wall -fsanitize=undefined
 	gcc test.c -o test.o
 	python27 test.py huff

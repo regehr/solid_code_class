@@ -12,9 +12,22 @@
 /*
  * Traverses the Huffman tree and assigns 0 or 1 to children 
  */
-void traverse_tree(struct tree_node tree)
-{
-    // struct frequency huffTable[256, sizeof(table)];  
+void traverse_tree(struct tree_node * tree, char * bit_code)
+{  
+  char temp[255] = ""; //worst case height for huffman tree
+  if(tree->left != NULL)
+    {    
+      strcpy(temp, bit_code);
+      strcat(temp, "0");
+      traverse_tree(tree->left, temp);
+    }
+  if(tree->right != NULL)
+    { 
+      strcpy(temp, bit_code);
+      strcat(temp,"1");
+      traverse_tree(tree->right, temp);
+    }
+  printf("%s\n", temp);
 }
 
 
@@ -234,3 +247,5 @@ tree_node * new_tree_node (tree_node *parent, tree_node *left, tree_node *right,
 
     return node;
 }
+
+

@@ -33,15 +33,9 @@ def successTest(programName , fileName , testNum , moq , type):
 			output = subprocess.check_output([os.getcwd() + "/" + programName , type , fileName])
 
 	except subprocess.CalledProcessError, e:
-		toReturn = []
-		toReturn.append(str(testNum))
-		toReturn.append(str(e))
-		return toReturn
-	except OSError, e:
-		print(e);
 		return testNum
 
-	return "0"
+	return 0
 
 def failureTest(programName , fileName , testNum , moq , type):
 	try:
@@ -51,41 +45,9 @@ def failureTest(programName , fileName , testNum , moq , type):
 			output = subprocess.check_output([os.getcwd() + "/" + programName , type , fileName])
 
 	except subprocess.CalledProcessError, e:
-		return "0"
-	except OSError, e:
-		toReturn = []
-		toReturn.append(str(testNum))
-		toReturn.append(str(e))
-		return toReturn
+		return 0
 
-	toReturn = []
-	toReturn.append(str(testNum))
-	toReturn.append("code should have crashed/failed and did not.")
-	return toReturn
-
-def outputLineTest(programName , fileName , testNum , numberOfLines , type):
-	output = ""
-	try:
-		output = subprocess.check_output([os.getcwd() + "/" + programName , type , fileName])
- 	except subprocess.CalledProcessError, e:
-		toReturn = []
-		toReturn.append(str(testNm))
-		toReturn.append(str(e))
-		return toReturn
-	except OSError, e:
-		toReturn = []
-		toReturn.append(str(testNum))
-		toReturn.append(str(e))
-		return toReturn
-
- 	if(output.count('\n') == numberOfLines):
-		return "0"
-	else:
-		print("expected = " + str(numberOfLines) + "  actual = " + str(output.count('\n')))
-		toReturn = []
-		toReturn.append(str(testNum))
-		toReturn.append("expected line count did not match")
-		return toReturn
+	return testNum
 
 def makeFile(fileName , length , fileList):
 	file = open(os.getcwd() + "/" + fileName , "w+")
@@ -104,7 +66,6 @@ def main():
 	results = list()
 	successList = list()
 	failureList = list()
-	outputList = list()
 	fileList = list()
 
 
@@ -121,62 +82,27 @@ def main():
         failureList.append(makeTest(moqTesterName , "badFile" , 8 , moq2 , "moq bad file name test failed" , "-t"))
         failureList.append(makeTest(moqTesterName , "" , 9 , moq2 , "moq incorrect arguments failed" , "-t"))
 
-	outputList.append(makeTest(sys.argv[1] , makeFile("test10file" , 0 , fileList) ,  10 , 256, "check number of output lines for table failed for small file." , "-t"))
-	outputList.append(makeTest(sys.argv[1] , makeFile("test11file" , 300 , fileList) ,  11 , 256, "check number of output lines for table failed for regular size file." , "-t"))
-	outputList.append(makeTest(sys.argv[1] , makeFile("test12file" , 2000000 , fileList) ,  12 , 256, "check number of output lines for table failed for large file." , "-t"))
-
-	for i in range(0 , 5):
- 		outputList.append(makeTest(sys.argv[1] , makeFile("test" + str(i + 13) + "file" , i , fileList) ,  13 + i , 256, "check number of output lines for table failed for iteration file." , "-t"))
-  	
-
 
 
 	for test in successList:
-		singleResult = successTest(test.programName , test.fileName , test.testNum , test.moq , test.type)
-		if(singleResult[0] != "0"):
-			for test in successList:
-				if(str(test.testNum) == singleResult[0]):
-					test.message += "\n Exception thrown  =  "
-					test.message += singleResult[1]
-					results.append(singleResult[0])
+		results.append(successTest(test.programName , test.fileName , test.testNum , test.moq , test.type))	
 
 	for test in failureList:
-                singleResult = failureTest(test.programName , test.fileName , test.testNum , test.moq , test.type)
-                if(singleResult[0] != "0"):
-                        for test in failureList:
-                                if(str(test.testNum) == singleResult[0]):
-                                        test.message += "\n Exception thrown  =  "
-                                        test.message += singleResult[1]
-                                        results.append(singleResult[0])
-
-	for test in outputList:
-                singleResult = outputLineTest(test.programName , test.fileName , test.testNum , test.moq , test.type)
-                if(singleResult[0] != "0"):
-                        for test in outputList:
-                                if(str(test.testNum) == singleResult[0]):
-                                        test.message += "\n Exception thrown  =  "
-                                        test.message += singleResult[1]
-                                        results.append(singleResult[0])
-				
-
-
+		results.append(failureTest(test.programName , test.fileName , test.testNum , test.moq , test.type))
 
 	totalTests = list()
 	for test in successList:
 		totalTests.append(test)
 	for test in failureList:
 		totalTests.append(test)
-	for test in outputList:
-		totalTests.append(test)
-
 
 	testFailure = 0;
 	for result in results:
-		if(result != "0"):
+		if(result != 0):
 			testFailure = 1;
 			message = "test " + str(result) + " failed with message: "
 			for test in totalTests:
-				if(str(test.testNum) == result):
+				if(test.testNum == result):
 					message = message + test.message
 
 			print(message + "\n")
