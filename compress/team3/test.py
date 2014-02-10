@@ -10,7 +10,7 @@ import filecmp
 import string
 import shutil
 
-TEST_COUNT = 2
+TEST_COUNT = 20
 
 
 # Set-up tests
@@ -29,7 +29,7 @@ class FileEquality(MyTestCase):
             testFile.close()
             shutil.copy('random.txt', 'old.txt') #copy file since it will be overwritten
             rslt1 = subprocess.call(['./huff', '-c', 'random.txt'])
-            rslt2 = subprocess.call(['./huff', '-d', 'random.huff'])        
+            rslt2 = subprocess.call(['./huff', '-d', 'random.txt.huff'])        
             self.assertTrue(filecmp.cmp('random.txt', 'old.txt'))
 
 
@@ -71,7 +71,7 @@ class ExitDecompressGood(MyTestCase):
             testFile.close()
             shutil.copy('random.txt', 'old.txt') #copy file since it will be overwritten
             subprocess.call(['./huff', '-c', 'random.txt'])
-            rsltx = subprocess.call(['./huff', '-d', 'random.huff'])        
+            rslt = subprocess.call(['./huff', '-d', 'random.txt.huff'])        
             self.assertEqual(0, rslt) # successful 
                 
 
@@ -99,7 +99,7 @@ def main():
     ecg = ExitCompressGood()
     edg = ExitDecompressGood()
     edb = ExitDecompressBad()
-    suite.addTests([ht])
+    suite.addTests([ht, fe, ecg, edg, edb])
 
     # run the tests
     runner.run(suite)
