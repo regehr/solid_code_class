@@ -45,6 +45,8 @@ void set_left_child(huff_node* parent, huff_node* left_child);
 void set_children_nodes(huff_node* parent, huff_node* left_child, huff_node* right_child);
 int huff_node_frequency_comparer(const void * a, const void * b);
 
+void insert_encoded_node(huff_node* root, huff_node* node);
+huff_node* build_encoded_tree(huff_node* nodes[], int nodes_size);
 huff_node* build_tree(queue_head* queue1, queue_head* queue2);
 huff_node* find_lowest_node(queue_head* queue1, queue_head* queue2);
 huff_node* find_leaf_node(int char_value, huff_node* root);
@@ -195,58 +197,9 @@ huff_node* create_huff_tree_from_encoding(char** encoding) {
     return root;
 }
 
-void insert_encoded_node(huff_node* root, huff_node* node){
-    int length = strlen(node->encoding);
-    char* encoding = node->encoding;
-    int i = 0;
-    huff_node* current = root;
-    for(; i < length; i++){
-        if(encoding[i] == '0'){
-            if(current->left_child == 0){
-                if(i == length-1){
-                    current->left_child = node;
-                    return;
-                } else{
-                    huff_node* left_child = create_huff_node(-1, -1,create_string_from_cat(current->encoding, "0"));
-                    set_left_child(current, left_child);
-                    current = left_child;
-                    continue;
-                }
-            } else{
-                    current = current->left_child;
-            }
-        } 
-        //next character is a 1
-        else{
-            if(current->right_child == 0){
-                if(i == length-1){
-                    current->right_child = node;
-                    return;
-                } else{
-                    huff_node* right_child = create_huff_node(-1, -1,create_string_from_cat(current->encoding, "1"));
-                    set_right_child(current, right_child);
-                    current = right_child;
-                    continue;
-                }
-            } else{
-                    current = current->right_child;
-            }
-        }
-    }
-}
 
-huff_node* build_encoded_tree(huff_node* nodes[], int nodes_size){
-    assert(nodes_size == 256);
-    int i = 0;
-    huff_node* root = NULL;
-    root = create_huff_node(-1, -2, "");
-    
-    for(;i < 256; i++){
-        insert_encoded_node(root, nodes[i]);
-    }
-    
-    return root;
-}
+
+
 
 /*  Description in header file
  *
@@ -418,6 +371,59 @@ huff_node* find_lowest_node(queue_head* queue1, queue_head* queue2) {
             return dequeue(queue2);
         }
     }
+}
+
+void insert_encoded_node(huff_node* root, huff_node* node){
+    int length = strlen(node->encoding);
+    char* encoding = node->encoding;
+    int i = 0;
+    huff_node* current = root;
+    for(; i < length; i++){
+        if(encoding[i] == '0'){
+            if(current->left_child == 0){
+                if(i == length-1){
+                    current->left_child = node;
+                    return;
+                } else{
+                    huff_node* left_child = create_huff_node(-1, -1,create_string_from_cat(current->encoding, "0"));
+                    set_left_child(current, left_child);
+                    current = left_child;
+                    continue;
+                }
+            } else{
+                    current = current->left_child;
+            }
+        } 
+        //next character is a 1
+        else{
+            if(current->right_child == 0){
+                if(i == length-1){
+                    current->right_child = node;
+                    return;
+                } else{
+                    huff_node* right_child = create_huff_node(-1, -1,create_string_from_cat(current->encoding, "1"));
+                    set_right_child(current, right_child);
+                    current = right_child;
+                    continue;
+                }
+            } else{
+                    current = current->right_child;
+            }
+        }
+    }
+}
+
+huff_node* build_encoded_tree(huff_node* nodes[], int nodes_size){
+    assert(nodes_size == 256);
+    int i = 0;
+    huff_node* root = NULL;
+    root = create_huff_node(-1, -2, "");
+    
+    for(;i < 256; i++){
+        insert_encoded_node(root, nodes[i]);
+    }
+    
+    return root;
 }
 
 /*
