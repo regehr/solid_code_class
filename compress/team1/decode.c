@@ -4,17 +4,22 @@
 
 #include "huff_tree.h"
 
-void build_tree_tbl();
-void init_all_nodes();
-
-bool char_found = true;
-node *curr_node;
+/* Allocate space for all nodes. */
+void init_all_nodes()
+{
+    for (int i = 0; i < 512; i++)
+        init_node(&all_nodes[i], 0);
+}
 
 /* Takes a huffman code bit. Returns true when
  * matching character is foound. Matching character
  * is referenced by second parameter. */
 bool get_char(char huff_bit, char *character)
 {
+    /* This function needs to mantain state across multiple invocations. */
+    static bool char_found = true;
+    static node *curr_node;
+    
     assert(character != NULL);
     assert(huff_bit == 0 || huff_bit == 1);
     if (char_found == true)
@@ -24,18 +29,13 @@ bool get_char(char huff_bit, char *character)
         char_found = false;
     }
     if (huff_bit == 0 && curr_node->left != NULL)
-    {
         curr_node = curr_node->left;
-    }
     if (huff_bit == 1 && curr_node->right != NULL)
-    {
         curr_node = curr_node->right;
-    }
-    if (curr_node->right == NULL && curr_node->left == NULL)
+    if (is_leaf(curr_node))
     {
         *character = curr_node->c;
-        char_found = true;
-        return true;
+        return char_found = true;
     }
     else
         return false;
@@ -71,7 +71,7 @@ void build_tree_tbl(char *huff_table[256])
                 curr_node = curr_node->left;
                 
             }
-            if (curr == '1')
+            if (curr == 49)
             {
                 if (curr_node->right == NULL)
                 {
@@ -84,14 +84,5 @@ void build_tree_tbl(char *huff_table[256])
         }
         /* Assign appropriate character to this leaf. */
         curr_node->c = i;
-    }
-    tree_dot();
-}
-
-void init_all_nodes()
-{
-    for (int i = 0; i < 512; i++)
-    {
-        init_node(&all_nodes[i], 0);
     }
 }
