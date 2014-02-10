@@ -138,7 +138,7 @@ void dump(FILE* file, char* filename)
 	assert(encoded_table != NULL);
 
 	for(i = 0; i < 256; i++)
-		printf("%s", encoded_table[i]);
+		printf("%s\n", encoded_table[i]);
 }
 
 void create_freq_table(int table[], FILE* file, unsigned long long size)
@@ -256,5 +256,20 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
 		assert(res > 0 && "Error occured when writing huff table to file.");
 	}
 	
-	//TODO:Write compressed data
+	//Write compressed data
+	rewind(orig_file);
+	
+	int curr_char;
+	char* encoded_char;
+	curr_char = fgetc(orig_file);
+	
+	while(curr_char != EOF)
+	{
+		encoded_char = encoded_table[(int)curr_char];
+		
+		int write_res = fputs(encoded_char, comp_file);
+		assert(write_res != EOF && "Error occured when writing huff body.");
+		
+		curr_char = fgetc(orig_file);
+	}
 }
