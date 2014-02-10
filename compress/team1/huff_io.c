@@ -94,6 +94,10 @@ bool get_huff_header(FILE* file, unsigned long long* size){
     }
 	build_tree_tbl(huff_table);
     
+//    for (i = 0; i < 256; i++){
+//        printf("%s\n", huff_table[i]);
+//    }
+    
     // free mem
     for (i = 0; i < num_string; i++){
         free(huff_table[i]);
@@ -183,15 +187,16 @@ void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long siz
     // Read characters and write to decompresed file
     int c;
     do {
-        char in, out = 0;
+        char in, out;
         c = fgetc(compressed);
         if (c != EOF){
             
             // Loop throught the bits of a byte
             int i;
             for (i = 7; i >= 0; i--){
-                in = (c >> i) & 0xfe;
-                if (get_char(&in, &out)){
+                in = (c >> i) & 0x01;
+                if (get_char(in, &out)){
+                    printf("%c\n", out);
                     if(fputc(out, decompressed) == EOF){
                         read_body_error();
                     }
