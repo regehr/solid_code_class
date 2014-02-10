@@ -40,8 +40,7 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
     if (code != 0) { return code; }
 
     for (uint8_t current = 0; fread(&current, 1, 1, input); ) {
-        /* 256 bit buffer */
-        uint8_t buffer[32];
+        uint8_t buffer[256 / 8];
         int encoded = huff_encode(current, buffer, &encoder);
         /* If there is encoded output, write it to the output file. If the write
          * fails, exit with ENOWRITE. */
