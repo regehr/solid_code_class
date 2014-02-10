@@ -1,6 +1,8 @@
 #!/usr/bin/env python27
 import os
 from subprocess import call
+import filecmp
+import shutil
 
 def line_count(fileName):
 	with open(fileName) as f:
@@ -43,30 +45,48 @@ def test1():
 	#Check that they are all unique
 	unique("table")
 
+#Compress .txt file
 def test2():
 	call(["./huff", "-c", "testFile.txt"])
 	os.path.exists("testFile.txt.huff")
 
+#Display contents of .huff to terminal
 def test3():
 
 	writeTo = open("compressedTable", "w")
-	call(["./huff", "-t", "testFile.txt.huff"], stdout = writeTo)
+	call(["./huff", "-t", "testFile.txt.huff"])
+	print '----------------------------------------------'
+	print writeTo
 
-
+#Compress .huff file
 def test4():
 	call(["./huff", "-c", "testFile.txt.huff"])
 	os.path.exists("testFile.txt.huff.huff")
 
+#Decompress .huff.huff file
 def test5():
 	call(["rm", "-f", "testFile.txt.huff"])
 	call(["./huff", "-d", "testFile.txt.huff.huff"])
 	os.path.exists("testFile.txt.huff")
 
+#Test for file equality before and after compression/decompression
+def test6():
+	writeTo = open("compareTest.txt", "w")
+	for element in range(0,256):
+		writeTo.write(chr (element))
+	writeTo.close()
+	shutil.copy('compareTest.txt', 'test.txt')
+	call(["./huff", "-c", "compareTest.txt"])
+	call(["./huff", "-d", "compareTest.txt.huff"])
+	if not (filecmp.cmp("compareTest.txt", "test.txt")):
+		print "test6 fail"
+	
+
 
 
 if __name__ == "__main__":
 
-	#Test ./huff -t filename.txt
+	#Test ./huff -t filename.txt checking proper length and uniqueness
 	test1()
 	#Test ./huff -c filename.txt
 	test2()
@@ -76,6 +96,9 @@ if __name__ == "__main__":
 	test4()
 	#Test ./huff -d filename.txt.huff
 	test5()
+	#Test to see if the contents of a file remain the same
+	#after it is compressed and decompressed
+	test6()
 
 
 
