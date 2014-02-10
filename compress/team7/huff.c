@@ -81,7 +81,7 @@ void compress(FILE* file, char* filename)
 	
 	//Determine frequency/encoding tables
 	create_freq_table(freq_table, file, size);	
-        huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
+    huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
 	char** encoded_table = get_encoding(huff_tree);
         
 	
@@ -93,9 +93,9 @@ void compress(FILE* file, char* filename)
 	//Close the file
 	fclose(comp_file);
         
-        //free memory
-        destroy_huff_tree(huff_tree);
-        free(encoded_table);
+    //free memory
+    //destroy_huff_tree(huff_tree);
+    free(encoded_table);
 }
 
 void decompress(FILE* file, char* filename)
@@ -106,18 +106,18 @@ void decompress(FILE* file, char* filename)
 		
         char** encoding = 0;
 	//TODO:Get huff table
-        huff_node* huff_tree = create_huff_tree_from_encoding(encoding);
+    huff_node* huff_tree = create_huff_tree_from_encoding(encoding);
 	
 	//TODO:Decode data based on table
-            // 0 for zero bit, true for one bit
-            int one_bit = 1;
-            //get_next_character return -1 if another bit is needed
-            //otherwise it will return 0 - 255
-            int result = get_next_character(huff_tree, one_bit);
-            while(result == -1){
-                //TODO set one_bit
-                result = get_next_character(huff_tree, one_bit);
-            }
+    // 0 for zero bit, true for one bit
+    int one_bit = 1;
+    //get_next_character return -1 if another bit is needed
+    //otherwise it will return 0 - 255
+    int result = get_next_character(huff_tree, one_bit);
+    while(result == -1){
+        //TODO set one_bit
+        result = get_next_character(huff_tree, one_bit);
+    }
 	
 	//TODO:Open new file
 	
