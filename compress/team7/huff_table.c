@@ -352,13 +352,13 @@ huff_node* build_tree(queue_head* queue1, queue_head* queue2) {
 // Sets the encoding field of every node in the tree.
 // To be called on the root of the tree.
 void generate_encoding_tree(huff_node* root) {
-
+    assert(root != NULL);
     int length = 1;
 
-    char* encoding = Malloc(length + 1);
+    char* encoding = Malloc(length + 2);
     int i = 0;
-    for (; i < length + 1; i++) {
-        encoding[i] = 0;
+    for (; i < length + 2; i++) {
+        encoding[i] = '\0';
     }
     root->encoding = encoding;
     generate_encoding(root->left_child, "0");
@@ -373,12 +373,12 @@ void generate_encoding(huff_node* node, char* path) {
 
     int length = strlen(node->parent->encoding);
 
-    char* encoding = Malloc(length + 1);
+    char* encoding = Malloc(length + 2);
     int i = 0;
-    for (; i < length + 1; i++) {
-        encoding[i] = 0;
+    for (; i < length + 2; i++) {
+        encoding[i] = '\0';
     }
-    strcat(encoding, node->parent->encoding);
+    strcpy(encoding, node->parent->encoding);
     strcat(encoding, path);
     node->encoding = encoding;
     generate_encoding(node->left_child, "0");
