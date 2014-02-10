@@ -28,11 +28,6 @@ void byte_freq(uint64_t freq[256])
 {
     for (int i = 0; i < 256; i++)
         nodes[i]->freq = freq[i];
-#ifdef DBG_FRQ
-    int i;
-    for(i = 0; i < 256; i++)
-        printf("%d:\t%llu\n", nodes[i]->c, nodes[i]->freq);
-#endif
 }
 
 void build_tree_frq()
@@ -69,8 +64,4 @@ void build_tree_frq()
     assert(nodes[0] != NULL);
     for (int i = 1; i < 256; i++)
         assert(nodes[i] == NULL);
-    
-#ifdef DBG_BLD_TREE
-    printf("%d:\t%lld\n", nodes[0]->c, nodes[0]->freq);
-#endif
 }

@@ -126,7 +126,7 @@ void dump_table (char *filename, struct frequency table[])
     struct pq_node *queue = make_pq(table);
     struct tree_node node = build_tree(queue);
     traverse_tree(&node, "-1");
-     //print_tree(node);
+    //print_tree(node);
 }
 
 
