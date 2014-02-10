@@ -1,3 +1,9 @@
+/* Daniel Setser
+ * Date: February 2014
+ * 
+ * File implementing I/O functions needed for huffman encoding
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -6,28 +12,48 @@
 #include "tree.h"
 #include "io.h"
 
-int index_of(char* arr[256], char* string)
+/* Finds the number of times each character appears in a file */
+void find_frequencies(unsigned long long frequencies[256], unsigned char* file_pointer, unsigned long long file_length)
 {
-  for(int i = 0; i < 256; i++)
+  for(unsigned long long i = 0; i < file_length; i++)
   {
-    if(strcmp(arr[i], string) == 0)
-    {
-      return i;
-    }
+    frequencies[file_pointer[i]]++;
   }
-  return -1;
 }
 
-int bit_at(unsigned char* pointer, unsigned long long length, unsigned long long index)
+/* Returns the bit at a given index in an array, or -1 if out of range */
+static int get_bit(unsigned char* pointer, unsigned long long length, unsigned long long index)
 {
   if(index/8 >= length)
     return -1;
-  unsigned char byte = pointer[index/8];
-  int remaining = index % 8;
-  return (byte >> (7 - remaining)) & 0x1;
+  return (pointer[index/8] >> (7 - (index%8))) & 0x1;
 }
 
-unsigned long long get_size_from_file(unsigned char* file_pointer, unsigned long long file_length)
+/* Sets the specified bit in the given array */
+static void put_bit(unsigned char* buffer, unsigned long long index, int bit)
+{
+  buffer[index/8] = buffer[index/8] | (bit << (7-(index%8)));
+}
+
+/* Converts mapping of characters to huffman encodings from string to string array */
+static void get_map_from_table(char* map[256], char* mapping)
+{
+  char* curr_string = strtok(mapping, "\n");
+  map[0] = curr_string;
+  int index = 1;
+  while(curr_string != NULL)
+  {
+    curr_string = strtok(NULL, "\n");
+    if(curr_string != NULL)
+    {
+      assert(index < 256);
+      map[index++] = curr_string;
+    }
+  }
+}
+
+/* Returns the number of huffman encodings this compressed file should have */
+static unsigned long long get_size_from_file(unsigned char* file_pointer, unsigned long long file_length)
 {
   unsigned char num[8];
   for(int i = 0; i < 8; i++)
@@ -47,42 +73,32 @@ unsigned long long get_size_from_file(unsigned char* file_pointer, unsigned long
   return value;
 }
 
+/* Error checking call to fwrite */
+static void Fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream)
+{
+  if(!fwrite(ptr, size, nmemb, stream))
+  {
+    printf("Error writing file.\n");
+  }
+}
+
+/* Uses the mapping to write the compressed file */
 void write_compressed_file(unsigned char* file_pointer, unsigned long long file_length, char* filename, char* mapping)
 {
-  /* Make a copy of the mapping */
   char orig_mapping[strlen(mapping)+1];
   strcpy(orig_mapping, mapping);
 
-  /* Convert string to array */
   char* map[256];
-  char* pch = strtok(mapping, "\n");
-  map[0] = pch;
-  int index = 1;
-  while(pch != NULL)
-  {
-    pch = strtok(NULL, "\n");
-    if(pch != NULL)
-    {
-      assert(index < 256);
-      map[index++] = pch;
-    }
-  }
+  get_map_from_table(map, mapping);
 
-  /* Figure out how large our array needs to be */
   unsigned long long array_size = 0;
   for(unsigned long long i = 0; i < file_length; i++)
   {
     array_size += strlen(map[file_pointer[i]]);
   }
 
-  /* Use the map to get the string we need to write */
-  char* to_write_strings = malloc(array_size*sizeof(char)); 
-  if(to_write_strings == NULL)
-  {
-    printf("Malloc failed, exiting.\n");
-    exit(-1);
-  }  
-
+  /* Use the map to convert from bytes to huffman codes */
+  unsigned char* to_write = calloc(((array_size/8)+1), sizeof(unsigned char));
   unsigned long long count = 0;
   for(unsigned long long i = 0; i < file_length; i++)
   {
@@ -91,34 +107,13 @@ void write_compressed_file(unsigned char* file_pointer, unsigned long long file_
     while(mapped[j] != '\0')
     {
       assert(count < array_size);
-      to_write_strings[count++] = mapped[j++];
+      if(mapped[j++] == '0')
+        put_bit(to_write, count++, 0);
+      else
+        put_bit(to_write, count++, 1);
     }
   }
  
-  /* Convert String array to Byte array. */
-  unsigned char* to_write = malloc(((array_size/8)+1) * sizeof(unsigned char));
-  if(to_write == NULL)
-  {
-    printf("Malloc failed, exiting.\n");
-    exit(-1);
-  }  
-  for(unsigned long long i = 0; i < array_size/8; i++)
-  {
-    char curr_string[9] = {0};
-    for(int j = 0; j < 8; j++)
-    {
-      curr_string[j] = to_write_strings[(i*8)+j];
-    }
-    to_write[i] = (unsigned char)(strtol(curr_string, NULL, 2) & 0xFF);
-  }
-  char remaining[9] = {0};
-  for(unsigned long long i = 0; i < array_size%8; i++)
-  {
-    remaining[i] = to_write_strings[(array_size-(array_size%8))+i];
-  }
-  free(to_write_strings);
-  to_write[array_size/8] = (unsigned char)(strtol(remaining, NULL, 2) & 0xFF) << (8-array_size%8);
-
   /* Append .huff to filename and write out file with header */
   char new_filename[strlen(filename) + 6];
   strcpy(new_filename, filename);
@@ -132,38 +127,20 @@ void write_compressed_file(unsigned char* file_pointer, unsigned long long file_
   }
 
   char* magic_number = "HUFF";
-  int result = 1;
-  result = result && fwrite(magic_number, sizeof(char), strlen(magic_number), f);
-  result = result && fwrite(&file_length, sizeof(unsigned long long), 1, f);
-  result = result && fwrite(orig_mapping, sizeof(char), strlen(orig_mapping), f);
-  result = result && fwrite(to_write, sizeof(unsigned char), array_size/8+1, f);
-  if(!result)
-  {
-    printf("Error on write\n");
-    exit(-1);
-  }
+  Fwrite(magic_number, sizeof(char), strlen(magic_number), f);
+  Fwrite(&file_length, sizeof(unsigned long long), 1, f);
+  Fwrite(orig_mapping, sizeof(char), strlen(orig_mapping), f);
+  Fwrite(to_write, sizeof(unsigned char), array_size/8+1, f);
 
   fclose(f);
   free(to_write);
 }
 
-/* This decompress is very slow, but seems to be working */
+/* Uses the mapping to write the original file */
 void write_decompressed_file(unsigned char* file_pointer, unsigned long long file_length, char* filename, char* mapping, unsigned long long start_of_compressed)
 {
-  /* Convert string to array */
   char* map[256];
-  char* pch = strtok(mapping, "\n");
-  map[0] = pch;
-  int index = 1;
-  while(pch != NULL)
-  {
-    pch = strtok(NULL, "\n");
-    if(pch != NULL)
-    {
-      assert(index < 256);
-      map[index++] = pch;
-    }
-  }
+  get_map_from_table(map, mapping);
   
   tree root = get_huffman_tree(map);
 
@@ -177,19 +154,20 @@ void write_decompressed_file(unsigned char* file_pointer, unsigned long long fil
   }  
  
   unsigned long long to_write_index = 0;
-    
+   
+  /* Traverse the tree to convert huffman codes to original bytes */
   for(int i = 0; i < size; i++)
   {
    tree current_node = root;
    while(1)
    {
-     if(/*current_node->ascii != '\0'*/ current_node->one == NULL)
+     if(current_node->one == NULL)
      {
        to_write[to_write_index++] = current_node->ascii;
        break;
      }
 
-     int bit = bit_at(file_pointer, file_length, bit_index++);
+     int bit = get_bit(file_pointer, file_length, bit_index++);
      assert(bit != -1);
 
      if(bit)
@@ -214,10 +192,11 @@ void write_decompressed_file(unsigned char* file_pointer, unsigned long long fil
     printf("Error opening file to write\n");
     exit(-1);
   }
-  fwrite(to_write, sizeof(unsigned char), size, f);
+  Fwrite(to_write, sizeof(unsigned char), size, f);
   fclose(f);
 }
 
+/* Returns whether or not the file is in huff format */
 int check_format(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
   if(strlen(filename) <= 5 || strcmp(filename + strlen(filename) - 5, ".huff") != 0)
@@ -238,6 +217,7 @@ int check_format(unsigned char* file_pointer, unsigned long long file_length, ch
   return 1;
 }
 
+/* Returns the table found in a file, and sets start_of_compressed to the start of the compressed output */
 char* get_mapping_from_file(unsigned char* file_pointer, unsigned long long file_length, unsigned long long* start_of_compressed)
 {
   char* table = calloc(33153, sizeof(char));
