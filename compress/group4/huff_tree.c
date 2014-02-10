@@ -14,7 +14,7 @@
  */
 void traverse_tree(struct tree_node * tree, char * bit_code)
 {  
-  char temp[255] = ""; //worst case height for huffman tree
+  char temp[255] = ""; //worst case height for huffman tree  
   if(tree->left != NULL)
     {    
       strcpy(temp, bit_code);
@@ -27,6 +27,13 @@ void traverse_tree(struct tree_node * tree, char * bit_code)
       strcat(temp,"1");
       traverse_tree(tree->right, temp);
     }
+  // get rid of '-' char in first index of temp
+  if(temp[0] == '-')
+  {
+	//printf("BEFORE %c\n", temp[0]);
+	memmove(temp, temp+1, strlen(temp));
+	//printf("AFTER %c\n", temp[0]);
+  }
   printf("%s\n", temp);
 }
 
