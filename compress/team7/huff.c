@@ -128,15 +128,28 @@ void decompress(FILE* file, char* filename)
 
 void dump(FILE* file, char* filename)
 {
-	char** encoded_table = NULL;
 	int i;		
 	unsigned long long file_size = det_file_size(file);
 	
 	//Check if file is .huff
+	//TODO: Fix seg fault bug
 	if(is_huff_type(filename))
 	{
+		char* encoded_table[256];
+		
+		for(i = 0; i < 256; i++)
+		{
+			encoded_table[i] = malloc(257);
+			assert(encoded_table[i]);
+		}
+		
 		file_size = det_file_size(file);
 		get_huff_table(encoded_table, file, &file_size);
+		
+		assert(encoded_table != NULL);
+
+		for(i = 0; i < 256; i++)
+			printf("%s\n", encoded_table[i]);
 	}
 	else
 	{
@@ -144,18 +157,15 @@ void dump(FILE* file, char* filename)
 		for(i = 0; i < 256; i++)
 			freq_table[i] = 0;
 			
-		create_freq_table(freq_table, file, file_size);
+		create_freq_table(freq_table, file, file_size);	
+		huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
+		char** encoded_table = get_encoding(huff_tree);
 		
-		//for(i = 0; i < 256; i++)
-		//	printf("%i\n", freq_table[i]);
-		
-		encoded_table = get_encoding(create_huff_tree_from_frequency(freq_table));
-	}
-	
-	assert(encoded_table != NULL);
+		assert(encoded_table != NULL);
 
-	for(i = 0; i < 256; i++)
-		printf("%s\n", encoded_table[i]);
+		for(i = 0; i < 256; i++)
+			printf("%s\n", encoded_table[i]);
+	}
 }
 
 void create_freq_table(int table[], FILE* file, unsigned long long size)
@@ -199,10 +209,18 @@ unsigned long long det_file_size(FILE* file)
 
 void get_huff_table(char** huff_table, FILE* file, unsigned long long* size)
 {
-	char* magic_num = "";
+	//Need to read in 4 bytes rather than string
+	//Since magic number doesnt end in \n
+	char magic_num[5];
+	int i, j;
 	
 	//Read magic number
-	fread(magic_num, 4, 1, file);
+	for(i = 0; i < 4; i++)
+	{
+		magic_num[i] = fgetc(file);
+		assert(magic_num[i]);
+	}
+	magic_num[4] = '\0';
 	
 	//If not the proper number
 	if(strcmp(magic_num, NUM) != 0)
@@ -212,7 +230,7 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size)
 	}
 	
 	//Get huff length
-	int res = fread(size, 8, 1, file);
+	unsigned long long res = fread(size, 8, 1, file);
 	
 	//Check that we read a file length
 	if(res != 1)
@@ -222,8 +240,34 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size)
 	}
 	
 	//Generate the encoded table
+	char longest_string[257];
+	int curr_char;
+	
+	//For each huffman table entry
+	for(i = 0; i < 256; i++)
+	{
+		//For each char in the string
+		for(j = 0; j < 257; j++)
+		{
+			curr_char = fgetc(file);
+
+			//Regular char
+			if(curr_char != '\n')
+				longest_string[j] = curr_char;
+			//Convert newline to null terminated char
+			else
+			{
+				longest_string[j] = '\0';
+				break;
+			}
+		}
+		
+		strcpy(huff_table[i], longest_string);
+	}
+	
+	
+	/*
 	char max_line_length[258]; //258 since max length is 256, plus 2 for the \n
-	int i;
 	
 	for(i = 0; i < 256; i++)
 	{
@@ -237,6 +281,7 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size)
 		
 		huff_table[i] = max_line_length;
 	}
+	*/
 }
 
 enum Flags determine_flag(char* user_flag)
@@ -284,7 +329,10 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
 	{
 		encoded_char = encoded_table[(int)curr_char];
 		
-		int write_res = fputs(encoded_char, comp_file);
+		unsigned char byte_version = (unsigned char)strtol(encoded_char, NULL, 2) & 0xFF;
+		
+		int write_res = fputc(byte_version, comp_file);
+		//int write_res = fputs(encoded_char, comp_file);
 		assert(write_res != EOF && "Error occured when writing huff body.");
 		
 		curr_char = fgetc(orig_file);
