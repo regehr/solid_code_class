@@ -19,7 +19,7 @@
 /* Public accessing functions for this module. */
 
 /* Builds a huffman tree from huffman table. */
-void gen_tree_tbl(char *table[256]);
+void build_tree_tbl(char *table[256]);
 
 /* Builds a huffman tree from character frequencies. */
 void gen_tree_frq(uint64_t freq[256]);
