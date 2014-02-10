@@ -215,10 +215,29 @@ char** get_encoding(huff_node* root) {
 /*  Description in header file
  *
  */
-int get_next_character(huff_node* root, int zero_bit)
+int get_next_character(huff_node* root, int one_bit)
 {
-    int result = -1;
+    static huff_node* current = 0;
     
+    if(current == 0){
+        current = root;
+    }
+    
+    //character nodes have no children at all
+    if(one_bit){
+        assert(current->right_child != 0);
+        current = current->right_child;
+    } else{
+        assert(current->left_child != 0);
+        current = current->left_child;
+    }
+    int result = -1;
+    int character = current->char_number;
+    if(character >= 0){
+        result = character;
+        current = root;
+    }
+
     return result;
 }
 
