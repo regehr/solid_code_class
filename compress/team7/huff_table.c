@@ -147,8 +147,10 @@ huff_node* create_huff_tree_from_frequency(int frequencyArray[]) {
     int i = 0;
     huff_node * nodes[256];
     for (; i < 256; i++) {
+        nodes[i] = NULL;
         nodes[i] = (huff_node*) Malloc(sizeof (huff_node));
         init_huff_node(nodes[i], i, frequencyArray[i]);
+        
     }
     qsort(nodes, 256, sizeof (huff_node*), huff_node_frequency_comparer);
     assert(nodes[0]->frequency <= nodes[255]->frequency);
@@ -210,7 +212,20 @@ char** get_encoding(huff_node* root) {
 
     return encodings;
 }
+
+/*  Description in header file
+ *
+ */
+int get_next_character(huff_node* root, int zero_bit)
+{
+    int result = -1;
+    
+    return result;
+}
+
 // </editor-fold>
+
+// <editor-fold defaultstate="collapsed" desc="private tree methods">
 
 void init_huff_node(huff_node* node, int char_number, int frequency) {
     node->left_child = 0;
@@ -225,6 +240,7 @@ void init_huff_node(huff_node* node, int char_number, int frequency) {
 //Creates a parent node and fills in all fields.
 //Sets the left_child and right_child of the parent.
 //Sets the parent field of the parent's left and right child.
+
 huff_node* create_parent_node(huff_node* left_child, huff_node* right_child) {
     //create huff_node
     huff_node* parent = Malloc(sizeof (huff_node));
@@ -241,6 +257,7 @@ huff_node* create_parent_node(huff_node* left_child, huff_node* right_child) {
 
 // Returns negative if huff_node* a has a lower frequency or
 // will be the lower ascii value if they have the same frequency.
+
 int huff_node_frequency_comparer(const void * a, const void * b) {
     // negative value means a comes before b
     // positive means b comes before a
@@ -259,6 +276,7 @@ int huff_node_frequency_comparer(const void * a, const void * b) {
 
 // Returns the huff_node* that has the lowest frequency of the 2 queues.
 // If they are the same frequency, the one with the lowest ascii value.
+
 huff_node* find_lowest_node(queue_head* queue1, queue_head* queue2) {
 
     if (peek(queue1) == NULL) {
@@ -299,7 +317,7 @@ huff_node* find_lowest_node(queue_head* queue1, queue_head* queue2) {
 huff_node* build_tree(queue_head* queue1, queue_head* queue2) {
     assert(queue1->size == 256);
     assert(queue2->size == 0);
-    
+
     huff_node* child_1 = NULL;
     huff_node* child_2 = NULL;
 
@@ -320,7 +338,7 @@ huff_node* build_tree(queue_head* queue1, queue_head* queue2) {
         if (size_2 == 0) {
             child_1 = dequeue(queue1);
             child_2 = dequeue(queue1);
-        }            // queue 1 is empty so the 2 lowest will be in queue 2
+        }// queue 1 is empty so the 2 lowest will be in queue 2
             // first in queue is the lower frequency, however
             // the second node in the queue may have the same frequency
             // but the left child must be the one subtree that contains 
@@ -351,6 +369,7 @@ huff_node* build_tree(queue_head* queue1, queue_head* queue2) {
 
 // Sets the encoding field of every node in the tree.
 // To be called on the root of the tree.
+
 void generate_encoding_tree(huff_node* root) {
     assert(root != NULL);
     int length = 1;
@@ -366,6 +385,7 @@ void generate_encoding_tree(huff_node* root) {
 }
 
 // Recursive depth-first tree encoding method.
+
 void generate_encoding(huff_node* node, char* path) {
     if (node == NULL) {
         return;
@@ -387,6 +407,7 @@ void generate_encoding(huff_node* node, char* path) {
 
 // Frees this roots subtree before itself.
 // Returns if node is NULL
+
 void free_huff_node(huff_node* node) {
     if (node == NULL) {
         return;
@@ -400,6 +421,7 @@ void free_huff_node(huff_node* node) {
 }
 
 // Finds the huff_node* that contains char ascii value
+
 huff_node* find_leaf_node(int char_value, huff_node* root) {
 
     if (root == NULL) {
@@ -416,19 +438,22 @@ huff_node* find_leaf_node(int char_value, huff_node* root) {
 }
 
 // Gets the encoding for the specified character value.
+
 char* encoding_for_char(int char_value, huff_node* root) {
     huff_node* node = find_leaf_node(char_value, root);
     return node->encoding;
 }
 
 //Returns the smaller of the 2 ints.
+
 int min(int a, int b) {
     if (a > b) {
         return b;
     } else {
         return a;
     }
-}
+}// </editor-fold>
+
 
 //**************************** End Tree Code  *****************************//
 // </editor-fold>

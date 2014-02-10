@@ -81,7 +81,9 @@ void compress(FILE* file, char* filename)
 	
 	//Determine frequency/encoding tables
 	create_freq_table(freq_table, file, size);	
-	char** encoded_table = get_encoding(create_huff_tree_from_frequency(freq_table));
+        huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
+	char** encoded_table = get_encoding(huff_tree);
+        
 	
 	assert(encoded_table != NULL);
 	
@@ -90,6 +92,10 @@ void compress(FILE* file, char* filename)
 	
 	//Close the file
 	fclose(comp_file);
+        
+        //free memory
+        destroy_huff_tree(huff_tree);
+        free(encoded_table);
 }
 
 void decompress(FILE* file, char* filename)
