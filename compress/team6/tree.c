@@ -10,9 +10,6 @@
 #include <assert.h>
 #include "tree.h"
 
-/* TODO: Write a find_min function for a tree.
- * TODO: Finish implementing get_huffman_tree
- */
 
 /* Error checking call to malloc. */
 static void *Malloc(size_t size, char *func) {
@@ -40,7 +37,7 @@ static tree make_node_from_trees(tree zero, tree one) {
   t = (tree)Malloc(sizeof(node), "make_node_from_trees");
   t->freq = zero->freq + one->freq;
   zero->parent = one->parent = t;
-  t->ascii = 0;
+  t->ascii = (unsigned char)zero->ascii < (unsigned char)one->ascii ?  zero->ascii : one->ascii;
   t->zero = zero;
   t->one = one;
   return t;
@@ -60,7 +57,8 @@ void free_tree(tree t) {
 /* Comparison function for huffman tree nodes.
  * A node is less if its frequency is less. If frequencies are equal,
  * first node is less if its ascii value is less than or equal to
- * second node's ascii value.
+ * second node's ascii value. This actually sorts the nodes in reverse
+ * order
  */
 static int compare_trees(const void *a, const void *b) {
   tree t1, t2;
@@ -68,10 +66,10 @@ static int compare_trees(const void *a, const void *b) {
   t1 = *(tree *)a;
   t2 = *(tree *)b;
   if (t1->freq == t2->freq) {
-    r = (unsigned char)t1->ascii <= (unsigned char)t2->ascii ? -1 : 1;
+    r = (unsigned char)t1->ascii >= (unsigned char)t2->ascii ? -1 : 1;
   }
   else {
-    r = t1->freq < t2->freq ? -1 : 1;
+    r = t1->freq > t2->freq ? -1 : 1;
   }
   return r;
 }
@@ -82,7 +80,7 @@ static void check_rep_encode(tree t) {
   if (t->zero != NULL) {
     assert(t->freq == t->zero->freq + t->one->freq);
     assert(t->zero->freq <= t->one->freq);
-    if (t->zero->freq == t->one->freq && t->zero->zero == NULL)
+    if (t->zero->freq == t->one->freq)
       assert((unsigned char)t->zero->ascii < (unsigned char)t->one->ascii);
   }
   if (t->zero != NULL) {
@@ -91,49 +89,10 @@ static void check_rep_encode(tree t) {
   }
 }
 
-/* A helper function for get_huffman_tree. Returns the lowest frequency
- * tree, or if frequencies are equal between two trees, returns the tree
- * which has the lowest valued ascii character in its subtrees.
- */
-static tree get_next_from_queues(tree leaf_array[256], tree branch_array[128],
-			  int *lhd, int *bhd) {
-  tree a;
-  /* If either both branch_array[*bhd] and leaf_array[*lhd] are
-   * NULL, then the loop in the calling function terminates.
-   */
-  if (branch_array[*bhd] == NULL) {
-    a = leaf_array[*lhd];
-    leaf_array[*lhd] = NULL;
-    *lhd = (*lhd + 1) % 256;
-  }
-  else if (leaf_array[*lhd] == NULL) {
-    a = branch_array[*bhd];
-    branch_array[*bhd] = NULL;
-    *bhd = (*bhd + 1) % 128;
-  }
-  /* Returns the next node from leaf_array only if it has strictly 
-   * lesser frequency.
-   */
-  else if (leaf_array[*lhd]->freq < branch_array[*bhd]->freq) {
-    a = leaf_array[*lhd];
-    leaf_array[*lhd] = NULL;
-    *lhd = (*lhd + 1) % 256;
-  }
-  /* In the case that 
-   * leaf_array[*lhd]->freq == branch_array[*bhd]->freq
-   * branch_array[*bhd] has the lower-valued byte.
-   */
-  else {
-    a = branch_array[*bhd];
-    branch_array[*bhd] = NULL;
-    *bhd = (*bhd + 1) % 128;
-  }
-  return a;
-}
 
 /* A helper for tree2table.
  */
-static void find_char(tree t, char code[257], int *length, char c) {
+static void find_char_encoding(tree t, char code[257], int *length, char c) {
   tree current;
   tree stack[511] = {NULL};
   int top;
@@ -182,7 +141,7 @@ static char *tree2table(tree t) {
   }
   i = n = 0;
   for (c = 0; c < 256; c++) {
-    find_char(t, temp, &i, c);
+    find_char_encoding(t, temp, &i, c);
     strncpy(&table[n], temp, i);
     n = n + i;
   }
@@ -193,34 +152,29 @@ static char *tree2table(tree t) {
 /* Table must be free by function calling get_huffman_table.
  */
 char *get_huffman_table(unsigned long long ascii_counts[256]) {
-  int i, hdt, hds, tls;
+  int i, count, hdt, tlt;
   char *table;
   tree zero, one, t;
   tree tree_array[256];
-  tree second_array[128] = {NULL};
 
-  hdt = hds = tls = 0;
-
+  hdt = 0;
+  tlt = 255;
+  
   for (i = 0; i < 256; i++) {
     tree_array[i] = make_node_from_ascii_freq((char)i, ascii_counts[i]);
   }
   
-  qsort(tree_array, 256, sizeof(tree), compare_trees);
-
-  while (tree_array[hdt] != NULL || second_array[hds] != NULL) {
-    zero = get_next_from_queues(tree_array, second_array, &hdt, &hds);
-    one = get_next_from_queues(tree_array, second_array, &hdt, &hds);
+  for (count = 256; count > 1; count--){
+    qsort(tree_array, count, sizeof(tree), compare_trees);
+    zero = tree_array[tlt--];
+    one = tree_array[tlt];
     
-    if (zero != NULL && one != NULL) {
-      t = make_node_from_trees(zero, one);
-      second_array[tls] = t;
-      tls = (tls + 1) % 128;
-      check_rep_encode(t);
-    }
-    else {
-      t = zero != NULL ? zero : one;
-    }
+    t = make_node_from_trees(zero, one);
+    tree_array[tlt] = t;
+
+    check_rep_encode(t);
   }
+  t = tree_array[0];
   table = tree2table(t);
   free_tree(t);
   return table;
