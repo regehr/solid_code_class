@@ -34,7 +34,7 @@ struct pq_node * enqueue (struct pq_node *, struct pq_node *);
 tree_node * dequeue (struct pq_node *);
 int compare_to (tree_node *, tree_node *);
 void print_tree (tree_node);
-char * get_bit_code(char);
+char * get_bit_code(tree_node *, char *);
 char * traverse_tree (tree_node *, char *);
 void print_huff(tree_node *, char *);
 struct pq_node * make_pq (struct frequency[]);
@@ -45,5 +45,5 @@ void traverse_pq(struct pq_node *);
 int check_rep(tree_node *);
 int is_leaf(tree_node *);
 void compress(char *, struct frequency[]);
-void write_encoding(FILE *, char);
+void write_encoding(FILE *, char *, tree_node *);
 

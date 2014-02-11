@@ -31,9 +31,22 @@ char * traverse_tree(struct tree_node * tree, char * bit_code)
   return bit_code;
 }
 
-char * get_bit_code(char c)
+char * get_bit_code(tree_node * temp, char * code)
 {
-  return huff_bit_code;
+  if(temp->left == NULL && temp->right == NULL){ 
+    return code;
+  }
+  int length = strlen(code);
+  char left_code[255];
+  char right_code[255];
+  strcpy(left_code, code);
+  strcpy(right_code, code);
+  left_code[length] = '0';
+  left_code[length+1] = '\0';
+  right_code[length] = '1';
+  right_code[length+1] = '\0';
+  get_bit_code(temp->left, left_code);
+  get_bit_code(temp->right, right_code);
 }
 
 
@@ -305,7 +318,6 @@ int is_leaf(tree_node * parent)
 
 void compress(char * filename, struct frequency table[])
 {
-  printf("IN compress \n");
   // get frequency table
   build_table(filename, table);
   //build huffman tree
@@ -324,15 +336,17 @@ void compress(char * filename, struct frequency table[])
   }
   else {
     // remove txt extension from filename
-    char * txt_ext = ".txt";
-    filename = strtok(filename, txt_ext);
+    //char * txt_ext = ".txt";
+    //filename = strtok(filename, txt_ext);
     strcat(filename, ".huff");
     FILE * outfile = fopen(filename, "wb");
     // write the compressed file
-    write_encoding(outfile, character);
+    write_encoding(outfile,&character, &tree);
+    //close the compressed file 
+    fclose(outfile);
   } 
 
-  //close the compressed file 
+  
   //exit 0 on success
   exit(0);
 }
@@ -340,7 +354,7 @@ void compress(char * filename, struct frequency table[])
 /*
  *  For each content in original file, write huffman code for char
  */
-void write_encoding(FILE * outfile, char code)
+void write_encoding(FILE * outfile, char * code, tree_node * tree)
 {
   printf("IN write_encoding\n");
   // if file doesn't exist
@@ -348,9 +362,6 @@ void write_encoding(FILE * outfile, char code)
     printf("File does not exist \n");
     exit(255);
   }
-  // get bit code
-  char * bit_code = get_bit_code(code);
-
   // write magic number 0-3 HUFF
   fprintf(outfile, "HUFF");
 
@@ -359,7 +370,7 @@ void write_encoding(FILE * outfile, char code)
   int i;
   int size = 256; // TODO: find out of this is correct size
   for(i = 0; i < size; i++){
-    if(bit_code[i] != '\0'){
+    if(code[i] != '\0'){
       len++;
     }
   }
@@ -369,19 +380,19 @@ void write_encoding(FILE * outfile, char code)
   }
   char length[8] = {0};
   sprintf(length, "%d\n", len);
-  //fwrite(&length, sizeof(length), 1, outfile);
-  fputs(length, outfile);  
+  fwrite(&length, sizeof(length), 1, outfile);
+  //fputs(length, outfile);  
 
   // write compression table 12-
   int j;
-  for (j = 0; j < 256; j++){
-    if (fputs(get_bit_code(j), outfile) == EOF
-	|| fputc('\n', outfile) == EOF)
-      {
+  char curr;
+  for (j = 0; j < sizeof(code); j++){
+    curr = sprintf(&curr, "%d", j);
+    if (fputs(get_bit_code(tree, &curr), outfile) == EOF
+	|| fputc('\n', outfile) == EOF){
 	printf("Error writing encoding table\n");
       }
   }
   // write compressed data + padding 
-  
 }
 
