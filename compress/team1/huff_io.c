@@ -1,11 +1,5 @@
 #include "huff_io.h"
 
-bool is_huff_file(const char* filename){
-    const char *dot = strrchr(filename, '.');
-    if(!dot || dot == filename) return false;
-    return strcmp(HUFF_EXT, dot) == 0;
-}
-
 static void read_body_error(){
     fprintf(stderr, "ERROR: Error while reading body from file.\n");
     exit(ERR_CODE);
@@ -26,16 +20,22 @@ static void write_body_error(){
     exit(ERR_CODE);
 }
 
-char* remove_ext(const char* mystr) {
+bool is_huff_file(const char* filename){
+    const char *dot = strrchr(filename, '.');
+    if(!dot || dot == filename) return false;
+    return strcmp(HUFF_EXT, dot) == 0;
+}
+
+char* remove_ext(const char* filename) {
     char *retstr;
     char *lastdot;
-    if (mystr == NULL)
+    if (filename == NULL)
         return NULL;
-    if ((retstr = malloc (strlen (mystr) + 1)) == NULL){
+    if ((retstr = malloc (strlen (filename) + 1)) == NULL){
 		fprintf(stderr, "Malloc Error.\n");
         exit(ERR_CODE);
     }
-    strcpy (retstr, mystr);
+    strcpy (retstr, filename);
     lastdot = strrchr (retstr, '.');
     if (lastdot != NULL)
         *lastdot = '\0';
@@ -92,7 +92,6 @@ bool get_huff_header(FILE* file, unsigned long long* size, bool print){
         }
         strcpy(huff_table[i], line);
     }
-	build_tree_tbl(huff_table);
     
     if (print){
 	    for (i = 0; i < 256; i++){
@@ -169,6 +168,10 @@ void write_huff_header(FILE* file, unsigned long long filesize){
 static int current_bit = 7;
 static unsigned char bit_buffer = 0;
 
+/**
+ *	Takes a single bit as input and writes out to the file once 
+ * 	a byte has been filled.
+ */
 static void write_bit (int bit, FILE* file)
 {
     assert(bit == 1 || bit == 0);
@@ -186,6 +189,9 @@ static void write_bit (int bit, FILE* file)
     }
 }
 
+/**
+ *	Filles the rest of the byte with 0's and writes to file.
+ */
 static void flush_bits (FILE* file)
 {
     while (current_bit)
