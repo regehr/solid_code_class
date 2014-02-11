@@ -28,12 +28,12 @@ for filename in os.listdir("."):
     if(".txt" in filename):
 
         #get the table (saved as filename.tbl)
-        writeTo = open(filename[:-4]+".tbl", "w")
+        writeTo = open(filename+".tbl", "w")
         call(["./huff", "-t", filename], stdout=writeTo)
         writeTo.close()
         
         #make sure it's right (has 256 lines and each line is unique)
-        readFrom = open(filename[:-4]+".tbl", "rb")
+        readFrom = open(filename+".tbl", "rb")
         uniqueLines = set()
 
         #for each line in the file
@@ -49,7 +49,7 @@ for filename in os.listdir("."):
 
         if(len(uniqueLines) != 256):
             print "Size of tree for " + filename + " is " + str(len(uniqueLines))
-            """
+            
         #compress the file
         call(["./huff", "-c", filename])
         
@@ -59,12 +59,12 @@ for filename in os.listdir("."):
 
         for line in originalFile:
             originalText.append(line)
-
+"""
         #uncompress the file
-        call(["./huff", "-d", filename[:-4]+".huff"])
+        call(["./huff", "-d", filename+".huff"])
 
         #read in the uncompressed version
-        uncompressedFile = open(filename[:-4], "r")
+        uncompressedFile = open(filename, "r")
         uncompressedText = []
 
         for line in uncompressedFile:
