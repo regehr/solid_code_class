@@ -10,7 +10,7 @@ import filecmp
 import string
 import shutil
 
-TEST_COUNT = 2
+TEST_COUNT = 20
 
 
 # Set-up tests
@@ -27,9 +27,11 @@ class FileEquality(MyTestCase):
             testFile = open('random.txt', 'w')
             testFile.write( ''.join(random.sample(char_set*n,n)))
             testFile.close()
-            shutil.copy('random.txt', 'old.txt') #copy file since it will be overwritten
-            rslt1 = subprocess.call(['./huff', '-c', 'random.txt'])
-            rslt2 = subprocess.call(['./huff', '-d', 'random.huff'])        
+            shutil.copy('random.txt', 'old.txt') #copy file since it will be overwritten     
+            outPut = open('output.txt', 'w')
+            rslt1 = subprocess.call(['./huff', '-c', 'random.txt'], stdout=outPut)
+            outPut.close()
+            rslt2 = subprocess.call(['./huff', '-d', 'random.txt.huff'])        
             self.assertTrue(filecmp.cmp('random.txt', 'old.txt'))
 
 
@@ -57,7 +59,9 @@ class ExitCompressGood(MyTestCase):
             testFile.write( ''.join(random.sample(char_set*n,n)))
             testFile.close()
             shutil.copy('random.txt', 'old.txt') #copy file since it will be overwritten
-            rslt = subprocess.call(['./huff', '-c', 'random.txt'])
+            outPut = open('output.txt', 'w')
+            rslt = subprocess.call(['./huff', '-c', 'random.txt'], stdout=outPut)
+            outPut.close()
             self.assertEqual(0, rslt) # successful
                 
 
@@ -70,8 +74,10 @@ class ExitDecompressGood(MyTestCase):
             testFile.write( ''.join(random.sample(char_set*n,n)))
             testFile.close()
             shutil.copy('random.txt', 'old.txt') #copy file since it will be overwritten
-            subprocess.call(['./huff', '-c', 'random.txt'])
-            rsltx = subprocess.call(['./huff', '-d', 'random.huff'])        
+            outPut = open('output.txt', 'w') 
+            subprocess.call(['./huff', '-c', 'random.txt'], stdout=outPut)
+            outPut.close()
+            rslt = subprocess.call(['./huff', '-d', 'random.txt.huff'])        
             self.assertEqual(0, rslt) # successful 
                 
 
@@ -84,7 +90,7 @@ class ExitDecompressBad(MyTestCase):
             testFile.write( ''.join(random.sample(char_set*n,n)))
             testFile.close()
             shutil.copy('random.txt', 'random.huff') #random.huff doesn't have magic key
-            rslt = subprocess.call(['./huff', '-d', 'random.huff'])        
+            rslt = subprocess.call(['./huff', '-d', 'random.txt.huff'])        
             self.assertEqual(255, rslt) # unsuccessful -- not a compressed file
                 
 
@@ -99,8 +105,9 @@ def main():
     ecg = ExitCompressGood()
     edg = ExitDecompressGood()
     edb = ExitDecompressBad()
-    suite.addTests([ht])
+    suite.addTests([ht, fe, ecg, edg, edb])
 
+    #os.chdir('../')
     # run the tests
     runner.run(suite)
     
