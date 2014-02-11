@@ -76,9 +76,10 @@ static unsigned long long get_size_from_file(unsigned char* file_pointer, unsign
 /* Error checking call to fwrite */
 static void Fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream)
 {
-  if(!fwrite(ptr, size, nmemb, stream))
+  if(fwrite(ptr, size, nmemb, stream) != nmemb)
   {
     printf("Error writing file.\n");
+    exit(-1);
   }
 }
 
