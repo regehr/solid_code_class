@@ -90,7 +90,7 @@ class ExitDecompressBad(MyTestCase):
             testFile.write( ''.join(random.sample(char_set*n,n)))
             testFile.close()
             shutil.copy('random.txt', 'random.huff') #random.huff doesn't have magic key
-            rslt = subprocess.call(['./huff', '-d', 'random.txt.huff'])        
+            rslt = subprocess.call(['./huff', '-d', 'random.huff'])        
             self.assertEqual(255, rslt) # unsuccessful -- not a compressed file
                 
 
