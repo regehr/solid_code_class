@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "huff_tree.h"
+#include "huff_io.h"
 
 // stores the bit code result from traversing the tree 
 char bit_code[255] = {0};
@@ -15,7 +16,7 @@ char bit_code[255] = {0};
  * Traverses the Huffman tree and assigns 0 or 1 to 
  * children to create the bit code for a char
  */
-void traverse_tree(struct tree_node * tree, char * bit_code)
+char * traverse_tree(struct tree_node * tree, char * bit_code)
 {  
 	
   char temp[255] = ""; //worst case height for huffman tree  
@@ -28,9 +29,28 @@ void traverse_tree(struct tree_node * tree, char * bit_code)
       strcpy(temp, bit_code);
       strcat(temp,"1");
       traverse_tree(tree->right, temp);
-    }
-  printf("%s\n", temp);
+    }  
   bit_code = temp; // store bit code in bit_code var
+  return bit_code;
+}
+
+void print_huff(struct tree_node * temp, char * code)
+{
+	if(temp->left == NULL && temp->right == NULL){
+		printf("%s\n", code);
+		return;
+	}
+	int length = strlen(code);
+	char left_code[255];
+	char right_code[255];
+	strcpy(left_code, code);
+	strcpy(right_code, code);
+	left_code[length] = '0';
+	left_code[length+1] = '\0';
+	right_code[length] = '1';
+	right_code[length+1] = '\0';
+	print_huff(temp->left, left_code);
+	print_huff(temp->right, right_code);
 }
 
 
@@ -274,7 +294,7 @@ int check_rep(tree_node * parent)
 
 void compress(char * filename, struct frequency table[])
 {
-	// get frequency table
+  // get frequency table
   build_table(filename, table);
   //build huffman tree
   struct pq_node * queue;
@@ -300,7 +320,7 @@ void compress(char * filename, struct frequency table[])
 
 void write_encoding(FILE * outfile)
 {
-	// if file doesn't exist
+  // if file doesn't exist
   if(outfile == NULL) {
     printf("File does not exist \n");
     exit(255);
