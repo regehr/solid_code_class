@@ -21,7 +21,6 @@ void gen_tree_frq(uint64_t freq[256])
     check_tree();
 #endif
     create_table();
-    tree_dot();
 }
 
 void byte_freq(uint64_t freq[256])
