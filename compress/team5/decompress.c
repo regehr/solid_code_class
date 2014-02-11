@@ -51,23 +51,42 @@ char *get_decompressed_file_name(char* filename) {
 }
 
 huff_tree* build_huff_tree_from_table(FILE *input){
-    huff_tree *new_tree = NULL;
+    huff_tree *root = malloc(sizeof(huff_tree));
+    huff_tree *next = malloc(sizeof(huff_tree));
+    
     char *encodings[CHAR_RANGE] = { 0 };
-    int i;
+    int i, j;
 
     /* fill the encodings array with entrys from the table. */
     /* table starts at byte 12 */
     fseek(input, 12, SEEK_SET);
 
     for(i = 0; i < sizeof(encodings); i++) {
-        fgets(encodings[i], CHAR_RANGE, input);    
+        fgets(encodings[i], CHAR_RANGE, input);   
     }
-    return new_tree;
+
+    /* build tree from encoding array. loop through each row of encoding array. */
+    for(i = 0; i < CHAR_RANGE; i++){
+        /*loop through each bit in encoding string. */
+        for(j = 0; j < sizeof(encodings[i]); j++){
+            if(encodings[i][j] == '0' && root->zero_tree != NULL){
+                root->zero_tree = next;
+            }
+            if(encodings[i][j] == '1' && root->one_tree != NULL){
+                root->one_tree = next;
+            }
+            root = next;
+        }
+        next->character = i; // the character at the node is equal to i;
+        next = root; // start from the top of the tree.
+    }
+    
+    return root;
 }
 
 void decompress(FILE *input, char* filename) {
     huff_tree *tree;
-    
+    int i;
     
     /* check to make sure the input file is a .huff file. */
 	is_huff_file(input);
@@ -81,10 +100,10 @@ void decompress(FILE *input, char* filename) {
     /* create a new file to write to */
     FILE *output = fopen(newName, "w");
 
-    /*if(fwrite() {
-        printf("Write failure \n");
-        exit(255);
-    }*/
-    
+    /* write each character to a file. */
+    for(i = 0; i < sizeof(tree); i++){
+        fputc(tree[i].character, output);
+    }
+
     free_huff_tree(tree);
 }
