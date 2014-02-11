@@ -167,25 +167,75 @@ void write_huff_header(FILE* file, unsigned long long filesize){
 void write_huff_body(FILE* original, FILE* newfile, unsigned long long size){
     rewind(original);
     
+    // Create a read-in buffer for each huff code.
+    char read_buffer[257];
+    // Zero it out.
+    memset(read_buffer, 0, sizeof(read_buffer));
+    // Create a count of how many bits have been read from the buffer.
+    int input_bits_read = 0;
+    
+    // Create a write-out buffer to write to file.
+    char write_buffer[32];
+    // Zero it out.
+    memset(write_buffer, 0, sizeof(write_buffer));
+    // Create a count of how many bits are in the write buffer.
+    int write_buffer_size;
+    
+    
     // Read character and output corresponding encoding
     int c;
     do {
         c = fgetc(original);
         if (c != EOF){
-            char* code_string = get_code(c);
-            if(fputs(code_string, newfile) == EOF){
-                write_body_error();
+            strcpy(read_buffer, get_code(c));
+            input_bits_read = 0;
+            
+            // While there are still input bits to read, or while the write buffer is not full.
+            while (input_bits_read < strlen(read_buffer) && write_buffer_size < 256)
+            {
+                write_buffer[write_buffer_size / 8] = write_buffer[write_buffer_size / 8] | ((read_buffer[input_bits_read] - 48) << (7 - write_buffer_size % 8));
+                write_buffer_size++;
+                input_bits_read++;
             }
+            
+            if (write_buffer_size == 256) // Buffer is full.
+            {
+                // Write it to the new file.
+                fprintf(newfile, "%s", write_buffer);
+                // Empty the buffer.
+                memset(write_buffer, 0, sizeof(write_buffer));
+                write_buffer_size = 0;
+            }
+            
+            if (strlen(read_buffer) - input_bits_read > 0) // Still data in read buffer.
+            {
+                for (int i = 0; input_bits_read < strlen(read_buffer); i++)
+                {
+                    assert(write_buffer_size < 257);
+                    write_buffer[i / 8] = write_buffer[i / 8] | (read_buffer[i] - 48) >> (i % 8);
+                    write_buffer_size++;
+                    input_bits_read++;
+                }
+            }
+            assert(input_bits_read == strlen(read_buffer));
+            input_bits_read = 0;
         } else if (ferror(original)){
             write_body_error();
         }
     } while (c != EOF);
+    
+    if (write_buffer_size > 0) // Buffer ins't empty.
+    {
+        fprintf(newfile, "%s", write_buffer);
+        memset(write_buffer, 0, sizeof(write_buffer));
+    }    
 }
 
 void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long size){
     
+    unsigned long long codes_read = 0;
     // Read characters and write to decompresed file
-    int c;
+    char c;
     do {
         char in, out;
         c = fgetc(compressed);
@@ -196,10 +246,12 @@ void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long siz
             for (i = 7; i >= 0; i--){
                 in = (c >> i) & 0x01;
                 if (get_char(in, &out)){
-                    printf("%c\n", out);
+                    //printf("%c\n", out);
                     if(fputc(out, decompressed) == EOF){
                         read_body_error();
                     }
+                    if (++codes_read == size) // Don't read any buffer data.
+                        break;
                 }
             }
         } else if (ferror(compressed)){
