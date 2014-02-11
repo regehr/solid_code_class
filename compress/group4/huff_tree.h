@@ -41,4 +41,4 @@ tree_node * new_tree_node (tree_node *, tree_node *, tree_node *, int, int);
 void traverse_pq(struct pq_node *);
 int check_rep(tree_node *);
 void compress(char *, struct frequency[]);
-void write_encoding(FILE *, char *);
+void write_encoding(FILE *);
