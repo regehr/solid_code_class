@@ -16,18 +16,18 @@ void print_tree(FILE* file, const char* filename){
         }
     } else {
         gen_huff_tree(file);
+        
+        // Print table
+        int i;
+        for(i = 0; i < 256; i++)
+            printf("%s\n", get_code(i));
+        free_huff_tree();
     }
-    
-    // Print table
-    int i;
-    for(i = 0; i < 256; i++)
-        printf("%s\n", get_code(i));
-    free_huff_tree();
 }
 
 void compress(FILE *original_file, const char* filename){
     unsigned long long size = get_file_size(filename);
-
+    
     // Ignore files with huff extension
     if (is_huff_file(filename)){
         return;
@@ -96,7 +96,7 @@ int main(int argc, const char *argv[])
         fprintf(stderr, "ERROR:\nProper use:\n huff [ -c | -d | -t ] file\n");
         exit(ERR_CODE);
     }
-
+    
     // Valid file
     FILE *fp;
     fp = fopen(argv[2], "r");

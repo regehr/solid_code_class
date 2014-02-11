@@ -1,4 +1,5 @@
 ---------------------------------------------------------------------------------------------------------
-There is a bug when calling build_tree_tbl while decompressing. The huffman table is being read correctly from a compressed huff file, but the call to build_tree_tbl creates a null tree.
+There is a bug when calling build_tree_tbl while decompressing. The huffman table is being read correctly from a compressed huff file, but the call to build_tree_tbl creates a null tree. <-- Can you just dump the table to stdout? I think that would be faster.
 
-I am not getting that error? Also it seems you are writing bytes and not bits to a compressed file in the huffman code section.
+It seems you are writing bits backwards in huff_io.c.
+I commited some changes that make everything work except using -t on a huff file.
