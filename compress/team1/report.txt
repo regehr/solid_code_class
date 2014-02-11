@@ -1,5 +1,3 @@
 There is a bug when calling build_tree_tbl while decompressing. The huffman table is being read correctly from a compressed huff file, but the call to build_tree_tbl creates a null tree.
 
 I am not getting that error? Also it seems you are writing bytes and not bits to a compressed file in the huffman code section.
-
-I implemented encoding. There is a bug with decoding. I am currently working on it.
