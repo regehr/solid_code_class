@@ -152,12 +152,11 @@ static char *tree2table(tree t) {
 /* Table must be free by function calling get_huffman_table.
  */
 char *get_huffman_table(unsigned long long ascii_counts[256]) {
-  int i, count, hdt, tlt;
+  int i, count, tlt;
   char *table;
   tree zero, one, t;
   tree tree_array[256];
 
-  hdt = 0;
   tlt = 255;
   
   for (i = 0; i < 256; i++) {
