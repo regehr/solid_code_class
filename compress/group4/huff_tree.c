@@ -355,7 +355,6 @@ void compress(char * filename, struct frequency table[])
  */
 void write_encoding(FILE * infile, FILE * outfile, struct frequency table[], tree_node * tree)
 {
-  printf("IN write_encoding\n");
   // if file doesn't exist
   if(outfile == NULL) {
     printf("File does not exist \n");
@@ -365,9 +364,8 @@ void write_encoding(FILE * infile, FILE * outfile, struct frequency table[], tre
   fprintf(outfile, "HUFF");
 
   // write length field 4-11  
-  int i = 0;
   int size = sizeof(*infile)/8; // TODO: find out of this is correct size
-  printf("%d\n", size);
+ 
   if(size <= 0){
     printf("Error writing length: Incorrect file length\n");
     exit(255);
@@ -380,32 +378,27 @@ void write_encoding(FILE * infile, FILE * outfile, struct frequency table[], tre
   // write compression table 12-
   int j;
   for(j=0; j < 255; j++){
-    char tab = table[i].character;
-    int cnt = table[i].count;
+    char tab = table[j].character;
+    int cnt = table[j].count;
     fwrite(&tab, sizeof(tab), 1, outfile);
     fwrite(&cnt, sizeof(cnt), 1, outfile);    
   }
+      
+  // write compressed data and padding
  
-  // loop through bytes of intput file
-  char line[255];
-  while(fgets(line, sizeof(line), infile)) {
-    size_t len = strlen(line);
-    if(len && (line[len-1]!- '\n')) {
-    }
-  }
-  
+  char next;
+  char buffer[256];
+  // loop through bytes of input file 
+  fread(buffer, size, 1, infile);
+  int i;
   // read every byte in the input file
-  // as you read byte write bit code for every byte
-  
-
-  /*
-  for (j = 0; j < sizeof(); j++){
-    curr = sprintf(&curr, "%d", j);
-    if (fputs(get_bit_code(tree, &curr), outfile) == EOF
+  for(i = 0; i < size; i++){
+     // write bit code for every byte
+    next = buffer[i];
+    if (fputs(get_bit_code(tree, &next), outfile) == EOF
 	|| fputc('\n', outfile) == EOF){
 	printf("Error writing encoding table\n");
       }
-      } */
-  // write compressed data + padding 
+  }
 }
 
