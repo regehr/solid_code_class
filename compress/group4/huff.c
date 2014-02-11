@@ -17,7 +17,6 @@
 #define CHAR_EOF = 256 // represents end of file
 
 
-
 int main (int argc, char *argv[]) 
 {
     char *file = "";
@@ -33,6 +32,8 @@ int main (int argc, char *argv[])
             compress(file, table);
             break;
         case DECOMPRESS:
+            build_table(file, table);
+            decompress(file, table);
             break;
         case TABLE:
             build_table(file, table); 	
