@@ -92,6 +92,7 @@ bool get_huff_header(FILE* file, unsigned long long* size, bool print){
         }
         strcpy(huff_table[i], line);
     }
+    build_tree_tbl(huff_table);
     
     if (print){
 	    for (i = 0; i < 256; i++){
