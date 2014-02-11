@@ -17,8 +17,7 @@ char bit_code[255] = {0};
  * children to create the bit code for a char
  */
 char * traverse_tree(struct tree_node * tree, char * bit_code)
-{  
-	
+{  	
   char temp[255] = ""; //worst case height for huffman tree  
   if(tree->left != NULL) {    
       strcpy(temp, bit_code);
@@ -294,6 +293,7 @@ int check_rep(tree_node * parent)
 
 void compress(char * filename, struct frequency table[])
 {
+  printf("IN compress \n");
   // get frequency table
   build_table(filename, table);
   //build huffman tree
@@ -302,32 +302,58 @@ void compress(char * filename, struct frequency table[])
   queue = make_pq(table);
   tree = build_tree(queue);
   //generate huffman codes for chars
-  
+  char * huff_code = traverse_tree(&tree, &table->character);
   //write the compressed file
-  FILE * outfile = fopen(filename, "w");
-  if(is_huff(outfile, filename)){
-    return;
+  FILE * infile = fopen(filename, "rb");
+    // if the file is already a .huff, return
+  if(is_huff(infile, filename)){
+	  return;
   }
   else{
-    //printf("%s\n", filename);
+	  strcat(filename, ".huff");
+	  FILE * outfile = fopen(filename, "wb");
+	  write_encoding(outfile, huff_code);
   }
-  
-  write_encoding(outfile);
-  //for each content in original file, output huffman code for content
-  //close the compressed file
-  
+  //close the compressed file 
+  exit(0);
 }
 
-void write_encoding(FILE * outfile)
+/*
+ *  For each content in original file, write huffman code for char
+ */
+void write_encoding(FILE * outfile, char * huff_code)
 {
+  printf("IN write_encoding\n");
   // if file doesn't exist
   if(outfile == NULL) {
     printf("File does not exist \n");
     exit(255);
   }
   // write magic number 0-3 HUFF
+  fprintf(outfile, "HUFF");
   // write length field 4-11
+  int len = 0;
+  int i;
+  int size = 256; // TODO: find out of this is correct size
+  for(i = 0; i < size; i++){
+	  if(huff_code[i] != '\0'){
+		  len++;
+	  }
+  }
+  if(len <= 0){
+	  printf("Incorrect file length\n");
+	  exit(255);
+  }
+  char length[8] = {0};
+  sprintf(length, "%d\n", len);
+  fwrite(&length, sizeof(length), 1, outfile);
   // write compression table 12-
-  // write compressed data + padding
+  int j;
+  for(j = 0; j < 256; i++){
+	  //fputs(huff_code, outfile);
+  }
+  fputs(huff_code, outfile);
+  // write compressed data + padding 
+  
 }
 

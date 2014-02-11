@@ -19,7 +19,7 @@ static void *Malloc(size_t size, char *func) {
   void *result = malloc(size);
   if (result == NULL) {
     fprintf(stderr, "%s: malloc error\n", func);
-    exit(1);
+    exit(-1);
   }
   return result;
 }
@@ -76,7 +76,7 @@ static int compare_trees(const void *a, const void *b) {
   return r;
 }
 
-static void check_rep(tree t) {
+static void check_rep_encode(tree t) {
   assert((t->zero == NULL && t->one == NULL)
 	 || (t->zero != NULL && t->one != NULL));
   if (t->zero != NULL) {
@@ -86,37 +86,53 @@ static void check_rep(tree t) {
       assert((unsigned char)t->zero->ascii < (unsigned char)t->one->ascii);
   }
   if (t->zero != NULL) {
-    check_rep(t->zero);
-    check_rep(t->one);
+    check_rep_encode(t->zero);
+    check_rep_encode(t->one);
   }
 }
 
+/* A helper function for get_huffman_tree. Returns the lowest frequency
+ * tree, or if frequencies are equal between two trees, returns the tree
+ * which has the lowest valued ascii character in its subtrees.
+ */
 static tree get_next_from_queues(tree leaf_array[256], tree branch_array[128],
 			  int *lhd, int *bhd) {
   tree a;
+  /* If either both branch_array[*bhd] and leaf_array[*lhd] are
+   * NULL, then the loop in the calling function terminates.
+   */
   if (branch_array[*bhd] == NULL) {
-      a = leaf_array[*lhd];
-      leaf_array[*lhd] = NULL;
-      *lhd = (*lhd + 1) % 256;
-    }
-    else if (leaf_array[*lhd] == NULL) {
-      a = branch_array[*bhd];
-      branch_array[*bhd] = NULL;
-      *bhd = (*bhd + 1) % 128;
-    }
-    else if (leaf_array[*lhd]->freq < branch_array[*bhd]->freq) {
-      a = leaf_array[*lhd];
-      leaf_array[*lhd] = NULL;
-      *lhd = (*lhd + 1) % 256;
-    }
-    else {
-      a = branch_array[*bhd];
-      branch_array[*bhd] = NULL;
-      *bhd = (*bhd + 1) % 128;
-    }
+    a = leaf_array[*lhd];
+    leaf_array[*lhd] = NULL;
+    *lhd = (*lhd + 1) % 256;
+  }
+  else if (leaf_array[*lhd] == NULL) {
+    a = branch_array[*bhd];
+    branch_array[*bhd] = NULL;
+    *bhd = (*bhd + 1) % 128;
+  }
+  /* Returns the next node from leaf_array only if it has strictly 
+   * lesser frequency.
+   */
+  else if (leaf_array[*lhd]->freq < branch_array[*bhd]->freq) {
+    a = leaf_array[*lhd];
+    leaf_array[*lhd] = NULL;
+    *lhd = (*lhd + 1) % 256;
+  }
+  /* In the case that 
+   * leaf_array[*lhd]->freq == branch_array[*bhd]->freq
+   * branch_array[*bhd] has the lower-valued byte.
+   */
+  else {
+    a = branch_array[*bhd];
+    branch_array[*bhd] = NULL;
+    *bhd = (*bhd + 1) % 128;
+  }
   return a;
 }
 
+/* A helper for tree2table.
+ */
 static void find_char(tree t, char code[257], int *length, char c) {
   tree current;
   tree stack[511] = {NULL};
@@ -154,13 +170,15 @@ static void find_char(tree t, char code[257], int *length, char c) {
   } while (top != 0);
 }
 
+/* Table must be freed by function calling get_huffman_table.
+ */
 static char *tree2table(tree t) {
   char temp[257] = {'\0'};
   int i, n, c;
   char *table;
   if ((table = (char *)calloc(33153, sizeof(char))) == NULL) {
     fprintf(stderr, "tree2table: calloc error\n");
-    exit(1);
+    exit(-1);
   }
   i = n = 0;
   for (c = 0; c < 256; c++) {
@@ -172,6 +190,8 @@ static char *tree2table(tree t) {
   return table;
 }
 
+/* Table must be free by function calling get_huffman_table.
+ */
 char *get_huffman_table(unsigned long long ascii_counts[256]) {
   int i, hdt, hds, tls;
   char *table;
@@ -195,7 +215,7 @@ char *get_huffman_table(unsigned long long ascii_counts[256]) {
       t = make_node_from_trees(zero, one);
       second_array[tls] = t;
       tls = (tls + 1) % 128;
-      check_rep(t);
+      check_rep_encode(t);
     }
     else {
       t = zero != NULL ? zero : one;
@@ -206,6 +226,9 @@ char *get_huffman_table(unsigned long long ascii_counts[256]) {
   return table;
 }
 
+/* The extra assertions about frequency and ordering made in the
+ * other check rep don't hold since we don't know frequencies.
+ */
 static void check_rep_decode(tree t) {
   assert((t->zero == NULL && t->one == NULL) ||
 	 (t->zero != NULL && t->zero != NULL));
