@@ -223,7 +223,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
                 assert(nameLength > 0);
                 char* newFileName = calloc(nameLength + 1, sizeof(char));
                 strncpy(newFileName, fileName, nameLength);
-                pNewFile = fopen(strcat(newFileName, ".debug"), "w+");
+                pNewFile = fopen(newFileName, "w+");
                 
                 if (pNewFile == NULL)
                 {
