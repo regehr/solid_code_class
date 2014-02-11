@@ -326,8 +326,7 @@ void compress(char * filename, struct frequency table[])
   queue = make_pq(table);
   tree = build_tree(queue);
   //generate huffman codes for chars 
-  char character = table[0].character;	
-  traverse_tree(&tree, &character);  
+   
   //write the compressed file
   FILE * infile = fopen(filename, "rb");
     // if the file is already a .huff, return
@@ -341,7 +340,7 @@ void compress(char * filename, struct frequency table[])
     strcat(filename, ".huff");
     FILE * outfile = fopen(filename, "wb");
     // write the compressed file
-    write_encoding(outfile,&character, &tree);
+    write_encoding(infile, outfile, table , &tree);
     //close the compressed file 
     fclose(outfile);
   } 
@@ -354,7 +353,7 @@ void compress(char * filename, struct frequency table[])
 /*
  *  For each content in original file, write huffman code for char
  */
-void write_encoding(FILE * outfile, char * code, tree_node * tree)
+void write_encoding(FILE * infile, FILE * outfile, struct frequency table[], tree_node * tree)
 {
   printf("IN write_encoding\n");
   // if file doesn't exist
@@ -365,34 +364,48 @@ void write_encoding(FILE * outfile, char * code, tree_node * tree)
   // write magic number 0-3 HUFF
   fprintf(outfile, "HUFF");
 
-  // write length field 4-11
-  int len = 0;
-  int i;
-  int size = 256; // TODO: find out of this is correct size
-  for(i = 0; i < size; i++){
-    if(code[i] != '\0'){
-      len++;
-    }
-  }
-  if(len <= 0){
+  // write length field 4-11  
+  int i = 0;
+  int size = sizeof(*infile)/8; // TODO: find out of this is correct size
+  printf("%d\n", size);
+  if(size <= 0){
     printf("Error writing length: Incorrect file length\n");
     exit(255);
   }
   char length[8] = {0};
-  sprintf(length, "%d\n", len);
+  sprintf(length, "%d\n", size);
   fwrite(&length, sizeof(length), 1, outfile);
   //fputs(length, outfile);  
 
   // write compression table 12-
   int j;
-  char curr;
-  for (j = 0; j < sizeof(code); j++){
+  for(j=0; j < 255; j++){
+    char tab = table[i].character;
+    int cnt = table[i].count;
+    fwrite(&tab, sizeof(tab), 1, outfile);
+    fwrite(&cnt, sizeof(cnt), 1, outfile);    
+  }
+ 
+  // loop through bytes of intput file
+  char line[255];
+  while(fgets(line, sizeof(line), infile)) {
+    size_t len = strlen(line);
+    if(len && (line[len-1]!- '\n')) {
+    }
+  }
+  
+  // read every byte in the input file
+  // as you read byte write bit code for every byte
+  
+
+  /*
+  for (j = 0; j < sizeof(); j++){
     curr = sprintf(&curr, "%d", j);
     if (fputs(get_bit_code(tree, &curr), outfile) == EOF
 	|| fputc('\n', outfile) == EOF){
 	printf("Error writing encoding table\n");
       }
-  }
+      } */
   // write compressed data + padding 
 }
 
