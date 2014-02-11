@@ -131,7 +131,7 @@ static int decompress(FILE * file, char * filename) {
     int code = huff_read_header(file, filename, &header);
     /* Our header table is implicitly free'd when huff_read_header fails */
     if (code != 0) {
-        fprintf(stderr, "Cannot decompress an uncompressed file: %s\n",
+        fprintf(stderr, "Cannot decompress file: %s\n",
                 huff_error(code));
         return HUFF_FAILURE;
     }

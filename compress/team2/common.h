@@ -10,15 +10,15 @@
 #define HUFF_SUCCESS 0
 
 /* Common error codes */
-#define EBADEXT      (-1)   // Non .huff file extension
-#define ENOMAGIC     (-2)   // No magic number in file
-#define EBADENTRY    (-3)   // Bad entry in translation table
-#define ETRUNC       (-4)   // A file we were reading  from ended before we
-                            // finished reading from it.
-#define EFILETOOLONG (-5)   // The file was too long to be stored in a uint64_t
-#define ENOWRITE     (-6)   // Could not write to the file.
-#define EENTRY       (-7)   // An entry in a file's translation table was too long
-#define ENOREAD      (-8)   // Could not read from the file.
+#define EBADEXT       (-1)   // Non .huff file extension
+#define ENOMAGIC      (-2)   // No magic number in file
+#define EBADENTRY     (-3)   // Bad entry in translation table
+#define ETRUNC        (-4)   // A file we were reading  from ended before we
+                             // finished reading from it.
+#define EFILETOOLONG  (-5)   // The file was too long to be stored in a uint64_t
+#define ENOWRITE      (-6)   // Could not write to the file.
+#define EENTRYTOOLONG (-7)   // An entry in a file's translation table was too long
+#define ENOREAD       (-8)   // Could not read from the file.
 
 /* return a pointer to 'size' bytes of memory. Fails the program with
  * HUFF_FAILURE if the system is out of memory. */
