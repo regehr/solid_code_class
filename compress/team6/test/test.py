@@ -98,7 +98,7 @@ def roundtrip(filename):
     os.remove("{0}.2.huff".format(filename))
     return False
 
-  ret = subprocess.call(["diff", filename, "{0}.2".format(filename)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  ret = subprocess.call(["diff", filename, "{0}.2".format(filename)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   os.remove("{0}.2.huff".format(filename))
   os.remove("{0}.2".format(filename))
   if ret != 0:
@@ -114,7 +114,7 @@ def compressCheck(filename):
     print("Error compressing {0}".format(filename))
     return False
 
-  ret = subprocess.call(["diff", "{0}.huff".format(filename), "{0}.ex.huff".format(filename)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  ret = subprocess.call(["diff", "{0}.huff".format(filename), "{0}.ex.huff".format(filename)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   os.remove("{0}.huff".format(filename))
   if ret != 0:
     print("Compressed version of {0} was not correct".format(filename))
