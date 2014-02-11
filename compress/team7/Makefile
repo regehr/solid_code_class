@@ -11,6 +11,10 @@ coverage: huff test.txt
 val: huff test.txt
 	valgrind --leak-check=yes ./huff -t test.txt
 
+files: generateFiles.py
+	python27 generateFiles.py
+
 clean:
 	rm -rf *.huff huff
 	rm -rf *.gcov *.gcno *.gcda
+	rm -rf files/*
