@@ -6,6 +6,7 @@
 
 #define CHAR_RANGE 257
 
+/* get the size that our string of 0's and 1's is going to be */
 unsigned long long get_size(char** huff_table, int frequencies[]) {
 	
 	unsigned long long size = 0;
@@ -18,6 +19,7 @@ unsigned long long get_size(char** huff_table, int frequencies[]) {
 	return size;
 }
 
+/* create a long string of 0's and 1's in the order of the file */
 char *get_string(char* string, FILE *input, int character, char** huff_table) {
 	unsigned long long index = 0;
  	while((character = fgetc(input)) != EOF) {
@@ -32,11 +34,13 @@ char *get_string(char* string, FILE *input, int character, char** huff_table) {
  	return string;
 }
 
+/* remove the extension from the file that we are compressing */
 char *get_new_name(char* filename) {
 
 	int length = strlen(filename);
 	int end = 0;
 	
+	/* start from the back and stop at the first '.' */
 	int i = length - 1;
 	for(; i > 0; i--) {
 		if(filename[i] == '.') {
@@ -57,6 +61,7 @@ char *get_new_name(char* filename) {
 	return name;
 }
 
+/* Take in a file and compress it. */
 void compress(FILE *input, char* filename, unsigned long long length) {
 	int character, frequencies[CHAR_RANGE] = { 0 };
 	char **huff_table;
@@ -66,26 +71,33 @@ void compress(FILE *input, char* filename, unsigned long long length) {
 	    frequencies[character]++;
 	}
 	
+	/* get the huff table */
 	huff_table = build_huff_table(frequencies);
 
+	/* figure out how long our encoding is for a single string */
 	unsigned long long size = get_size(huff_table, frequencies);
  	
+ 	/* allocate space for the string */
  	char* string = malloc(size*sizeof(char));
  	if(string == NULL) {
  		printf("Malloc failed \n");
     	exit(255);
  	}
  	
+ 	
+ 	/* create the string */
  	rewind(input);
 	character = 0;
 	string = get_string(string, input, character, huff_table);
 	
+	/* allocate space to convert the string to bytes */
 	unsigned char* bytes = malloc(((size/8)+1)*sizeof(unsigned char));
 	if(bytes == NULL) {
 		printf("Malloc failed \n");
 		exit(255);
 	}
 	
+	/* convert string to bytes */
 	int i;
 	for(i = 0; i < size/8; i++) {
 		char temp[9] = {0};
@@ -111,8 +123,11 @@ void compress(FILE *input, char* filename, unsigned long long length) {
 	
 	bytes[size/8] = endString << shift;
 	
+	
+	/* get rid of the old files extension */
 	char* newName = get_new_name(filename);
 	
+	/* create a new file to write to */
 	FILE *output = fopen(newName, "w");
 	
 	char *magicNumber = "HUFF";
