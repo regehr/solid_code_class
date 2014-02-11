@@ -18,6 +18,9 @@ test:
 	python test/makeTestFiles.py
 	python test/runTests.py
 	python test/clearTestFiles.py
+    
+release: $(objects)
+	$(CC) $(CFLAGS) -D NDEBUG -o huff $^
 
 clean:
 	-rm -f $(bin) $(objects)
