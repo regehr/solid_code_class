@@ -213,14 +213,13 @@ void write_huff_body(FILE* original, FILE* newfile, unsigned long long size){
 void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long size){
     
     // Read characters and write to decompresed file
-    int c;
-    do {
-        char in, out;
+    int c, i = 0;
+    unsigned long long bytes_read = size;
+    char in, out;
+	while (bytes_read != 0 && c != EOF){
         c = fgetc(compressed);
         if (c != EOF){
-            
             // Loop throught the bits of a byte
-            int i;
             for (i = 7; i >= 0; i--){
                 in = (c >> i) & 0x01;
                 if (get_char(in, &out)){
@@ -228,11 +227,12 @@ void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long siz
                     if(fputc(out, decompressed) == EOF){
                         read_body_error();
                     }
+                    bytes_read--;
                 }
             }
         } else if (ferror(compressed)){
             read_body_error();
         }
-    } while (c != EOF);
+    }
 }
 
