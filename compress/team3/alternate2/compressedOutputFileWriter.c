@@ -34,7 +34,7 @@ void writeNonCompressedFileToCompressedOutput(FILE* nonCompressedFile, FILE* com
     
     
     //reset the file.
-    currentEncodeFileLength = lengthOfFile(compressedFile);
+    currentEncodeFileLength = lengthOfFile(nonCompressedFile);
     currentEncodeFileByteIndex = 0;
     rewind(nonCompressedFile);
     
