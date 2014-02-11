@@ -343,9 +343,7 @@ void compress(char * filename, struct frequency table[])
     write_encoding(infile, outfile, table , &tree);
     //close the compressed file 
     fclose(outfile);
-  } 
-
-  
+  }   
   //exit 0 on success
   exit(0);
 }
@@ -395,10 +393,11 @@ void write_encoding(FILE * infile, FILE * outfile, struct frequency table[], tre
   for(i = 0; i < size; i++){
      // write bit code for every byte
     next = buffer[i];
-    if (fputs(get_bit_code(tree, &next), outfile) == EOF
-	|| fputc('\n', outfile) == EOF){
+    if (fputs(get_bit_code(tree, &next), outfile) == EOF || fputc('\n', outfile) == EOF){
 	printf("Error writing encoding table\n");
+	exit(255);
       }
   }
+  fclose(infile);
 }
 
