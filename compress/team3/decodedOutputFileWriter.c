@@ -21,9 +21,9 @@ char getNextByte(FILE *file);
 void writeByte(FILE *file, char byte);
 char byteFromString(char *string);
 
-void writeCompressedFileToNonCompressedOutput(FILE* compressedFile, char*uncompressedFileName, unsigned long long decodedLength, huffNode* rootNode)
+void writeCompressedFileToNonCompressedOutput(FILE* compressedFile, FILE*uncompressedFile, unsigned long long decodedLength, huffNode* rootNode)
 {
-    FILE *uncompressedFile = fopen(uncompressedFileName, "w");
+    assert(uncompressedFile);
     assert(compressedFile);
     
     currentDecodeFileByteIndex = 0;
@@ -66,8 +66,5 @@ void writeCompressedFileToNonCompressedOutput(FILE* compressedFile, char*uncompr
             
         }
     }
-    //close the file
-    fclose(uncompressedFile);
 }
-
 

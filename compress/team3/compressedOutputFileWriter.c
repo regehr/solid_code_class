@@ -24,34 +24,28 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
 char getNextByte(FILE *file);
 void writeByte(FILE *file, char byte);
 char byteFromString(char *string);
+long long lengthOfFile(FILE *file);
 
-void writeNonCompressedFileToCompressedOutput(FILE* nonCompressedFile, char* newFileName, unsigned long long length, huffResult* resultArray)
+void writeNonCompressedFileToCompressedOutput(FILE* nonCompressedFile, FILE* compressedFile, huffResult* resultArray)
 {
     assert(resultArray);
-    assert(newFileName);
+    assert(compressedFile);
     assert(nonCompressedFile);
     
     
     //reset the file.
-    currentEncodeFileLength = length;
+    currentEncodeFileLength = lengthOfFile(nonCompressedFile);
     currentEncodeFileByteIndex = 0;
     rewind(nonCompressedFile);
     
-    //make a new file to save our output
-    FILE *compressedFile = fopen(newFileName, "w");
-    assert(compressedFile);
-    
     //writes the HUFF and length
-    writeHeader(compressedFile, length);
+    writeHeader(compressedFile, currentEncodeFileLength);
     
     //writes out the encodings
     writeHuffmanTable(compressedFile, resultArray);
     
     //writes out the encoded data
     writeEncodedFile(nonCompressedFile, compressedFile, resultArray);
-
-    
-    fclose(compressedFile);
     
     return;
 }
@@ -75,7 +69,7 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
         currentEncodeFileByteIndex++;
         
         //get the huffresult at the index of the nextbyte
-        huffResult *result = &resultArray[(u_int8_t)nextByte];
+        huffResult *result = &resultArray[(unsigned char)nextByte];
         
         //adjust the current string length
         currentStringLength += strlen(result->string);
@@ -116,13 +110,13 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
 //given a string of 8 chars containing 1's and 0's, this will return a byte with the same 1's and 0's set.
 char byteFromString(char *string)
 {
-    uint8_t result;
+    unsigned char result;
     for(int i = 7; i >= 0; i--)
     {
         char currentBit = string[7-i];
         if(currentBit == '1')
         {
-            uint8_t temp = 1<<i;
+            unsigned char temp = 1<<i;
             result = result | temp;
         }
     }
@@ -154,4 +148,15 @@ char getNextByte(FILE *file)
     assert(err == 1);
     return currentByte;
 
+}
+
+long long lengthOfFile(FILE *file)
+{
+    long long length;
+    
+    fseek(file , 0L , SEEK_END);
+    length = ftell( file );
+    rewind( file );
+    
+    return length;
 }
