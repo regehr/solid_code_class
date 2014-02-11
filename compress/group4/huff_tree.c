@@ -288,9 +288,12 @@ int check_rep(tree_node * parent)
   return 0;  
 }
 
+/* 
+ * Calculates if a node is a leaf in the tree
+ */
 int is_leaf(tree_node * parent)
 {
-	return !(parent->left) && !(parent->right);
+  return !(parent->left) && !(parent->right);
 }
 
 void compress(char * filename, struct frequency table[])
@@ -309,16 +312,21 @@ void compress(char * filename, struct frequency table[])
   //write the compressed file
   FILE * infile = fopen(filename, "rb");
     // if the file is already a .huff, return
-  if(is_huff(infile, filename)){
-	  return;
+  if(is_huff(infile, filename)) {
+    return;
   }
-  else{
-	  strcat(filename, ".huff");
-	  FILE * outfile = fopen(filename, "wb");
-	  write_encoding(outfile, character);
+  else {
+    // remove txt extension from filename
+    char * txt_ext = ".txt";
+    filename = strtok(filename, txt_ext);
+    strcat(filename, ".huff");
+    FILE * outfile = fopen(filename, "wb");
+    // write the compressed file
+    write_encoding(outfile, character);
   } 
 
   //close the compressed file 
+  //exit 0 on success
   exit(0);
 }
 
@@ -340,20 +348,20 @@ void write_encoding(FILE * outfile, char * code)
   int i;
   int size = 256; // TODO: find out of this is correct size
   for(i = 0; i < size; i++){
-	  if(code[i] != '\0'){
-		  len++;
-	  }
+    if(code[i] != '\0'){
+      len++;
+    }
   }
   if(len <= 0){
-	  printf("Incorrect file length\n");
-	  exit(255);
+    printf("Incorrect file length\n");
+    exit(255);
   }
   char length[8] = {0};
   sprintf(length, "%d\n", len);
   fwrite(&length, sizeof(length), 1, outfile);
   // write compression table 12-
-	fprintf(outfile, code);
-	printf("CHAR %s\n", code);
+  fprintf(outfile, code);
+  printf("CHAR %s\n", code);
   // write compressed data + padding 
   
 }
