@@ -21,7 +21,7 @@ bool is_huff_file(const char*);
 /**
  *	Returns true if the file contains a valid huff header. The string array must be of length 256.
  */
-bool get_huff_header(FILE* file, unsigned long long* size);
+bool get_huff_header(FILE* file, unsigned long long* size, bool print);
 
 /**
  *	Writes the huff header to the file. The character array must be of length 256.

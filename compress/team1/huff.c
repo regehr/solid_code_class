@@ -10,7 +10,7 @@ void print_tree(FILE* file, const char* filename){
     // Get table from file or generate
     if (is_huff_file(filename)){
         unsigned long long size = get_file_size(filename);
-        if(!get_huff_header(file, &size)){
+        if(!get_huff_header(file, &size, true)){
             fprintf(stderr, "File is in incorrect format\n.");
             exit(ERR_CODE);
         }
@@ -65,7 +65,7 @@ void decompress(FILE *compressed, const char* filename){
     
     // Get the header
     size = get_file_size(filename);
-    if(!get_huff_header(compressed, &size)){
+    if(!get_huff_header(compressed, &size, false)){
         fprintf(stderr, "File is in incorrect format\n.");
         exit(ERR_CODE);
     }

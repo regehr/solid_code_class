@@ -42,7 +42,7 @@ char* remove_ext(const char* mystr) {
     return retstr;
 }
 
-bool get_huff_header(FILE* file, unsigned long long* size){
+bool get_huff_header(FILE* file, unsigned long long* size, bool print){
     int num_string = 256;
     int str_length = 257;
     char magic[5];
@@ -94,9 +94,11 @@ bool get_huff_header(FILE* file, unsigned long long* size){
     }
 	build_tree_tbl(huff_table);
     
-    //    for (i = 0; i < 256; i++){
-    //        printf("%s\n", huff_table[i]);
-    //    }
+    if (print){
+	    for (i = 0; i < 256; i++){
+        	printf("%s\n", huff_table[i]);
+    	}
+    }
     
     // free mem
     for (i = 0; i < num_string; i++){
