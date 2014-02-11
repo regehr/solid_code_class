@@ -194,6 +194,7 @@ void write_decompressed_file(unsigned char* file_pointer, unsigned long long fil
   }
   Fwrite(to_write, sizeof(unsigned char), size, f);
   fclose(f);
+  free(to_write);
 }
 
 /* Returns whether or not the file is in huff format */
