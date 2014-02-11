@@ -31,6 +31,9 @@ char * traverse_tree(struct tree_node * tree, char * bit_code)
   return bit_code;
 }
 
+/*
+ * Returns the bit code for a char in the huffman tree
+ */
 char * get_bit_code(tree_node * temp, char * code)
 {
   if(temp->left == NULL && temp->right == NULL){ 
@@ -49,7 +52,9 @@ char * get_bit_code(tree_node * temp, char * code)
   get_bit_code(temp->right, right_code);
 }
 
-
+/*
+ * Prints the bitcodes from the huffman tree
+ */
 void print_huff(struct tree_node * temp, char * code)
 {  
   if(temp->left == NULL && temp->right == NULL){    
@@ -70,7 +75,9 @@ void print_huff(struct tree_node * temp, char * code)
 }
 
 
-
+/*
+ * Traverses the pq
+ */
 void traverse_pq(struct pq_node * node)
 {
   while (node != NULL) {
@@ -362,8 +369,7 @@ void write_encoding(FILE * infile, FILE * outfile, struct frequency table[], tre
   fprintf(outfile, "HUFF");
 
   // write length field 4-11  
-  int size = sizeof(*infile)/8; // TODO: find out of this is correct size
- 
+  int size = sizeof(*infile)/8;  
   if(size <= 0){
     printf("Error writing length: Incorrect file length\n");
     exit(255);
@@ -392,8 +398,8 @@ void write_encoding(FILE * infile, FILE * outfile, struct frequency table[], tre
   // read every byte in the input file
   for(i = 0; i < size; i++){
      // write bit code for every byte
-    next = buffer[i];
-    if (fputs(get_bit_code(tree, &next), outfile) == EOF || fputc('\n', outfile) == EOF){
+    next = buffer[i]; 
+    if (fprintf(outfile, get_bit_code(tree, &next)) == EOF || fputc('\n', outfile) == EOF){
 	printf("Error writing encoding table\n");
 	exit(255);
       }
