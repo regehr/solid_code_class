@@ -84,11 +84,50 @@ def generalcheck(output, filename):
 
   return True
 
+def roundtrip(filename):
+  """Compress + decompress and make sure it's the same"""
+  ret = subprocess.call(["./huff", "-c", filename])
+  if ret != 0:
+    print("Error compressing {0}".format(filename))
+    return False
+
+  os.rename("{0}.huff".format(filename), "{0}.2.huff".format(filename))
+  ret = subprocess.call(["./huff", "-d", "{0}.2.huff".format(filename)])
+  if ret != 0:
+    print("Error decompressing {0}.2.huff".format(filename))
+    os.remove("{0}.2.huff".format(filename))
+    return False
+
+  ret = subprocess.call(["diff", filename, "{0}.2".format(filename)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  os.remove("{0}.2.huff".format(filename))
+  os.remove("{0}.2".format(filename))
+  if ret != 0:
+    print("Round-trip on {0} gave different file".format(filename))
+    return False
+
+  return True
+
+def compressCheck(filename):
+  """Compress and compare to existing correct compressed version"""
+  ret = subprocess.call(["./huff", "-c", filename])
+  if ret != 0:
+    print("Error compressing {0}".format(filename))
+    return False
+
+  ret = subprocess.call(["diff", "{0}.huff".format(filename), "{0}.ex.huff".format(filename)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  os.remove("{0}.huff".format(filename))
+  if ret != 0:
+    print("Compressed version of {0} was not correct".format(filename))
+    return False
+
+  return True
+
 def oneeachtest():
   assert os.path.exists("./1each.bin")
+  total = 4
   output = codesfrom("1each.bin")
   if not generalcheck(output, "1each.bin"):
-    return
+    return 0, total
 
   # In this case, the output should be the ascii representation of binary integers in order
   for i,line in enumerate(output):
@@ -97,13 +136,20 @@ def oneeachtest():
       print("Error in 1each.bin output: line {0} is incorrect".format(i+1))
       break
   else:
-    print("1each.bin test passed")
+    if not roundtrip("1each.bin"):
+      return 2, total
+    if not compressCheck("1each.bin"):
+      return 3, total
+    return 4, total
+
+  return 1, total
 
 def increasingtest():
   assert os.path.exists("./increasing.bin")
+  total = 3
   output = codesfrom("increasing.bin")
   if not generalcheck(output, "increasing.bin"):
-    return
+    return 0, total
 
   # In this case, the length of lines should be decreasing, because character frequency increases with ascii code
   lastintrep = None
@@ -122,13 +168,17 @@ def increasingtest():
     lastintrep = intrep
     lastlinelen = linelen
   else:
-    print("increasing.bin test passed")
+    if not roundtrip("increasing.bin"):
+      return 2, total
+    return 3, total
+  return 1, total
 
 def emptytest():
   assert os.path.exists("./empty.bin")
+  total = 4
   output = codesfrom("empty.bin")
   if not generalcheck(output, "empty.bin"):
-    return
+    return 0, total
 
   # In this case, the output should be the ascii representation of binary integers in order
   # In this case, the output should be:
@@ -147,33 +197,51 @@ def emptytest():
       print(expectedforascii(i))
       break
   else:
-    print("empty.bin test passed")
+    if not roundtrip("empty.bin"):
+      return 2, total
+    if not compressCheck("empty.bin"):
+      return 3, total
+    return 4, total
+
+  return 1, total
 
 def rand1test():
   assert os.path.exists("./rand1")
+  total = 2
   output = codesfrom("rand1")
   if not generalcheck(output, "rand1"):
-    return
-  print("rand1 test passed")
+    return 0, total
+  if not roundtrip("rand1"):
+    return 1, total
+  return 2, total
 
 def rand2test():
   assert os.path.exists("./rand2")
+  total = 2
   output = codesfrom("rand2")
   if not generalcheck(output, "rand2"):
-    return
-  print("rand2 test passed")
+    return 0, total
+  if not roundtrip("rand2"):
+    return 1, total
+  return 2, total
 
 def rand3test():
   assert os.path.exists("./rand3")
+  total = 2
   output = codesfrom("rand3")
   if not generalcheck(output, "rand3"):
-    return
-  print("rand3 test passed")
+    return 0, total
+  if not roundtrip("rand3"):
+    return 1, total
+  return 2, total
 
 if __name__ == "__main__":
-  oneeachtest()
-  increasingtest()
-  emptytest()
-  rand1test()
-  rand2test()
-  rand3test()
+  tests = [oneeachtest, increasingtest, emptytest, rand1test, rand2test, rand3test]
+  passed = 0
+  total = 0
+  for test in tests:
+    p, t = test()
+    passed += p
+    total += t
+
+  print("{0}/{1} tests passed".format(passed, total))
