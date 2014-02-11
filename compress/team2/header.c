@@ -51,7 +51,7 @@ int huff_read_entry(FILE * file, char **out) {
         /* if an entry is larger than the buffer we've allocated, it's
          * an invalid entry. */
         } else if (byte_count == 256) {
-            status = ELONGENTRY;
+            status = EENTRYTOOLONG;
             break;
         }
         buffer[byte_count] = current;
