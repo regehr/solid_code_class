@@ -186,6 +186,9 @@ int huff_ext (char *filename)
 }
 
 
+/*
+ * Instantiates a new string.
+ */
 char * new_string (int size)
 {
     char *str;
@@ -195,3 +198,62 @@ char * new_string (int size)
     return str;
 }
 
+
+/*
+ * Decompress a file
+ */
+void decompress (char *filename, struct frequency table[])
+{
+    FILE *file;
+    char character;
+
+    assert(filename != NULL && table != NULL);
+
+    file = fopen(filename, "rb");
+    if (NULL == file) {
+        printf("Unable to open file.\n");
+        exit(-1);
+    }
+
+    char string[256];
+    int i = 0;
+    int str_c = 0;
+    while ((character = fgetc(file)) != EOF) {
+        for (; i < 8; i++) {
+            int bit = get_bit(character, i);
+            string[str_c] = bit;
+            str_c++;
+
+            if (bit == 1) {
+                string[str_c] = '\0';
+
+                // Reset the string counter
+                str_c = 0;
+                printf("%s\n", string);
+            }
+        }
+        i = 0;
+    }
+}
+
+
+/*
+ * Returns a bit at the given position in the byte.
+ */
+char get_bit (unsigned char c, int num)
+{
+    assert(num >= 0 && num <= 7);
+
+    unsigned char mask_table[] = { 
+        0x01, 
+        0x02, 
+        0x04, 
+        0x08, 
+        0x10, 
+        0x20, 
+        0x40, 
+        0x80 
+    };
+
+    return ((c) & mask_table[num]);
+}

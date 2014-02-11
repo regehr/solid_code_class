@@ -21,3 +21,5 @@ int huff_ext (char *);
 void build_from_normal (void *, struct frequency []);
 void build_from_huff (void *, struct frequency []);
 char * new_string (int);
+void decompress (char *, struct frequency []);
+char get_bit (unsigned char, int);
