@@ -6,8 +6,6 @@
 #include <assert.h>
 #include "huff_table.h"
 
-#define CHAR_RANGE 257
-
 // returns the frequencies
 int check_tree_df(huff_tree *node)
 {

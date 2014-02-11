@@ -59,7 +59,7 @@ int main (int argc, char *argv[])
     printf("compressing\n");
   	compress(input, argv[2], length);  	
     } else if(strncmp(argv[1], "-d", 2) == 0) {
-    decompress(input);
+    decompress(input, argv[2]);
     } else {
   	printf("First argument must be -t, -c or -d\n");
   	exit(255); 

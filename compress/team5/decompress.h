@@ -3,6 +3,6 @@
 
 extern int CHECK_REP;
 
-void decompress(FILE *input);
+void decompress(FILE *input, char* filename);
 
 #endif
