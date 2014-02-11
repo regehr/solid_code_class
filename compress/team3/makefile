@@ -1,5 +1,5 @@
 all:
-	gcc -std=c99 encoder.c huff.c -o huff
+	gcc -g -Wall -std=c99 encoder.c decoder.c decodedOutputFileWriter.c compressedOutputFileWriter.c huff.c -o huff
 
 clean:
 	-@rm -rf huff *.txt *.table

@@ -7,15 +7,52 @@
 #include <stdlib.h>
 #include <string.h>
 #include "huff_tree.h"
+#include "huff_io.h"
 
+// stores the bit code result from traversing the tree 
+char bit_code[255] = {0};
 
 /*
- * Traverses the Huffman tree and assigns 0 or 1 to children 
+ * Traverses the Huffman tree and assigns 0 or 1 to 
+ * children to create the bit code for a char
  */
-void traverse_tree(struct tree_node tree)
-{
-    // struct frequency huffTable[256, sizeof(table)];  
+char * traverse_tree(struct tree_node * tree, char * bit_code)
+{  
+	
+  char temp[255] = ""; //worst case height for huffman tree  
+  if(tree->left != NULL) {    
+      strcpy(temp, bit_code);
+      strcat(temp, "0");
+      traverse_tree(tree->left, temp);
+    }
+  if(tree->right != NULL) { 
+      strcpy(temp, bit_code);
+      strcat(temp,"1");
+      traverse_tree(tree->right, temp);
+    }  
+  bit_code = temp; // store bit code in bit_code var
+  return bit_code;
 }
+
+void print_huff(struct tree_node * temp, char * code)
+{
+	if(temp->left == NULL && temp->right == NULL){
+		printf("%s\n", code);
+		return;
+	}
+	int length = strlen(code);
+	char left_code[255];
+	char right_code[255];
+	strcpy(left_code, code);
+	strcpy(right_code, code);
+	left_code[length] = '0';
+	left_code[length+1] = '\0';
+	right_code[length] = '1';
+	right_code[length+1] = '\0';
+	print_huff(temp->left, left_code);
+	print_huff(temp->right, right_code);
+}
+
 
 
 void traverse_pq(struct pq_node * node)
@@ -33,6 +70,7 @@ void traverse_pq(struct pq_node * node)
         node = node->next;
     }
 }
+
 
 
 /*
@@ -113,6 +151,7 @@ tree_node * dequeue (struct pq_node *head)
  */
 void print_tree (struct tree_node head)
 {
+	 // didn't print the code code on CADE machines?
     if (head.current != -1)
         printf("%c\n", (char)head.current);
 
@@ -121,6 +160,7 @@ void print_tree (struct tree_node head)
 
     if (head.right != NULL)
         print_tree((*head.right));
+	
 }
 
 
@@ -234,3 +274,60 @@ tree_node * new_tree_node (tree_node *parent, tree_node *left, tree_node *right,
 
     return node;
 }
+
+/* 
+ * Returns the number of total leaves in the tree
+ */
+int check_rep(tree_node * parent)
+{
+  if(parent == NULL) {
+    return 0;
+  }
+  else if(parent->left == NULL && parent->right == NULL) {
+    return 1;
+  }
+  else {
+    return (check_rep(parent->left)+check_rep(parent->right));
+  }
+  return 0;  
+}
+
+void compress(char * filename, struct frequency table[])
+{
+  // get frequency table
+  build_table(filename, table);
+  //build huffman tree
+  struct pq_node * queue;
+  struct tree_node tree;
+  queue = make_pq(table);
+  tree = build_tree(queue);
+  //generate huffman codes for chars
+  
+  //write the compressed file
+  FILE * outfile = fopen(filename, "w");
+  if(is_huff(outfile, filename)){
+    return;
+  }
+  else{
+    //printf("%s\n", filename);
+  }
+  
+  write_encoding(outfile);
+  //for each content in original file, output huffman code for content
+  //close the compressed file
+  
+}
+
+void write_encoding(FILE * outfile)
+{
+  // if file doesn't exist
+  if(outfile == NULL) {
+    printf("File does not exist \n");
+    exit(255);
+  }
+  // write magic number 0-3 HUFF
+  // write length field 4-11
+  // write compression table 12-
+  // write compressed data + padding
+}
+

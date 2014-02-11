@@ -4,14 +4,6 @@
 
 #include "huff_tree.h"
 
-//#define DBG_FRQ
-//#define DBG_SORT
-//#define DBG_BLD_TREE
-//#define DBG_TABLE
-#define GEN_DOT
-//#define CHECK_REP
-
-
 void init_nodes()
 {
     for (int i = 0; i < 256; i++)
@@ -23,9 +15,9 @@ void init_nodes()
 
 void init_node(node **n, char c)
 {
-    *n = malloc_n(*n);
-    for (int i = 0; i < 256; i++)
-        (*n)->code[i] = 0;
+    (*n) = malloc_n(*n);
+    for (int i = 0; i < 257; i++)
+       (*n)->code[i] = 0;
     (*n)->left = NULL;
     (*n)->right = NULL;
     (*n)->freq = 0;
@@ -48,14 +40,6 @@ void clear_visited()
             all_nodes[i]->visited = false;
 }
 
-char find_lowest(node *root)
-{
-    clear_visited();
-    char lowest = root->c;
-    dfs(root, &lowest);
-    return lowest;
-}
-
 int compare_nodes(const void* node1, const void* node2)
 {
     node **n1 = (node**)node1;
@@ -68,10 +52,8 @@ int compare_nodes(const void* node1, const void* node2)
         return -1;
     
     if ((*n1)->freq == (*n2)->freq)
-    {
         return (*n1)->lowest < (*n2)->lowest ? -1 : (*n1)->lowest == (*n2)->lowest ? 0 : 1;
-    }
-    
+
     /* Sort least to greatest. */
     return (*n1)->freq < (*n2)->freq ? -1 : (*n1)->freq == (*n2)->freq ? 0 : 1;
 }
@@ -80,9 +62,6 @@ void sort_nodes(int count)
 {
     dfs_type = SORT;
     qsort(nodes, count, sizeof(node*), compare_nodes);
-    
-    for (int j = 256; j > 512; j++)
-        assert(all_nodes[j] == NULL);
 }
 
 void check_build(node *node0, node *node1)
@@ -143,12 +122,7 @@ void dfs(node *root, void *p)
         if (dfs_type == SORT && root->c < *(char *)p)
             *(char *)p = root->c;
         if (dfs_type == TABLE)
-        {
             table[root->c] = root->code;
-#ifdef DBG_TABLE
-            printf("%c:\t%llu\t%s\n", root->c, root->freq, root->code);
-#endif
-        }
     }
     else
         if (dfs_type == CHECK)
@@ -175,7 +149,7 @@ void tree_dot()
         }
     }
     
-    dfs(nodes[0], dot);
+    dfs(all_nodes[0], dot);
     fputs("}", dot);
     fclose(dot);
 }

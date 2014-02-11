@@ -1,3 +1,9 @@
+/* Daniel Setser
+ * Date: February 2014
+ * 
+ * Entry point for huffman encoding implementation
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -5,20 +11,18 @@
 #include "tree.h"
 #include "io.h"
 
+/* Compresses the file and writes out the new huff file */
 void compress(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
-  /* Find the frequency of each char */
   unsigned long long frequencies[256] = {0}; 
-  for(unsigned long long i = 0; i < file_length; i++)
-  {
-    frequencies[file_pointer[i]]++;
-  }
+  find_frequencies(frequencies, file_pointer, file_length);
 
   char* mapping = get_huffman_table(frequencies);
   write_compressed_file(file_pointer, file_length, filename, mapping);
   free(mapping);
 }
 
+/* Decompresses the huff file and writes out the original file */
 void decompress(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
   if(!check_format(file_pointer, file_length, filename))
@@ -33,6 +37,7 @@ void decompress(unsigned char* file_pointer, unsigned long long file_length, cha
   free(mapping);
 }
 
+/* Prints out the table mapping bytes to huffman codes */
 void print_table(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
   /* If this is a huff file, get it from the table in the file. Otherwise calculate it from the file */
@@ -45,18 +50,16 @@ void print_table(unsigned char* file_pointer, unsigned long long file_length, ch
   }
   else
   {
-    /* Find the frequency of each char */
     unsigned long long frequencies[256] = {0}; 
-    for(unsigned long long i = 0; i < file_length; i++)
-    {
-      frequencies[file_pointer[i]]++;
-    }
+    find_frequencies(frequencies, file_pointer, file_length);
+
     char* mapping = get_huffman_table(frequencies);
     printf("%s", mapping);
     free(mapping);
   }
 }
 
+/* Entry point for the program. Opens the file, and executes the mode specified by command line args */
 int main(int argc, char* argv[])
 {
   if(argc != 3 || (strcmp(argv[1], "-c") != 0 && strcmp(argv[1], "-d") != 0 && strcmp(argv[1], "-t") != 0))
@@ -68,12 +71,12 @@ int main(int argc, char* argv[])
   /* Open the file in a buffer */
   unsigned long long file_length;
   struct stat sb;
-
   if(stat(argv[2], &sb) < 0)
   {
     printf("File not found\n");
     exit(-1);
   }
+
   FILE* file = fopen(argv[2], "r");
   if(file == NULL)
   {
@@ -81,6 +84,7 @@ int main(int argc, char* argv[])
     exit(-1);
   }
   file_length = sb.st_size;
+
   unsigned char* file_pointer = malloc(file_length * sizeof(unsigned char));
   if(file_pointer == NULL)
   {
@@ -98,7 +102,7 @@ int main(int argc, char* argv[])
     fclose(file);
   }
 
-  /* Compress, decompress, or print the mapping table depending on the flag */
+  /* Execute the correct mode */
   if(strcmp(argv[1], "-c") == 0)
   {
     compress(file_pointer, file_length, argv[2]);

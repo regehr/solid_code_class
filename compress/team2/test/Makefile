@@ -1,14 +1,16 @@
-.PHONY: all clean test
+.PHONY: default clean test
+
+bin = huff
 
 generated = compressedTable table testFile.txt testFile.txt.huff \
 	testFile.txt.huff.huff
 
-python = python27
+PY = python27
 
-all:
+default:
 
 clean:
-	-rm -f $(generated)
+	-rm -f $(generated) $(bin)
 
 test:
-	$(python) test.py
+	$(PY) test.py

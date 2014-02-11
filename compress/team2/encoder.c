@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdint.h>
 #include <assert.h>
 #include "common.h"
 #include "encoder.h"
@@ -9,22 +10,20 @@ static void SET_BIT(int index, int value, uint8_t *byte) {
     *byte = (*byte & ~(1 << index)) | value << index;
 }
 
-static int build_bits(struct huff_enc_entry * entry, char * str_bits) {
+static void build_bits(struct huff_enc_entry * entry, char * str_bits) {
     memset(entry->bits, 0, sizeof(entry->bits));
     for (int i = 0; i < entry->bitlen; i++) {
         SET_BIT(7 - (i % 8), str_bits[i] - '0', &entry->bits[i / 8]);
     }
-    return 0;
 }
 
-int huff_make_encoder(struct huff_encoder * encoder, char *ttable[256]) {
+void huff_make_encoder(struct huff_encoder * encoder, char *ttable[256]) {
     encoder->buffer = 0;
     encoder->buffer_used = 0;
     for (int i = 0; i < 256; i++) {
         encoder->table[i].bitlen = strlen(ttable[i]);
         build_bits(&encoder->table[i], ttable[i]);
     }
-    return 0;
 }
 
 int huff_encode(uint8_t byte, uint8_t output[32], struct huff_encoder *encoder) {
@@ -34,7 +33,7 @@ int huff_encode(uint8_t byte, uint8_t output[32], struct huff_encoder *encoder) 
     int bitlen = encoder->table[byte].bitlen;
 
     /* get the number of bytes this byte translates too, rounded up. */
-    int trans_bytes = (bitlen / 8) + (bitlen % 8 != 0);
+    int trans_bytes = (bitlen / 8) + (bitlen % 8 ? 1 : 0);
 
     buffer[0] = encoder->buffer;
     memcpy(buffer + 1, encoder->table[byte].bits, trans_bytes);

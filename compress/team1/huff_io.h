@@ -48,4 +48,9 @@ void write_huff_body(FILE*, FILE*, unsigned long long);
  */
 void read_huff_body(FILE*, FILE*, unsigned long long);
 
+/**
+ *	Returns the string with the last extension stripped.
+ */
+char *remove_ext(const char* mystr);
+
 #endif

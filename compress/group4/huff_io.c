@@ -123,9 +123,24 @@ void build_from_huff (void *file_ptr, struct frequency table[])
  */
 void dump_table (char *filename, struct frequency table[])
 {
-    struct pq_node *queue = make_pq(table);
-    struct tree_node node = build_tree(queue);
-    print_tree(node);
+    struct pq_node * queue;
+	struct tree_node node;
+	char code[255];
+    code[0] = '\0';
+	// if the file is a huff file
+	if(is_huff == 0) {
+		// recover table from file
+		build_from_huff(filename, table);
+		queue = make_pq(table);
+    	node = build_tree(queue);
+		print_huff(&node, code);
+	}
+	else {
+		// compute compression table
+		queue = make_pq(table);
+    	node = build_tree(queue);
+    	print_huff(&node, code);
+	}    
 }
 
 
@@ -179,3 +194,4 @@ char * new_string (int size)
 
     return str;
 }
+
