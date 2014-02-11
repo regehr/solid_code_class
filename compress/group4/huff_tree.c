@@ -166,7 +166,7 @@ void print_tree (struct tree_node head)
 /* 
  * Creates a priority queue (pq_node) of nodes in the Huff tree (tree_node)
  */
-struct pq_node * make_pq (struct frequency table[])
+struct pq_node * make_pq (struct frequency table[]) 
 {
     int i;
     int node_count = 0; // keep track of the number of nodes in the tree for length of huffman tree
@@ -302,7 +302,11 @@ void compress(char * filename, struct frequency table[])
   queue = make_pq(table);
   tree = build_tree(queue);
   //generate huffman codes for chars
-  char * huff_code = traverse_tree(&tree, &table->character);
+  //int i;
+  //for(i=0; i < 256; i++){
+	char * huff_code = &table[255].character;
+	traverse_tree(&tree, huff_code);
+  //}
   //write the compressed file
   FILE * infile = fopen(filename, "rb");
     // if the file is already a .huff, return
@@ -321,7 +325,7 @@ void compress(char * filename, struct frequency table[])
 /*
  *  For each content in original file, write huffman code for char
  */
-void write_encoding(FILE * outfile, char * huff_code)
+void write_encoding(FILE * outfile, char * code)
 {
   printf("IN write_encoding\n");
   // if file doesn't exist
@@ -336,7 +340,7 @@ void write_encoding(FILE * outfile, char * huff_code)
   int i;
   int size = 256; // TODO: find out of this is correct size
   for(i = 0; i < size; i++){
-	  if(huff_code[i] != '\0'){
+	  if(code[i] != '\0'){
 		  len++;
 	  }
   }
@@ -348,11 +352,9 @@ void write_encoding(FILE * outfile, char * huff_code)
   sprintf(length, "%d\n", len);
   fwrite(&length, sizeof(length), 1, outfile);
   // write compression table 12-
-  int j;
-  for(j = 0; j < 256; i++){
-	  //fputs(huff_code, outfile);
-  }
-  fputs(huff_code, outfile);
+	fputs(code, outfile);
+
+	printf("%d\n", code[0]);
   // write compressed data + padding 
   
 }
