@@ -193,3 +193,4 @@ char * new_string (int size)
 
     return str;
 }
+

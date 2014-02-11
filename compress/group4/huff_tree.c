@@ -272,5 +272,42 @@ int check_rep(tree_node * parent)
   return 0;  
 }
 
+void compress(char * filename, struct frequency table[])
+{
+	// get frequency table
+  build_table(filename, table);
+  //build huffman tree
+  struct pq_node * queue;
+  struct tree_node tree;
+  queue = make_pq(table);
+  tree = build_tree(queue);
+  //generate huffman codes for chars
+  
+  //write the compressed file
+  FILE * outfile = fopen(filename, "w");
+  if(is_huff(outfile, filename)){
+    return;
+  }
+  else{
+    //printf("%s\n", filename);
+  }
+  
+  write_encoding(outfile);
+  //for each content in original file, output huffman code for content
+  //close the compressed file
+  
+}
 
+void write_encoding(FILE * outfile)
+{
+	// if file doesn't exist
+  if(outfile == NULL) {
+    printf("File does not exist \n");
+    exit(255);
+  }
+  // write magic number 0-3 HUFF
+  // write length field 4-11
+  // write compression table 12-
+  // write compressed data + padding
+}
 
