@@ -51,13 +51,6 @@ int main (int argc, char *argv[])
     }
     
     length = sb.st_size;
-
-//     unsigned char *fp = malloc(length * sizeof(unsigned char));
-// 
-//     if(fp == NULL) {
-//     	printf("Malloc failed \n");
-//     	exit(255);
-//     }
      
     if(strncmp(argv[1], "-t", 2) == 0) {
   	print_huff_table(input);
