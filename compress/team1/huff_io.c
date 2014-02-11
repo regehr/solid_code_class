@@ -164,22 +164,50 @@ void write_huff_header(FILE* file, unsigned long long filesize){
     }
 }
 
+static int current_bit = 0;
+static unsigned char bit_buffer = 0;
+
+static void write_bit (int bit, FILE* file)
+{
+    assert(bit == 1 || bit == 0);
+    if (bit)
+        bit_buffer |= (1<<current_bit);
+    
+    current_bit++;
+    if (current_bit == 8)
+    {
+        if (fwrite (&bit_buffer, 1, 1, file) != 1){
+            write_body_error();
+        }
+        current_bit = 0;
+        bit_buffer = 0;
+    }
+}
+
+static void flush_bits (FILE* file)
+{
+    while (current_bit)
+        write_bit (0, file);
+}
+
 void write_huff_body(FILE* original, FILE* newfile, unsigned long long size){
     rewind(original);
     
     // Read character and output corresponding encoding
-    int c;
+    int c, i;
     do {
         c = fgetc(original);
         if (c != EOF){
             char* code_string = get_code(c);
-            if(fputs(code_string, newfile) == EOF){
-                write_body_error();
+            for (i = 0; code_string[i] != '\0'; i++){
+                int bit = (code_string[i] - '0');
+                write_bit(bit, newfile);
             }
         } else if (ferror(original)){
             write_body_error();
         }
     } while (c != EOF);
+    flush_bits(newfile);
 }
 
 void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long size){
@@ -196,7 +224,7 @@ void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long siz
             for (i = 7; i >= 0; i--){
                 in = (c >> i) & 0x01;
                 if (get_char(in, &out)){
-                    printf("%c\n", out);
+//                    printf("%c\n", out);
                     if(fputc(out, decompressed) == EOF){
                         read_body_error();
                     }
