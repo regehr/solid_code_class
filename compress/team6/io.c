@@ -96,9 +96,13 @@ void write_compressed_file(unsigned char* file_pointer, unsigned long long file_
   {
     array_size += strlen(map[file_pointer[i]]);
   }
+  if(array_size%8 == 0)
+    array_size = array_size/8;
+  else
+    array_size = (array_size/8)+1;
 
   /* Use the map to convert from bytes to huffman codes */
-  unsigned char* to_write = calloc(((array_size/8)+1), sizeof(unsigned char));
+  unsigned char* to_write = calloc(array_size, sizeof(unsigned char));
   unsigned long long count = 0;
   for(unsigned long long i = 0; i < file_length; i++)
   {
@@ -106,7 +110,7 @@ void write_compressed_file(unsigned char* file_pointer, unsigned long long file_
     int j = 0;
     while(mapped[j] != '\0')
     {
-      assert(count < array_size);
+      assert(count < array_size*8);
       if(mapped[j++] == '0')
         put_bit(to_write, count++, 0);
       else
@@ -130,7 +134,8 @@ void write_compressed_file(unsigned char* file_pointer, unsigned long long file_
   Fwrite(magic_number, sizeof(char), strlen(magic_number), f);
   Fwrite(&file_length, sizeof(unsigned long long), 1, f);
   Fwrite(orig_mapping, sizeof(char), strlen(orig_mapping), f);
-  Fwrite(to_write, sizeof(unsigned char), array_size/8+1, f);
+  if(array_size != 0)
+    Fwrite(to_write, sizeof(unsigned char), array_size, f);
 
   fclose(f);
   free(to_write);
