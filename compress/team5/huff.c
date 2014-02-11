@@ -12,6 +12,7 @@
 #include <string.h>
 #include "huff_table.h"
 #include "compress.h"
+#include "decompress.h"
 
 int CHECK_REP;
 
@@ -58,7 +59,7 @@ int main (int argc, char *argv[])
     printf("compressing\n");
   	compress(input, argv[2], length);  	
     } else if(strncmp(argv[1], "-d", 2) == 0) {
-  	printf("Decompress to come soon");
+    decompress(input);
     } else {
   	printf("First argument must be -t, -c or -d\n");
   	exit(255); 
