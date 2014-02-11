@@ -1,7 +1,6 @@
 #ifndef TREE_H
 #define TREE_H
 
-#include <stdbool.h>
 
 typedef struct node {
   unsigned long long freq;
@@ -10,10 +9,13 @@ typedef struct node {
   struct node *one;
   char ascii;
 } node;
+
 typedef node *tree;
 
-/* hi */
+/* Char * must be free by caller */
 char *get_huffman_table(unsigned long long ascii_counts[256]);
+
+/* Tree must be free by caller calling free_tree on it. */
 tree get_huffman_tree(char *table[256]);
 void free_tree(tree t);
 
