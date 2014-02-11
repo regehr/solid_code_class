@@ -17,54 +17,61 @@ char * traverse_tree(struct tree_node * tree, char * bit_code)
 {  	
   char temp[255] = ""; //worst case height for huffman tree  
   if(tree->left != NULL) {    
-      strcpy(temp, bit_code);
-      strcat(temp, "0");
-      traverse_tree(tree->left, temp);
-    }
+    strcpy(temp, bit_code);
+    strcat(temp, "0");
+    traverse_tree(tree->left, temp);
+  }
   if(tree->right != NULL) { 
-      strcpy(temp, bit_code);
-      strcat(temp,"1");
-      traverse_tree(tree->right, temp);
-    }  
+    strcpy(temp, bit_code);
+    strcat(temp,"1");
+    traverse_tree(tree->right, temp);
+  }  
   bit_code = temp; // store bit code in huff_code var
+  huff_bit_code = bit_code;
   return bit_code;
 }
 
-void print_huff(struct tree_node * temp, char * code)
+char * get_bit_code(char c)
 {
-	if(temp->left == NULL && temp->right == NULL){
-		printf("%s\n", code);
-		return;
-	}
-	int length = strlen(code);
-	char left_code[255];
-	char right_code[255];
-	strcpy(left_code, code);
-	strcpy(right_code, code);
-	left_code[length] = '0';
-	left_code[length+1] = '\0';
-	right_code[length] = '1';
-	right_code[length+1] = '\0';
-	print_huff(temp->left, left_code);
-	print_huff(temp->right, right_code);
+  return huff_bit_code;
+}
+
+
+void print_huff(struct tree_node * temp, char * code)
+{  
+  if(temp->left == NULL && temp->right == NULL){    
+    printf("%s\n", code);
+    return;
+  }
+  int length = strlen(code);
+  char left_code[255];
+  char right_code[255];
+  strcpy(left_code, code);
+  strcpy(right_code, code);
+  left_code[length] = '0';
+  left_code[length+1] = '\0';
+  right_code[length] = '1';
+  right_code[length+1] = '\0';
+  print_huff(temp->left, left_code);
+  print_huff(temp->right, right_code);
 }
 
 
 
 void traverse_pq(struct pq_node * node)
 {
-    while (node != NULL) {
-        printf("node->priority: %d ", node->priority);
-        if (node->content != NULL)
-            if (node->content->current != -1)
-                printf("node->char: %c\n", (char)node->content->current);
-            else 
-                printf("empty node\n");
-        else
-            printf("node->content is null\n");
+  while (node != NULL) {
+    printf("node->priority: %d ", node->priority);
+    if (node->content != NULL)
+      if (node->content->current != -1)
+	printf("node->char: %c\n", (char)node->content->current);
+      else 
+	printf("empty node\n");
+    else
+      printf("node->content is null\n");
 
-        node = node->next;
-    }
+    node = node->next;
+  }
 }
 
 
@@ -307,8 +314,8 @@ void compress(char * filename, struct frequency table[])
   queue = make_pq(table);
   tree = build_tree(queue);
   //generate huffman codes for chars 
-  char * character = &table[0].character;	
-  traverse_tree(&tree, character);  
+  char character = table[0].character;	
+  traverse_tree(&tree, &character);  
   //write the compressed file
   FILE * infile = fopen(filename, "rb");
     // if the file is already a .huff, return
@@ -333,7 +340,7 @@ void compress(char * filename, struct frequency table[])
 /*
  *  For each content in original file, write huffman code for char
  */
-void write_encoding(FILE * outfile, char * code)
+void write_encoding(FILE * outfile, char code)
 {
   printf("IN write_encoding\n");
   // if file doesn't exist
@@ -341,27 +348,39 @@ void write_encoding(FILE * outfile, char * code)
     printf("File does not exist \n");
     exit(255);
   }
+  // get bit code
+  char * bit_code = get_bit_code(code);
+
   // write magic number 0-3 HUFF
   fprintf(outfile, "HUFF");
+
   // write length field 4-11
   int len = 0;
   int i;
   int size = 256; // TODO: find out of this is correct size
   for(i = 0; i < size; i++){
-    if(code[i] != '\0'){
+    if(bit_code[i] != '\0'){
       len++;
     }
   }
   if(len <= 0){
-    printf("Incorrect file length\n");
+    printf("Error writing length: Incorrect file length\n");
     exit(255);
   }
   char length[8] = {0};
   sprintf(length, "%d\n", len);
-  fwrite(&length, sizeof(length), 1, outfile);
+  //fwrite(&length, sizeof(length), 1, outfile);
+  fputs(length, outfile);  
+
   // write compression table 12-
-  fprintf(outfile, code);
-  printf("CHAR %s\n", code);
+  int j;
+  for (j = 0; j < 256; j++){
+    if (fputs(get_bit_code(j), outfile) == EOF
+	|| fputc('\n', outfile) == EOF)
+      {
+	printf("Error writing encoding table\n");
+      }
+  }
   // write compressed data + padding 
   
 }
