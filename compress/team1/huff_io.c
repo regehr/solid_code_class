@@ -190,10 +190,8 @@ static void flush_bits (FILE* file)
         write_bit (0, file);
     
     // Write final byte.
-    if (current_bit == -1){
-       if (fwrite (&bit_buffer, 1, 1, file) != 1){
+    if (fwrite (&bit_buffer, 1, 1, file) != 1){
         write_body_error();
-       }
     }
 }
 
