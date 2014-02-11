@@ -9,9 +9,6 @@
 #include "huff_tree.h"
 #include "huff_io.h"
 
-// stores the bit code result from traversing the tree 
-char bit_code[255] = {0};
-
 /*
  * Traverses the Huffman tree and assigns 0 or 1 to 
  * children to create the bit code for a char
@@ -29,7 +26,7 @@ char * traverse_tree(struct tree_node * tree, char * bit_code)
       strcat(temp,"1");
       traverse_tree(tree->right, temp);
     }  
-  bit_code = temp; // store bit code in bit_code var
+  bit_code = temp; // store bit code in huff_code var
   return bit_code;
 }
 
@@ -291,6 +288,11 @@ int check_rep(tree_node * parent)
   return 0;  
 }
 
+int is_leaf(tree_node * parent)
+{
+	return !(parent->left) && !(parent->right);
+}
+
 void compress(char * filename, struct frequency table[])
 {
   printf("IN compress \n");
@@ -301,12 +303,9 @@ void compress(char * filename, struct frequency table[])
   struct tree_node tree;
   queue = make_pq(table);
   tree = build_tree(queue);
-  //generate huffman codes for chars
-  //int i;
-  //for(i=0; i < 256; i++){
-	char * huff_code = &table[255].character;
-	traverse_tree(&tree, huff_code);
-  //}
+  //generate huffman codes for chars 
+  char * character = &table[0].character;	
+  traverse_tree(&tree, character);  
   //write the compressed file
   FILE * infile = fopen(filename, "rb");
     // if the file is already a .huff, return
@@ -316,8 +315,9 @@ void compress(char * filename, struct frequency table[])
   else{
 	  strcat(filename, ".huff");
 	  FILE * outfile = fopen(filename, "wb");
-	  write_encoding(outfile, huff_code);
-  }
+	  write_encoding(outfile, character);
+  } 
+
   //close the compressed file 
   exit(0);
 }
@@ -352,9 +352,8 @@ void write_encoding(FILE * outfile, char * code)
   sprintf(length, "%d\n", len);
   fwrite(&length, sizeof(length), 1, outfile);
   // write compression table 12-
-	fputs(code, outfile);
-
-	printf("%d\n", code[0]);
+	fprintf(outfile, code);
+	printf("CHAR %s\n", code);
   // write compressed data + padding 
   
 }

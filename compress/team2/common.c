@@ -4,15 +4,15 @@
 #include "common.h"
 
 static const char * const ERROR_STRINGS[] = {
-    [-EBADEXT]      = "Extension was not a .huff extension.",
-    [-ENOMAGIC]     = "No magic number in the input file.",
-    [-EBADENTRY]    = "Bad entry in file translation table.",
-    [-ETRUNC]       = "Input file ended before we finished reading.",
-    [-EENTRY]       = "Improperly formatted translation table entry.",
-    [-ENOWRITE]     = "An error occurred while writing to the output file.",
-    [-ENOREAD]      = "An error occurred while reading from an input file.",
-    [-EFILETOOLONG] = "Input file's size could not be represented. Kudos on making"
-                      "a file larger than 16,384 Petabytes.",
+    [-EBADEXT]       = "Extension was not a .huff extension.",
+    [-ENOMAGIC]      = "No magic number in the input file.",
+    [-EBADENTRY]     = "A translation table entry contained invalid characters.",
+    [-ETRUNC]        = "Input file ended before we finished reading.",
+    [-EENTRYTOOLONG] = "A traslation table entry was longer than the maximum length.",
+    [-ENOWRITE]      = "An error occurred while writing to the output file.",
+    [-ENOREAD]       = "An error occurred while reading from an input file.",
+    [-EFILETOOLONG]  = "Input file's size could not be represented. Kudos on making"
+                       "a file larger than 16,384 Petabytes.",
 };
 
 const char * huff_error(int code) {
