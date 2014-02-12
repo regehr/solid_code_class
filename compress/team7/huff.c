@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "huff.h"
 #include "huff_table.h"
 
@@ -82,7 +83,7 @@ void compress(FILE* file, char* filename)
 	//Determine frequency/encoding tables
 	create_freq_table(freq_table, file, size);	
     huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
-	char** encoded_table = get_encoding(huff_tree);
+	char **encoded_table = get_encoding(huff_tree);
         
 	
 	assert(encoded_table != NULL);
@@ -104,26 +105,64 @@ void decompress(FILE* file, char* filename)
 	if(!is_huff_type(filename))
 		printf("Given file is not a .huff\n");
 		
-        char** encoding = 0;
-	//TODO:Get huff table
-    huff_node* huff_tree = create_huff_tree_from_encoding(encoding);
-	
-	//TODO:Decode data based on table
-    // 0 for zero bit, true for one bit
-    int one_bit = 1;
-    //get_next_character return -1 if another bit is needed
-    //otherwise it will return 0 - 255
-    int result = get_next_character(huff_tree, one_bit);
-    while(result == -1){
-        //TODO set one_bit
-        result = get_next_character(huff_tree, one_bit);
+    char* encoding[256];
+    int i;
+    
+    for(i = 0; i < 256; i++)
+    {
+    	encoding[i] = malloc(257);
+    	assert(encoding[i] != NULL);
     }
+    
+    //Get huff table from file
+    unsigned long long file_size;
+    get_huff_table(encoding, file, &file_size);
+    
+    assert(encoding != NULL);
+    
+	//Create tree based on huff table
+    huff_node* huff_tree = create_huff_tree_from_encoding(encoding);
+    
+    //Determine filename without the .huff extension
+    int len = strlen(filename);
+    int ext_len = strlen(".huff");
+    filename[len-ext_len] = '\0';
+    
+    //Open new file
+    FILE* decomp_file = open_file(filename, "w");
+    
+    unsigned long long byte_count = 0;
+    uint8_t curr_byte;
+    int decoded_bit;
+    
+    //Loop through encoded data, decode it and add to new file
+    while(fread(&curr_byte, 1, 1, file) &&  byte_count < file_size)
+    {
+    	for(i = 7; (i >= 0) && (byte_count < file_size); i++)
+    	{
+    		decoded_bit = get_next_character(huff_tree, (curr_byte >> i)&0x1);
+    		
+    		if(decoded_bit > -1)
+    		{
+    			byte_count++;
+    			
+    			//Write decompressed data to file
+    			int res = fwrite(&decoded_bit, 1, 1, decomp_file);    			
+    			assert(res == 1 && "Failed to write decoded information to file.");
+    		}
+    	}
+    }
+    
+    rewind(decomp_file);
+    unsigned long long final_size = det_file_size(decomp_file);
+    
+    assert(file_size == final_size && "Compressed size information and decompressed file size don't match.");
 	
-	//TODO:Open new file
+	//Close the file
+	fclose(decomp_file);
 	
-	//TODO:Write decompressed data to file
-	
-	//TODO:Close the file
+	destroy_huff_tree(huff_tree);
+	free(encoding);
 }
 
 void dump(FILE* file, char* filename)
@@ -132,7 +171,6 @@ void dump(FILE* file, char* filename)
 	unsigned long long file_size = det_file_size(file);
 	
 	//Check if file is .huff
-	//TODO: Fix seg fault bug
 	if(is_huff_type(filename))
 	{
 		char* encoded_table[256];
@@ -140,7 +178,7 @@ void dump(FILE* file, char* filename)
 		for(i = 0; i < 256; i++)
 		{
 			encoded_table[i] = malloc(257);
-			assert(encoded_table[i]);
+			assert(encoded_table[i] != NULL);
 		}
 		
 		file_size = det_file_size(file);
@@ -156,13 +194,12 @@ void dump(FILE* file, char* filename)
 		int freq_table[256];
 		for(i = 0; i < 256; i++)
 			freq_table[i] = 0;
-			
+
 		create_freq_table(freq_table, file, file_size);	
 		huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
 		char** encoded_table = get_encoding(huff_tree);
-		
-		assert(encoded_table != NULL);
 
+		assert(encoded_table != NULL);
 		for(i = 0; i < 256; i++)
 			printf("%s\n", encoded_table[i]);
 	}
@@ -231,6 +268,7 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size)
 	
 	//Get huff length
 	unsigned long long res = fread(size, 8, 1, file);
+	printf("size = %llu\n", res);
 	
 	//Check that we read a file length
 	if(res != 1)
@@ -264,24 +302,6 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size)
 		
 		strcpy(huff_table[i], longest_string);
 	}
-	
-	
-	/*
-	char max_line_length[258]; //258 since max length is 256, plus 2 for the \n
-	
-	for(i = 0; i < 256; i++)
-	{
-		fgets(max_line_length, 258, file);
-		
-		if(max_line_length == NULL)
-		{
-			printf("Improper huff encoding table.\n");
-			exit(ERR);
-		}
-		
-		huff_table[i] = max_line_length;
-	}
-	*/
 }
 
 enum Flags determine_flag(char* user_flag)
