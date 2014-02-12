@@ -158,8 +158,10 @@ huff_node* create_huff_tree_from_frequency(int frequencyArray[]) {
         nodes[i] = create_huff_node(i, frequencyArray[i], NULL);
         
     }
+
     qsort(nodes, 256, sizeof (huff_node*), huff_node_frequency_comparer);
     assert(nodes[0]->frequency <= nodes[255]->frequency);
+    
     /*for(int i = 0; i<255; i++){
         assert(nodes[i]->char_number == i+1);
     }
@@ -503,7 +505,6 @@ void generate_encoding_tree(huff_node* root) {
 }
 
 // Recursive depth-first tree encoding method.
-
 void generate_encoding(huff_node* node, char* path) {
     if (node == NULL) {
         return;
