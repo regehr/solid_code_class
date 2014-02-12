@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python27
 
 import os
 import random
@@ -12,7 +12,6 @@ import shutil
 
 TEST_COUNT = 20
 
-
 # Set-up tests
 class MyTestCase(unittest.TestCase):
     def setUp(self):
@@ -24,8 +23,10 @@ class FileEquality(MyTestCase):
     def runTest(self):
         char_set = string.ascii_uppercase + string.digits
         for n in range(1, TEST_COUNT + 1):
-            testFile = open('random.txt', 'w')
+            testFile = open('random.txt', 'r+')
+            #print "test file" + str(testFile.read())
             testFile.write( ''.join(random.sample(char_set*n,n)))
+            testFile.write('\n')
             testFile.close()
             shutil.copy('random.txt', 'old.txt') #copy file since it will be overwritten     
             outPut = open('output.txt', 'w')
@@ -72,6 +73,7 @@ class ExitDecompressGood(MyTestCase):
         for n in range(1, TEST_COUNT + 1):
             testFile = open('random.txt', 'w')
             testFile.write( ''.join(random.sample(char_set*n,n)))
+            testFile.write('\n')
             testFile.close()
             shutil.copy('random.txt', 'old.txt') #copy file since it will be overwritten
             outPut = open('output.txt', 'w') 
