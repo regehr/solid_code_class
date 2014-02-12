@@ -6,7 +6,7 @@
 
 void* Malloc(int size) {
     void* temp = malloc(size);
-    if (temp == 0) {
+    if (temp == NULL) {
         printf("%s", "Malloc failed");
         exit(-1);
     }
@@ -311,12 +311,9 @@ void set_children_nodes(huff_node* parent, huff_node* left_child, huff_node* rig
 huff_node* create_parent_node(huff_node* left_child, huff_node* right_child) {
     //create huff_node
     huff_node* parent = create_huff_node( -1, left_child->frequency + right_child->frequency, NULL);
-    parent->left_child = left_child;
-    parent->right_child = right_child;
+    set_children_nodes(parent, left_child, right_child);
     parent->lowest_value = left_child->lowest_value;
-    left_child->parent = parent;
-    right_child->parent = parent;
-
+    
     return parent;
 }
 
@@ -498,8 +495,9 @@ void generate_encoding_tree(huff_node* root) {
         encoding[i] = '\0';
     }
     root->encoding = encoding;
-    generate_encoding(root->left_child, "0");
     generate_encoding(root->right_child, "1");
+    generate_encoding(root->left_child, "0");
+    
 }
 
 // Recursive depth-first tree encoding method.
@@ -508,8 +506,8 @@ void generate_encoding(huff_node* node, char* path) {
     if (node == NULL) {
         return;
     }
-
-    char* encoding = create_string_from_cat(node->parent->encoding, path);
+    char* parent_encoding = node->parent->encoding;
+    char* encoding = create_string_from_cat(parent_encoding, path);
     node->encoding = encoding;
     generate_encoding(node->left_child, "0");
     generate_encoding(node->right_child, "1");
@@ -563,11 +561,24 @@ int min(int a, int b) {
 }// </editor-fold>
 
 char* create_string_from_cat(char* start, char* end){
-    int length_s = strlen(start) +1;
-    int length_e = strlen(end) +1;
-    char* new_string = (char*)Malloc(sizeof(length_s+length_e));
-    strcpy(new_string, start);
+    int length_s = strlen(start);
+    int length_e = strlen(end);
+    int total_length = length_s +length_e+1;
+    char* new_string = (char*)malloc(sizeof(total_length));
+    int i=0;
+    for(;i < total_length; i++ ){
+        if(i < length_s){
+            new_string[i] = start[i];
+        } else{
+            new_string[i] = '\0';
+        }
+        //new_string[i] = '\0';
+    }
+    printf("star: %s\n", start);
+    //strcat(new_string, start);
+    printf("cat1: %s\n", new_string);
     strcat(new_string, end);
+    printf("cat2: %s\n", new_string);
     return new_string;
 }
 
