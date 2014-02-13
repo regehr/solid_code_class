@@ -30,66 +30,66 @@ int countLeaves(huffNode *rootNode);
 void checkTable(huffResult *resultArray);
 void checkValidCode (char *s);
 
-
-
 char* concat(char *s1, char *s2);
 
+//this craetes a tree and returns the resulting strings as an array of huffresults
 huffResult* createHuffmanTree(unsigned *frequencies)
 {
-    //ok so we have an array of frequencies, what now?
     
-    //we'll make a sum for checking later;
-    unsigned long long sum = 0;
-    for(int i = 0; i< 256; i++)
-    {
-        sum += frequencies[i];
-       // printf("%d, %d\n",i,frequencies[i]);
-    }
     
     //make an array of nodes big enough to hold everything.
     huffNode * nodes = calloc(512, sizeof(huffNode));
+    assert(nodes);
+    
+    
     int nodeCount = 0;
     
-    //lets fill em up!
+    //lets fill em up with the frequencies
     for(int i = 0; i < 256; i++)
     {
-        if(frequencies[i] > 0)
-        {
+       
             huffNode *node = &nodes[nodeCount];
             nodeCount++;
             node->sum = frequencies[i];
             node->representedByte = i;
-        }
-        
     }
     
+    //make a tree of nodes
     huffNode *rootNode = calculateTree(nodes, nodeCount);
-     
+    assert(rootNode);
+    
+    //turn those nodes into the array of results
     huffResult *result = calcResult(rootNode);
+    assert(result);
     
 #ifdef CHECK_REP
     checkTree(rootNode);
     checkTable(result);
     exit(0);
 #endif 
-    
-    for(int i = 0; i < 256; i++)
-    {
-        huffResult * currentResult = &result[i];
-        printf("%d - %s\n",currentResult->value,currentResult->string);
-    }
-    
+
+
     free(nodes);
     
     return result;
     
 }
 
+void printHuffResultArray(huffResult *resultArray)
+{
+        for(int i = 0; i < 256; i++)
+        {
+            huffResult * currentResult = &resultArray[i];
+            printf("%d - %s\n",currentResult->value,currentResult->string);
+        }
+}
+
 huffNode* calculateTree(huffNode *nodes,int count)
 {
     huffNode* lowestNode = NULL;
     huffNode* secondLowestNode = NULL;
-    //get the minium values
+    
+    //this loop combines nodes until there is only 1 left
     while (1) {
         lowestNode = minNode(nodes, count);
         assert(lowestNode);
@@ -112,8 +112,6 @@ huffNode* calculateTree(huffNode *nodes,int count)
         
         newNode->sum = lowestNode->sum + secondLowestNode->sum;
         
-       
-        
         lowestNode = NULL;
         secondLowestNode = NULL;
     }
@@ -125,8 +123,11 @@ huffNode* calculateTree(huffNode *nodes,int count)
 
 huffResult* calcResult(huffNode *rootNode)
 {
+    //make space for the results
     huffResult* resultArray = calloc(256, sizeof(huffResult));
+    assert(resultArray);
     
+    //fill them up
     fillResultArray(resultArray, rootNode, "");
     
     //fill in any missing values
@@ -149,17 +150,20 @@ void fillResultArray(huffResult* resultArray, huffNode *node, char *currentStrin
     
     if(!currentString) currentString = "";
     
+    //make sure the string is not insanely long;
+    assert(strlen(currentString) < 1024);
     
-    
+    //this is a leaf, set it's string representation and represented byte
     if(!node->leftLeaf && !node->rightLeaf)
     {
         huffResult * resultElement = &resultArray[node->representedByte];
-        char * tempString = calloc(20, sizeof(char));
+        char * tempString = calloc(strlen(currentString), sizeof(char));
         resultElement->string = strcpy(tempString, currentString);
         resultElement->value = node->representedByte;
         
     }
     
+    //adjust our strings and keep working on the tree.
     char *leftString = concat(currentString, "0");
     char *rightString = concat(currentString, "1");
     
@@ -170,6 +174,8 @@ void fillResultArray(huffResult* resultArray, huffNode *node, char *currentStrin
     free(rightString);
 }
 
+
+//just prints out a node for test purposes
 void printNode(huffNode *node, char *currentString)
 {
     if(!node)return;
@@ -194,7 +200,7 @@ void printNode(huffNode *node, char *currentString)
 }
 
 
-
+//returns the current min node
 huffNode* minNode(huffNode * nodes, int count)
 {
     long long currentMin = 9223372036854775807LL;
@@ -215,6 +221,8 @@ huffNode* minNode(huffNode * nodes, int count)
     }
     return lowestNode;
 }
+
+//
 char* concat(char *s1, char *s2)
 {
     char *result = malloc(strlen(s1)+strlen(s2)+1);//+1 for the zero-terminator
@@ -226,7 +234,7 @@ char* concat(char *s1, char *s2)
 
 
 
-
+//cleans up the result array
 void freeResultArray(huffResult *resultArray)
 {
     for(int i = 0; i < 256; i++)

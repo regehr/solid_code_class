@@ -14,6 +14,7 @@
 #include "compressedOutputFileWriter.h"
 
 
+
 long long currentEncodeFileByteIndex = 0;
 long long currentEncodeFileLength = 0;
 
@@ -53,14 +54,18 @@ void writeNonCompressedFileToCompressedOutput(FILE* nonCompressedFile, FILE* com
 void writeHeader(FILE *file,unsigned long long length)
 {
     char *header = "HUFF";
-    fwrite(header, sizeof(char), strlen(header), file);
-    fwrite(&length, sizeof(unsigned long long), 1, file);
+    size_t err = fwrite(header, sizeof(char), strlen(header), file);
+    assert(err);
+    err = fwrite(&length, sizeof(unsigned long long), 1, file);
+    assert(err);
 }
 
 void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult *resultArray)
 {
     //lets get some space to work in, in reality we only need 2 bytes, but we have memory to spare.
     char *currentRead = calloc(512, sizeof(char));
+    if(!currentRead) exit(255);
+    
     int currentStringLength = 0;
     
     while (currentEncodeFileByteIndex < currentEncodeFileLength)
@@ -110,6 +115,8 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
 //given a string of 8 chars containing 1's and 0's, this will return a byte with the same 1's and 0's set.
 char byteFromString(char *string)
 {
+    assert(string);
+    
     unsigned char result;
     for(int i = 7; i >= 0; i--)
     {
@@ -137,7 +144,8 @@ void writeHuffmanTable(FILE *file, huffResult * resultArray)
 
 void writeByte(FILE *file, char byte)
 {
-    fwrite(&byte, sizeof(char), 1, file);
+   size_t err = fwrite(&byte, sizeof(char), 1, file);
+   assert(err != 0);
 }
 
 char getNextByte(FILE *file)

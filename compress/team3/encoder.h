@@ -30,7 +30,7 @@ struct huffNode{
 
 huffResult* createHuffmanTree(unsigned *frequencies);
 
-
+void printHuffResultArray(huffResult *resultArray);
 
 void freeReusltArray(huffResult *);
 

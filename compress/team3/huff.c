@@ -195,8 +195,8 @@ eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned* pOutFrequencies)
  */
 eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName, huffResult* resultArray)
 {
-    FILE* pFile;
-    FILE* pNewFile;
+    FILE* pFile = NULL;
+    FILE* pNewFile = NULL;
     char* huffmanEncodings;
     huffNode* huffmanTreeRootNode;
     unsigned long long lengthOfFile = 0;
@@ -219,7 +219,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
             huffmanEncodings = huffmanEncodingsFromFile(pFile, &lengthOfFile);
             if (huffmanEncodings != NULL)
             {
-                int nameLength = strlen(fileName) - strlen(".huff\0");
+                long nameLength = strlen(fileName) - strlen(".huff\0");
                 assert(nameLength > 0);
                 char* newFileName = calloc(nameLength + 1, sizeof(char));
                 strncpy(newFileName, fileName, nameLength);
@@ -251,13 +251,14 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
             huffmanEncodings = huffmanEncodingsFromFile(pFile, &lengthOfFile);
             if (huffmanEncodings != NULL)
             {
-                if (pNewFile == NULL)
+//                if (pNewFile == NULL)
+//                {
+//                    fileCode = FILE_INVALID_FORMAT;
+//                }
+//                else
                 {
-                    fileCode = FILE_INVALID_FORMAT;
-                }
-                else
-                {                
                     resultArray = createHuffResultArrayFromFileEncodings(huffmanEncodings);
+                    printHuffResultArray(resultArray);
                 }
             }
             else
@@ -282,6 +283,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
             if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
             {
                 fileCode = GetTableForGeneric(pFrequencies, &resultArray);
+                printHuffResultArray(resultArray);
             }
             else
             {
@@ -328,7 +330,7 @@ int main(int argc, char **argv)
     // If it's -d, file has to be of .huff extension type.
     eMode mode;
     char* fileName; // Name of the file passes in as a commandline arg.
-    huffResult* resultArray; // The table of 010101001 codes for each ascii character.
+    huffResult* resultArray = NULL; // The table of 010101001 codes for each ascii character.
     eFileCode fileCode; // Used for error handling.
 
     mode = getModeOfOperation(argc, argv); // -t, -c, or -d, plus this checks if the file name/extension is valid.
