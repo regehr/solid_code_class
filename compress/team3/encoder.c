@@ -158,6 +158,7 @@ void fillResultArray(huffResult* resultArray, huffNode *node, char *currentStrin
     {
         huffResult * resultElement = &resultArray[node->representedByte];
         char * tempString = calloc(strlen(currentString), sizeof(char));
+        assert(tempString);
         resultElement->string = strcpy(tempString, currentString);
         resultElement->value = node->representedByte;
         

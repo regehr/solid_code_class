@@ -24,6 +24,7 @@ char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength)
     rewind(file);
     //get the first 4 header characters
     char *header = calloc(4, sizeof(char));
+    assert(header);
     fread(header, 4, sizeof(char), file);
     
     //make sure it says HUFF
@@ -41,6 +42,7 @@ char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength)
     
     //make an array of strings to hold the result
     char *encodings = calloc(4096, sizeof(char));
+    assert(encodings);
     
     //get the next 256 strings representing the encodings
     //create an index to keep track of where we are in copying the string
@@ -87,6 +89,7 @@ huffResult* createHuffResultArrayFromFileEncodings(char * encodings)
 {
     //alloc the array
     huffResult * resultArray = calloc(256, sizeof(huffResult));
+    assert(resultArray);
     
     //holds current index from the encodings
     int stringIndex = 0;
@@ -118,6 +121,7 @@ huffResult* createHuffResultArrayFromFileEncodings(char * encodings)
             int length = stringIndex - currentStartIndex;
             
             char * value = calloc(length+1,sizeof(char) * length);
+            assert(value);
             memcpy(value, &encodings[currentStartIndex], length);
             currentResult->string = value;
             
@@ -160,6 +164,7 @@ huffNode* createDecodeTreeFromResultArray(huffResult *resultArray)
                 if(!nextNode->leftLeaf)
                 {
                     nextNode->leftLeaf = calloc(1, sizeof(huffNode));
+                    assert(nextNode->leftLeaf);
                 }
                 huffNode *parentNode = nextNode;
                 nextNode = nextNode->leftLeaf;
@@ -170,6 +175,7 @@ huffNode* createDecodeTreeFromResultArray(huffResult *resultArray)
                 if(!nextNode->rightLeaf)
                 {
                     nextNode->rightLeaf = calloc(1, sizeof(huffNode));
+                    assert(nextNode->rightLeaf);
                 }
                 huffNode *parentNode = nextNode;
                 nextNode = nextNode->rightLeaf;

@@ -133,6 +133,7 @@ eFileCode GetTableForHuff(FILE* pFile, huffResult* resultArray)
 
     // Go through the next 256 lines of the file, read them out line by line.
     resultArray = calloc(256, sizeof(huffResult));
+    assert(resultArray);
     for (i = 0; i < ENTRIES && fgets(resultArray[i].string, ENTRY_LENGTH, pFile) != NULL; resultArray[i].value = i, i++);
 
     // If there weren't 256 entries, the .huff was an invalid format.
@@ -222,6 +223,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
                 long nameLength = strlen(fileName) - strlen(".huff\0");
                 assert(nameLength > 0);
                 char* newFileName = calloc(nameLength + 1, sizeof(char));
+                assert(newFileName);
                 strncpy(newFileName, fileName, nameLength);
                 pNewFile = fopen(newFileName, "w+");
                 

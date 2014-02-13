@@ -64,7 +64,7 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
 {
     //lets get some space to work in, in reality we only need 2 bytes, but we have memory to spare.
     char *currentRead = calloc(512, sizeof(char));
-    if(!currentRead) exit(255);
+    assert(currentRead);
     
     int currentStringLength = 0;
     
