@@ -74,13 +74,8 @@ char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength)
                 *decodedLength = 0;
                 return NULL;
             }
-            
-            
         }
-        
-        
     }
-   
     
     return encodings;
     
@@ -181,12 +176,8 @@ huffNode* createDecodeTreeFromResultArray(huffResult *resultArray)
                 nextNode->parent = parentNode;
                 
             }
-            
-            
             nextNode->representedByte = i;
         }
-        
-        
     }
     return rootNode;
 }
