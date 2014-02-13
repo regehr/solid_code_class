@@ -491,9 +491,9 @@ void generate_encoding_tree(huff_node* root) {
     assert(root != NULL);
     int length = 1;
 
-    char* encoding = Malloc(length + 2);
+    char* encoding = (char*)Malloc(length);
     int i = 0;
-    for (; i < length + 2; i++) {
+    for (; i < length; i++) {
         encoding[i] = '\0';
     }
     root->encoding = encoding;
@@ -565,21 +565,18 @@ char* create_string_from_cat(char* start, char* end){
     int length_s = strlen(start);
     int length_e = strlen(end);
     int total_length = length_s +length_e+1;
-    char* new_string = (char*)malloc(sizeof(total_length));
-    int i=0;
-    for(;i < total_length; i++ ){
-        if(i < length_s){
-            new_string[i] = start[i];
-        } else{
-            new_string[i] = '\0';
-        }
-        //new_string[i] = '\0';
-    }
-    printf("star: %s\n", start);
-    //strcat(new_string, start);
-    printf("cat1: %s\n", new_string);
+    char* new_string = (char*)malloc(total_length);
+//    int i=0;
+//    for(;i < total_length; i++ ){
+//        if(i < length_s){
+//            new_string[i] = start[i];
+//        } else{
+//            new_string[i] = '\0';
+//        }
+//        //new_string[i] = '\0';
+
+    strcat(new_string, start);
     strcat(new_string, end);
-    printf("cat2: %s\n", new_string);
     return new_string;
 }
 
