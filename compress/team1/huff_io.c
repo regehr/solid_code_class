@@ -20,6 +20,11 @@ static void write_body_error(){
     exit(ERR_CODE);
 }
 
+static void read_file_error(){
+	fprintf(stderr, "ERROR: Error while attempting to read file.\n");
+	exit(ERR_CODE);
+}
+
 bool is_huff_file(const char* filename){
     const char *dot = strrchr(filename, '.');
     if(!dot || dot == filename) return false;
@@ -45,7 +50,7 @@ char* remove_ext(const char* filename) {
 bool get_huff_header(FILE* file, unsigned long long* size, bool print){
     int num_string = 256;
     int str_length = 257;
-    char magic[5];
+    char magic[strlen(MAGIC_NUM)+1];
     char* huff_table[num_string];
     
     // Init array
@@ -57,21 +62,23 @@ bool get_huff_header(FILE* file, unsigned long long* size, bool print){
         }
     }
     
+    int curr_char;
     // Read magic number
-    magic[0] = fgetc(file);
-    magic[1] = fgetc(file);
-    magic[2] = fgetc(file);
-    magic[3] = fgetc(file);
-    magic[4] = '\0';
-    if (ferror(file)){
-        read_header_error();
+    for(i = 0; i < strlen(MAGIC_NUM); i++)
+    {
+    	curr_char = fgetc(file);
+    	if(curr_char == EOF || ferror(file))
+    		read_header_error();
+    		
+    	magic[i] = (char)curr_char;
     }
-    if(strcmp(magic, MAGIC_NUM) != 0){
+   	magic[i] = '\0'; //Add null terminator
+
+    if(strcmp(magic, MAGIC_NUM) != 0)
         return false;
-    }
     
     // Read content length
-    if (fread(size, sizeof(size), 1, file) != 1){
+    if (fread(size, 8, 1, file) != 1){
         read_header_error();
     }
     
@@ -113,14 +120,15 @@ bool get_huff_header(FILE* file, unsigned long long* size, bool print){
  * 	The array must be a length of 256. Returns 0 if the operation succeded.
  */
 static void get_frequencies(FILE* file, uint64_t* frequencies){
-    int c;
+    int c = 0;
     do {
         c = fgetc(file);
-        if (c != EOF){
-            frequencies[c]++;
-        } else if (ferror(file)){
-            fprintf(stderr, "ERROR: Error while reading characters from file\n");
-            exit(ERR_CODE);
+        if(c != EOF)
+        	frequencies[c]++;
+        else if(ferror(file))
+        {
+        	fprintf(stderr, "ERROR: Error while reading characters from file\n");
+        	exit(ERR_CODE);
         }
     } while(c != EOF);
 }
@@ -139,7 +147,12 @@ void gen_huff_tree(FILE* file){
 
 unsigned long long get_file_size(const char* filename){
     struct stat st;
-    stat(filename, &st);
+    int res = stat(filename, &st);
+    if(res != 0)
+    {
+    	printf("%d\n", res);
+    	read_file_error();
+    	}
     return (unsigned long long)st.st_size;
 }
 
@@ -227,7 +240,7 @@ void write_huff_body(FILE* original, FILE* newfile, unsigned long long size){
 void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long size){
     
     // Read characters and write to decompresed file
-    int c, i = 0;
+    int c = 0, i = 0;
     unsigned long long bytes_read = 0;
     char in, out;
 	while (c != EOF){
