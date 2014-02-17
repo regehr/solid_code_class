@@ -1,13 +1,25 @@
-all:
-	gcc -g -Wall -std=c99 encoder.c decoder.c decodedOutputFileWriter.c compressedOutputFileWriter.c huff.c -o huff
+.PHONY: all clean test debug
+
+CC = clang
+CFLAGS = -std=c99'
+
+objects = encoder.o decoder.o decodedOutputFileWriter.o \
+encodedOutputFileWriter.o huff.o
+
+bin = huff
+
+all: $(bin)
+
+$(bin): $(objects)
 
 clean:
-	-@rm -rf huff *.txt *.table *.huff
+	-@rm -rf $(bin) $(objects) *.txt *.table *.huff
 
-test:
+test: debug
 	python test.py
 
-check:
-	gcc -g -Wall -std=c99 -D CHECK_REP encoder.c decoder.c decodedOutputFileWriter.c compressedOutputFileWriter.c huff.c -o huff
+debug: clean
+	$(MAKE) CFLAGS='-Wall -Wextra -pedantic -std=c99 -g -DCHECK_REP'
 
-
+release: clean
+	$(MAKE) CFLAGS='-std=c99 -DNDEBUG'
