@@ -14,11 +14,9 @@
 char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength);
 
 //creates an array of huffResults using the encodings
-huffResult* createHuffResultArrayFromFileEncodings(char * encodings);
+void createHuffResultArrayFromFileEncodings(char * encodings, huffResult out[256]);
 
 //creates a tree from huffResults
 huffNode* createDecodeTreeFromResultArray(huffResult *resultArray);
-
-
 
 #endif

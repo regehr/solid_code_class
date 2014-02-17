@@ -10,25 +10,24 @@
 #define huff_encoder_h
 
 
-typedef struct huffResult{
-    char * string;
+typedef struct huffResult {
+    char *string;
     int value;
-}huffResult;
+} huffResult;
 
-typedef struct huffNode huffNode;
-struct huffNode{
-    
+typedef struct huffNode {
+
     long long sum;
-    int representedByte;
+    int byte;
     int used;
-    
-    huffNode* parent;
-    huffNode* leftLeaf;
-    huffNode* rightLeaf;
-    
-};
 
-huffResult* createHuffmanTree(unsigned *frequencies);
+    struct huffNode *parent;
+    struct huffNode *leftLeaf;
+    struct huffNode *rightLeaf;
+
+} huffNode;
+
+void createHuffmanTree(unsigned *frequencies, huffResult out[256]);
 
 void printHuffResultArray(huffResult *resultArray);
 

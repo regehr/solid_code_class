@@ -1,5 +1,5 @@
 //
-//  compressedOutputFileWriter.c
+//  encodedOutputFileWriter.c
 //  huff
 //
 //  Created by Adam Bradford on 2/2/14.
@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <string.h>
 #include "encoder.h"
-#include "compressedOutputFileWriter.h"
+#include "encodedOutputFileWriter.h"
 
 
 
@@ -32,22 +32,22 @@ void writeNonCompressedFileToCompressedOutput(FILE* nonCompressedFile, FILE* com
     assert(resultArray);
     assert(compressedFile);
     assert(nonCompressedFile);
-    
-    
+
+
     //reset the file.
     currentEncodeFileLength = lengthOfFile(nonCompressedFile);
     currentEncodeFileByteIndex = 0;
     rewind(nonCompressedFile);
-    
+
     //writes the HUFF and length
     writeHeader(compressedFile, currentEncodeFileLength);
-    
+
     //writes out the encodings
     writeHuffmanTable(compressedFile, resultArray);
-    
+
     //writes out the encoded data
     writeEncodedFile(nonCompressedFile, compressedFile, resultArray);
-    
+
     return;
 }
 
@@ -65,23 +65,23 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
     //lets get some space to work in, in reality we only need 2 bytes, but we have memory to spare.
     char *currentRead = calloc(512, sizeof(char));
     assert(currentRead);
-    
+
     int currentStringLength = 0;
-    
+
     while (currentEncodeFileByteIndex < currentEncodeFileLength)
     {
         char nextByte = getNextByte(nonCompressedFile);
         currentEncodeFileByteIndex++;
-        
+
         //get the huffresult at the index of the nextbyte
         huffResult *result = &resultArray[(unsigned char)nextByte];
-        
+
         //adjust the current string length
         currentStringLength += strlen(result->string);
-        
+
         //concat the encoding to the currentRead
         strcat(currentRead, result->string);
-        
+
         //writes out byte by byte.
         while(strlen(currentRead) > 7)
         {
@@ -91,7 +91,7 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
             currentStringLength -= 8;
         }
     }
-    
+
     //we may have some leftover bits
     if(currentStringLength > 0)
     {
@@ -101,13 +101,13 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
             strcat(currentRead, "0");
             currentStringLength++;
         }
-        
+
         //add the last byte to the output
         char output = byteFromString(currentRead);
         writeByte(compressedFile,output);
         memcpy(currentRead, currentRead+8, strlen(currentRead));
         currentStringLength -= 8;
-        
+
         assert(currentStringLength == 0);
     }
 }
@@ -116,7 +116,7 @@ void writeEncodedFile(FILE *nonCompressedFile, FILE *compressedFile, huffResult 
 char byteFromString(char *string)
 {
     assert(string);
-    
+
     unsigned char result;
     for(int i = 7; i >= 0; i--)
     {
@@ -161,10 +161,10 @@ char getNextByte(FILE *file)
 long long lengthOfFile(FILE *file)
 {
     long long length;
-    
+
     fseek(file , 0L , SEEK_END);
     length = ftell( file );
     rewind( file );
-    
+
     return length;
 }

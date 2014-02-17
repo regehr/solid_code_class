@@ -23,10 +23,9 @@ char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength)
 {
     rewind(file);
     //get the first 4 header characters
-    char *header = calloc(4, sizeof(char));
-    assert(header);
+    char header[4];
     fread(header, 4, sizeof(char), file);
-    
+
     //make sure it says HUFF
     if(!(header[0] == 'H' &&
        header[1] == 'U' &&
@@ -36,21 +35,21 @@ char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength)
         printf("Invliad File Header - missing \"HUFF\"");
         return NULL;
     }
-    
+
     //put the decoded length in the output variable
     fread(decodedLength, 1, sizeof(unsigned long long), file);
-    
+
     //make an array of strings to hold the result
     char *encodings = calloc(4096, sizeof(char));
     assert(encodings);
-    
+
     //get the next 256 strings representing the encodings
     //create an index to keep track of where we are in copying the string
     int currentIndex = 0;
     for(int i = 0; i < 256; i ++)
     {
-        
-        
+
+
         //loop until we hit the /n, if we hit any other character besides 0,1 or /n then it should fail
         while(1)
         {
@@ -59,11 +58,11 @@ char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength)
                nextByte == '1' ||
                nextByte == '\n')
             {
-                
-                
+
+
                 //place the byte in the result
                 encodings[currentIndex++] = nextByte;
-                
+
                 //is this string finished?
                 if(nextByte == '\n')
                 {
@@ -78,66 +77,62 @@ char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength)
             }
         }
     }
-    
+
     return encodings;
-    
+
 }
 
 
 //returns huffresults from given encodings
-huffResult* createHuffResultArrayFromFileEncodings(char * encodings)
+void createHuffResultArrayFromFileEncodings(
+    char * encodings, huffResult resultArray[256])
 {
-    //alloc the array
-    huffResult * resultArray = calloc(256, sizeof(huffResult));
-    assert(resultArray);
-    
     //holds current index from the encodings
     int stringIndex = 0;
-    
+
     for(int i = 0; i < 256; i++)
     {
-     
+
         //get the current result and set defaults
         huffResult * currentResult = &resultArray[i];
         currentResult->value = i;
         currentResult->string = "";
-        
+
         int currentStartIndex = stringIndex;
-        
+
         //find the next newline
         while (encodings[stringIndex] != '\n')
         {
             char testChar = encodings[stringIndex++];
             if(!(testChar == '0' || testChar == '1'))
             {
-                printf("Invaid Character Found In Ecnoding: %c",testChar);
-                return NULL;
+                fprintf(stderr, "Invaid character found in encoding: %c",
+                    testChar);
+                return;
             }
         }
-        
+
         //copy the encoding into the the currentresult
         if(currentStartIndex< stringIndex)
         {
             int length = stringIndex - currentStartIndex;
-            
+
             char * value = calloc(length+1,sizeof(char) * length);
             assert(value);
             memcpy(value, &encodings[currentStartIndex], length);
             currentResult->string = value;
-            
+
         }
         //increment
         stringIndex++;
     }
-    
+
     //just a test to make sure every value has a string.
     for(int i = 0; i < 256; i++)
     {
         huffResult * currentResult = &resultArray[i];
         assert(currentResult->string);
     }
-    
-    return resultArray;
 }
 
 //turns a result array into a huff tree
@@ -145,19 +140,19 @@ huffNode* createDecodeTreeFromResultArray(huffResult *resultArray)
 {
     //create a root node
     huffNode *rootNode = malloc(sizeof(huffNode));
-    
+
     //iterate across the result array and place nodes where needed
     for(int i = 0; i < 256; i++)
     {
         huffResult *currentResult = &resultArray[i];
         char * valueString = currentResult->string;
-        
+
         //simply walk down the tree adding nodes as needed until we reach the final character of the current encode string.
         huffNode *nextNode = rootNode;
         int stringLength = (int)strlen(valueString);
         for(int j = 0;  j < stringLength ;j++)
         {
-            
+
             char currentBit = valueString[j];
             if(currentBit == '0')
             {
@@ -180,9 +175,9 @@ huffNode* createDecodeTreeFromResultArray(huffResult *resultArray)
                 huffNode *parentNode = nextNode;
                 nextNode = nextNode->rightLeaf;
                 nextNode->parent = parentNode;
-                
+
             }
-            nextNode->representedByte = i;
+            nextNode->byte = i;
         }
     }
     return rootNode;
