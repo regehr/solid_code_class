@@ -13,10 +13,9 @@
 //#include "encoder.h"
 //#include "compressedOutputFileWriter.h"
 #include "decodedOutputFileWriter.h"
+#include "syscalls.h"
 
-char getNextByte(FILE *file);
 void writeByte(FILE *file, char byte);
-char byteFromString(char *string);
 
 void writeCompressedFileToNonCompressedOutput(FILE *compressedFile,
     FILE *uncompressedFile, unsigned long long decodedLength,
@@ -31,7 +30,8 @@ void writeCompressedFileToNonCompressedOutput(FILE *compressedFile,
     while(currentDecodeFileByteIndex < decodedLength)
     {
         //get the next byte
-        char encodedByte = getNextByte(compressedFile);
+        char encodedByte;
+        xfread(&encodedByte, 1, 1, compressedFile);
 
 
         //get the value of the byte and start walking the tree;
@@ -57,7 +57,7 @@ void writeCompressedFileToNonCompressedOutput(FILE *compressedFile,
             if(!currentNode->leftLeaf && !currentNode->rightLeaf)
             {
                 //write the byte and reset the node to the top of the tree
-                writeByte(uncompressedFile, currentNode->byte);
+                xfwrite(&currentNode->byte, sizeof(char), 1, uncompressedFile);
                 currentNode = rootNode;
                 currentDecodeFileByteIndex++;
                 if(currentDecodeFileByteIndex >= decodedLength) break;

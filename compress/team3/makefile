@@ -3,7 +3,7 @@
 CC = clang
 CFLAGS = -std=c99'
 
-objects = encoder.o decoder.o decodedOutputFileWriter.o \
+objects = syscalls.o encoder.o decoder.o decodedOutputFileWriter.o \
 encodedOutputFileWriter.o huff.o
 
 bin = huff

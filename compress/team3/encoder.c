@@ -5,76 +5,58 @@
 //  Created by Adam Bradford on 2/2/14.
 //  Copyright (c) 2014 Adam Bradford. All rights reserved.
 //
+//  Modified by Oscar Marshall.
+//
 
-#include "encoder.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
+#include "encoder.h"
+#include "syscalls.h"
 
 
 
 
 
 int compareNodes (const void * a, const void * b);
-char* concat(char *s1, char *s2)
-{
-    char *result = malloc(strlen(s1)+strlen(s2)+1);//+1 for the zero-terminator
-    //in real code you would check for errors in malloc here
-    strcpy(result, s1);
-    strcat(result, s2);
-    return result;
-}
 
 void fillResultArray(
     huffResult* resultArray, huffNode *node, char *currentString)
 {
     if(!node)return;
 
-    if(!currentString) currentString = "";
-
     //make sure the string is not insanely long;
     assert(strlen(currentString) < 1024);
 
     //this is a leaf, set it's string representation and represented byte
-    if(!node->leftLeaf && !node->rightLeaf)
+    if(node->leftLeaf == NULL && node->rightLeaf == NULL)
     {
         huffResult * resultElement = &resultArray[node->byte];
-        char * tempString = calloc(strlen(currentString), sizeof(char));
-        assert(tempString);
-        resultElement->string = strcpy(tempString, currentString);
+        resultElement->string = xmalloc(strlen(currentString) + 1);
+        strcpy(resultElement->string, currentString);
         resultElement->value = node->byte;
 
     }
 
     //adjust our strings and keep working on the tree.
-    char *leftString = concat(currentString, "0");
-    char *rightString = concat(currentString, "1");
+    char leftString[strlen(currentString) + 2];
+    strcpy(leftString, currentString);
+    strcat(leftString, "0");
+    char rightString[strlen(currentString) + 2];
+    strcpy(rightString, currentString);
+    strcat(rightString, "1");
 
-    fillResultArray(resultArray, node->leftLeaf,leftString);
-    fillResultArray(resultArray, node->rightLeaf,rightString);
-
-    free(leftString);
-    free(rightString);
+    fillResultArray(resultArray, node->leftLeaf, leftString);
+    fillResultArray(resultArray, node->rightLeaf, rightString);
 }
 
 void calcResult(huffNode *rootNode, huffResult resultArray[256])
 {
     //fill them up
     fillResultArray(resultArray, rootNode, "");
-
-    //fill in any missing values
-    for(int i = 0; i < 256; i++)
-    {
-        huffResult * currentResult = &resultArray[i];
-        if(!currentResult->string)
-        {
-            currentResult->value = i;
-            currentResult->string = "";
-        }
-    }
 }
 
 huffNode* calculateTree(huffNode *nodes, int count);
@@ -92,20 +74,16 @@ void createHuffmanTree(unsigned *frequencies, huffResult resultArray[256])
     //make an array of nodes big enough to hold everything.
     huffNode nodes[512];
 
-    int nodeCount = 0;
-
     //lets fill em up with the frequencies
     for(int i = 0; i < 256; i++)
     {
-
-        huffNode *node = &nodes[nodeCount];
-        nodeCount++;
+        huffNode *node = &nodes[i];
         node->sum = frequencies[i];
         node->byte = i;
     }
 
     //make a tree of nodes
-    huffNode *rootNode = calculateTree(nodes, nodeCount);
+    huffNode *rootNode = calculateTree(nodes, 256);
     assert(rootNode);
 
     //turn those nodes into the array of results
@@ -172,14 +150,15 @@ void printNode(huffNode *node, char *currentString)
         printf("value: %d - sum: %lld - string:%s\n",node->byte,node->sum,currentString);
     }
 
-    char *leftString = concat(currentString, "0");
-    char *rightString = concat(currentString, "1");
+    char leftString[strlen(currentString) + 2];
+    strcpy(leftString, currentString);
+    strcat(leftString, "0");
+    char rightString[strlen(currentString) + 2];
+    strcpy(rightString, currentString);
+    strcat(rightString, "1");
 
     printNode(node->leftLeaf,leftString);
     printNode(node->rightLeaf,rightString);
-
-    free(leftString);
-    free(rightString);
 }
 
 
