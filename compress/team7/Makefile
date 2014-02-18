@@ -1,14 +1,15 @@
 CC = gcc
 CFLAGS = -Wall -Weverything -MMD -std=c99 -g -Werror
+OPTFLAGS = -03
 COVFLAGS = -fprofile-arcs -ftest-coverage
-BIN = huff
+BIN = rhuff
 LIBS = -lm
 SRCS = huff.c huff_table.c util.c
 OBJS = ${SRCS:.c=.o}
 DEPS = ${SRCS:.c=.d}
 
 ${BIN}: ${OBJS}
-	${CC} ${CFLAGS} -o ${BIN} ${OBJS} ${LIBS}
+	${CC} ${CFLAGS} ${OPTFLAGS} -o ${BIN} ${OBJS} ${LIBS}
 
 ${BIN}-cov: ${OBJS}
 	${CC} ${CFLAGS} ${COVFLAGS} -o ${BIN}-cov ${OBJS} ${LIBS}
