@@ -35,7 +35,7 @@
  *  The array should contain the count of each ascii character to encode.  
  *
  */
-huff_node* create_huff_tree_from_frequency(int frequencyArray[]);
+huff_node* create_huff_tree_from_frequency(unsigned long long frequencyArray[]);
 
 /*  This method will create a huff tree based on an array containing
  *  encodings for each ascii character 0 to 255.  Element 0 referes to 
