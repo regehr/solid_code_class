@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "huff.h"
 #include "huff_table.h"
+#include "util.h"
 
 /*
  * "Do something reasonable." ~ A Certain Professor
@@ -345,21 +346,4 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
     
     curr_char = fgetc(orig_file);
   }
-}
-
-void *xmalloc(size_t size) {
-  void *ptr = malloc(size);
-  if (ptr == NULL) {
-    fprintf(stderr, "Malloc error: exiting.\n");
-  }
-  return ptr;
-}
-
-size_t xfwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream) {
-  size_t result = fwrite(ptr, size, nmemb, stream);
-  if (result < nmemb) {
-    fprintf(stderr, "File write error: exiting.\n");
-    exit(1);
-  }
-  return result;
 }

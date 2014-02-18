@@ -1,17 +1,9 @@
-#include "huff_table.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-void *Malloc(size_t size) {
-    void *temp = malloc(size);
-    if (temp == NULL) {
-      fprintf(stderr, "Malloc failed: exiting.\n");
-      exit(-1);
-    }
-    return temp;
-}
+#include "huff_table.h"
+#include "util.h"
 
 //Queue objects
 typedef struct queue_node {
@@ -104,7 +96,7 @@ void enqueue(queue_head *head, huff_node *h_node) {
     assert(head != 0);
     assert(h_node != 0);
     //new q_node
-    queue_node *q_node = Malloc(sizeof(queue_node));
+    queue_node *q_node = xmalloc(sizeof(queue_node));
     q_node->next_node = NULL;
     q_node->object = h_node;
 
@@ -220,7 +212,7 @@ void destroy_huff_tree(huff_node *root) {
  *
  */
 char **get_encoding(huff_node *root) {
-  char **encodings = Malloc(sizeof(char*[256]));
+  char **encodings = xmalloc(sizeof(char*[256]));
   int i = 0;
   for (; i < 256; i++) {
     char *seqence = encoding_for_char(i, root);
@@ -264,7 +256,7 @@ int get_next_character(huff_node *root, int one_bit)
 // <editor-fold defaultstate="collapsed" desc="private tree methods">
 
 huff_node *create_huff_node(int char_number, int frequency, char *encoding) {
-    huff_node *node = (huff_node *)Malloc(sizeof(huff_node));
+    huff_node *node = (huff_node *)xmalloc(sizeof(huff_node));
     node->left_child = NULL;
     node->right_child = NULL;
     node->char_number = char_number;
@@ -489,7 +481,7 @@ void generate_encoding_tree(huff_node *root) {
     assert(root != NULL);
     int length = 1;
 
-    char *encoding = (char *)Malloc(length);
+    char *encoding = (char *)xmalloc(length);
     int i = 0;
     for (; i < length; i++) {
         encoding[i] = '\0';
@@ -567,7 +559,7 @@ char *create_string_from_cat(char *start, char *end) {
   int length_s = strlen(start);
   int length_e = strlen(end);
   int total_length = length_s + length_e + 1;
-  char *new_string = (char *)Malloc(total_length);
+  char *new_string = (char *)xmalloc(total_length);
   strncpy(new_string, start, length_s + 1);
   strncat(new_string, end, length_e);
   return new_string;

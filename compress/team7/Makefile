@@ -1,20 +1,30 @@
-all:
-	clang huff.c huff_table.c -fsanitize=undefined -Wall -g -O0 -o huff -lm
+CC = gcc
+CFLAGS = -Wall -Weverything -MMD -std=c99 -g -Werror
+COVFLAGS = -fprofile-arcs -ftest-coverage
+BIN = huff
+LIBS = -lm
+SRCS = huff.c huff_table.c util.c
+OBJS = ${SRCS:.c=.o}
+DEPS = ${SRCS:.c=.d}
 
-huff: huff.c huff_table.c
-	gcc -fprofile-arcs -ftest-coverage huff.c huff_table.c -g -O0 -o huff -lm
+${BIN}: ${OBJS}
+	${CC} ${CFLAGS} -o ${BIN} ${OBJS} ${LIBS}
 
-coverage: huff test.txt
-	./huff -t test.txt
-	gcov huff
+${BIN}-cov: ${OBJS}
+	${CC} ${CFLAGS} ${COVFLAGS} -o ${BIN}-cov ${OBJS} ${LIBS}
 
-val: huff test.txt
-	valgrind --leak-check=yes ./huff -t test.txt
+.PHONY: cov
+cov: ${BIN}-cov
+	./${BIN}-cov -t test.txt
+	gcov ${BIN}-cov
+
+val: ${BIN} test.txt
+	valgrind --leak-check=yes ./${BIN} -t test.txt
 
 files: generateFiles.py
 	python27 generateFiles.py
 
+.PHONY: clean
 clean:
-	rm -rf *.huff huff
-	rm -rf *.gcov *.gcno *.gcda
-	rm -rf files/*
+	@rm -f ${BIN} ${OBJS} ${DEPS} *.gcov *.gcno *.gcda
+	@rm -rf files/*

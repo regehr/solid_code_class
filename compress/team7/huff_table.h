@@ -70,10 +70,6 @@ char** get_encoding(huff_node* root);
  * This method is a bit of a object hack using a static variable to keep track
  * of the current node within the tree.  Only use this with method with one
  * tree per an execution.
- * 
- * @param root
- * @param zero_bit
- * @return 
  */
 int get_next_character(huff_node* root, int one_bit);
 
