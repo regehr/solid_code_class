@@ -47,7 +47,7 @@ typedef struct node
 }node;
 
 /* A list of all nodes created. */
-node *all_nodes[511];
+node *all_nodes[512];
 int all_node_curr;
 
 /* Initialize node. */
