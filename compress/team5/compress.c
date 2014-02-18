@@ -58,7 +58,7 @@ char *get_new_name(char* filename) {
 
 	// Append trailing nullspace so strcat works properly
 	name[end] = '\0';
-	strcat(name, ".huff");fopen
+	strcat(name, ".huff");
 	
 	return name;
 }

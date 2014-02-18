@@ -55,7 +55,7 @@ huff_tree* build_huff_tree_from_table(FILE *input){
     huff_tree *next = malloc(sizeof(huff_tree));
     
     char *encodings[CHAR_RANGE] = { 0 };
-    char *encoding_string = NULL;
+    char *encoding_string = malloc(CHAR_RANGE * sizeof(char));
     int i, j;
     i = 0;
 
