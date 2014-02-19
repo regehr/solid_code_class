@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Weverything -MMD -std=c99 -g -Werror
-OPTFLAGS = -03
+CFLAGS = -Wall -MMD -std=c99 -g -Werror
+OPTFLAGS = -O3
 COVFLAGS = -fprofile-arcs -ftest-coverage
 BIN = rhuff
 LIBS = -lm

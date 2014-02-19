@@ -59,16 +59,17 @@ FILE* open_file(char* filename, char* permission) {
 }
 
 void compress(FILE* file, char* filename) {
-  int fname_len = strlen(filename);
-  int ext_len = strlen(EXT);
+  size_t fname_len = strlen(filename);
+  size_t ext_len = strlen(EXT);
   // Make room for a new filename
-  char new_filename[fname_len + ext_len + 1];
+  char *new_filename = (char *)xmalloc(fname_len + ext_len + 1);
   strncpy(new_filename, filename, fname_len + 1);
   //Cat filename with extension
   strncat(new_filename, EXT, ext_len);
   
   //Open the file
   FILE* comp_file = open_file(new_filename, "w");
+  free(new_filename);
   
   unsigned long long size = det_file_size(file);
   
@@ -121,8 +122,8 @@ void decompress(FILE* file, char* filename) {
   huff_node* huff_tree = create_huff_tree_from_encoding(encoding);
   
   //Determine filename without the .huff extension
-  int len = strlen(filename);
-  int ext_len = strlen(".huff");
+  size_t len = strlen(filename);
+  size_t ext_len = strlen(".huff");
   filename[len-ext_len] = '\0';
   
   //Open new file
@@ -141,7 +142,7 @@ void decompress(FILE* file, char* filename) {
 	byte_count++;
     	
 	//Write decompressed data to file
-	int res = fwrite(&decoded_bit, 1, 1, decomp_file);    			
+	size_t res = fwrite(&decoded_bit, 1, 1, decomp_file);    			
 	assert(res == 1 && "Failed to write decoded information to file.");
       }
     }
@@ -169,7 +170,7 @@ void dump(FILE* file, char* filename)
     char *encoded_table[256];
     
     for(i = 0; i < 256; i++) {
-      encoded_table[i] = (char *)xmalloc(sizeof(xmalloc) * 257);
+      encoded_table[i] = (char *)xmalloc(257);
       assert(encoded_table[i] != NULL);
     }
     
@@ -226,15 +227,23 @@ bool is_huff_type(char* filename) {
 
 unsigned long long det_file_size(FILE* file) {
   //Go to end
-  fseek(file, 0L, SEEK_END);
+  int res = fseek(file, 0L, SEEK_END);
+  if (res < 0) {
+    fprintf(stderr, "Error determining file size: exiting\n");
+    exit(ERR);
+  }
   
   //Count bytes
-  unsigned long long file_length = ftell(file);
+  long file_length = ftell(file);
+  if (file_length < 0) {
+    fprintf(stderr, "Error determining file size: exiting\n");
+    exit(ERR);
+  }
   
   //Rewind file
   rewind(file);
   
-  return file_length;
+  return (unsigned long long)file_length;
 }
 
 void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
@@ -245,7 +254,12 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
   
   //Read magic number
   for(i = 0; i < 4; i++) {
-    magic_num[i] = fgetc(file);
+    int c = fgetc(file);
+    if (c == EOF) {
+      fprintf(stderr, "Error reading huff file: exiting\n");
+      exit(ERR);
+    }
+    magic_num[i] = (char)c;
     assert(magic_num[i]);
   }
   magic_num[4] = '\0';
@@ -275,10 +289,14 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
     //For each char in the string
     for(j = 0; j < 257; j++) {
       curr_char = fgetc(file);
+      if (curr_char == EOF) {
+        fprintf(stderr, "Error reading huffman table: exiting\n");
+        exit(ERR);
+      }
       
       //Regular char
       if(curr_char != '\n')
-	longest_string[j] = curr_char;
+	longest_string[j] = (char)curr_char;
       //Convert newline to null terminated char
       else {
 	longest_string[j] = '\0';
@@ -302,17 +320,16 @@ enum Flags determine_flag(char* user_flag) {
 }
 
 void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_table, unsigned long long file_size) {
-  int res;
   // Write magic number
   // Apparently fprintf is used for strings?
-  res = fprintf(comp_file, "%s", NUM);
+  int res = fprintf(comp_file, "%s", NUM);
   if (res < 0) {
     fprintf(stderr, "File write error: exiting.\n");
     exit(ERR);
   }
   // Write file size
   // And fwrite is for binary data >.>
-  res = xfwrite(&file_size, 8, 1, comp_file);
+  xfwrite(&file_size, 8, 1, comp_file);
   
   // Write encoded table
   // Also, fputs apparently appends "\n" for you, what the hell C

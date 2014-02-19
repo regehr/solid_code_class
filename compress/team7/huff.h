@@ -5,6 +5,8 @@
 #define NUM "HUFF"
 #define ERR 255
 
+#include <stdbool.h>
+
 enum Flags
 {
 	COMPRESS,

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "huff.h"
 
 void *xmalloc(size_t size) {
