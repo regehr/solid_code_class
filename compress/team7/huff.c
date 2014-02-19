@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 {
   //Initial check for correct arg count
   if(argc != 3) {
-    printf("Invalid number of parameters. Huff requires a flag (-c, -d, -t), and a filename as parameters.\n");
+    fprintf(stderr, "Invalid number of parameters. Huff requires a flag (-c, -d, -t), and a filename as parameters.\n");
     return ERR;
   }
   
@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
     dump(file, filename);
     break;
   case INVALID:
-    printf("Invalid flag given. Expected one of the following: -c, -d, -t.\n");
+    fprintf(stderr, "Invalid flag given. Expected one of the following: -c, -d, -t.\n");
     return ERR;
   }
   
@@ -51,7 +51,7 @@ FILE* open_file(char* filename, char* permission) {
   
   //Ensure we can open the file
   if (file == NULL) {
-    printf("Unable to open file: %s, with given permission: %s\n", filename, permission);
+    fprintf(stderr, "Unable to open file: %s, with given permission: %s\n", filename, permission);
     exit(ERR);
   }
   
@@ -98,8 +98,10 @@ void compress(FILE* file, char* filename) {
 
 void decompress(FILE* file, char* filename) {
   //Check if file isnt a .huff
-  if(!is_huff_type(filename))
-    printf("Given file is not a .huff\n");
+  if(!is_huff_type(filename)) {
+    fprintf(stderr, "Given file is not a .huff\n");
+    exit(ERR);
+  }
   
   char *encoding[256];
   int i;
@@ -204,7 +206,7 @@ void create_freq_table(unsigned long long table[], FILE* file, unsigned long lon
     c = fgetc(file);
     if (c < 0) {
       fprintf(stderr, "Fgetc error: exiting.\n");
-      exit(-1);
+      exit(ERR);
     }
     table[c]++;
   }
@@ -250,17 +252,17 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
   
   //If not the proper number
   if(strcmp(magic_num, NUM) != 0) {
-    printf("Improper huff magic number.\n");
+    fprintf(stderr, "Improper huff magic number.\n");
     exit(ERR);
   }
   
   //Get huff length
   unsigned long long res = fread(size, 8, 1, file);
-  printf("size = %llu\n", res);
+  fprintf(stderr, "size = %llu\n", res);
   
   //Check that we read a file length
   if(res != 1) {
-    printf("Improper huff uncompressed file length.\n");
+    fprintf(stderr, "Improper huff uncompressed file length.\n");
     exit(ERR);
   }
   
@@ -303,10 +305,10 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
   int res;
   // Write magic number
   // Apparently fprintf is used for strings?
-  res = fprintf(comp_file, NUM);
+  res = fprintf(comp_file, "%s", NUM);
   if (res < 0) {
     fprintf(stderr, "File write error: exiting.\n");
-    exit(-1);
+    exit(ERR);
   }
   // Write file size
   // And fwrite is for binary data >.>
@@ -319,12 +321,12 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
     res = fputs(encoded_table[i], comp_file);
     if (res < 0) {
       fprintf(stderr, "File write error: exiting.\n");
-      exit(-1);
+      exit(ERR);
     }
     res = fputc(10, comp_file);
     if (res < 0) {
       fprintf(stderr, "File write error: exiting.\n");
-      exit(-1);
+      exit(ERR);
     }
   }
   

@@ -365,9 +365,8 @@ huff_node *find_lowest_node(queue_head *queue1, queue_head *queue2) {
 void insert_encoded_node(huff_node *root, huff_node *node){
     int length = strlen(node->encoding);
     char *encoding = node->encoding;
-    int i = 0;
     huff_node *current = root;
-    for(; i < length; i++){
+    for(int i = 0; i < length; i++){
         if(encoding[i] == '0'){
             if(current->left_child == 0){
                 if(i == length-1){
@@ -404,11 +403,10 @@ void insert_encoded_node(huff_node *root, huff_node *node){
 
 huff_node *build_encoded_tree(huff_node *nodes[], int nodes_size){
     assert(nodes_size == 256);
-    int i = 0;
     huff_node *root = NULL;
     root = create_huff_node(-1, -2, "");
     
-    for(;i < 256; i++){
+    for(int i = 0;i < 256; i++){
         insert_encoded_node(root, nodes[i]);
     }
     
