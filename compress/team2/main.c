@@ -11,11 +11,7 @@
 #include "encoder.h"
 
 /* To be implemented.
- * Setup for the get_rle_byte function. */
-static void get_rle_setup(FILE *input, uint64_t *input_length);
-
-/* To be implemented.
- * Repeatedly called with bits from input file.
+ * Called repeatedly with bits from input file.
  * Returns true when 'rle_byte' is populated with a
  * complete run-length encoded byte. */
 static bool get_rle_byte(uint8_t *bit, uint8_t *rle_byte);
@@ -31,7 +27,6 @@ static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) 
     
     /*
     //// NEW CODE ////
-    get_rle_setup(input, length);
     uint8_t rle_byte = 0;
     uint8_t bit = 0;
     
@@ -75,7 +70,6 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
     
     /*
     //// NEW CODE ////
-    get_rle_setup(input, &header->length);
     uint8_t rle_byte = 0;
     uint8_t bit = 0;
     
@@ -161,8 +155,12 @@ static int compress(FILE * file, char * filename) {
 }
 
 /* To be implemented.
- * Takes a rle_byte and returns the run. */
-static void get_run_from_byte(uint8_t rle_byte, uint8_t run[17]);
+ * Called repeatedly with 'rle_byte' until all first 16 bytes
+ * of run are populated with run bits.
+ * (With all the whitespace in generic PBM files, I think the general
+ * case would be 'run' is fully populated with one call.)
+ * Returns true when run is fully populated. */
+static bool get_run_from_byte(uint8_t *rle_byte, uint8_t run[17]);
 
 static int decompress_file(FILE * output, FILE * input, struct huff_header * header) {
     struct huff_decoder decoder;
@@ -186,8 +184,10 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
                 
                 //// NEW CODE ////
                 /*
-                get_run_from_byte(decoded, run);
-                if (! fwrite(run, strnlen((char *)run, 17), 1, output)) { return ENOWRITE; }
+                if (get_run_from_byte(&decoded, run))
+                {
+                    if (! fwrite(run, strnlen((char *)run, 17), 1, output)) { return ENOWRITE; }
+                }
                  */
                 /// END NEW CODE ////
                 
@@ -196,6 +196,8 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
             }
         }
     }
+    
+    //// WOULD HAVE TO CHECK IF ANY RUN DATA IS LEFT TO BE WRITTEN HERE ////
 
     long here = ftell(input);
     fseek(input, 0L, SEEK_END);
