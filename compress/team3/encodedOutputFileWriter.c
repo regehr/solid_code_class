@@ -67,17 +67,15 @@ static unsigned long long lengthOfFile(FILE *file)
 static void writeEncodedFile(
     FILE *nonCompressedFile, FILE *compressedFile, huffResult *resultArray)
 {
-    //lets get some space to work in, in reality we only need 2 bytes, but we have memory to spare.
-    char currentRead[512];
-    assert(currentRead);
+    char outputBuffer[512];
+    memset(outputBuffer, 0, 512);
+    int outputBufferIndex = 0;
 
-    int currentStringLength = 0;
+    unsigned long long nonCompressedFileSize = lengthOfFile(nonCompressedFile);
 
-    unsigned long long currentEncodeFileLength = lengthOfFile(nonCompressedFile);
-
-    for (unsigned long long currentEncodeFileByteIndex = 0;
-        currentEncodeFileByteIndex < currentEncodeFileLength;
-        currentEncodeFileByteIndex++)
+    for (unsigned long long nonCompressedFileIndex = 0;
+        nonCompressedFileIndex < nonCompressedFileSize;
+        nonCompressedFileIndex++)
     {
         char nextByte;
         xfread(&nextByte, 1, 1, nonCompressedFile);
@@ -85,39 +83,49 @@ static void writeEncodedFile(
         //get the huffresult at the index of the nextbyte
         huffResult *result = &resultArray[(unsigned char)nextByte];
 
-        //adjust the current string length
-        currentStringLength += strlen(result->string);
-
-        //concat the encoding to the currentRead
-        strcat(currentRead, result->string);
+        // Concat the encoding to the outputBuffer.
+        // We should've flushed the buffer if we had at least 256 bits to write.
+        assert(strlen(outputBuffer) < 256);
+        // The largest a huffman encoding can be is 255.
+        assert(strlen(result->string) < 256);
+        // Concatenation with a buffer of size 512 is safe because the largest
+        // resulting string is 510 characters long. Plus the null terminator,
+        // our string will only take 511 bytes.
+        strcat(outputBuffer, result->string);
 
         //writes out byte by byte.
-        while(strlen(currentRead) > 7)
+        while (strlen(outputBuffer + outputBufferIndex) > 7)
         {
-            char output = byteFromString(currentRead);
-            xfwrite(&output, sizeof(char), 1, compressedFile);
-            memcpy(currentRead, currentRead+8, strlen(currentRead));
-            currentStringLength -= 8;
+            // Write the byte to the compressed file.
+            char output = byteFromString(outputBuffer + outputBufferIndex);
+            xfwrite(&output, 1, 1, compressedFile);
+
+            // Chop off the first 8 characters by moving forward the index.
+            outputBufferIndex += 8;
+            // If we've used up the first half of the buffer, then copy the
+            // second half into the first. The second half will include the null
+            // terminator so the second half can be treated as garbage after the
+            // memcpy
+            if (outputBufferIndex == 256) {
+                memcpy(outputBuffer, outputBuffer + 256, 256);
+                // The null terminator should now be within the first half.
+                assert(strlen(outputBuffer) < 256);
+                outputBufferIndex = 0;
+            }
         }
     }
 
-    //we may have some leftover bits
-    if(currentStringLength > 0)
+    // Deal with any leftover bits
+    if(strlen(outputBuffer + outputBufferIndex))
     {
-        //pad the bits with 0's
-        while (currentStringLength < 8)
-        {
-            strcat(currentRead, "0");
-            currentStringLength++;
-        }
+        // Pad the bits with 0's
+        memset(outputBuffer + strlen(outputBuffer), '0',
+            8 - strlen(outputBuffer + outputBufferIndex));
+        memset(outputBuffer + outputBufferIndex + 8, 0, 1);
 
-        //add the last byte to the output
-        char output = byteFromString(currentRead);
-        xfwrite(&output, sizeof(char), 1, compressedFile);
-        memcpy(currentRead, currentRead+8, strlen(currentRead));
-        currentStringLength -= 8;
-
-        assert(currentStringLength == 0);
+        // Add the last byte to the output
+        char output = byteFromString(outputBuffer + outputBufferIndex);
+        xfwrite(&output, 1, 1, compressedFile);
     }
 }
 
