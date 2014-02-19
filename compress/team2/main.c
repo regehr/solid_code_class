@@ -162,7 +162,7 @@ static int compress(FILE * file, char * filename) {
 
 /* To be implemented.
  * Takes a rle_byte and returns the run. */
-static void get_run_from_byte(uint8_t rle_byte, uint8_t run[129]);
+static void get_run_from_byte(uint8_t rle_byte, uint8_t run[17]);
 
 static int decompress_file(FILE * output, FILE * input, struct huff_header * header) {
     struct huff_decoder decoder;
@@ -174,8 +174,8 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
     //// NEW CODE ////
     /* Create a buffer large enough to handle the longest possible run
      * and still have room for a null terminator. */
-    //uint8_t run[129];
-    //memset(&run, 0, 129);
+    //uint8_t run[17];
+    //memset(&run, 0, 17);
     //// END NEW CODE ////
 
     while (fread(&current, 1, 1, input) && decoded_bytes < header->length) {
@@ -187,7 +187,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
                 //// NEW CODE ////
                 /*
                 get_run_from_byte(decoded, run);
-                if (! fwrite(run, strnlen((char *)run, 129), 1, output)) { return ENOWRITE; }
+                if (! fwrite(run, strnlen((char *)run, 17), 1, output)) { return ENOWRITE; }
                  */
                 /// END NEW CODE ////
                 
