@@ -155,12 +155,10 @@ static int compress(FILE * file, char * filename) {
 }
 
 /* To be implemented.
- * Called repeatedly with 'rle_byte' until all first 16 bytes
+ * Called repeatedly with 'rle_byte' until all 32 bytes
  * of run are populated with run bits.
- * (With all the whitespace in generic PBM files, I think the general
- * case would be 'run' is fully populated with one call.)
  * Returns true when run is fully populated. */
-static bool get_run_from_byte(uint8_t *rle_byte, uint8_t run[17]);
+static bool get_run_from_byte(uint8_t *rle_byte, uint8_t run[32]);
 
 static int decompress_file(FILE * output, FILE * input, struct huff_header * header) {
     struct huff_decoder decoder;
@@ -170,10 +168,9 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
     huff_make_decoder(&decoder, (const char **) header->table);
     
     //// NEW CODE ////
-    /* Create a buffer large enough to handle the longest possible run
-     * and still have room for a null terminator. */
-    //uint8_t run[17];
-    //memset(&run, 0, 17);
+    /* Create a buffer large enough to handle the longest possible run. */
+    //uint8_t run[32];
+    //memset(&run, 0, 32);
     //// END NEW CODE ////
 
     while (fread(&current, 1, 1, input) && decoded_bytes < header->length) {
@@ -186,7 +183,7 @@ static int decompress_file(FILE * output, FILE * input, struct huff_header * hea
                 /*
                 if (get_run_from_byte(&decoded, run))
                 {
-                    if (! fwrite(run, strnlen((char *)run, 17), 1, output)) { return ENOWRITE; }
+                    if (! fwrite(run, 32, 1, output)) { return ENOWRITE; }
                 }
                  */
                 /// END NEW CODE ////
