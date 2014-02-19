@@ -1,7 +1,16 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 /* stdio.h */
+
+FILE *xfopen(const char *filename, const char *mode)
+{
+    FILE *result = fopen(filename, mode);
+    if (result != NULL) return result;
+    perror(NULL);
+    exit(-1);
+}
 
 size_t xfread(void *ptr, size_t size, size_t count, FILE *stream)
 {

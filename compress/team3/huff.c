@@ -15,6 +15,7 @@
 #include <string.h>
 #include "encodedOutputFileWriter.h"
 #include "decodedOutputFileWriter.h"
+#include "syscalls.h"
 #include "encoder.h"
 #include "decoder.h"
 
@@ -169,14 +170,9 @@ eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned* pOutFrequencies)
  */
 eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName)
 {
-    FILE* pFile = NULL;
-    FILE* pNewFile = NULL;
-    char huffmanEncodings[4096];
-    unsigned long long lengthOfFile = 0;
-    unsigned pFrequencies[ENTRIES] = {0}; // The frequency of occurrence of each character in the uncompressed file.
     eFileCode fileCode; // And error code which tells if the operation was successful or not.
 
-    pFile = fopen(fileName, "r"); // Open file for reading.
+    FILE *pFile = fopen(fileName, "r"); // Open file for reading.
     fileCode = FILE_SUCCESS;
 
     // Check that file was successfully opened.  If not, return an error code.
@@ -190,28 +186,22 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
         case DECOMPRESS_MODE:
         {
             // If the file is a compressed huffman file, then use the get table for huff function to open it.
-
-            huffmanEncodingsFromFile(pFile, &lengthOfFile, huffmanEncodings);
-            long nameLength = strlen(fileName) - strlen(".huff\0");
-            assert(nameLength > 0);
+            char huffmanEncodings[ENTRIES * ENTRY_LENGTH];
+            unsigned long long lengthOfFile =
+                huffmanEncodingsFromFile(pFile, huffmanEncodings);
+            int nameLength = strlen(fileName) - strlen(".huff");
             char newFileName[nameLength + 1];
             strncpy(newFileName, fileName, nameLength);
-            pNewFile = fopen(newFileName, "w+");
+            newFileName[nameLength] = 0;
+            FILE *pNewFile = xfopen(newFileName, "w");
 
-            if (pNewFile == NULL)
-            {
-                fileCode = FILE_INVALID_FORMAT;
-            }
-            else
-            {
-                huffResult resultArray[256];
-                createHuffResultArrayFromFileEncodings(huffmanEncodings, resultArray);
-                huffNode huffmanTree[511];
-                createDecodeTreeFromResultArray(resultArray, huffmanTree);
-                writeCompressedFileToNonCompressedOutput(pFile, pNewFile, lengthOfFile, &huffmanTree[0]);
+            huffResult resultArray[ENTRIES];
+            createHuffResultArrayFromFileEncodings(huffmanEncodings, resultArray);
+            huffNode huffmanTree[ENTRIES + ENTRIES - 1];
+            createDecodeTreeFromResultArray(resultArray, huffmanTree);
+            writeCompressedFileToNonCompressedOutput(pFile, pNewFile, lengthOfFile, &huffmanTree[0]);
 
-                fclose(pNewFile);
-            }
+            fclose(pNewFile);
             break;
         }
 
@@ -220,20 +210,13 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
             // If we want a table and the file is .huff, it may or may not be the same .huff we want it to be.
             // We'll try to treat it as a .huff but if it's the wrong format, we will treat it like a generic
             // file.
-            char huffmanEncodings[4096];
-            huffmanEncodingsFromFile(pFile, &lengthOfFile, huffmanEncodings);
-            if (huffmanEncodings != NULL)
+            char huffmanEncodings[ENTRIES * ENTRY_LENGTH];
+            huffmanEncodingsFromFile(pFile, huffmanEncodings);
+            if (huffmanEncodings[0] != 0)
             {
-//                if (pNewFile == NULL)
-//                {
-//                    fileCode = FILE_INVALID_FORMAT;
-//                }
-//                else
-                {
-                    huffResult resultArray[256];
-                    createHuffResultArrayFromFileEncodings(huffmanEncodings, resultArray);
-                    printHuffResultArray(resultArray);
-                }
+                huffResult resultArray[ENTRIES];
+                createHuffResultArrayFromFileEncodings(huffmanEncodings, resultArray);
+                printHuffResultArray(resultArray);
             }
             else
             {
@@ -241,9 +224,12 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
                 // Maybe someone else in the world created their own .huff file format. We need to handle that format.
                 fseek(pFile, 0, SEEK_SET);
 
+                // The frequency of occurrence of each character in the uncompressed file.
+                unsigned pFrequencies[ENTRIES];
+                memset(pFrequencies, 0, sizeof(pFrequencies));
                 if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
                 {
-                    huffResult resultArray[256];
+                    huffResult resultArray[ENTRIES];
                     fileCode = GetTableForGeneric(pFrequencies, resultArray);
                 }
                 else
@@ -257,9 +243,12 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
         case TABLE_MODE_GENERIC:
         {
             // If the file is not a .huff, then generate frequencies and then a table for the file.
+            // The frequency of occurrence of each character in the uncompressed file.
+            unsigned pFrequencies[ENTRIES];
+            memset(pFrequencies, 0, sizeof(pFrequencies));
             if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
             {
-                huffResult resultArray[256];
+                huffResult resultArray[ENTRIES];
                 fileCode = GetTableForGeneric(pFrequencies, resultArray);
                 printHuffResultArray(resultArray);
             }
@@ -273,11 +262,14 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
         case COMPRESS_MODE:
         {
             // If the file is not a .huff, then generate frequencies and then a table for the file.
+            // The frequency of occurrence of each character in the uncompressed file.
+            unsigned pFrequencies[ENTRIES];
+            memset(pFrequencies, 0, sizeof(pFrequencies));
             if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
             {
-                huffResult resultArray[256];
+                huffResult resultArray[ENTRIES];
                 fileCode = GetTableForGeneric(pFrequencies, resultArray);
-                pNewFile = fopen(strcat(fileName, ".huff"), "w+");
+                FILE *pNewFile = fopen(strcat(fileName, ".huff"), "w+");
 
                 if (pNewFile == NULL)
                 {

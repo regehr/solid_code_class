@@ -11,7 +11,7 @@
 
 //returns the encodings from a given file, as a string including 256strings returns null if there is an error
 //if successful the number of decoded bytes will be placed in the decoded length variable.
-void huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength, char out[4096]);
+unsigned long long huffmanEncodingsFromFile(FILE *file, char out[32768]);
 
 //creates an array of huffResults using the encodings
 void createHuffResultArrayFromFileEncodings(
