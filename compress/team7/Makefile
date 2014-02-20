@@ -1,6 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -MMD -std=c99 -g -Werror
-OPTFLAGS = -O3
+CFLAGS = -Wall -MMD -std=c99 -g -Werror -O3
 COVFLAGS = -fprofile-arcs -ftest-coverage
 BIN = rhuff
 LIBS = -lm
@@ -9,7 +8,7 @@ OBJS = ${SRCS:.c=.o}
 DEPS = ${SRCS:.c=.d}
 
 ${BIN}: ${OBJS}
-	${CC} ${CFLAGS} ${OPTFLAGS} -o ${BIN} ${OBJS} ${LIBS}
+	${CC} ${CFLAGS} -o ${BIN} ${OBJS} ${LIBS}
 
 ${BIN}-cov: ${OBJS}
 	${CC} ${CFLAGS} ${COVFLAGS} -o ${BIN}-cov ${OBJS} ${LIBS}

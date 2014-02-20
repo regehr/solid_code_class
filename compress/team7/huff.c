@@ -200,13 +200,12 @@ void dump(FILE* file, char* filename)
 }
 
 void create_freq_table(unsigned long long table[], FILE* file, unsigned long long size) {
-  unsigned long long i;
   int c;
   
-  for(i = 0; i < size; i++) {
+  for(unsigned long long i = 0; i < size; i++) {
     c = fgetc(file);
-    if (c < 0) {
-      fprintf(stderr, "Fgetc error: exiting.\n");
+    if (c == EOF) {
+      fprintf(stderr, "fgetc error: exiting.\n");
       exit(ERR);
     }
     table[c]++;

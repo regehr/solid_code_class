@@ -30,7 +30,7 @@ void init_queue(queue_head *head);
 void delete_queue(queue_head *head);
 
 /************************ Tree Forwards "private" **************************/
-huff_node *create_huff_node(int char_number, int frequency, char *encoding);
+huff_node *create_huff_node(int char_number, long long frequency, char *encoding);
 huff_node *create_parent_node(huff_node *left_child, huff_node *right_child);
 void set_right_child(huff_node *parent, huff_node *right_child);
 void set_left_child(huff_node *parent, huff_node *left_child);
@@ -142,10 +142,9 @@ void delete_queue(queue_head *head) {
 /*  Description in header file
  * 
  */
-huff_node *create_huff_tree_from_frequency(unsigned long long frequencyArray[]) {
-    int i = 0;
+huff_node *create_huff_tree_from_frequency(unsigned long long frequencyArray[256]) {
     huff_node  *nodes[256];
-    for (; i < 256; i++) {
+    for (int i = 0; i < 256; i++) {
         nodes[i] = NULL;
         nodes[i] = create_huff_node(i, frequencyArray[i], NULL);
         
@@ -165,7 +164,7 @@ huff_node *create_huff_tree_from_frequency(unsigned long long frequencyArray[]) 
     init_queue(&queue1);
     init_queue(&queue2);
     
-    for (i = 0; i < 256; i++) {
+    for (int i = 0; i < 256; i++) {
         enqueue(&queue1, nodes[i]);
     }
 
@@ -213,8 +212,7 @@ void destroy_huff_tree(huff_node *root) {
  */
 char **get_encoding(huff_node *root) {
   char **encodings = xmalloc(sizeof(char*[256]));
-  int i = 0;
-  for (; i < 256; i++) {
+  for (int i = 0; i < 256; i++) {
     char *seqence = encoding_for_char(i, root);
     encodings[i] = seqence;
   }
@@ -255,7 +253,7 @@ int get_next_character(huff_node *root, int one_bit)
 
 // <editor-fold defaultstate="collapsed" desc="private tree methods">
 
-huff_node *create_huff_node(int char_number, int frequency, char *encoding) {
+huff_node *create_huff_node(int char_number, long long frequency, char *encoding) {
     huff_node *node = (huff_node *)xmalloc(sizeof(huff_node));
     node->left_child = NULL;
     node->right_child = NULL;
@@ -342,6 +340,7 @@ huff_node *find_lowest_node(queue_head *queue1, queue_head *queue2) {
     int peek_1 = peek(queue1)->frequency;
     int peek_2 = peek(queue2)->frequency;
 
+    // spencer: not sure if this always works, but I guess we'll see
     // queue 1 contains the lowest frequency
     if (peek_1 < peek_2) {
         return dequeue(queue1);
@@ -541,6 +540,7 @@ huff_node *find_leaf_node(int char_value, huff_node *root) {
 // Gets the encoding for the specified character value.
 char *encoding_for_char(int char_value, huff_node *root) {
     huff_node *node = find_leaf_node(char_value, root);
+    assert(node != NULL);
     return node->encoding;
 }
 
@@ -554,9 +554,9 @@ int min(int a, int b) {
 }// </editor-fold>
 
 char *create_string_from_cat(char *start, char *end) {
-  int length_s = strlen(start);
-  int length_e = strlen(end);
-  int total_length = length_s + length_e + 1;
+  size_t length_s = strlen(start);
+  size_t length_e = strlen(end);
+  size_t total_length = length_s + length_e + 1;
   char *new_string = (char *)xmalloc(total_length);
   strncpy(new_string, start, length_s + 1);
   strncat(new_string, end, length_e);
