@@ -48,14 +48,16 @@ char *get_new_name(char* filename) {
 		}
 	}
 	
+	printf("%i \n", end);
 	int size = end + 6;
 	char *name = malloc(size*sizeof(char));
-	int limit = size - 6;
 	
-	for(i = 0; i < limit; i++) {
+	for(i = 0; i < end; i++) {
 		name[i] = filename[i];	
 	}
-	
+
+	// Append trailing nullspace so strcat works properly
+	name[end] = '\0';
 	strcat(name, ".huff");
 	
 	return name;

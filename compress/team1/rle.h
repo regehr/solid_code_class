@@ -1,6 +1,16 @@
 #ifndef RLE_encode_decode
 #define RLE_encode_decode
 
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <stdint.h>
+#include <sys/stat.h>
+#define ERR_CODE 255
+#define SIZE 100000
+
 /**
  *    Performs Run Length Ecoding (RLE) on an input FILE.
  *
@@ -8,7 +18,7 @@
  *    will hold the RLE bytes that are generated, and the unsigned long long
  *    will be the number of bytes in the array.
  */
-void encode_rle(FILE*. char*, unsigned long long);
+void encode_rle(FILE*, char*, unsigned long long);
 
 /**
  *    Decodes a RLE into a supplied FILE.
