@@ -270,7 +270,7 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
   
   //Get huff length
   char size_le[sizeof(unsigned long long)];
-  size_t res = fread(size, sizeof(unsigned long long), 1, file);
+  size_t res = fread(size_le, sizeof(unsigned long long), 1, file);
   //Check that we read a file length
   if(res != 1) {
     fprintf(stderr, "Improper huff uncompressed file length.\n");
