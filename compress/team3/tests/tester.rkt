@@ -2,6 +2,15 @@
 
 (require (only-in racket/generator generator yield)
          (only-in rnrs/base-6 assert))
+(require "term-colors.rkt")
+
+
+(define printf-info (make-printfs
+                      (make-color 'white)))
+(define format-fail (make-formats
+                     (make-color 'red)))
+(define format-succ (make-formats
+                     (make-color 'green)))
 
 ; The exit code proper huff implementations are supposed to fail with.
 (define *failure-code* 255)
@@ -69,7 +78,7 @@
 (define (run-test test-generator flag 
                   #:bin [bin "huff"] 
                   #:temp-file [temp-file "test.huff"]
-                  #:echo [echo? #t])
+                  #:echo [echo? #f])
  ; Write out our test file.
  (let ([out-file (open-output-file temp-file #:exists 'truncate)])
   (write-test test-generator out-file)
@@ -105,9 +114,9 @@
          [checks-passed? (andmap car check-results)])
    (if (and correct-status? checks-passed?)
     (begin0 #t
-     (printf "Test '~a' passed.\n" test-name))
+     (printf "~a  ~a\n" (format-succ "OK") test-name))
     (begin0 #f ; else
-     (printf "Test '~a' failed.\n" test-name)
+     (printf "~a  ~a\n" (format-fail "FAILED") test-name)
      (printf "    Error code: ~a (expected ~a)\n" code expected-code)
      (let ([make-lines (lambda (outputs)
                         (string-join 
@@ -136,7 +145,7 @@
            (string-replace (string-normalize-spaces test-name) " " "-"))
            ".input")])
     (rename-file-or-directory file-name saved-file-name #t)
-    (printf "Triggering input saved into: ~a\n" saved-file-name)
+    (printf "Triggering input saved into: ~a\n\n" saved-file-name)
    )
   )
  )
@@ -149,8 +158,10 @@
 ; Prints out stderr, always succeeds
 (define (output-printer stdout stderr)
  (list #t 
-   (string-append "Stdout: " (bytes->string/utf-8 stdout))
-   (string-append "Stderr: " (bytes->string/utf-8 stderr))
+  (string-append (style "stdout" (make-color 'white)) "\n"
+   (string-trim (bytes->string/utf-8 stdout)))
+  (string-append (style "stderr" (make-color 'white)) "\n"
+   (string-trim (bytes->string/utf-8 stderr)))
  )
 )
 
@@ -174,13 +185,10 @@
  )
 )
 
-(display (current-namespace)) (newline)
-(display (namespace-mapped-symbols)) (newline)
 
-(display "Running tests...\n")
 (test-all
  (list "Empty huff file" 
-  empty-huff "-d" "t.huff" *FAILS* output-printer)
+  empty-huff "-d" "t.huff" *SUCCS* output-printer)
  (list "Incorrect huff file length" 
   bad-length "-d" "t.huff" *FAILS* output-printer)
 )
