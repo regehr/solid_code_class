@@ -73,9 +73,8 @@ void compress(FILE* file, char* filename) {
   
   unsigned long long size = det_file_size(file);
   
-  int i;
   unsigned long long freq_table[256];
-  for(i = 0; i < 256; i++)
+  for(int i = 0; i < 256; i++)
     freq_table[i] = 0;
   
   //Determine frequency/encoding tables
@@ -105,11 +104,9 @@ void decompress(FILE* file, char* filename) {
   }
   
   char *encoding[256];
-  int i;
   
-  for(i = 0; i < 256; i++) {
-    encoding[i] = (char *)xmalloc(sizeof(char) * 257);
-    assert(encoding[i] != NULL);
+  for(int i = 0; i < 256; i++) {
+    encoding[i] = (char *)xmalloc(257);
     }
   
   //Get huff table from file
@@ -131,19 +128,19 @@ void decompress(FILE* file, char* filename) {
   
   unsigned long long byte_count = 0;
   uint8_t curr_byte;
-  int decoded_bit;
+  int decoded;
   
   //Loop through encoded data, decode it and add to new file
   while(fread(&curr_byte, 1, 1, file) &&  byte_count < file_size) {
-    for(i = 7; (i >= 0) && (byte_count < file_size); i++) {
-      decoded_bit = get_next_character(huff_tree, (curr_byte >> i)&0x1);
+    for(int i = 7; (i >= 0) && (byte_count < file_size); i++) {
+      decoded = get_next_character(huff_tree, (curr_byte >> i)&0x1);
       
-      if(decoded_bit > -1) {
+      if(decoded > -1) {
+        unsigned char decoded_char = (unsigned char)decoded;
 	byte_count++;
     	
 	//Write decompressed data to file
-	size_t res = fwrite(&decoded_bit, 1, 1, decomp_file);    			
-	assert(res == 1 && "Failed to write decoded information to file.");
+	xfwrite(&decoded_char, 1, 1, decomp_file);    			
       }
     }
   }
@@ -157,19 +154,21 @@ void decompress(FILE* file, char* filename) {
   fclose(decomp_file);
   
   destroy_huff_tree(huff_tree);
-  free(encoding);
+
+  for (int i = 0; i < 256; i++) {
+    free(encoding[i]);
+  }
 }
 
 void dump(FILE* file, char* filename)
 {
-  int i;		
   unsigned long long file_size = det_file_size(file);
   
   //Check if file is .huff
   if(is_huff_type(filename)) {
     char *encoded_table[256];
     
-    for(i = 0; i < 256; i++) {
+    for(int i = 0; i < 256; i++) {
       encoded_table[i] = (char *)xmalloc(257);
       assert(encoded_table[i] != NULL);
     }
@@ -179,19 +178,21 @@ void dump(FILE* file, char* filename)
     
     assert(encoded_table != NULL);
     
-    for(i = 0; i < 256; i++)
+    for(int i = 0; i < 256; i++) {
       printf("%s\n", encoded_table[i]);
+      free(encoded_table[i]);
+    }
   }
   else {
     unsigned long long freq_table[256];
-    for(i = 0; i < 256; i++)
+    for(int i = 0; i < 256; i++)
       freq_table[i] = 0;
     
     create_freq_table(freq_table, file, file_size);	
     huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
     char** encoded_table = get_encoding(huff_tree);
     assert(encoded_table != NULL);
-    for(i = 0; i < 256; i++) {
+    for(int i = 0; i < 256; i++) {
       printf("%s\n", encoded_table[i]);
     }
     destroy_huff_tree(huff_tree);
@@ -248,11 +249,10 @@ unsigned long long det_file_size(FILE* file) {
 void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
   //Need to read in 4 bytes rather than string
   //Since magic number doesnt end in \n
-  char magic_num[5];
-  int i, j;
+  char magic_num[4];
   
   //Read magic number
-  for(i = 0; i < 4; i++) {
+  for(int i = 0; i < 4; i++) {
     int c = fgetc(file);
     if (c == EOF) {
       fprintf(stderr, "Error reading huff file: exiting\n");
@@ -261,32 +261,40 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
     magic_num[i] = (char)c;
     assert(magic_num[i]);
   }
-  magic_num[4] = '\0';
   
   //If not the proper number
-  if(strcmp(magic_num, NUM) != 0) {
+  if(strncmp(magic_num, NUM, 4) != 0) {
     fprintf(stderr, "Improper huff magic number.\n");
     exit(ERR);
   }
   
   //Get huff length
-  unsigned long long res = fread(size, 8, 1, file);
-  fprintf(stderr, "size = %llu\n", res);
-  
+  char size_le[sizeof(unsigned long long)];
+  size_t res = fread(size, sizeof(unsigned long long), 1, file);
   //Check that we read a file length
   if(res != 1) {
     fprintf(stderr, "Improper huff uncompressed file length.\n");
     exit(ERR);
   }
+
+  //copy into the size
+  unsigned long long size_local = 0;
+  for (int i = 0; i < sizeof(unsigned long long); i++) {
+    unsigned long long value = size_le[i];
+    value = value << (i*8);
+    size_local |= value;
+  }
+  *size = size_local;
   
   //Generate the encoded table
   char longest_string[257];
   int curr_char;
   
   //For each huffman table entry
-  for(i = 0; i < 256; i++) {
+  for(int i = 0; i < 256; i++) {
+    bool found_newline = false;
     //For each char in the string
-    for(j = 0; j < 257; j++) {
+    for(int j = 0; j < 257; j++) {
       curr_char = fgetc(file);
       if (curr_char == EOF) {
         fprintf(stderr, "Error reading huffman table: exiting\n");
@@ -298,11 +306,17 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
 	longest_string[j] = (char)curr_char;
       //Convert newline to null terminated char
       else {
+        found_newline = true;
 	longest_string[j] = '\0';
 	break;
       }
     }
     
+    if (!found_newline) {
+      fprintf(stderr, "Invalid .huff file: exiting\n");
+      exit(ERR);
+    }
+
     strcpy(huff_table[i], longest_string);
   }
 }
