@@ -7,6 +7,9 @@
 (define *failure-code* 255)
 (define *success-code* 0)
 
+(define *SUCCS* #f)
+(define *FAILS* #t)
+
 ; HURL file magic number
 (define *huff-magic* (string->bytes/utf-8 "HUFF"))
 
@@ -60,6 +63,7 @@
  )
 )
 
+
 ; Run a test that builds a test-file using 'test-generator', passes test-file
 ; to the test program, and then checks for the proper error code.
 (define (run-test test-generator flag 
@@ -90,23 +94,63 @@
  )
 )
 
-
-; General test result checking code.
+; General test result checking code. Evaluates to #t if the test passed,
+; and evaluates to #f if the test failed.
 (define (check-test test-name test-output fail? . test-checks)
- (let-values ([(code stdout stderr) (values test-output)])
+ (let-values ([(code stdout stderr) (apply values test-output)])
   (let* ([expected-code (if fail? *failure-code* *success-code*)]
          [correct-status? (= code expected-code)]
          [check-runner (lambda (check) (check stdout stderr))]
-         [check-results (map test-runner test-checks)]
+         [check-results (map check-runner test-checks)]
          [checks-passed? (andmap car check-results)])
-   (if (and correct-status? checks-passed)
-    (printf "Test ~a passed.\n" test-name)
-    (begin 
-     (printf "Test ~a failed.\n" test-name)
+   (if (and correct-status? checks-passed?)
+    (begin0 #t
+     (printf "Test '~a' passed.\n" test-name))
+    (begin0 #f ; else
+     (printf "Test '~a' failed.\n" test-name)
      (printf "    Error code: ~a (expected ~a)\n" code expected-code)
-     (when (not (car predicate-result))
+     (let ([make-lines (lambda (outputs)
+                        (string-join 
+                         (map (lambda (v) (string-append "    " v)) outputs)
+                         "\n"))])
+      (display (string-join 
+                (map (lambda (v) (make-lines (cdr v))) check-results) 
+                "\n" #:after-last "\n"))
+     )
+    )
    )
   )
+ )
+)
+
+; Runs all supplied tests. 
+(define (test-all . tests)
+ (let*-values ([(environment predicates) (split-at (car tests) 5)]
+               [(test-name generator flag file-name succeeds) 
+                (apply values environment)])
+  (if (apply check-test (append (list test-name
+       (run-test generator flag #:temp-file file-name) succeeds) predicates))
+   (delete-file file-name)
+   (let ([saved-file-name 
+          (string-append (string-downcase
+           (string-replace (string-normalize-spaces test-name) " " "-"))
+           ".input")])
+    (rename-file-or-directory file-name saved-file-name #t)
+    (printf "Triggering input saved into: ~a\n" saved-file-name)
+   )
+  )
+ )
+ (unless (= (length tests) 1) 
+  (apply test-all (cdr tests)))
+)
+
+; ***** CHECKERS ***** ;
+
+; Prints out stderr, always succeeds
+(define (output-printer stdout stderr)
+ (list #t 
+   (string-append "Stdout: " (bytes->string/utf-8 stdout))
+   (string-append "Stderr: " (bytes->string/utf-8 stderr))
  )
 )
 
@@ -115,14 +159,28 @@
 (define empty-huff
  (generator ()
   (yield *huff-magic*)
-  (yield (length-as-bytes 1))
+  (yield (length-as-bytes 0))
   (yield (table->bytes (valid-tree)))
-  (yield (hex-string->bytes "80"))
   (yield 'stop)
  )
 )
 
-(let ([test-file-name "test.huff"])
- (print (run-test empty-huff "-d" #:temp-file test-file-name)) (newline)
- ;(delete-file test-file-name)   ; Make sure we cleanup the file.
+(define bad-length
+ (generator ()
+  (yield *huff-magic*)
+  (yield (length-as-bytes 1))
+  (yield (table->bytes (valid-tree)))
+  (yield 'stop)
+ )
+)
+
+(display (current-namespace)) (newline)
+(display (namespace-mapped-symbols)) (newline)
+
+(display "Running tests...\n")
+(test-all
+ (list "Empty huff file" 
+  empty-huff "-d" "t.huff" *FAILS* output-printer)
+ (list "Incorrect huff file length" 
+  bad-length "-d" "t.huff" *FAILS* output-printer)
 )
