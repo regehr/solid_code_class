@@ -1,7 +1,7 @@
 .PHONY: all clean test debug
 
 CC = clang
-CFLAGS = -std=c99'
+CFLAGS = -std=c99
 
 objects = syscalls.o encoder.o decoder.o decodedOutputFileWriter.o \
 encodedOutputFileWriter.o huff.o
