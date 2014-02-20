@@ -1,0 +1,7 @@
+# Dependency files
+*.d
+*.o
+huff
+
+# Used for test file generation sometimes
+a.out

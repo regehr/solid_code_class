@@ -1,6 +1,11 @@
+#ifndef HUFF_H
+#define HUFF_H
+
 #define EXT ".huff"
 #define NUM "HUFF"
 #define ERR 255
+
+#include <stdbool.h>
 
 enum Flags
 {
@@ -38,7 +43,7 @@ void dump(FILE* file, char* filename);
 	Populates given table[] with the frequency of occurance the corresponding
 	char appearing in the given file. With index 0 corresponding to ascii value 0.
 */
-void create_freq_table(int table[], FILE* file, unsigned long long size);
+void create_freq_table(unsigned long long table[], FILE* file, unsigned long long size);
 
 /* Checks whether the given filename has the proper .huff extension. */
 bool is_huff_type(char* filename);
@@ -62,3 +67,9 @@ enum Flags determine_flag(char* user_flag);
 FILE* open_file(char* filename, char* permission);
 
 void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_table, unsigned long long file_size);
+
+
+void *xmalloc(size_t size);
+size_t xfwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+#endif

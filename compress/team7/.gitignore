@@ -1,0 +1,5 @@
+*.d
+huff
+rhuff
+huff-cov
+rhuff-cov

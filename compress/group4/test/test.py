@@ -7,7 +7,7 @@ def die(message):
   raise SystemExit(message)
 
 def codesfrom(filename):
-  output = subprocess.check_output(["./rhuff", "-t", filename])
+  output = subprocess.check_output(["./huff", "-t", filename])
   output = output.decode('utf-8')
   return [ x.strip() for x in output.split('\n') if len(x) > 0 ]
 
@@ -86,20 +86,20 @@ def generalcheck(output, filename):
 
 def roundtrip(filename):
   """Compress + decompress and make sure it's the same"""
-  ret = subprocess.call(["./rhuff", "-c", filename])
+  ret = subprocess.call(["./huff", "-c", filename])
   if ret != 0:
     print("Error compressing {0}".format(filename))
     return False
 
-  os.rename("{0}.rhuff".format(filename), "{0}.2.rhuff".format(filename))
-  ret = subprocess.call(["./rhuff", "-d", "{0}.2.rhuff".format(filename)])
+  os.rename("{0}.huff".format(filename), "{0}.2.huff".format(filename))
+  ret = subprocess.call(["./huff", "-d", "{0}.2.huff".format(filename)])
   if ret != 0:
-    print("Error decompressing {0}.2.rhuff".format(filename))
-    os.remove("{0}.2.rhuff".format(filename))
+    print("Error decompressing {0}.2.huff".format(filename))
+    os.remove("{0}.2.huff".format(filename))
     return False
 
   ret = subprocess.call(["diff", filename, "{0}.2".format(filename)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  os.remove("{0}.2.rhuff".format(filename))
+  os.remove("{0}.2.huff".format(filename))
   os.remove("{0}.2".format(filename))
   if ret != 0:
     print("Round-trip on {0} gave different file".format(filename))
@@ -109,13 +109,13 @@ def roundtrip(filename):
 
 def compressCheck(filename):
   """Compress and compare to existing correct compressed version"""
-  ret = subprocess.call(["./rhuff", "-c", filename])
+  ret = subprocess.call(["./huff", "-c", filename])
   if ret != 0:
     print("Error compressing {0}".format(filename))
     return False
 
-  ret = subprocess.call(["diff", "{0}.rhuff".format(filename), "{0}.ex.rhuff".format(filename)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  os.remove("{0}.rhuff".format(filename))
+  ret = subprocess.call(["diff", "{0}.huff".format(filename), "{0}.ex.huff".format(filename)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  os.remove("{0}.huff".format(filename))
   if ret != 0:
     print("Compressed version of {0} was not correct".format(filename))
     return False

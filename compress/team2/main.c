@@ -10,6 +10,12 @@
 #include "tree.h"
 #include "encoder.h"
 
+/* To be implemented.
+ * Called repeatedly with bits from input file.
+ * Returns true when 'rle_byte' is populated with a
+ * complete run-length encoded byte. */
+static bool get_rle_byte(uint8_t *bit, uint8_t *rle_byte);
+
 /* Build a frequency table from the given file. Byte frequencies are filled
  * into the supplied 'table', and the size of the file is written into 'length'.
  * If for some strange reason  the file is larger than uint64_t (which I'm
@@ -18,6 +24,28 @@
 static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) {
     uint64_t bytes_read = 0;
     memset(table, 0, 256 * sizeof(uint64_t));
+    
+    /*
+    //// NEW CODE ////
+    uint8_t rle_byte = 0;
+    uint8_t bit = 0;
+    
+    for(uint8_t current = 0; fread(&current, 1, 1, input);)
+    {
+        for (int i = 7; i >= 0; i--)
+        {
+            bit = (current >> i) & 1;
+            if (get_rle_byte(&bit, &rle_byte))
+            {
+                table[rle_byte]++;
+            }
+        }
+        
+        if (bytes_read == UINT64_MAX) { return EFILETOOLONG; }
+        bytes_read += 1;
+    }
+     /// END NEW CODE ////
+     */
 
     for(uint8_t current = 0; fread(&current, 1, 1, input); table[current]++) {
         if (bytes_read == UINT64_MAX) { return EFILETOOLONG; }
@@ -27,6 +55,7 @@ static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) 
     if (! feof(input)) { return ENOREAD; }
 
     *length = bytes_read;
+    
     return 0;
 }
 
@@ -38,6 +67,32 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
 
     int code = huff_write_header(output, header);
     if (code != 0) { return code; }
+    
+    /*
+    //// NEW CODE ////
+    uint8_t rle_byte = 0;
+    uint8_t bit = 0;
+    
+    for (uint8_t current = 0; fread(&current, 1, 1, input); ) {
+        uint8_t buffer[256 / 8];
+        
+        for (int i = 7; i >= 0; i--)
+        {
+            bit = (current >> i) & 1;
+            if (get_rle_byte(&bit, &rle_byte))
+            {
+                int encoded = huff_encode(rle_byte, buffer, &encoder);
+                // If there is encoded output, write it to the output file. If the write
+                // fails, exit with ENOWRITE.
+                if (encoded && ! fwrite(buffer, encoded, 1, output)) {
+                    return ENOWRITE;
+                }
+            }
+        }
+    }
+    //// END NEW CODE ////
+     */
+
 
     for (uint8_t current = 0; fread(&current, 1, 1, input); ) {
         uint8_t buffer[256 / 8];
@@ -51,6 +106,9 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
 
     if (! feof(input)) { return ETRUNC; }
 
+    //// NEW CODE to be implemented. ////
+    //// Need to deal with extra byte in the buffer here. ////
+    
     /* If there's an extra byte to be written, write it out. Fail with ENOWRITE
      * if the write fails */
     if (encoder.buffer_used &&
@@ -96,23 +154,47 @@ static int compress(FILE * file, char * filename) {
     return HUFF_SUCCESS;
 }
 
+/* To be implemented.
+ * Called repeatedly with 'rle_byte' until all 32 bytes
+ * of run are populated with run bits.
+ * Returns true when run is fully populated. */
+static bool get_run_from_byte(uint8_t *rle_byte, uint8_t run[32]);
+
 static int decompress_file(FILE * output, FILE * input, struct huff_header * header) {
     struct huff_decoder decoder;
     uint64_t decoded_bytes = 0;
     uint8_t current = 0;
     int decoded = 0;
     huff_make_decoder(&decoder, (const char **) header->table);
+    
+    //// NEW CODE ////
+    /* Create a buffer large enough to handle the longest possible run. */
+    //uint8_t run[32];
+    //memset(&run, 0, 32);
+    //// END NEW CODE ////
 
     while (fread(&current, 1, 1, input) && decoded_bytes < header->length) {
         for (int i = 7; i >= 0 && decoded_bytes < header->length; i--) {
             decoded = huff_decode((current >> i) & 0x1, &decoder);
             if (decoded > -1) {
                 decoded_bytes += 1;
+                
+                //// NEW CODE ////
+                /*
+                if (get_run_from_byte(&decoded, run))
+                {
+                    if (! fwrite(run, 32, 1, output)) { return ENOWRITE; }
+                }
+                 */
+                /// END NEW CODE ////
+                
                 /* Warning: I believe this is little-endian dependent */
                 if (! fwrite(&decoded, 1, 1, output)) { return ENOWRITE; }
             }
         }
     }
+    
+    //// WOULD HAVE TO CHECK IF ANY RUN DATA IS LEFT TO BE WRITTEN HERE ////
 
     long here = ftell(input);
     fseek(input, 0L, SEEK_END);
