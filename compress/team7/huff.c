@@ -318,6 +318,8 @@ enum Flags determine_flag(char* user_flag) {
     return INVALID;
 }
 
+static void compressed_write_bit(int bit, FILE* comp_file);
+static void compressed_finish_file(FILE* comp_file);
 void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_table, unsigned long long file_size) {
   // Write magic number
   // Apparently fprintf is used for strings?
@@ -327,19 +329,17 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
     exit(ERR);
   }
   // Write file size
+  // Convert to LE-format for file_size (platform-indep)
+  char file_size_le[sizeof(file_size)];
+  for (int i = 0; i < sizeof(file_size); i++) {
+    file_size_le[i] = (file_size >> (i*8)) & 0xFF;
+  }
   // And fwrite is for binary data >.>
-  xfwrite(&file_size, 8, 1, comp_file);
+  xfwrite(file_size_le, 8, 1, comp_file);
   
   // Write encoded table
-  // Also, fputs apparently appends "\n" for you, what the hell C
-  int i;
-  for(i = 0; i < 256; i++) {
-    res = fputs(encoded_table[i], comp_file);
-    if (res < 0) {
-      fprintf(stderr, "File write error: exiting.\n");
-      exit(ERR);
-    }
-    res = fputc(10, comp_file);
+  for(int i = 0; i < 256; i++) {
+    res = fprintf(comp_file, "%s\n", encoded_table[i]);
     if (res < 0) {
       fprintf(stderr, "File write error: exiting.\n");
       exit(ERR);
@@ -354,14 +354,47 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
   curr_char = fgetc(orig_file);
   
   while(curr_char != EOF) {
-    encoded_char = encoded_table[(int)curr_char];
+    encoded_char = encoded_table[curr_char];
     
-    unsigned char byte_version = (unsigned char)strtol(encoded_char, NULL, 2) & 0xFF;
-		
-    int write_res = fputc(byte_version, comp_file);
-    // int write_res = fputs(encoded_char, comp_file);
-    assert(write_res != EOF && "Error occured when writing huff body.");
+    size_t bit_count = strlen(encoded_char);
+    for (int i = 0; i < bit_count; i++) {
+      compressed_write_bit(encoded_char[i], comp_file);
+    }
     
     curr_char = fgetc(orig_file);
   }
+
+  compressed_finish_file(comp_file);
 }
+
+static unsigned char bit_buf = 0;
+static int bit_idx = 0;
+
+static void compressed_write_bit(int bit, FILE* comp_file) {
+  // Insert the bit into the single-char buffer
+  bit_buf |= (1<< (7 - bit_idx));
+  bit_idx++;
+
+  if (bit_idx == 8) {
+    int res = fputc(bit_buf, comp_file);
+    if (res == EOF) {
+      fprintf(stderr, "Error writing compressed file: exiting.\n");
+      exit(ERR);
+    }
+    bit_buf = 0;
+    bit_idx = 0;
+  }
+}
+
+static void compressed_finish_file(FILE* comp_file) {
+  // If we have any remaining bits
+  if (bit_idx > 0) {
+    // We can write the char as is, because any untouched bits will be zero
+    int res = fputc(bit_buf, comp_file);
+    if (res == EOF) {
+      fprintf(stderr, "Error writing compressed file: exiting.\n");
+      exit(ERR);
+    }
+  }
+}
+
