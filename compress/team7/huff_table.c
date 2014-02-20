@@ -63,7 +63,10 @@ huff_node *create_huff_tree_from_encoding(char **encoding) {
     huff_node  *nodes[256];
     for (int i = 0; i < 256; i++) {
         nodes[i] = NULL;
-        nodes[i] = create_huff_node(i, -2, encoding[i]);
+        // All node encodings have to be malloc'd (they're freed on destruct)
+        char *node_encoding = xmalloc(strlen(encoding[i]) + 1);
+        strcpy(node_encoding, encoding[i]);
+        nodes[i] = create_huff_node(i, -2, node_encoding);
     }
 
     huff_node *root = build_encoded_tree(nodes);
