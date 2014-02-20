@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 {
   //Initial check for correct arg count
   if(argc != 3) {
-    fprintf(stderr, "Invalid number of parameters. Huff requires a flag (-c, -d, -t), and a filename as parameters.\n");
+    fprintf(stderr, "Invalid number of parameters: rhuff requires a flag (-c, -d, -t), and a filename as parameters.\n");
     return ERR;
   }
   
@@ -358,7 +358,8 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
     
     size_t bit_count = strlen(encoded_char);
     for (int i = 0; i < bit_count; i++) {
-      compressed_write_bit(encoded_char[i], comp_file);
+      int bit = encoded_char[i] == '0' ? 0 : 1;
+      compressed_write_bit(bit, comp_file);
     }
     
     curr_char = fgetc(orig_file);
@@ -372,7 +373,7 @@ static int bit_idx = 0;
 
 static void compressed_write_bit(int bit, FILE* comp_file) {
   // Insert the bit into the single-char buffer
-  bit_buf |= (1<< (7 - bit_idx));
+  bit_buf |= (bit<< (7 - bit_idx));
   bit_idx++;
 
   if (bit_idx == 8) {
@@ -396,5 +397,6 @@ static void compressed_finish_file(FILE* comp_file) {
       exit(ERR);
     }
   }
+  bit_buf = 0;
+  bit_idx = 0;
 }
-
