@@ -2,6 +2,7 @@
 *.d
 *.o
 huff
+rhuff
 
 # Used for test file generation sometimes
 a.out
