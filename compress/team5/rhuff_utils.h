@@ -6,19 +6,19 @@
 
 struct rle_block {
     // Decoded info
-    int byte_count;
-    int remaining_bit_count;
-    char * bytes;
+    int byte_count;          // Count of total bytes for this run
+    int remaining_bit_count; // Count of bits in last byte that are valid
+    char * bytes;            // Pointer to bytes
 
     // Encoded info
-    int hex;
-    char[2] hex_str;
+    int hex;                 // Integer value of the two bytes
+    char[2] hex_str;         // Two characters representing the two bytes
 };
 
 
 /*
- * Encodes a run of bits and returns an run length encoding block with the
- * encoded info populated.
+ * Encodes a run of bits and returns a rle_block with encoded info populated.
+ * Expects an integer that points to the first bit to encode the run for.
  */
 struct rle_block encode_run (unsigned char *, int);
 

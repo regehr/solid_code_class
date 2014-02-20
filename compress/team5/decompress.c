@@ -8,31 +8,32 @@
 
 #define MAGIC_NUM "HUFF"
 
-void is_huff_file(FILE *input) {
+void is_huff_file (FILE *input) 
+{
     char magic_num[5];
     int i;
 	/* check bytes 0-3 are equal to HUFF */
-	for(i = 0; i < sizeof(magic_num); i++) {
+	for (i = 0; i < sizeof(magic_num); i++) {
 		magic_num[i] = fgetc(input);
 	}
     magic_num[4] = '\0';
 
-    if(strcmp(magic_num, MAGIC_NUM) != 0){
+    if (strcmp(magic_num, MAGIC_NUM) != 0){
         printf("not a huff file\n");
         exit(255);
     }
 }
 
 /* remove the extension from the file that we are decompressing */
-char *get_decompressed_file_name(char* filename) {
-
+char *get_decompressed_file_name (char* filename) 
+{
     int length = strlen(filename);
     int end = 0;
     
     /* start from the back and stop at the first '.' */
     int i = length - 1;
-    for(; i > 0; i--) {
-        if(filename[i] == '.') {
+    for (; i > 0; i--) {
+        if (filename[i] == '.') {
             end = i;
         }
     }
@@ -41,7 +42,7 @@ char *get_decompressed_file_name(char* filename) {
     char *name = malloc(size*sizeof(char));
     int limit = size - 6;
     
-    for(i = 0; i < limit; i++) {
+    for (i = 0; i < limit; i++) {
         name[i] = filename[i];  
     }
     
@@ -50,7 +51,8 @@ char *get_decompressed_file_name(char* filename) {
     return name;
 }
 
-huff_tree* build_huff_tree_from_table(FILE *input){
+huff_tree* build_huff_tree_from_table (FILE *input) 
+{
     huff_tree *root = malloc(sizeof(huff_tree));
     huff_tree *next = malloc(sizeof(huff_tree));
     
@@ -64,7 +66,7 @@ huff_tree* build_huff_tree_from_table(FILE *input){
     fseek(input, 12, SEEK_SET);
     printf("go to byte 12.\n");
 
-    while(fgets(encoding_string, CHAR_RANGE, input) != NULL && i < CHAR_RANGE) {
+    while (fgets(encoding_string, CHAR_RANGE, input) != NULL && i < CHAR_RANGE) {
         char* tok = strtok(encoding_string, "\n");
         encodings[i] = tok;
         i++;
@@ -73,13 +75,13 @@ huff_tree* build_huff_tree_from_table(FILE *input){
     printf("encodings in array.\n");
 
     /* build tree from encoding array. loop through each row of encoding array. */
-    for(i = 0; i < CHAR_RANGE; i++){
+    for (i = 0; i < CHAR_RANGE; i++) {
         /*loop through each bit in encoding string. */
-        for(j = 0; j < sizeof(encodings[i]); j++){
-            if(encodings[i][j] == '0' && root->zero_tree != NULL){
+        for (j = 0; j < sizeof(encodings[i]); j++) {
+            if (encodings[i][j] == '0' && root->zero_tree != NULL) {
                 root->zero_tree = next;
             }
-            if(encodings[i][j] == '1' && root->one_tree != NULL){
+            if (encodings[i][j] == '1' && root->one_tree != NULL) {
                 root->one_tree = next;
             }
             root = next;
@@ -91,7 +93,8 @@ huff_tree* build_huff_tree_from_table(FILE *input){
     return root;
 }
 
-void decompress(FILE *input, char* filename) {
+void decompress (FILE *input, char* filename) 
+{
     huff_tree *tree;
     int i;
     
@@ -112,7 +115,7 @@ void decompress(FILE *input, char* filename) {
     FILE *output = fopen(newName, "w");
 
     /* write each character to a file. */
-    for(i = 0; i < sizeof(tree); i++){
+    for (i = 0; i < sizeof(tree); i++) {
         fputc(tree[i].character, output);
     }
     printf("file decompressed successfully!\n");

@@ -7,12 +7,13 @@
 #define CHAR_RANGE 257
 
 /* get the size that our string of 0's and 1's is going to be */
-unsigned long long get_size(char** huff_table, int frequencies[]) {
+unsigned long long get_size (char** huff_table, int frequencies[])
+{
 	
 	unsigned long long size = 0;
 	int i;
-	for(i = 0; i < 257; i++) {
-		if(frequencies[i] != 0) {
+	for (i = 0; i < 257; i++) {
+		if (frequencies[i] != 0) {
 			size += frequencies[i] * strlen(huff_table[i]);
 		}	
 	}
@@ -20,13 +21,14 @@ unsigned long long get_size(char** huff_table, int frequencies[]) {
 }
 
 /* create a long string of 0's and 1's in the order of the file */
-char *get_string(char* string, FILE *input, int character, char** huff_table) {
+char *get_string (char* string, FILE *input, int character, char** huff_table)
+{
 	unsigned long long index = 0;
- 	while((character = fgetc(input)) != EOF) {
+ 	while ((character = fgetc(input)) != EOF) {
  		char * temp = huff_table[character];
  		
  		unsigned long long j = 0;	
- 		while(temp[j] != '\0'){
+ 		while (temp[j] != '\0') {
  			string[index++] = temp[j++];
  		}		
  	}
@@ -35,15 +37,15 @@ char *get_string(char* string, FILE *input, int character, char** huff_table) {
 }
 
 /* remove the extension from the file that we are compressing */
-char *get_new_name(char* filename) {
-
+char *get_new_name (char* filename) 
+{
 	int length = strlen(filename);
 	int end = 0;
 	
 	/* start from the back and stop at the first '.' */
 	int i = length - 1;
-	for(; i > 0; i--) {
-		if(filename[i] == '.') {
+	for (; i > 0; i--) {
+		if (filename[i] == '.') {
 			end = i;
 		}
 	}
@@ -52,7 +54,7 @@ char *get_new_name(char* filename) {
 	int size = end + 6;
 	char *name = malloc(size*sizeof(char));
 	
-	for(i = 0; i < end; i++) {
+	for (i = 0; i < end; i++) {
 		name[i] = filename[i];	
 	}
 
@@ -64,12 +66,13 @@ char *get_new_name(char* filename) {
 }
 
 /* Take in a file and compress it. */
-void compress(FILE *input, char* filename, unsigned long long length) {
+void compress (FILE *input, char* filename, unsigned long long length)
+{
 	int character, frequencies[CHAR_RANGE] = { 0 };
 	char **huff_table;
 	
 	/* calculate character frequencies. */
-	while((character = fgetc(input)) != EOF) {
+	while ((character = fgetc(input)) != EOF) {
 	    frequencies[character]++;
 	}
 	
@@ -81,7 +84,7 @@ void compress(FILE *input, char* filename, unsigned long long length) {
  	
  	/* allocate space for the string */
  	char* string = malloc(size*sizeof(char));
- 	if(string == NULL) {
+ 	if (string == NULL) {
  		printf("Malloc failed \n");
     	exit(255);
  	}
@@ -94,18 +97,18 @@ void compress(FILE *input, char* filename, unsigned long long length) {
 	
 	/* allocate space to convert the string to bytes */
 	unsigned char* bytes = malloc(((size/8)+1)*sizeof(unsigned char));
-	if(bytes == NULL) {
+	if (bytes == NULL) {
 		printf("Malloc failed \n");
 		exit(255);
 	}
 	
 	/* convert string to bytes */
 	int i;
-	for(i = 0; i < size/8; i++) {
+	for (i = 0; i < size/8; i++) {
 		char temp[9] = {0};
 		
 		int j = 0;
-		for(; j < 8; j++) {
+		for (; j < 8; j++) {
 			temp[j] = string[(i*8) + j];	
 		}
 		
@@ -117,7 +120,7 @@ void compress(FILE *input, char* filename, unsigned long long length) {
 	int shift = 8 - end;
 	char final[9] = {0};
 	
-	for(; i < end; i++) {
+	for (; i < end; i++) {
 		final[i] = string[(size - end) + i];	
 	}
 	
@@ -134,22 +137,22 @@ void compress(FILE *input, char* filename, unsigned long long length) {
 	
 	char *magicNumber = "HUFF";
 	
-	if(fwrite(magicNumber, sizeof(char), strlen(magicNumber), output) != strlen(magicNumber)) {
+	if (fwrite(magicNumber, sizeof(char), strlen(magicNumber), output) != strlen(magicNumber)) {
 		printf("Write failure magic\n");
 		exit(255);
 	}
 	
-	if(fwrite(&length, sizeof(unsigned long long), 1, output) != 1) {
+	if (fwrite(&length, sizeof(unsigned long long), 1, output) != 1) {
 		printf("Write failure \n");
 		exit(255);
 	}
 	
-	if(fwrite(string, sizeof(char), strlen(string), output) != strlen(string)) {
+	if (fwrite(string, sizeof(char), strlen(string), output) != strlen(string)) {
 		printf("Write failure \n");
 		exit(255);
 	}
 	
-	if(fwrite(bytes, sizeof(unsigned char), (size/8) + 1, output) != (size/8)+1) {
+	if (fwrite(bytes, sizeof(unsigned char), (size/8) + 1, output) != (size/8)+1) {
 		printf("Write failure \n");
 		exit(255);
 	}
@@ -157,5 +160,4 @@ void compress(FILE *input, char* filename, unsigned long long length) {
 	fclose(output);
 	free(bytes);
 	free(string);
-
 }
