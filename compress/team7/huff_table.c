@@ -14,12 +14,11 @@ void set_children_nodes(huff_node *parent, huff_node *left_child, huff_node *rig
 int huff_node_frequency_comparer(const void *a, const void *b);
 
 void insert_encoded_node(huff_node *root, huff_node *node);
-huff_node *build_encoded_tree(huff_node *nodes[], int nodes_size);
 huff_node *find_leaf_node(int char_value, huff_node *root);
 void free_huff_node(huff_node *node);
 
 void generate_encoding_tree(huff_node *root);
-huff_node *build_encoded_tree(huff_node *nodes[], int nodes_size);
+huff_node *build_encoded_tree(huff_node *nodes[]);
 void generate_encoding(huff_node *root, char *path);
 char *encoding_for_char(int char_value, huff_node *root);
 
@@ -61,14 +60,13 @@ huff_node *create_huff_tree_from_frequency(unsigned long long frequencyArray[256
 
 huff_node *create_huff_tree_from_encoding(char **encoding) {
 
-    int i = 0;
     huff_node  *nodes[256];
-    for (; i < 256; i++) {
+    for (int i = 0; i < 256; i++) {
         nodes[i] = NULL;
         nodes[i] = create_huff_node(i, -2, encoding[i]);
     }
 
-    huff_node *root = build_encoded_tree(nodes, 256);
+    huff_node *root = build_encoded_tree(nodes);
 
     return root;
 }
@@ -142,7 +140,7 @@ void set_right_child(huff_node *parent, huff_node *right_child){
 
 void set_left_child(huff_node *parent, huff_node *left_child){
     assert(parent != 0 && "Parent can't be NULL");
-    parent->right_child = left_child;
+    parent->left_child = left_child;
     if(left_child != 0){
         left_child ->parent = parent;
     }
@@ -231,10 +229,14 @@ void insert_encoded_node(huff_node *root, huff_node *node){
     }
 }
 
-huff_node *build_encoded_tree(huff_node *nodes[], int nodes_size){
-    assert(nodes_size == 256);
+huff_node *build_encoded_tree(huff_node *nodes[]) {
     huff_node *root = NULL;
-    root = create_huff_node(-1, -2, "");
+
+    // All the encodings in the tree have to be dynamically allocated
+    char* root_encoding = xmalloc(1);
+    root_encoding[0] = '\0';
+
+    root = create_huff_node(-1, -2, root_encoding);
     
     for(int i = 0;i < 256; i++){
         insert_encoded_node(root, nodes[i]);

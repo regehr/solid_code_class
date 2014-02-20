@@ -132,7 +132,7 @@ void decompress(FILE* file, char* filename) {
   
   //Loop through encoded data, decode it and add to new file
   while(fread(&curr_byte, 1, 1, file) &&  byte_count < file_size) {
-    for(int i = 7; (i >= 0) && (byte_count < file_size); i++) {
+    for(int i = 7; (i >= 0) && (byte_count < file_size); i--) {
       decoded = get_next_character(huff_tree, (curr_byte >> i)&0x1);
       
       if(decoded > -1) {
@@ -269,7 +269,7 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
   }
   
   //Get huff length
-  char size_le[sizeof(unsigned long long)];
+  unsigned char size_le[sizeof(unsigned long long)];
   size_t res = fread(size_le, sizeof(unsigned long long), 1, file);
   //Check that we read a file length
   if(res != 1) {
