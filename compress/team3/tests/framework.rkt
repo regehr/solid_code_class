@@ -112,7 +112,6 @@
    ; Build our cleanup routines
    (list (list 'on-failure
     (lambda (test-name)
-     (printf "Given test name: ~a\n" test-name)
      (let ([saved-file-name 
             (string-append (string-downcase
              (string-replace (string-normalize-spaces test-name) " " "-"))
