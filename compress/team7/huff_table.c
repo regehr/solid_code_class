@@ -253,13 +253,10 @@ huff_node *build_encoded_tree(huff_node *nodes[]) {
 
 void generate_encoding_tree(huff_node *root) {
     assert(root != NULL);
-    int length = 1;
 
-    char *encoding = (char *)xmalloc(length);
-    int i = 0;
-    for (; i < length; i++) {
-        encoding[i] = '\0';
-    }
+    char *encoding = (char *)xmalloc(1);
+    encoding[0] = '\0';
+
     root->encoding = encoding;
     generate_encoding(root->right_child, "1");
     generate_encoding(root->left_child, "0");

@@ -73,11 +73,4 @@ char** get_encoding(huff_node* root);
  */
 int get_next_character(huff_node* root, int one_bit);
 
-//Not sure how to do the decoding yet.  
-//Might just have to manually go through the tree since encodings are varible length.
-//  >.<
-
-
-
-
 #endif	/* HUFF_TABLE_H */
