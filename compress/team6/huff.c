@@ -12,7 +12,11 @@
 #include <sys/stat.h>
 #include "tree.h"
 #include "io.h"
-#include "rle.c"
+#include "rle_encode.h"
+#include "rle_decode.h"
+
+/* name of a temporary file used in encoding, decoding, and other fun things */
+const char *TMP_FILE = "/tmp/HisMajestyBarackHObama";
 
 /* Compresses the file and writes out the new huff file */
 void compress(unsigned char* file_pointer, unsigned long long file_length, char* filename)
@@ -26,14 +30,16 @@ void compress(unsigned char* file_pointer, unsigned long long file_length, char*
 }
 
 /* Decompresses the huff file and writes out the original file */
+/* Not so much any more. it writes out a tmp file, namely /tmp/HisMajestyBarackHObama */
 void decompress(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
     if(!check_format(file_pointer, file_length, filename))
     {
-        printf("Can't decompress a non-huff file.\n");
+        printf("Can't decompress a non-hurl file.\n");
         exit(-1);
     }
 
+    
     unsigned long long start_of_compressed;
     char* mapping = get_mapping_from_file(file_pointer, file_length, &start_of_compressed);
     write_decompressed_file(file_pointer, file_length, filename, mapping, start_of_compressed);
@@ -61,6 +67,7 @@ void print_table(unsigned char* file_pointer, unsigned long long file_length, ch
         free(mapping);
     }
 }
+
 
 /* Entry point for the program. Opens the file, and executes the mode specified by command line args */
 int main(int argc, char* argv[])
@@ -105,41 +112,43 @@ int main(int argc, char* argv[])
         fclose(file);
     }
 
-    /* WARNING
+    /*
+     * Admiral Ackbar says: 'It's a trap!'
+     * 
+     * Compressiong write a temporary file after rle encoding, then opens that file and
+     * runs the huffman encoding on it.
      *
-     * The edits below do strange things.  The rle functions change things!
-     * after a call to rle, "file_pointer" may have changed
+     * Decompression writes a temporary file after huffman decompression, then 
+     * opens that file and runs rle decompression on it.
      */
 
-    /* Execute the correct mode */
     if(strcmp(argv[1], "-c") == 0)
     {
-	/*
-	 * The rle_compress function mucks with "file_pointer"
-	 * see rle.h for a description
-	 */
-	rle_pre_compress(file_pointer, file_length, argv[2]);
-        compress(file_pointer, file_length, argv[2]);
+	/* This struct is super cool!
+	   It contains a file_pointer and the length just like the compress function wants! */
+	struct encode_state *state = rle_compress(file_pointer, file_length);
+	/* be the change you want to see in the world */
+        compress(state->file_pointer, state->file_length, argv[2]);
+	/* that state is in bondage! Let's free it */
+	free(state);
     }
     else if(strcmp(argv[1], "-d") == 0)
     {
         decompress(file_pointer, file_length, argv[2]);
+	/* this struct is very cool!
+	   It contains a file_pointer and the length just like the decompress wants! */
+	struct decode_state *state = prepare_file_for_decode(argv[2]);
+	/* here is some change you can believe in ! */
+	rle_decompress(state);
+	/* this state is in SERIOUS jeapordy! Free it!!! */
+	free(state);
     }
     else if(strcmp(argv[1], "-t") == 0)
     {
-	/*
-	 * The rle_pre_print function mucks with "file_pointer"
-	 * see rle.h for a description
-	 */
-	rle_pre_print(file_pointer, file_length, argv[2]);
         print_table(file_pointer, file_length, argv[2]);
     }
-
-    /* 
-     * FANCY_FILE_NAME was a temporary file created by rle.c, I dont care
-     * if it fails
-     */
-    remove(FANCY_FILE_NAME);
+    
     free(file_pointer);
+
     return 0;
 }
