@@ -9,7 +9,8 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #define ERR_CODE 255
-#define SIZE 100000
+#define SIZE 10000
+#define INCREMENT 10000
 
 /**
  *    Performs Run Length Ecoding (RLE) on an input FILE.
@@ -18,7 +19,7 @@
  *    will hold the RLE bytes that are generated, and the unsigned long long
  *    will be the number of bytes in the array.
  */
-void encode_rle(FILE*, char*, unsigned long long);
+void encode_rle(FILE*, char*, unsigned long long*);
 
 /**
  *    Decodes a RLE into a supplied FILE.
@@ -28,6 +29,6 @@ void encode_rle(FILE*, char*, unsigned long long);
  *    the number of bytes in the array, and the FILE pointer is the file to
  *    write the decoded bytes to.
  */
-void decode_rle(char*, unsigned long long, FILE*);
+void decode_rle(char*, unsigned long long*, FILE*);
 
 #endif

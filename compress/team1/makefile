@@ -4,7 +4,7 @@ CC = gcc
 CFLAGS = -std=c99 -Wall -Werror -O3
 
 objects = huff.o huff_tree.o huff_io.o compress.o decode.o rle.o
-bin = huff
+bin = rhuff
 ext = *.hurl *.huff *.dot
 
 default: $(bin)
@@ -13,7 +13,10 @@ huff_tree.o: huff_tree.h
 huff_io.o: huff_io.h
 
 $(bin): $(objects)
-	$(CC) -o rhuff $(LDFLAGS) $^ $(LDLIBS)
+	$(CC) -o $(bin) $(LDFLAGS) $^ $(LDLIBS)
+
+val: $(bin) test.txt
+	valgrind --leak-check=yes ./$(bin) -c test.txt
 
 test:
 	python test/makeTestFiles.py
