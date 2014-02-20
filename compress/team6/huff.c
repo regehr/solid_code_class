@@ -59,12 +59,19 @@ void print_table(unsigned char* file_pointer, unsigned long long file_length, ch
     }
     else
     {
+	
+	/* so we need to compress with rle before we figure the huffman table */
+	struct encode_state *state = rle_compress(file_pointer, file_length);
+	
         unsigned long long frequencies[256] = {0};
-        find_frequencies(frequencies, file_pointer, file_length);
+        find_frequencies(frequencies, state->file_pointer, state->file_length);
 
         char* mapping = get_huffman_table(frequencies);
         printf("%s", mapping);
         free(mapping);
+
+	/* that state is in bondage! Let's free it */
+	free(state);
     }
 }
 
