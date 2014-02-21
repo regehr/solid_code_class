@@ -33,7 +33,7 @@ static uint8_t bit_at(int c, int i)
 /**
  * Grow byte array to larger size
  */
-static char* grow_array(unsigned char* ar)
+static unsigned char* grow_array(unsigned char* ar)
 {
   size += INCREMENT;
   unsigned char* tmp = realloc(ar, size);
@@ -68,7 +68,7 @@ static void enter_byte(unsigned char* bytes, uint8_t bit, uint8_t freq)
   bytes[++num_bytes] = temp;
 }
 
-void encode_rle(FILE* file, unsigned char* to_return, unsigned long long* total_bytes)
+void encode_rle(FILE* file, unsigned char** to_return, unsigned long long* total_bytes)
 {
   int c, i;
   uint8_t freq = 0;
@@ -114,6 +114,6 @@ void encode_rle(FILE* file, unsigned char* to_return, unsigned long long* total_
     assert(num_bytes <= size);
   } while(c != EOF);
 
-  to_return = bytes;
+  *to_return = bytes;
   *total_bytes = num_bytes;
 }

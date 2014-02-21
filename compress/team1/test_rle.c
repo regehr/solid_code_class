@@ -9,9 +9,9 @@ int main(int argc, char* argv[])
     exit(255);
   }
 
-  unsigned char* bytes;
-  unsigned long long len;
-  encode_rle(fp, bytes, &len);
+  unsigned char* bytes = NULL;
+  unsigned long long len = 0;
+  encode_rle(fp, &bytes, &len);
 
   int i;
   for(i = 0; i < len; i++) {

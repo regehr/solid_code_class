@@ -19,7 +19,7 @@
  *    will hold the RLE bytes that are generated, and the unsigned long long
  *    will be the number of bytes in the array.
  */
-void encode_rle(FILE*, unsigned char*, unsigned long long*);
+void encode_rle(FILE*, unsigned char**, unsigned long long*);
 
 /**
  *    Decodes a RLE into a supplied FILE.
