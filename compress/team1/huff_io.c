@@ -262,3 +262,19 @@ void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long siz
         }
     }
 }
+
+void write_array_to_file(unsigned char arr[], FILE* filename)
+{
+    
+}
+
+
+void file_to_char_array(FILE* file, unsigned char** array)
+{
+    unsigned char tmp = 0;
+    rewind(file);
+    tmp = fgetc(file);
+    
+    
+    
+}

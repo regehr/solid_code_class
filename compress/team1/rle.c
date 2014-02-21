@@ -117,3 +117,9 @@ void encode_rle(FILE* file, unsigned char** to_return, unsigned long long* total
   *to_return = bytes;
   *total_bytes = num_bytes;
 }
+
+
+void decode_rle(unsigned char* encodings, unsigned long long* length, FILE* outputFile)
+{
+    
+}
