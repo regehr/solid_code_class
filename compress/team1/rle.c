@@ -61,7 +61,10 @@ static void enter_byte(char* bytes, uint8_t bit, uint8_t freq)
   }
 
   // Make the new rle byte and put it in the array
-  char temp = (char) ((bit << 7) | freq);
+  unsigned char temp = (unsigned char) ((bit << 7) | freq);
+  printf("bit is: %x\n", bit);
+  printf("freq is: %x\n", freq);
+  printf("Adding hex: %x to byte array\n", temp);
   bytes[++num_bytes] = temp;
 }
 
@@ -83,7 +86,8 @@ void encode_rle(FILE* file, char* to_return, unsigned long long* total_bytes)
     c = fgetc(file);
     if(ferror(file)) { read_char_error(); }
     if(c != EOF) {
-      for (i = 0; i <= 7; i--){ // Iterate through bits of the character
+      printf("full char is: %c\n", c);
+      for (i = 0; i <= 7; i++){ // Iterate through bits of the character
 	if(curr_bit == (temp_bit = bit_at(c, i))) { // See if the next bit matches our current bit
 	  if((freq + 1) >= 128) { // Only 7 bits to represent frequency, so max frequency = 127
 	    enter_byte(bytes, curr_bit, freq);

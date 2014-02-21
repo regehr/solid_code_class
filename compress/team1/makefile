@@ -23,6 +23,11 @@ test:
 	python test/runTests.py
 	python test/clearTestFiles.py
 
+rle_test: rle.c test_rle.c
+	gcc -c -o rle.o rle.c
+	gcc -c -o test_rle.o test_rle.c
+	gcc -o rle rle.o test_rle.o
+
 release: $(objects)
 	$(CC) $(CFLAGS) -D NDEBUG -o rhuff $^
 
