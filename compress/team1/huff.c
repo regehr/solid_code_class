@@ -26,7 +26,7 @@ void print_tree(FILE* file, const char* filename){
         encode_rle(file, &rle_encoding, &encoding_length );
         //save to temp file
         FILE* temp_file = tmpfile();
-        write_array_to_file(rle_encoding, temp_file);
+        write_array_to_file(rle_encoding, encoding_length, temp_file);
         //rewind temp file to the beginning of the stream.
         rewind(temp_file);
         gen_huff_tree(temp_file);
@@ -137,7 +137,7 @@ int main(int argc, const char *argv[])
         encode_rle(fp, &rle_encoding, &encoding_length );
         //save to temp file
         FILE* temp_file = tmpfile();
-        write_array_to_file(rle_encoding, temp_file);
+        write_array_to_file(rle_encoding, encoding_length, temp_file);
         //rewind temp file to the beginning of the stream.
 
         compress(temp_file, argv[2]);

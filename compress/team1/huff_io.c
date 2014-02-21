@@ -263,18 +263,39 @@ void read_huff_body(FILE* compressed, FILE* decompressed, unsigned long long siz
     }
 }
 
-void write_array_to_file(unsigned char arr[], FILE* filename)
+void write_array_to_file(unsigned char arr[], unsigned long long arr_length, FILE* filename)
 {
-    
+    int length = (int)arr_length;
+    int i = 0;
+    for(;i<length; i++){
+        int error = fputc(arr[i], filename);
+        if(error == EOF){
+            fprintf(stderr, "ERROR: Error while writing to temp file.\n");
+            exit(ERR_CODE);
+        }
+    }
 }
 
 
-void file_to_char_array(FILE* file, unsigned char** array)
+int file_to_char_array(FILE* file, unsigned char** result_array)
 {
-    unsigned char tmp = 0;
+    char* array = (char*)malloc(10000);
+    int max_length = 10000;
+    int current_length = 0;
+    int result = 0;
     rewind(file);
-    tmp = fgetc(file);
+    result = fgetc(file);
+    while(result == EOF){
+        
+        if(current_length >= max_length){
+            
+        }
+        array[current_length] = (char)result;
+
+        result = fgetc(file);
+    }
     
     
+    return current_length;
     
 }
