@@ -1,4 +1,4 @@
-#lang racket 
+#lang racket
 
 (provide test run-binary build-file rm)
 
@@ -11,20 +11,20 @@
                      (make-color 'green)))
 
 ; Run a function without supplying any arguments to that function
-(define (apply1 arg) 
+(define (apply1 arg)
  (lambda (proc) (proc arg)))
 
-; Run environment setup instructions and collect any cleanup routines 
+; Run environment setup instructions and collect any cleanup routines
 (define (create-test-environment setup succ-cleanup fail-cleanup finally)
  (if (null? setup) (values succ-cleanup fail-cleanup finally)
-  ; else 
+  ; else
   (let* ([current-setup (car setup)]
          [setup-response (current-setup)]
-         [apply-cleanup 
+         [apply-cleanup
           (lambda (flag old-cleanup)
            (let* ([added-pair (assoc flag setup-response)]
                   [added-cleanup (if added-pair (cadr added-pair) '())])
-            (if (not (list? added-cleanup)) 
+            (if (not (list? added-cleanup))
              (append old-cleanup (list added-cleanup))
              (append old-cleanup added-cleanup)
             )
@@ -34,7 +34,7 @@
          [new-succ-cleanup (apply-cleanup 'on-success succ-cleanup)]
          [new-fail-cleanup (apply-cleanup 'on-failure fail-cleanup)]
          [new-finally (apply-cleanup 'finally finally)])
-   (create-test-environment 
+   (create-test-environment
     (cdr setup) new-succ-cleanup new-fail-cleanup new-finally)
   )
  )
@@ -50,11 +50,11 @@
    (if checks-passed? (values #t (void)) ; else
     (values #f
      (let ([make-lines (lambda (outputs)
-                        (string-join 
+                        (string-join
                          (map (lambda (v) (string-append "    " v)) outputs)
                          "\n"))])
-      (string-join 
-       (map (lambda (v) (make-lines (cdr v))) check-results) 
+      (string-join
+       (map (lambda (v) (make-lines (cdr v))) check-results)
        "\n" #:after-last "\n")
      )
     )
@@ -64,35 +64,25 @@
 )
 
 ; Fully execute the given test.
-(define (test test-name environ execution checks #:succ [on-succ '()] 
-                                                 #:fail [on-fail '()]
-                                                 #:finally [finally '()])
- (let*-values ([(succ-cleanup fail-cleanup finally-cleanup)
-                (create-test-environment environ on-succ on-fail finally)]
-               [(execution-result) (execution)]
-               [(checks-succeded? diagnosis) 
-                (evaluate-test execution-result checks)])
-  (begin0
-   (if checks-succeded?
-    (begin0 #f
-     (printf "~a  ~a\n" (format-succ "OK") test-name)
-     (for-each (apply1 test-name) succ-cleanup))
-    (begin0 #f 
-     (printf "~a  ~a\n" (format-fail "FAILED") test-name)
-     (display diagnosis)
-     (for-each (apply1 test-name) fail-cleanup)
-    )
-   )
-   (for-each (apply1 test-name) finally-cleanup)
-  )
- )
-)
+(define (test test-name environ execution checks #:succ [on-succ '()] #:fail [on-fail '()] #:finally [finally '()])
+        (let-values ([(succ-cleanup fail-cleanup finally-cleanup)
+                      (create-test-environment environ on-succ on-fail finally)]
+                     [(checks-succeded? diagnosis)
+                      (evaluate-test (execution) checks)])
+                    (if checks-succeded?
+                        (begin (printf "~a  ~a\n" (format-succ "OK") test-name)
+                               (for-each (apply1 test-name) succ-cleanup))
+                        (begin (printf "~a  ~a\n" (format-fail "FAILED") test-name)
+                               (display diagnosis)
+                               (for-each (apply1 test-name) fail-cleanup)))
+                    (for-each (apply1 test-name) finally-cleanup)
+                    checks-succeded?))
 
 (define (rm . files) (thunk*
- (letrec ([inner-rm 
+ (letrec ([inner-rm
            (lambda (_files)
             (unless (null? _files)
-             (when (file-exists? (car _files)) 
+             (when (file-exists? (car _files))
               (delete-file (car _files)))
              (inner-rm (cdr _files))
             )
@@ -106,13 +96,13 @@
 ; 'test-generator' into 'to-file' and returns functions neccicary to cleanup
 ; the file.
 (define (build-file test-generator to-file) (thunk
- (let* ([output (open-output-file to-file #:exists 'truncate)] 
+ (let* ([output (open-output-file to-file #:exists 'truncate)]
         [writer (lambda (bytes) (write-bytes bytes output))])
   (begin0
    ; Build our cleanup routines
    (list (list 'on-failure
     (lambda (test-name)
-     (let ([saved-file-name 
+     (let ([saved-file-name
             (string-append (string-downcase
              (string-replace (string-normalize-spaces test-name) " " "-"))
              ".input")])
@@ -120,7 +110,7 @@
       (printf "Triggering input saved into: ~a\n\n" saved-file-name))))
     (list 'on-success (thunk* (delete-file to-file)))
    )
-   ; Generate the file 
+   ; Generate the file
    (for-each writer (sequence->list (in-producer test-generator 'stop)))
    (close-output-port output)
   )
@@ -132,9 +122,9 @@
 ; supplied arguments, and returns the commands response code, stdout (as bytes),
 ; and stderr (as bytes).
 (define (run-binary binary #:echo [echo? #f] . flags)
- (thunk 
+ (thunk
  (when echo? (printf "$ ~a ~a\n" binary (string-join flags " ")))
- ; Run the program as a subprocess 
+ ; Run the program as a subprocess
  (let-values ([(proc proc-stdout proc-stdin proc-stderr)
                (apply subprocess (append (list #f #f #f binary) flags))])
   (begin0
