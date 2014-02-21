@@ -33,10 +33,10 @@ static uint8_t bit_at(int c, int i)
 /**
  * Grow byte array to larger size
  */
-static char* grow_array(char* ar)
+static char* grow_array(unsigned char* ar)
 {
   size += INCREMENT;
-  char* tmp = realloc(ar, size);
+  unsigned char* tmp = realloc(ar, size);
   if(tmp != NULL) {
     ar = tmp;
   }
@@ -51,7 +51,7 @@ static char* grow_array(char* ar)
 /**
  * Construct rle byte and add it to the byte array
  */
-static void enter_byte(char* bytes, uint8_t bit, uint8_t freq)
+static void enter_byte(unsigned char* bytes, uint8_t bit, uint8_t freq)
 {
   assert(freq < 128);
 
@@ -68,13 +68,13 @@ static void enter_byte(char* bytes, uint8_t bit, uint8_t freq)
   bytes[++num_bytes] = temp;
 }
 
-void encode_rle(FILE* file, char* to_return, unsigned long long* total_bytes)
+void encode_rle(FILE* file, unsigned char* to_return, unsigned long long* total_bytes)
 {
   int c, i;
   uint8_t freq = 0;
   uint8_t curr_bit = 0; // Assume first bit is 0, will be changed to 1 if not
   uint8_t temp_bit;
-  char* bytes;
+  unsigned char* bytes;
 
   // Malloc space for array and check that there wasn't an error
   if((bytes =  malloc(sizeof(char) * SIZE)) == NULL) {
@@ -91,6 +91,7 @@ void encode_rle(FILE* file, char* to_return, unsigned long long* total_bytes)
 	if(curr_bit == (temp_bit = bit_at(c, i))) { // See if the next bit matches our current bit
 	  if((freq + 1) >= 128) { // Only 7 bits to represent frequency, so max frequency = 127
 	    enter_byte(bytes, curr_bit, freq);
+	    printf("most recent byte hex: %x\n", bytes[num_bytes]);
 	    freq = 1;
 	  } else {
 	    freq++;
@@ -98,6 +99,7 @@ void encode_rle(FILE* file, char* to_return, unsigned long long* total_bytes)
 	} else { // Bits didn't match, enter current byte and set the new bit as current
 	  if(freq != 0) {
 	    enter_byte(bytes, curr_bit, freq);
+	    printf("most recent byte hex: %x\n", bytes[num_bytes]);
 	  }
 
 	  // Set the new bit as current and show that we've seen it one time	  
@@ -105,6 +107,9 @@ void encode_rle(FILE* file, char* to_return, unsigned long long* total_bytes)
 	  freq = 1;
 	}
       }
+    } else { // EOF found, push last rle byte to array
+      enter_byte(bytes, curr_bit, freq);
+      printf("most recent byte hex: %x\n", bytes[num_bytes]);
     }
     assert(num_bytes <= size);
   } while(c != EOF);

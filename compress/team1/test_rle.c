@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
     exit(255);
   }
 
-  char* bytes;
+  unsigned char* bytes;
   unsigned long long len;
   encode_rle(fp, bytes, &len);
 
