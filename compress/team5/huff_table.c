@@ -191,7 +191,7 @@ void print_huff_table(FILE *input) {
 	 
 	/*prints out each line of huff table.*/
 	for(i = 0; i < CHAR_RANGE; i++) {
-	    printf("%d - ", i);
+	    printf("%d - %c - ", i, (char)i);
 	    if(huff_table[i] == NULL) {
                 printf("\n");
 	    } else {

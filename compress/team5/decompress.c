@@ -58,7 +58,6 @@ huff_tree *build_huff_tree_from_table (FILE *input)
     huff_tree *current = root;
     
     char **encodings = malloc(CHAR_RANGE);
-    char *encoding_string = malloc(CHAR_RANGE); // Not quite sure what the max size could be...we'll cheat for now.
     int i, j;
 
     /* fill the encodings array with entries from the table. */
@@ -78,12 +77,6 @@ huff_tree *build_huff_tree_from_table (FILE *input)
         }
     }
 
-    for (i = 0; i < CHAR_RANGE; i++) {
-        printf("%i: %s\n", i, encodings[i]);
-    }
-
-    printf("encodings in array.\n");
-
     /* build tree from encoding array. loop through each row of encoding array. */
     for (i = 0; i < CHAR_RANGE; i++) {
         if (encodings[i] == NULL) {
@@ -92,13 +85,14 @@ huff_tree *build_huff_tree_from_table (FILE *input)
 
         for (j = 0; j < strlen(encodings[i]); j++) {
             build_children_if_null(current);
+            current->character = -1;
 
-            if (encodings[i][j] == '0' && root->zero_tree != NULL) {
-                current = root->zero_tree;
+            if (encodings[i][j] == '0') {
+                current = current->zero_tree;
             }
 
-            if (encodings[i][j] == '1' && root->one_tree != NULL) {
-                current = root->one_tree;
+            if (encodings[i][j] == '1') {
+                current = current->one_tree;
             }
         }
 
@@ -122,33 +116,93 @@ void build_children_if_null (huff_tree * parent)
     }
 }
 
+/* Decompress the input file bit by bit and writes out to the output file, 
+   expects input to point at first byte after encoding table */
+void write_out_decompress (FILE *input, FILE *output, huff_tree *root, 
+    unsigned long long length)
+{
+    /*
+    root
+    current
+    while file has characters
+        character = this;
+        for each bit in character byte
+            current is current zero tree if bit == 0
+            current is one tree if bit == 0
+
+            if current->char != null / 0
+                write out character, increment file size, and reset current
+    */
+    unsigned char mask_table[] = { 
+        0x01, 0x02, 0x03, 0x04, 
+        0x05, 0x06, 0x07, 0x08 
+    };
+    huff_tree *current = root;
+    char out_c;
+    int i = 0, bit, bytes_written = 0, bytes_read = 0;
+    char *buffer = malloc(1);
+
+    while((fread(buffer, 1, 1, input)) == 1) {
+        for (i = 0; i < 8; i++) {
+            bit = (*buffer) >> i & 0x1;
+
+            if (bit == 1) {
+                current = current->one_tree;
+            } else {
+                current = current->zero_tree;
+            }
+
+            printf("%i", bit);
+
+            if (current->character != -1) {
+
+                out_c = (char)current->character;
+                printf(" : %c\n", out_c);
+                fwrite(&out_c, 1, 1, output);
+                bytes_written++;
+
+                current = root;
+            }
+        }
+
+        bytes_read++;
+    }
+
+    printf("Bytes written: %i :: Bytes read: %i \n", bytes_written, bytes_read);
+}
+
+unsigned long long get_huff_size (FILE *input) {
+    unsigned long long size = 0;
+
+    fseek(input, 4, SEEK_SET);
+    fread(&size, 8, 1, input);
+
+    return size;
+}
+
 void decompress (FILE *input, char* filename) 
 {
     huff_tree *tree;
-    int i;
+    unsigned long long size;
     
-    /* check to make sure the input file is a .huff file. */
+    // Exits if this file is not considered valid
 	is_huff_file(input);
-    printf("This is a huff file, continuing...\n");
-    
-    /* build a huff tree from the huff table encodings.*/
+
+    // Fetch the size
+    size = get_huff_size(input);
+    printf("%llu is the size.\n", size);
+
+    // Build a tree from the encodings
     tree = build_huff_tree_from_table(input);
-    printf("huff tree built successfully, continuing...\n");
 
-    
-    /* get rid of the old file extension */
-    char* newName = get_decompressed_file_name(filename);
-    printf("decompressed file named, continuing...\n");
-    
-    /* create a new file to write to */
-    FILE *output = fopen(newName, "w");
+    // Name the file, and get a pointer
+    char* new_name = get_decompressed_file_name(filename);
+    FILE *output = fopen(new_name, "w");
 
-    /* write each character to a file. */
-    // input should be at correct line
-    for (i = 0; i < sizeof(tree); i++) {
-        fputc(tree[i].character, output);
-    }
-    printf("file decompressed successfully!\n");
+    printf("Built new name \n");
+
+    // Write out the decompressed bits!
+    write_out_decompress(input, output, tree, size);
 
     free_huff_tree(tree);
 }

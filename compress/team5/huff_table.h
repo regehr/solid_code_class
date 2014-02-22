@@ -9,7 +9,7 @@ typedef struct huff_tree {
 	struct huff_tree *zero_tree;
 	struct huff_tree *one_tree;
 	int frequency;
-	int character;	
+	int character;
 } huff_tree;
 
 /* prints out huff table for a given input file. */
