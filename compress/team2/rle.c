@@ -92,15 +92,13 @@ void decompress(FILE * readFrom, FILE * writeTo)
 	  if(current == 1)
 	    {
 	      //to fill in a one, pad a bunch of zeros on the left, end with a one and OR the last bit
-	      writeByte = writeByte>>(7-trackBit)|onesMask;
+	      writeByte = writeByte|(onesMask<<(7-trackBit++));
 	    }
 	  else
 	    {
 	      //to fill in a zero pad the left with ones with a zero at the end then AND the last bit
-	      writeByte = writeByte>>(7-trackBit)&zerosMask;
+	      writeByte = writeByte&(zerosMask<<(7-trackBit++));
 	    }
-	  //move the last bit back into position
-	  writeByte = writeByte<<(7-trackBit++);
 	}
     }
 
