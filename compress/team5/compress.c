@@ -146,6 +146,11 @@ void compress (FILE *input, char* filename, unsigned long long length)
 		printf("Write failure \n");
 		exit(255);
 	}
+
+	// Write table to the output
+	for (i = 0; i < CHAR_RANGE; i++) {
+		fprintf(output, "%s\n", huff_table[i]);
+	}
 	
 	if (fwrite(string, sizeof(char), strlen(string), output) != strlen(string)) {
 		printf("Write failure \n");
