@@ -3,7 +3,7 @@ CFLAGS = -Wall -MMD -std=c99 -g -Werror -O3
 COVFLAGS = -fprofile-arcs -ftest-coverage
 BIN = rhuff
 LIBS = -lm
-SRCS = huff.c huff_table.c util.c
+SRCS = huff.c huff_table.c util.c rle.c
 OBJS = ${SRCS:.c=.o}
 DEPS = ${SRCS:.c=.d}
 
