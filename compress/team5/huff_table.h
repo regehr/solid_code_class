@@ -15,10 +15,12 @@ typedef struct huff_tree {
 /* prints out huff table for a given input file. */
 void print_huff_table(FILE *input);
 
-/* builds the huff table given the frequencies */
+/* builds the huff table given the frequencies. */
 char **build_huff_table(int frequencies[]);
 
 /* frees the memory of the given huff_tree struct. */
 void free_huff_tree(huff_tree *tree);
 
+/* frees the memory of the given huff_table. */
+void free_huff_table (char **);
 #endif

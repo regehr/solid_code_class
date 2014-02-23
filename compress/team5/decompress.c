@@ -121,22 +121,6 @@ void build_children_if_null (huff_tree * parent)
 void write_out_decompress (FILE *input, FILE *output, huff_tree *root, 
     unsigned long long length)
 {
-    /*
-    root
-    current
-    while file has characters
-        character = this;
-        for each bit in character byte
-            current is current zero tree if bit == 0
-            current is one tree if bit == 0
-
-            if current->char != null / 0
-                write out character, increment file size, and reset current
-    */
-    unsigned char mask_table[] = { 
-        0x01, 0x02, 0x03, 0x04, 
-        0x05, 0x06, 0x07, 0x08 
-    };
     huff_tree *current = root;
     char out_c;
     int i = 0, bit, bytes_written = 0, bytes_read = 0;
