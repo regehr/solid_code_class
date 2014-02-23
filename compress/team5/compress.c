@@ -36,7 +36,7 @@ void write_header (FILE *output, char **huff_table, uint64_t length)
 	}
 }
 
-/* Create a long string of 0's and 1's in the order of the file */
+/* Create a long string of 0's and 1's in the order of the file. */
 void compress_contents (FILE *input, FILE *output, char **huff_table)
 {
 	int bitc = 0, i, bitout;
@@ -53,7 +53,6 @@ void compress_contents (FILE *input, FILE *output, char **huff_table)
 
 			bitc++;
 			i++;
-
 			if (bitc == 8) {
 				bitc = 0;
 				fwrite(&current, 1, 1, output);
@@ -72,27 +71,15 @@ void compress_contents (FILE *input, FILE *output, char **huff_table)
 char *get_new_name (char *filename) 
 {
 	int length = strlen(filename);
-	int end = 0;
-	
-	// Start from the back and stop at the first '.'.
-	int i = length - 1;
-	for (; i > 0; i--) {
-		if (filename[i] == '.') {
-			end = i;
-		}
-	}
-	
-	int size = end + 6;
-	char *name = malloc(size);
-	
-	for (i = 0; i < end; i++) {
-		name[i] = filename[i];
+	char *name = malloc(length + 6);
+	name = strcpy(name, filename);
+
+	if (name == NULL) {
+		printf("Failed to get new name.\n");
+		exit(255);
 	}
 
-	// Append trailing nullspace so strcat works properly.
-	name[end] = '\0';
 	strcat(name, ".huff");
-	
 	return name;
 }
 
@@ -116,6 +103,7 @@ void compress (FILE *input, char *filename, uint64_t length)
 	// Write out the header and the actual compressed file contents
 	write_header(output, huff_table, length);
 	compress_contents(input, output, huff_table);
+	printf("Past contents?\n");
 	fclose(output);
 
 	// Clean up

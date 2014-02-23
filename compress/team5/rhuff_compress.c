@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "rhuff_utils.h"
 
+#define BITVAL(x,y) (((x)>>(y)) & 1)
+
+
 FILE * getFile(char *fileName , char *fileMode)
 {
 	FILE *filePointer;
@@ -28,20 +31,15 @@ void prettyPrintFile(FILE *filePointer)
                 for(; i < sizeof(readBuffer); i++)
                 {
                         printf("\033[32mbyte:\033[37m %x   \033[36mbits:\033[37m " , readBuffer[i]);
-                        int j = 7;
-                        for(; j >= 0; j--)
-                        {
-                                singleByte = readBuffer[i] & (1<<j);
-                                singleByte >>= j;
+			int j = 7;
+			for(; j >=0 ; j--)
+			{
+				printf("%u" , BITVAL(readBuffer[i] , j));
 				if(j == 4)
 				{
-					printf("%u " , singleByte);
+					printf(" ");
 				}
-				else
-				{
-                                	printf("%u" , singleByte);
-				}
-                        }
+			}
                         printf("\n");
                 }
         }
@@ -52,10 +50,16 @@ void encode(char * fileName)
 	//debug output
 	printf("fileName is: %s\n" , fileName);
 	
-	// call to get a pointer to an opened file
-	FILE *filePointer = getFile(fileName , "rb");
+	// call to get a pointer to an opened file to read from
+	FILE *readFilePointer = getFile(fileName , "rb");
 
-	prettyPrintFile(filePointer);	
+	// call to get an open pointer to a file to write to
+	FILE *writeFilePointer = getFile(fileName + ".rle" , "w");
+
+	
+	
+	//prettyPrintFile(filePointer);	
+
 
 	fclose(filePointer);
 }

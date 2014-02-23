@@ -15,6 +15,15 @@ struct rle_block {
     char hex_str[2];         // Two characters representing the two bytes
 };
 
+// I added one more struct that works with my methods a little better
+struct bitValue
+{
+	// bit value of the run
+	uint8_t runValue;
+	// length of the run < 127
+	uint8_t runLength;
+};
+
 
 /*
  * Encodes a run of bits and returns a rle_block with encoded info populated.
