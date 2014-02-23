@@ -12,7 +12,7 @@ struct rle_block {
 
     // Encoded info
     int hex;                 // Integer value of the two bytes
-    char[2] hex_str;         // Two characters representing the two bytes
+    char hex_str[2];         // Two characters representing the two bytes
 };
 
 

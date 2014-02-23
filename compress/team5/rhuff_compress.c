@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "rhuff_utils.h"
 
 FILE * getFile(char *fileName , char *fileMode)
 {
@@ -27,13 +27,20 @@ void prettyPrintFile(FILE *filePointer)
                 unsigned char singleByte;
                 for(; i < sizeof(readBuffer); i++)
                 {
-                        printf("byte: %x   bits (read backwards): " , readBuffer[i]);
-                        int j = 0;
-                        for(; j < 8; j++)
+                        printf("\033[32mbyte:\033[37m %x   \033[36mbits:\033[37m " , readBuffer[i]);
+                        int j = 7;
+                        for(; j >= 0; j--)
                         {
                                 singleByte = readBuffer[i] & (1<<j);
                                 singleByte >>= j;
-                                printf("%u" , singleByte);
+				if(j == 4)
+				{
+					printf("%u " , singleByte);
+				}
+				else
+				{
+                                	printf("%u" , singleByte);
+				}
                         }
                         printf("\n");
                 }
