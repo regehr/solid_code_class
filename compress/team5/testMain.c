@@ -1,9 +1,7 @@
 #include "rhuff_compress.h"
 
-#ifdef TESTING 
 int main()
 {
-	encode("testFile");
+	encode("testFile" , "testFile.rle");
 	return 0;
 }
-#endif

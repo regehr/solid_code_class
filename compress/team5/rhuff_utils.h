@@ -19,9 +19,9 @@ struct rle_block {
 struct bitValue
 {
 	// bit value of the run
-	uint8_t runValue;
+	unsigned char runValue;
 	// length of the run < 127
-	uint8_t runLength;
+	unsigned char runLength;
 };
 
 
