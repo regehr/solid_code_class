@@ -9,6 +9,7 @@ void compress(FILE * readFrom, FILE * writeTo);//compresses a file using RLE
 int packByte(int current, int counter, FILE * writeTo);//packages the run information into a single byte
 void unpackByte( int packed, int* symbol, int* number);//unpacks the symbol and number of symbols from a byte
 
+/*
 int main(int argc, char *argv[])
 {
   //open the file in binary read mode
@@ -50,6 +51,7 @@ int main(int argc, char *argv[])
 
   return 0;
 }
+ */
 
 /**
  * Takes the huffman decoded version of the file and writes out the appropriate number of ones and zeros
@@ -58,7 +60,7 @@ int main(int argc, char *argv[])
  * The next seven bits encode how many ones or zeros are in the run.
  * To decompress, simply read in each byte and write the appropriate number or ones or zeros to a file.
  */
-void decompress(FILE * readFrom, FILE * writeTo)
+void decompress_rle(FILE * readFrom, FILE * writeTo)
 {
   char * buff = (char *)calloc(1, sizeof(char));//holds the byte as we read them in
   unsigned char writeByte;//holds the binary digits to print out (unsigned to avoid arithmetic shift behavior)
@@ -130,7 +132,7 @@ void unpackByte( int packed, int* symbol, int* number)
  * 2. we hit the max number of ones or zeros we can encode in a single byte
  * When a run terminates we just get the next bit from the file and start a new run encoded in a byte
  */
-void compress(FILE * readFrom, FILE * writeTo)
+void compress_rle(FILE * readFrom, FILE * writeTo)
 {
   short mask = 0x01;//used to mask off bits as we process them
   int current = -1;//tracks the symbol of the current run
