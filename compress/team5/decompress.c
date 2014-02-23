@@ -163,7 +163,7 @@ uint64_t get_huff_size (FILE *input)
     return size;
 }
 
-void decompress (FILE *input, char* filename) 
+void decompress (FILE *input, char *filename) 
 {
     huff_tree *tree;
     uint64_t size;
