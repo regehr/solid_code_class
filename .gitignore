@@ -1,7 +1,7 @@
 *.o
 compress/team1/huff
 *.dot
-*.huff
+*.rhuff
 *.swp
 *.swo
 *~
