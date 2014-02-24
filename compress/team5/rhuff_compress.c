@@ -63,18 +63,32 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 	char readBuffer[1];
  	struct bitValue placeHolder;
 	placeHolder.runValue = 0;
-	placeHolder.runLength = 0;
+	placeHolder.runLength = 1;
+	unsigned char firstIter = 1;
 	while(fread(readBuffer , sizeof(readBuffer) , 1 , readFilePointer) == 1)
 	{
 		int byteIndex = 7;
 		for(; byteIndex >= 0; --byteIndex)
 		{
 			unsigned char current = 0;
-			current = BITVAL(readBuffer[0] , byteIndex + 1);
-			placeHolder.runValue = current;
-			//printf("Run Value = %x;" , current);
-			
-			unsigned char next = BITVAL(readBuffer[0] , byteIndex);
+			unsigned char next = 0;
+			if(!firstIter && byteIndex == 7)
+			{
+				current = placeHolder.runValue;
+				next = BITVAL(readBuffer[0] , byteIndex);
+			}
+			else if(byteIndex == 7)
+			{
+				firstIter = 0;
+				continue;
+			}
+			else
+			{
+				current = BITVAL(readBuffer[0] , byteIndex + 1);
+				placeHolder.runValue = current;
+				//printf("Run Value = %x;" , current);
+				next = BITVAL(readBuffer[0] , byteIndex);
+			}
 
 			if(current != next)
 			{
@@ -83,15 +97,17 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 				unsigned char toWrite;
 				printf("runValue(hex) = %02x; runLength(hex) = %02x\n" , placeHolder.runValue , placeHolder.runLength);
 				struct2Byte(&placeHolder , &toWrite);
+				placeHolder.runValue = next;
 				placeHolder.runLength = 1;
+				printf("cur = %02x;  next = %02x\n" , current , next);
 				printf("the byte to be written(hex): %02x\n\n" , toWrite);
+				writeByte(writeFilePointer , &toWrite);
 			}
 			else
 			{
 				//increase struct values
 				placeHolder.runLength += 1;
 			}
-
 		}
 	}
 }
