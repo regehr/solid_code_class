@@ -34,3 +34,7 @@ check: $(BINARY)
 	@for file in $(ALL_C_FILES) ; do ./huff -t $$file check 1> /dev/null ; done
 	@for file in $(ALL_H_FILES) ; do ./huff -t $$file check 1> /dev/null ; done
 	@for file in $(ALL_P_FILES) ; do ./huff -t $$file check 1> /dev/null ; done
+
+rle: testMain.c testMainD.c rhuff_compress.c rhuff_decompress.c
+	gcc -o rle testMain.c rhuff_compress.c
+	gcc -o rled testMainD.c rhuff_decompress.c 

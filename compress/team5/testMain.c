@@ -1,7 +1,7 @@
 #include "rhuff_compress.h"
 
-int main()
+int main(int argc, char **argv)
 {
-	encode("testFile" , "testFile.rle");
+	encode(argv[1] , argv[2]);
 	return 0;
 }
