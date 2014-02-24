@@ -1,9 +1,9 @@
 
 
 CC = clang
-CFLAGS = -Wall -g -O2 #-fsanitize=undefined
+CFLAGS = -Wall -g  #-fsanitize=undefined
 
-BINARY = huff
+BINARY = rhuff
 
 COMPILE = $(CC) $(CFLAGS) -c
 OBJFILES := $(patsubst %.c,%.o,$(wildcard *.c))

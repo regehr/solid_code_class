@@ -7,20 +7,6 @@
 #define BITVAL(x,y) (((x)>>(y)) & 1)
 #define SETBIT(x,y) (((x) |= BIT(y)))
 
-FILE * getFile(char *fileName , char *fileMode)
-{
-        FILE *filePointer;
-
-        filePointer = fopen(fileName , fileMode);
-
-        if(filePointer == NULL)
-        {
-                fprintf(stderr , "cannot open file in compress -> getFile");
-                exit(1);
-        }
-
-        return filePointer;
-}
 
 void getValue(unsigned char *toParse , unsigned char *returnedValue)
 {
@@ -32,11 +18,6 @@ void getLength(unsigned char *toParse , unsigned char *returnedLength)
 {
 	returnedLength[0] = 0;
 	returnedLength[0] = toParse[0] & 0x7FU;
-}
-
-void writeByte(FILE *writeFilePointer , char *toWrite)
-{
-        fwrite(toWrite , 1 , sizeof(char) , writeFilePointer);
 }
 
 void decodeFile(FILE *readFilePointer , FILE *writeFilePointer)
@@ -81,9 +62,9 @@ void decodeFile(FILE *readFilePointer , FILE *writeFilePointer)
 	}
 }
 
-void decode(char *readFileName , char *writeFileName)
+void decode(FILE *readFilePointer , char *writeFileName)
 {
-	FILE *readFilePointer = getFile(readFileName , "rb");
+	//FILE *readFilePointer = getFile(readFileName , "rb");
 	FILE *writeFilePointer = getFile(writeFileName , "wb");
 
 	

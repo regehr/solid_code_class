@@ -4,23 +4,6 @@
 #include <string.h>
 #define BITVAL(x,y) (((x)>>(y)) & 1)
 
-void writeByte(FILE * , char *);
-
-FILE * getFile(char *fileName , char *fileMode)
-{
-	FILE *filePointer;
-	
-	filePointer = fopen(fileName , fileMode);
-
-	if(filePointer == NULL)
-	{
-		fprintf(stderr , "cannot open file in compress -> getFile");
-		exit(1);
-	}
-	
-	return filePointer;
-}
-
 void prettyPrintFile(FILE *filePointer)
 {
 	char readBuffer[1];
@@ -44,11 +27,6 @@ void prettyPrintFile(FILE *filePointer)
                         printf("\n");
                 }
         }
-}
-
-void writeByte(FILE *writeFilePointer , char *toWrite)
-{
-	fwrite(toWrite , 1 , sizeof(char) , writeFilePointer);
 }
 
 void struct2Byte(struct bitValue* toConvert, unsigned char * convertTo)
@@ -95,12 +73,12 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 				//construct byte
 				//write to file
 				unsigned char toWrite;
-				printf("runValue(hex) = %02x; runLength(hex) = %02x\n" , placeHolder.runValue , placeHolder.runLength);
+				//printf("runValue(hex) = %02x; runLength(hex) = %02x\n" , placeHolder.runValue , placeHolder.runLength);
 				struct2Byte(&placeHolder , &toWrite);
 				placeHolder.runValue = next;
 				placeHolder.runLength = 1;
-				printf("cur = %02x;  next = %02x\n" , current , next);
-				printf("the byte to be written(hex): %02x\n\n" , toWrite);
+				//printf("cur = %02x;  next = %02x\n" , current , next);
+				//printf("the byte to be written(hex): %02x\n\n" , toWrite);
 				writeByte(writeFilePointer , &toWrite);
 			}
 			else
@@ -112,13 +90,13 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 	}
 }
 
-void encode(char * fileName, char * writeFileName)
+void encode(FILE * readFilePointer, char * writeFileName)
 {
 	//debug output
-	printf("fileName is: %s\n" , fileName);
+	//printf("fileName is: %s\n" , fileName);
 	
 	// call to get a pointer to an opened file to read from
-	FILE *readFilePointer = getFile(fileName , "rb");
+	//FILE *readFilePointer = getFile(fileName , "rb");
 
 	// call to get an open pointer to a file to write to
 	FILE *writeFilePointer = getFile(writeFileName , "w");
@@ -126,6 +104,7 @@ void encode(char * fileName, char * writeFileName)
 	encodeFile(readFilePointer , writeFilePointer);
 
 	//prettyPrintFile(readFilePointer);
+	char *endOfFile;
 
 	fclose(readFilePointer);
 	fclose(writeFilePointer);

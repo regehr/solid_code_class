@@ -13,6 +13,8 @@
 #include "huff_table.h"
 #include "compress.h"
 #include "decompress.h"
+#include "rhuff_compress.h"
+#include "huff_interface.h"
 
 int CHECK_REP;
 
@@ -55,9 +57,23 @@ int main (int argc, char *argv[])
         print_huff_table(input);
     } else if (strncmp(argv[1], "-c", 2) == 0) {
         printf("compressing\n");
-        compress(input, argv[2], length);  	
+		
+	char *interFileName = "interFile";
+
+	encode(input, interFileName);
+	input = fopen(interFileName, "r");
+	
+	FILE* output = NULL;
+
+	huff_encode(argv[2] , input , output);
+
     } else if (strncmp(argv[1], "-d", 2) == 0) {
-        decompress(input, argv[2]);
+	FILE *output = NULL;
+	huff_decode("interFile", input, output);
+	char *name = get_decompressed_file_name(argv[2]);
+	decompress(output, name);
+	
+
     } else {
         printf("First argument must be -t, -c or -d\n");
         exit(255); 

@@ -1,4 +1,4 @@
 /*
  * Provided a file name this performs run length encoding on the file.
  */
-void encode (char * , char *);
+void encode (FILE * , char *);

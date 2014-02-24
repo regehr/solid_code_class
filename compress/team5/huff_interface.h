@@ -1,3 +1,4 @@
+#include <stdio.h>
 /*
  * Easily interface with the huffman encoder and decoder
  */

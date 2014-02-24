@@ -40,13 +40,13 @@ void write_header (FILE *output, char **huff_table, uint64_t length)
 void compress_contents (FILE *input, FILE *output, char **huff_table)
 {
 	int bitc = 0, i, bitout;
-	char current, character;
+	unsigned char current, character;
 	char *temp = NULL;
 
 	while ((character = fgetc(input)) != EOF) {
 		temp = huff_table[(int)character];
 		i = 0;
-
+		
 		while (temp[i] != '\0') {
 			bitout = temp[i] - '0'; // Thanks SO :)
 			current = (current & ~(1 << bitc)) | bitout << bitc;
@@ -79,7 +79,7 @@ char *get_new_name (char *filename)
 		exit(255);
 	}
 
-	strcat(name, ".huff");
+	strcat(name, ".hurl");
 	return name;
 }
 

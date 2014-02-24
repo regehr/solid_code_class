@@ -20,7 +20,7 @@ char *huff_encode (char *filename, FILE *input, FILE *output)
     compress(input, filename, size);
 
     char *name = get_new_name(filename);
-    output = fopen(filename, "r");
+   // output = fopen(filename, "r");
 
     return name;
 }
