@@ -184,7 +184,6 @@ void dump(FILE *file, char *filename)
       assert(encoded_table[i] != NULL);
     }
     
-    file_size = det_file_size(file);
     get_huff_table(encoded_table, file, &file_size);
     
     assert(encoded_table != NULL);
@@ -255,7 +254,7 @@ size_t det_file_size(FILE *file) {
   }
   
   //Count bytes
-  size_t file_length = ftell(file);
+  long file_length = ftell(file);
   if (file_length < 0) {
     fprintf(stderr, "Error determining file size: exiting\n");
     exit(ERR);
@@ -264,7 +263,7 @@ size_t det_file_size(FILE *file) {
   //Rewind file
   rewind(file);
   
-  return file_length;
+  return (size_t)file_length;
 }
 
 void get_huff_table(char **huff_table, FILE *file, size_t *size) {
@@ -365,9 +364,10 @@ void write_compressed_file(FILE *comp_file, uint8_t * rle, char **encoded_table,
   }
   // Write file size
   // Convert to LE-format for file_size (platform-indep)
-  char file_size_le[sizeof(file_size)];
-  for (int i = 0; i < sizeof(file_size); i++) {
-    file_size_le[i] = (file_size >> (i*8)) & 0xFF;
+  uint64_t file_size_64 = file_size;
+  char file_size_le[sizeof(file_size_64)];
+  for (int i = 0; i < sizeof(file_size_64); i++) {
+    file_size_le[i] = (file_size_64 >> (i*8)) & 0xFF;
   }
   // And fwrite is for binary data >.>
   xfwrite(file_size_le, 8, 1, comp_file);
