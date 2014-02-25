@@ -89,7 +89,6 @@ void compress(FILE *file, char *filename) {
   size_t rle_size;
   uint8_t *rle_encoded = rle_encode(original, size, &rle_size);
   free(original);
-  //printf("%.*s\n", (int)rle_size, rle_encoded);
   create_freq_table(freq_table, rle_encoded, rle_size);	
   huff_node *huff_tree = create_huff_tree_from_frequency(freq_table);
   char **encoded_table = get_encoding(huff_tree);
@@ -158,7 +157,6 @@ void decompress(FILE *file, char *filename) {
     }
   }
   assert(byte_count == file_size);
-  //printf("%.*s\n", (int)file_size, rle_encoded);
   size_t decoded_size;
   uint8_t *rle_decoded = rle_decode(rle_encoded, file_size, &decoded_size);
   free(rle_encoded);
