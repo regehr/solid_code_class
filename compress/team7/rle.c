@@ -4,7 +4,7 @@
 #include "util.h"
 
 /** (encoded run)<->(bit and count) functions */
-static const int RUN_MAX = 255;
+static const int RUN_MAX = 127;
 
 static uint8_t run_encode(int type, int len) {
   assert(type == 0 || type == 1);

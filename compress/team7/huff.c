@@ -88,11 +88,7 @@ void compress(FILE *file, char *filename) {
   }
   size_t rle_size;
   uint8_t *rle_encoded = rle_encode(original, size, &rle_size);
-  memset(original, 0, size);
-  size_t decoded_size;
-  original = rle_decode(rle_encoded, rle_size, &decoded_size);
   free(original);
-  assert(decoded_size == size);
   //printf("%.*s\n", (int)rle_size, rle_encoded);
   create_freq_table(freq_table, rle_encoded, rle_size);	
   huff_node *huff_tree = create_huff_tree_from_frequency(freq_table);
