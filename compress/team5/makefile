@@ -27,6 +27,8 @@ clean:
 	-@rm -f $(BINARY)
 	-@rm -f interFile
 
+test:
+	$(PY) test.py
 
 
 .PHONY: check
