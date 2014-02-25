@@ -80,7 +80,7 @@ void compress(FILE *file, char *filename) {
   size_t size = det_file_size(file);
 
   // Convert to rle encoding.
-  uint8_t *original = (uint8_t *)xmalloc(sizeof(char) * size);
+  uint8_t *original = (uint8_t *)xmalloc(sizeof(uint8_t) * size);
   size_t read = fread(original, 1, size, file);
   if (read < size) {
     fprintf(stderr, "Could not read full file.\n");
@@ -89,6 +89,7 @@ void compress(FILE *file, char *filename) {
   size_t rle_size;
   uint8_t *rle_encoded = rle_encode(original, size, &rle_size);
   free(original);
+  //printf("%.*s\n", (int)rle_size, rle_encoded);
   create_freq_table(freq_table, rle_encoded, rle_size);	
   huff_node *huff_tree = create_huff_tree_from_frequency(freq_table);
   char **encoded_table = get_encoding(huff_tree);
@@ -137,10 +138,10 @@ void decompress(FILE *file, char *filename) {
   //Open new file
   FILE *decomp_file = open_file(filename, "w");
   
-  unsigned long long byte_count = 0;
+  size_t byte_count = 0;
   uint8_t curr_byte;
   int decoded;
-  
+  uint8_t *rle_encoded = xmalloc(sizeof(uint8_t) * file_size);
   //Loop through encoded data, decode it and add to new file
   while(fread(&curr_byte, 1, 1, file) &&  byte_count < file_size) {
     for(int i = 7; (i >= 0) && (byte_count < file_size); i--) {
@@ -151,16 +152,22 @@ void decompress(FILE *file, char *filename) {
 	byte_count++;
     	
 	//Write decompressed data to file
-	xfwrite(&decoded_char, 1, 1, decomp_file);    			
+	//xfwrite(&decoded_char, 1, 1, decomp_file);    			
+	rle_encoded[byte_count-1] = decoded_char;
       }
     }
   }
-  
-  rewind(decomp_file);
-  size_t final_size = det_file_size(decomp_file);
-  
-  assert(file_size == final_size && "Compressed size information and decompressed file size don't match.");
-  
+  assert(byte_count == file_size);
+  //printf("%.*s\n", (int)file_size, rle_encoded);
+  size_t decoded_size;
+  uint8_t *rle_decoded = rle_decode(rle_encoded, file_size, &decoded_size);
+  free(rle_encoded);
+  size_t written = fwrite(rle_decoded, sizeof(uint8_t), decoded_size, decomp_file);
+  if (written < decoded_size) {
+    fprintf(stderr, "File write error");
+    exit(ERR);
+  }
+  free(rle_decoded);
   //Close the file
   fclose(decomp_file);
   
