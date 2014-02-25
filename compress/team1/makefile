@@ -34,4 +34,4 @@ clean:
 	-rm -f $(bin) $(objects) $(ext) rle test_rle.o output_file.txt *~
 
 clang: $(objects)
-	clang huff.c huff_tree.c huff_io.c compress.c decode.c -fsanitize=undefined -Wall -g -O0 -o rhuff -lm
+	clang huff.c huff_tree.c huff_io.c compress.c decode.c rle.c -fsanitize=undefined -Wall -g -O0 -o rhuff -lm

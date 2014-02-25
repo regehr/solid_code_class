@@ -56,14 +56,14 @@ static unsigned char* grow_array(unsigned char* ar)
 /**
  * Construct rle byte and add it to the byte array
  */
-static void enter_byte(unsigned char* bytes, uint8_t bit, uint8_t freq)
+static void enter_byte(unsigned char** bytes, uint8_t bit, uint8_t freq)
 {
   assert(freq < 128);
 
   // Check if we need to increase the length of the byte array
   if((num_bytes + 1) > size) {
-    bytes = grow_array(bytes);
-    printf("Grew array");
+    *bytes = grow_array(*bytes);
+    //printf("Grew array");
   }
 
   // Make the new rle byte and put it in the array
@@ -71,7 +71,7 @@ static void enter_byte(unsigned char* bytes, uint8_t bit, uint8_t freq)
   //printf("bit is: %x\n", bit);
   //printf("freq is: %x\n", freq);
   //printf("Adding hex: %x to byte array\n", temp);
-  bytes[num_bytes++] = temp;
+  (*bytes)[num_bytes++] = temp;
 }
 
 void encode_rle(FILE* file, unsigned char** to_return, unsigned long long* total_bytes)
@@ -96,7 +96,7 @@ void encode_rle(FILE* file, unsigned char** to_return, unsigned long long* total
       for (i = 0; i <= 7; i++){ // Iterate through bits of the character
 	if(curr_bit == (temp_bit = bit_at(c, i))) { // See if the next bit matches our current bit
 	  if((freq + 1) >= 128) { // Only 7 bits to represent frequency, so max frequency = 127
-	    enter_byte(bytes, curr_bit, freq);
+	    enter_byte(&bytes, curr_bit, freq);
 	    //printf("most recent byte hex: %x\n", bytes[num_bytes]);
 	    freq = 1;
 	  } else {
@@ -104,7 +104,7 @@ void encode_rle(FILE* file, unsigned char** to_return, unsigned long long* total
 	  }
 	} else { // Bits didn't match, enter current byte and set the new bit as current
 	  if(freq != 0) {
-	    enter_byte(bytes, curr_bit, freq);
+	    enter_byte(&bytes, curr_bit, freq);
 	    //printf("most recent byte hex: %x\n", bytes[num_bytes]);
 	  }
 
@@ -114,7 +114,7 @@ void encode_rle(FILE* file, unsigned char** to_return, unsigned long long* total
 	}
       }
     } else { // EOF found, push last rle byte to array
-      enter_byte(bytes, curr_bit, freq);
+      enter_byte(&bytes, curr_bit, freq);
       //printf("most recent byte hex: %x\n", bytes[num_bytes]);
     }
     assert(num_bytes <= size);
