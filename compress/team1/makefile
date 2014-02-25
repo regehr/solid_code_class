@@ -24,15 +24,14 @@ test:
 	python test/clearTestFiles.py
 
 rle_test: rle.c test_rle.c
-	gcc -c -o rle.o rle.c
-	gcc -c -o test_rle.o test_rle.c
-	gcc -o rle rle.o test_rle.o
+	gcc -g -c -o rle.o rle.c
+	gcc -g -o rle rle.o test_rle.c
 
 release: $(objects)
 	$(CC) $(CFLAGS) -D NDEBUG -o rhuff $^
 
 clean:
-	-rm -f $(bin) $(objects) $(ext) rle test_rle.o
+	-rm -f $(bin) $(objects) $(ext) rle test_rle.o output_file.txt *~
 
 clang: $(objects)
 	clang huff.c huff_tree.c huff_io.c compress.c decode.c -fsanitize=undefined -Wall -g -O0 -o rhuff -lm
