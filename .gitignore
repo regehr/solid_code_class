@@ -14,3 +14,5 @@ compress/team1/kern
 compress/team1/mach_kernel
 
 compress/team2/kernel
+
+*.pbm
