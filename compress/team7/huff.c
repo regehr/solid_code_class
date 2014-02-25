@@ -160,6 +160,12 @@ void decompress(FILE *file, char *filename) {
   size_t decoded_size;
   uint8_t *rle_decoded = rle_decode(rle_encoded, file_size, &decoded_size);
   free(rle_encoded);
+
+  if (rle_decoded == NULL) {
+    fprintf(stderr, "Invalid RLE data: exiting\n");
+    exit(ERR);
+  }
+
   size_t written = fwrite(rle_decoded, sizeof(uint8_t), decoded_size, decomp_file);
   if (written < decoded_size) {
     fprintf(stderr, "File write error");
