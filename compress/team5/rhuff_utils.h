@@ -3,8 +3,7 @@
  * and the decompressor.
  */
 
-
-void writeByte(FILE *writeFilePointer , char *toWrite);
+void writeByte(FILE *writeFilePointer , unsigned char *toWrite);
 
 FILE * getFile(char *fileName , char *fileMode);
 
