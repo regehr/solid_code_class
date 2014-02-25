@@ -25,6 +25,7 @@ $(BINARY): $(OBJFILES)
 clean:
 	-@rm -f $(OBJFILES)
 	-@rm -f $(BINARY)
+	-@rm -f interFile
 
 
 
