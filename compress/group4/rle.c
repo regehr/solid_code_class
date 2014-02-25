@@ -2,10 +2,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "rle.h"
 
-/** Main functins **/
-int rle_encode(char *in, char *out);	
-int rle_decode(char *in, char *out);	
+
 
 /** Private helpers **/
 static FILE *Fopen(const char *filename, const char *mode);

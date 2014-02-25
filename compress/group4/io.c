@@ -122,7 +122,7 @@ void write_compressed_file(unsigned char* file_pointer, unsigned long long file_
   /* Append .huff to filename and write out file with header */
   char new_filename[strlen(filename) + 6];
   strcpy(new_filename, filename);
-  strcat(new_filename, ".huff");
+  strcat(new_filename, ".hurl");
 
   FILE* f = fopen(new_filename, "w");
   if(f == NULL)
@@ -131,7 +131,7 @@ void write_compressed_file(unsigned char* file_pointer, unsigned long long file_
     exit(-1);
   }
 
-  char* magic_number = "HUFF";
+  char* magic_number = "HURL";
   Fwrite(magic_number, sizeof(char), strlen(magic_number), f);
   Fwrite(&file_length, sizeof(unsigned long long), 1, f);
   Fwrite(orig_mapping, sizeof(char), strlen(orig_mapping), f);
@@ -192,6 +192,7 @@ void write_decompressed_file(unsigned char* file_pointer, unsigned long long fil
 
   /* Remove.huff and write out file */
   filename[strlen(filename)-5] = '\0';
+  strncat(&filename[strlen(filename)],".temp",strlen(".temp"));
   FILE* f = fopen(filename, "w");
   if(f == NULL)
   {
@@ -206,12 +207,12 @@ void write_decompressed_file(unsigned char* file_pointer, unsigned long long fil
 /* Returns whether or not the file is in huff format */
 int check_format(unsigned char* file_pointer, unsigned long long file_length, char* filename)
 {
-  if(strlen(filename) <= 5 || strcmp(filename + strlen(filename) - 5, ".huff") != 0)
+  if(strlen(filename) <= 5 || strcmp(filename + strlen(filename) - 5, ".hurl") != 0)
   {
     return 0;
   }
 
-  char* magic_number = "HUFF";
+  char* magic_number = "HURL";
 
   for(unsigned long long i = 0; i < strlen(magic_number); i++)
   {
