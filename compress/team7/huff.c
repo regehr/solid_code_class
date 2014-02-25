@@ -78,6 +78,8 @@ void compress(FILE *file, char *filename) {
   
   //Determine frequency/encoding tables
   size_t size = det_file_size(file);
+
+  // Convert to rle encoding.
   uint8_t *original = (uint8_t *)xmalloc(sizeof(char) * size);
   size_t read = fread(original, 1, size, file);
   if (read < size) {
@@ -95,8 +97,8 @@ void compress(FILE *file, char *filename) {
   assert(encoded_table != NULL);
   
   //Write data
-  write_compressed_file(comp_file, file, encoded_table, size);
-  
+  write_compressed_file(comp_file, rle_encoded, encoded_table, rle_size);
+  free(rle_encoded);
   //Close the file
   fclose(comp_file);
   
@@ -196,6 +198,8 @@ void dump(FILE *file, char *filename)
     unsigned long long freq_table[256];
     for(int i = 0; i < 256; i++)
       freq_table[i] = 0;
+    
+    // Convert to rle encoding.
     uint8_t *original = (uint8_t *)xmalloc(sizeof(uint8_t) * file_size);
     size_t read = fread(original, sizeof(uint8_t), file_size, file);
     if (read < file_size) {
@@ -205,8 +209,11 @@ void dump(FILE *file, char *filename)
     size_t rle_size;
     uint8_t *rle_encoded = rle_encode(original, file_size, &rle_size);
     free(original);
+    
+    // Now create the table.
     create_freq_table(freq_table, rle_encoded, rle_size);	
     free(rle_encoded);
+    
     huff_node *huff_tree = create_huff_tree_from_frequency(freq_table);
     char **encoded_table = get_encoding(huff_tree);
     assert(encoded_table != NULL);
@@ -348,7 +355,7 @@ enum Flags determine_flag(char *user_flag) {
 
 static void compressed_write_bit(int bit, FILE *comp_file);
 static void compressed_finish_file(FILE *comp_file);
-void write_compressed_file(FILE *comp_file, FILE *orig_file, char **encoded_table, size_t file_size) {
+void write_compressed_file(FILE *comp_file, uint8_t * rle, char **encoded_table, size_t file_size) {
   // Write magic number
   // Apparently fprintf is used for strings?
   int res = fprintf(comp_file, "%s", NUM);
@@ -375,13 +382,11 @@ void write_compressed_file(FILE *comp_file, FILE *orig_file, char **encoded_tabl
   }
   
   // Write compressed data
-  rewind(orig_file);
   
   int curr_char;
   char *encoded_char;
-  curr_char = fgetc(orig_file);
-  
-  while(curr_char != EOF) {
+  for (size_t j = 0; j < file_size; j++) {
+    curr_char = rle[j];
     encoded_char = encoded_table[curr_char];
     
     size_t bit_count = strlen(encoded_char);
@@ -389,8 +394,6 @@ void write_compressed_file(FILE *comp_file, FILE *orig_file, char **encoded_tabl
       int bit = encoded_char[i] == '0' ? 0 : 1;
       compressed_write_bit(bit, comp_file);
     }
-    
-    curr_char = fgetc(orig_file);
   }
 
   compressed_finish_file(comp_file);

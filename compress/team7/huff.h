@@ -6,6 +6,7 @@
 #define ERR 255
 
 #include <stdbool.h>
+#include <stdint.h>
 
 enum Flags 
 {
@@ -67,6 +68,6 @@ enum Flags determine_flag(char *user_flag);
 /* Wrapper function for fopen. Performs check to ensure file is opened. */
 FILE *open_file(char *filename, char *permission);
 
-void write_compressed_file(FILE *comp_file, FILE *orig_file, char **encoded_table, size_t file_size);
+void write_compressed_file(FILE *comp_file, uint8_t *rle, char **encoded_table, size_t file_size);
 
 #endif // HUFF_H
