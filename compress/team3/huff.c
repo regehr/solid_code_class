@@ -8,76 +8,77 @@
 // with the .huff extension.
 //
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
-#include "compressedOutputFileWriter.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "encodedOutputFileWriter.h"
 #include "decodedOutputFileWriter.h"
-#include "decoder.h"
+#include "syscalls.h"
 #include "encoder.h"
+#include "decoder.h"
 
 #define ENTRIES 256
 #define ENTRY_LENGTH 256
 
 /*
- * The mode determines if we compress, decompress, or print out the table to the commandline.
+ * The mode determines if we compress, decompress, or print out the table to the
+ * commandline.
  * Possibilities: -t, -c, or -d
  * If it's -d, file has to be of .huff extension type.
  */
-typedef enum {TABLE_MODE_HUFF, TABLE_MODE_GENERIC, COMPRESS_MODE, DECOMPRESS_MODE, INVALID_MODE} eMode;
-typedef enum {FILE_SUCCESS, FILE_MISSING, FILE_INVALID_FORMAT} eFileCode;
+typedef enum
+{
+    TABLE_MODE_HUFF,
+    TABLE_MODE_GENERIC,
+    COMPRESS_MODE,
+    DECOMPRESS_MODE,
+    INVALID_MODE
+} eMode;
+
+typedef enum
+{
+    FILE_SUCCESS,
+    FILE_MISSING,
+    FILE_INVALID_FORMAT
+} eFileCode;
 
 
 /*
  * Determines if commandline input is the right format.
  */
-eMode getModeOfOperation(int argc, char **argv)
+eMode getModeOfOperation(int argc, char *argv[3])
 {
-    // Need three commandline arguments, the right mode, and a .huff if option is -d.
-    int isThreeArgs = argc == 3;
-    if (!isThreeArgs)
+    // Need three arguments: the mode and a .huff if option is -d.
+    if (argc != 3)
     {
         return INVALID_MODE;
     }
 
-    assert(argv != NULL);
-
-    int isT = !strcmp(argv[1], "-t"); // strcmp returns 0 when strings are equal.
-    int isC = !strcmp(argv[1], "-c");
-    int isD = !strcmp(argv[1], "-d");
-    int isHuff = strstr(argv[2], ".huff\0") != NULL;
-    int isValidFileName;
-    
-    if (isHuff)
+    int fileNameLength = strlen(argv[2]);
+    bool isHuff = strstr(argv[2], ".huff\0") != NULL && fileNameLength > 5;
+    if (fileNameLength <= 0)
     {
-        isValidFileName = strlen(argv[2]) - 5;
+        return INVALID_MODE;
     }
-    else
+    if (strcmp(argv[1], "-t") == 0)
     {
-         isValidFileName = strlen(argv[2]);
-    }
-
-    if (isT && isHuff)
-    {
-        return TABLE_MODE_HUFF;
-    }
-    else if (isT && isValidFileName)
-    {
+        if (isHuff)
+        {
+            return TABLE_MODE_HUFF;
+        }
         return TABLE_MODE_GENERIC;
     }
-    else if (isC && isValidFileName)
+    if (strcmp(argv[1], "-c") == 0)
     {
         return COMPRESS_MODE;
     }
-    else if (isD && isHuff && isValidFileName)
+    if (strcmp(argv[1], "-d") == 0 && isHuff)
     {
         return DECOMPRESS_MODE;
     }
-    else
-    {
-        return INVALID_MODE;
-    }
+    return INVALID_MODE;
 }
 
 /*
@@ -119,33 +120,6 @@ eFileCode ReadHeader(FILE* pFile, unsigned long long* pHuffmanSize)
 }
 
 /*
- * This function will go through a .huff and extract the compression table at the top of the file.
- * The compression table is returned in pOutCompressionTable.
- *
- * File stream is expected to already be in the proper location for this call to succeed (must be
- * at the beginning of the compression table section, byte 12).
- */
-eFileCode GetTableForHuff(FILE* pFile, huffResult* resultArray)
-{
-    int i;
-    
-    assert(pFile != NULL);
-
-    // Go through the next 256 lines of the file, read them out line by line.
-    resultArray = calloc(256, sizeof(huffResult));
-    assert(resultArray);
-    for (i = 0; i < ENTRIES && fgets(resultArray[i].string, ENTRY_LENGTH, pFile) != NULL; resultArray[i].value = i, i++);
-
-    // If there weren't 256 entries, the .huff was an invalid format.
-    if (i < ENTRIES)
-    {
-        return FILE_INVALID_FORMAT;
-    }
-
-    return FILE_SUCCESS;
-}
-
-/*
  * Given a table of frequencies as an input, this function will generate the compression table.
  * Caller must pass in an empty compression table to be filled by this function, and a table
  * of character frequencies.
@@ -157,9 +131,9 @@ eFileCode GetTableForHuff(FILE* pFile, huffResult* resultArray)
  * ...
  * 00001
  */
-eFileCode GetTableForGeneric(unsigned* pFrequencies, huffResult** resultArray)
+eFileCode GetTableForGeneric(unsigned* pFrequencies, huffResult resultArray[256])
 {
-    *resultArray = createHuffmanTree(pFrequencies);
+    createHuffmanTree(pFrequencies, resultArray);
 
     return FILE_SUCCESS;
 }
@@ -194,17 +168,11 @@ eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned* pOutFrequencies)
  * ...
  * 00001
  */
-eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName, huffResult* resultArray)
+eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName)
 {
-    FILE* pFile = NULL;
-    FILE* pNewFile = NULL;
-    char* huffmanEncodings;
-    huffNode* huffmanTreeRootNode;
-    unsigned long long lengthOfFile = 0;
-    unsigned pFrequencies[ENTRIES] = {0}; // The frequency of occurrence of each character in the uncompressed file.
     eFileCode fileCode; // And error code which tells if the operation was successful or not.
-        
-    pFile = fopen(fileName, "r"); // Open file for reading.
+
+    FILE *pFile = fopen(fileName, "r"); // Open file for reading.
     fileCode = FILE_SUCCESS;
 
     // Check that file was successfully opened.  If not, return an error code.
@@ -216,90 +184,93 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
     switch(huffmanMode)
     {
         case DECOMPRESS_MODE:
+        {
             // If the file is a compressed huffman file, then use the get table for huff function to open it.
-            huffmanEncodings = huffmanEncodingsFromFile(pFile, &lengthOfFile);
-            if (huffmanEncodings != NULL)
-            {
-                long nameLength = strlen(fileName) - strlen(".huff\0");
-                assert(nameLength > 0);
-                char* newFileName = calloc(nameLength + 1, sizeof(char));
-                assert(newFileName);
-                strncpy(newFileName, fileName, nameLength);
-                pNewFile = fopen(newFileName, "w+");
-                
-                if (pNewFile == NULL)
-                {
-                    fileCode = FILE_INVALID_FORMAT;
-                }
-                else
-                {                
-                    resultArray = createHuffResultArrayFromFileEncodings(huffmanEncodings);
-                    huffmanTreeRootNode = createDecodeTreeFromResultArray(resultArray);
-                    writeCompressedFileToNonCompressedOutput(pFile, pNewFile, lengthOfFile, huffmanTreeRootNode);
-                    
-                    fclose(pNewFile);
-                }
-            }
-            else 
-            {
-                fileCode = FILE_INVALID_FORMAT;
-            }
-        break;
-        
+            char huffmanEncodings[ENTRIES * ENTRY_LENGTH];
+            unsigned long long lengthOfFile =
+                huffmanEncodingsFromFile(pFile, huffmanEncodings);
+            int nameLength = strlen(fileName) - strlen(".huff");
+            char newFileName[nameLength + 1];
+            strncpy(newFileName, fileName, nameLength);
+            newFileName[nameLength] = 0;
+            FILE *pNewFile = xfopen(newFileName, "w");
+
+            huffResult resultArray[ENTRIES];
+            createHuffResultArrayFromFileEncodings(huffmanEncodings, resultArray);
+            huffNode huffmanTree[ENTRIES + ENTRIES - 1];
+            createDecodeTreeFromResultArray(resultArray, huffmanTree);
+            writeCompressedFileToNonCompressedOutput(pFile, pNewFile, lengthOfFile, &huffmanTree[0]);
+
+            fclose(pNewFile);
+            break;
+        }
+
         case TABLE_MODE_HUFF:
+        {
             // If we want a table and the file is .huff, it may or may not be the same .huff we want it to be.
             // We'll try to treat it as a .huff but if it's the wrong format, we will treat it like a generic
             // file.
-            huffmanEncodings = huffmanEncodingsFromFile(pFile, &lengthOfFile);
-            if (huffmanEncodings != NULL)
+            char huffmanEncodings[ENTRIES * ENTRY_LENGTH];
+            huffmanEncodingsFromFile(pFile, huffmanEncodings);
+            if (huffmanEncodings[0] != 0)
             {
-//                if (pNewFile == NULL)
-//                {
-//                    fileCode = FILE_INVALID_FORMAT;
-//                }
-//                else
-                {
-                    resultArray = createHuffResultArrayFromFileEncodings(huffmanEncodings);
-                    printHuffResultArray(resultArray);
-                }
+                huffResult resultArray[ENTRIES];
+                createHuffResultArrayFromFileEncodings(huffmanEncodings, resultArray);
+                printHuffResultArray(resultArray);
             }
             else
             {
                 // File was a .huff, but internally format doesn't fit. Oh well, we can still generate a compression table.
                 // Maybe someone else in the world created their own .huff file format. We need to handle that format.
                 fseek(pFile, 0, SEEK_SET);
-            
+
+                // The frequency of occurrence of each character in the uncompressed file.
+                unsigned pFrequencies[ENTRIES];
+                memset(pFrequencies, 0, sizeof(pFrequencies));
                 if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
                 {
-                    fileCode = GetTableForGeneric(pFrequencies, &resultArray);
+                    huffResult resultArray[ENTRIES];
+                    fileCode = GetTableForGeneric(pFrequencies, resultArray);
                 }
                 else
                 {
                     fileCode = FILE_INVALID_FORMAT;
                 }
             }
-        break;
-        
+            break;
+        }
+
         case TABLE_MODE_GENERIC:
+        {
             // If the file is not a .huff, then generate frequencies and then a table for the file.
+            // The frequency of occurrence of each character in the uncompressed file.
+            unsigned pFrequencies[ENTRIES];
+            memset(pFrequencies, 0, sizeof(pFrequencies));
             if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
             {
-                fileCode = GetTableForGeneric(pFrequencies, &resultArray);
+                huffResult resultArray[ENTRIES];
+                fileCode = GetTableForGeneric(pFrequencies, resultArray);
                 printHuffResultArray(resultArray);
             }
             else
             {
                 fileCode = FILE_INVALID_FORMAT;
-            }            
-        break;
-            
+            }
+            break;
+        }
+
         case COMPRESS_MODE:
+        {
             // If the file is not a .huff, then generate frequencies and then a table for the file.
+            // The frequency of occurrence of each character in the uncompressed file.
+            unsigned pFrequencies[ENTRIES];
+            memset(pFrequencies, 0, sizeof(pFrequencies));
             if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
             {
-                fileCode = GetTableForGeneric(pFrequencies, &resultArray);
-                pNewFile = fopen(strcat(fileName, ".huff"), "w+");
-                
+                huffResult resultArray[ENTRIES];
+                fileCode = GetTableForGeneric(pFrequencies, resultArray);
+                FILE *pNewFile = fopen(strcat(fileName, ".huff"), "w+");
+
                 if (pNewFile == NULL)
                 {
                     fileCode = FILE_INVALID_FORMAT;
@@ -313,12 +284,16 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
             else
             {
                 fileCode = FILE_INVALID_FORMAT;
-            }            
-        break;
+            }
+            break;
+        }
+
         default:
+        {
             // File must not be valid for the specified commandline options if we get this far.
             fileCode = FILE_INVALID_FORMAT;
-        break;
+            break;
+        }
     }
 
     fclose(pFile);
@@ -327,31 +302,33 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
 
 int main(int argc, char **argv)
 {
-    // The mode determines if we compress, decompress, or print out the table to the commandline.
+    // The mode determines if we compress, decompress, or print out the table to
+    // the commandline.
     // Possibilities: -t, -c, or -d
     // If it's -d, file has to be of .huff extension type.
-    eMode mode;
-    char* fileName; // Name of the file passes in as a commandline arg.
-    huffResult* resultArray = NULL; // The table of 010101001 codes for each ascii character.
-    eFileCode fileCode; // Used for error handling.
 
-    mode = getModeOfOperation(argc, argv); // -t, -c, or -d, plus this checks if the file name/extension is valid.
+    // -t, -c, or -d, plus this checks if the file name/extension is valid.
+    eMode mode = getModeOfOperation(argc, argv);
 
     // Ensure proper commandline arguments!
     if (mode == INVALID_MODE)
     {
-        fprintf(stderr, "Invalid commandline args. Should be:\nhuff (-t | -c) file\nOR\nhuff -d file.huff\ni.e.: ./huff -t MyFile.txt\n");
-        return 255;
+        fprintf(stderr,
+            "Invalid commandline args. Should be:\nhuff (-t | -c) file\nOR\nhuff -d file.huff\ni.e.: ./huff -t MyFile.txt\n");
+        return -1;
     }
-    
-    fileName = argv[2];
-    fileCode = GenerateTableAndCompressOrDecompress(mode, fileName, resultArray);
+
+    // Name of the file passes in as a commandline arg.
+    char *fileName = argv[2];
+    // `fileCode` used for error handling.
+    eFileCode fileCode = GenerateTableAndCompressOrDecompress(mode, fileName);
 
     // Check if function succeeded.
     if (fileCode != FILE_SUCCESS)
     {
-        fprintf(stderr, "Invalid File and commandline Parameter combination.\n");
-        return 255;
+        fprintf(stderr,
+            "Invalid File and commandline Parameter combination.\n");
+        return -1;
     }
 
     return 0;

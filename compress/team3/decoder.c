@@ -13,177 +13,154 @@
 #include <string.h>
 #include "encoder.h"
 #include "decoder.h"
+#include "syscalls.h"
 
-//private headers
-huffNode* createDecodeTreeFromResultArray(huffResult *resultArray);
-char getNextByte(FILE *file);
+//turns a result array into a huff tree
+void createDecodeTreeFromResultArray(huffResult *resultArray, huffNode out[511])
+{
+    memset(out, 0, sizeof(huffNode) * 511);
+    //create a root node
+    huffNode *rootNode = out;
+
+    int nextFreeNode = 1;
+
+    //iterate across the result array and place nodes where needed
+    for(int i = 0; i < 256; i++)
+    {
+        huffResult *currentResult = &resultArray[i];
+        char * valueString = currentResult->string;
+
+        //simply walk down the tree adding nodes as needed until we reach the final character of the current encode string.
+        huffNode *currentNode = rootNode;
+        for(int j = 0;  j < strlen(valueString); j++)
+        {
+            if (valueString[j] == '0')
+            {
+                if(currentNode->leftLeaf == NULL)
+                {
+                    currentNode->leftLeaf = &out[nextFreeNode];
+                    nextFreeNode++;
+                }
+                huffNode *parentNode = currentNode;
+                currentNode = currentNode->leftLeaf;
+                currentNode->parent = parentNode;
+            }
+            else
+            {
+                if(currentNode->rightLeaf == NULL)
+                {
+                    currentNode->rightLeaf = &out[nextFreeNode];
+                    nextFreeNode++;
+                }
+                huffNode *parentNode = currentNode;
+                currentNode = currentNode->rightLeaf;
+                currentNode->parent = parentNode;
+
+            }
+        }
+        currentNode->byte = i;
+        assert(currentNode->leftLeaf == NULL && currentNode->rightLeaf == NULL);
+    }
+}
 
 //returns the encodings from a givin file, returns null otherwise
-char *huffmanEncodingsFromFile(FILE *file, unsigned long long *decodedLength)
+unsigned long long huffmanEncodingsFromFile(FILE *file, char encodings[32768])
 {
     rewind(file);
     //get the first 4 header characters
-    char *header = calloc(4, sizeof(char));
-    assert(header);
-    fread(header, 4, sizeof(char), file);
-    
+    char magic[4];
+    xfread(magic, 4, sizeof(char), file);
+
     //make sure it says HUFF
-    if(!(header[0] == 'H' &&
-       header[1] == 'U' &&
-       header[2] == 'F' &&
-       header[3] == 'F'))
+    if(!(magic[0] == 'H' &&
+       magic[1] == 'U' &&
+       magic[2] == 'F' &&
+       magic[3] == 'F'))
     {
-        printf("Invliad File Header - missing \"HUFF\"");
-        return NULL;
+        fprintf(stderr, "Invliad File Header - missing \"HUFF\"");
+        exit(-1);
     }
-    
-    //put the decoded length in the output variable
-    fread(decodedLength, 1, sizeof(unsigned long long), file);
-    
-    //make an array of strings to hold the result
-    char *encodings = calloc(4096, sizeof(char));
-    assert(encodings);
-    
+
+    // Put the decoded length in the output variable
+    unsigned long long decodedLength;
+    xfread(&decodedLength, 1, sizeof(unsigned long long), file);
+
     //get the next 256 strings representing the encodings
     //create an index to keep track of where we are in copying the string
     int currentIndex = 0;
     for(int i = 0; i < 256; i ++)
     {
-        
-        
-        //loop until we hit the /n, if we hit any other character besides 0,1 or /n then it should fail
-        while(1)
+        // Loop until we hit a /n. If we hit any other character besides '0',
+        // '1' or '/n' then it should fail.
+        char currentByte;
+        do
         {
-            char nextByte = getNextByte(file);
-            if(nextByte == '0' ||
-               nextByte == '1' ||
-               nextByte == '\n')
+            xfread(&currentByte, 1, 1, file);
+            if (currentByte != '0' && currentByte != '1' && currentByte != '\n')
             {
-                
-                
-                //place the byte in the result
-                encodings[currentIndex++] = nextByte;
-                
-                //is this string finished?
-                if(nextByte == '\n')
-                {
-                    break;
-                }
+                fprintf(stderr,
+                    "Invalid character '%c' found in translation table.\n",
+                    currentByte);
+                exit(-1);
             }
-            else{
-                //we have found a problem, print a message and set the lenght to 0 and return null;
-                printf("Invliad character: %c found in for encoding index: %d",nextByte,i);
-                *decodedLength = 0;
-                return NULL;
-            }
+            // Place the byte in the result.
+            encodings[currentIndex] = currentByte;
+            currentIndex++;
         }
+        while (currentByte != '\n');
     }
-    
-    return encodings;
-    
+
+    return decodedLength;
 }
 
-
-//returns huffresults from given encodings
-huffResult* createHuffResultArrayFromFileEncodings(char * encodings)
+// Fills resultArray with the given encodings.
+void createHuffResultArrayFromFileEncodings(
+    char encodings[32768], huffResult resultArray[256])
 {
-    //alloc the array
-    huffResult * resultArray = calloc(256, sizeof(huffResult));
-    assert(resultArray);
-    
-    //holds current index from the encodings
+    // Holds current index from the encodings
     int stringIndex = 0;
-    
+
     for(int i = 0; i < 256; i++)
     {
-     
+
         //get the current result and set defaults
         huffResult * currentResult = &resultArray[i];
         currentResult->value = i;
         currentResult->string = "";
-        
+
         int currentStartIndex = stringIndex;
-        
+
         //find the next newline
         while (encodings[stringIndex] != '\n')
         {
             char testChar = encodings[stringIndex++];
             if(!(testChar == '0' || testChar == '1'))
             {
-                printf("Invaid Character Found In Ecnoding: %c",testChar);
-                return NULL;
+                fprintf(stderr, "Invalid character found in encoding: %c\n",
+                    testChar);
+                return;
             }
         }
-        
+
         //copy the encoding into the the currentresult
         if(currentStartIndex< stringIndex)
         {
             int length = stringIndex - currentStartIndex;
-            
+
             char * value = calloc(length+1,sizeof(char) * length);
             assert(value);
             memcpy(value, &encodings[currentStartIndex], length);
             currentResult->string = value;
-            
+
         }
         //increment
         stringIndex++;
     }
-    
+
     //just a test to make sure every value has a string.
     for(int i = 0; i < 256; i++)
     {
         huffResult * currentResult = &resultArray[i];
         assert(currentResult->string);
     }
-    
-    return resultArray;
-}
-
-//turns a result array into a huff tree
-huffNode* createDecodeTreeFromResultArray(huffResult *resultArray)
-{
-    //create a root node
-    huffNode *rootNode = malloc(sizeof(huffNode));
-    
-    //iterate across the result array and place nodes where needed
-    for(int i = 0; i < 256; i++)
-    {
-        huffResult *currentResult = &resultArray[i];
-        char * valueString = currentResult->string;
-        
-        //simply walk down the tree adding nodes as needed until we reach the final character of the current encode string.
-        huffNode *nextNode = rootNode;
-        int stringLength = (int)strlen(valueString);
-        for(int j = 0;  j < stringLength ;j++)
-        {
-            
-            char currentBit = valueString[j];
-            if(currentBit == '0')
-            {
-                if(!nextNode->leftLeaf)
-                {
-                    nextNode->leftLeaf = calloc(1, sizeof(huffNode));
-                    assert(nextNode->leftLeaf);
-                }
-                huffNode *parentNode = nextNode;
-                nextNode = nextNode->leftLeaf;
-                nextNode->parent = parentNode;
-            }
-            else if(currentBit == '1')
-            {
-                if(!nextNode->rightLeaf)
-                {
-                    nextNode->rightLeaf = calloc(1, sizeof(huffNode));
-                    assert(nextNode->rightLeaf);
-                }
-                huffNode *parentNode = nextNode;
-                nextNode = nextNode->rightLeaf;
-                nextNode->parent = parentNode;
-                
-            }
-            nextNode->representedByte = i;
-        }
-    }
-    return rootNode;
 }
