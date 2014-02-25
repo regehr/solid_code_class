@@ -27,16 +27,11 @@ clean:
 	-@rm -f $(BINARY)
 	-@rm -f interFile
 
+.PHONY: test
 test:
-	$(PY) test.py
+	python27 test.py
 
 
-.PHONY: check
-
-check: $(BINARY)
-	@for file in $(ALL_C_FILES) ; do ./huff -t $$file check 1> /dev/null ; done
-	@for file in $(ALL_H_FILES) ; do ./huff -t $$file check 1> /dev/null ; done
-	@for file in $(ALL_P_FILES) ; do ./huff -t $$file check 1> /dev/null ; done
 
 rle: testMain.c testMainD.c rhuff_compress.c rhuff_decompress.c
 	gcc -o rle testMain.c rhuff_compress.c
