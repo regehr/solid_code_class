@@ -40,11 +40,11 @@ void write_header (FILE *output, char **huff_table, uint64_t length)
 void compress_contents (FILE *input, FILE *output, char **huff_table)
 {
 	int bitc = 0, i, bitout;
-	unsigned char current, character;
+	int current, character;
 	char *temp = NULL;
 
 	while ((character = fgetc(input)) != EOF) {
-		temp = huff_table[(int)character];
+		temp = huff_table[character];
 		i = 0;
 		
 		while (temp[i] != '\0') {
