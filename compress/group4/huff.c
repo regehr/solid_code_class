@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
       //huff compress the output.
       compress(file_pointer, fileLength, argv[2]);
       free(file_pointer);
-      free(tempFile);
+      //free(tempFile);
       remove(tempFile);
       
   }

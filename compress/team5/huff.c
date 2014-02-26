@@ -63,7 +63,7 @@ int main (int argc, char *argv[])
 	encode(input, interFileName);
 	input = fopen(interFileName, "r");
 	
-	FILE *output = NULL;
+	FILE* output = NULL;
 
 	huff_encode(argv[2] , input , &output);
 
