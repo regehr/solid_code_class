@@ -98,6 +98,12 @@
 
 ; ***** CHECKERS ***** ;
 
+(define (file-exists filename) (thunk*
+ (if (file-exists? filename) (list #t)
+  (list #f (format "Expected file '~a' to exist, but it wasn't found." filename))
+ )
+))
+
 (define (expect-code expected-code)
  (lambda (results)
   (let ([exit-code (car (hash-ref results 'status))])
@@ -216,11 +222,13 @@
 
 (define (huff-decompress name file-generator expected-code 
          #:file-base [file-base "t"] . checkers)
- (let ([huff-name (string-append file-base *huff-ext*)])
+ (let ([huff-name (string-append file-base *huff-ext*)]
+       [extra-checkers (if (= expected-code *success*)
+                        (cons (file-exists file-base) checkers) checkers)])
   (test name
    (list (build-file file-generator huff-name))
    (run-binary *huff-bin* "-d" huff-name)
-   (append (list (expect-code expected-code)) checkers)
+   (append (list (expect-code expected-code)) extra-checkers)
    #:finally (list (rm file-base)))
  )
 )
