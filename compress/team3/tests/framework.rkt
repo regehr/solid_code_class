@@ -43,20 +43,18 @@
 ; General test result checking code. Evaluates to #t if the test passed,
 ; and evaluates to #f if the test failed.
 (define (evaluate-test test-output test-checks)
- (let-values ([(code stdout stderr) (apply values test-output)])
-  (let* ([check-runner (lambda (check) (check code stdout stderr))]
-         [check-results (map check-runner test-checks)]
-         [checks-passed? (andmap car check-results)])
-   (if checks-passed? (values #t (void)) ; else
-    (values #f
-     (let ([make-lines (lambda (outputs)
-                        (string-join
-                         (map (lambda (v) (string-append "    " v)) outputs)
-                         "\n"))])
-      (string-join
-       (map (lambda (v) (make-lines (cdr v))) check-results)
-       "\n" #:after-last "\n")
-     )
+ (let* ([check-runner (lambda (check) (check test-output))]
+        [check-results (map check-runner test-checks)]
+        [checks-passed? (andmap car check-results)])
+  (if checks-passed? (values #t (void)) ; else
+   (values #f
+    (let ([make-lines (lambda (outputs)
+                       (string-join
+                        (map (lambda (v) (string-append "    " v)) outputs)
+                        "\n"))])
+    (string-join
+      (map (lambda (v) (make-lines (cdr v))) check-results)
+      "\n" #:after-last "\n")
     )
    )
   )
@@ -70,15 +68,17 @@
  (let-values ([(succ-cleanup fail-cleanup finally-cleanup)
                (create-test-environment environ on-succ on-fail finally)]
               [(checks-succeded? diagnosis)
-  (evaluate-test (execution) checks)])
-   (if checks-succeded?
-    (begin (printf "~a  ~a\n" (format-succ "OK") test-name)
-           (for-each (apply1 test-name) succ-cleanup))
-    (begin (printf "~a  ~a\n" (format-fail "FAILED") test-name)
-           (display diagnosis)
-           (for-each (apply1 test-name) fail-cleanup)))
-    (for-each (apply1 test-name) finally-cleanup)
-    checks-succeded?)
+               (evaluate-test (execution) checks)])
+  (if checks-succeded?
+   (begin (printf "~a  ~a\n" (format-succ "OK") test-name)
+          (for-each (apply1 test-name) succ-cleanup))
+   (begin (printf "~a  ~a\n" (format-fail "FAILED") test-name)
+          (display diagnosis)
+          (for-each (apply1 test-name) fail-cleanup))
+  )
+  (for-each (apply1 test-name) finally-cleanup)
+  checks-succeded?
+ )
 )
 
 (define (rm . files) (thunk*
@@ -124,9 +124,8 @@
 ; Returns a function that when executed runs the supplied command with the
 ; supplied arguments, and returns the commands response code, stdout (as bytes),
 ; and stderr (as bytes).
-(define (run-binary binary #:echo [echo? #f] . flags)
+(define (run-binary binary . flags)
  (thunk
- (when echo? (printf "$ ~a ~a\n" binary (string-join flags " ")))
  ; Run the program as a subprocess
  (let-values ([(proc proc-stdout proc-stdin proc-stderr)
                (apply subprocess (append (list #f #f #f binary) flags))])
@@ -135,7 +134,14 @@
    (let ([proc-output (port->bytes proc-stdout)]
          [proc-error (port->bytes proc-stderr)])
     (subprocess-wait proc)
-    (list (subprocess-status proc) proc-output proc-error)
+    (make-immutable-hash `(
+     (status ,(subprocess-status proc))
+     (stdout ,proc-output)
+     (stderr ,proc-error)
+     (binary ,binary)
+     (args   ,flags)
+     )
+    )
    )
    ; Cleanup the communication channels.
    (close-output-port proc-stdin)

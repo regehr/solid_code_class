@@ -10,8 +10,9 @@
 (define *failure* 255)
 (define *success* 0)
 
-; HURL file magic number
-(define *huff-magic* (string->bytes/utf-8 "HUFF"))
+(define *huff-magic* (string->bytes/utf-8 "HURL"))
+(define *huff-ext* ".hurl")
+(define *huff-bin* "rhuff")
 
 (define (test-success stdout stderr) (list #t))
 
@@ -40,11 +41,53 @@
 
 ; Generate a valid, yet non-sensical tree.
 (define (valid-tree [table '("1")])
- (if (= (length table) 256) table
+ (if (= (length table) 255) (cons (make-string 255 #\0) table)
   ; Generate the next table entry.
   (valid-tree (cons 
               (string-append (make-string (length table) #\0) "1") table))
  )
+)
+
+(define (character->bit char)
+ (assert (or (char=? char #\1) (char=? char #\0)))
+ (if (char=? char #\1) 1 0)
+)
+
+(define (character-list->byte char-bits [byte 0] [index 7])
+ (if (null? char-bits) byte
+  (character-list->byte 
+   (cdr char-bits)
+   (bitwise-ior byte
+    (arithmetic-shift (character->bit (car char-bits)) index))
+   (sub1 index)
+  )
+ )
+)
+
+(define (_list-entry->bytes entry [lbytes '()])
+ (assert (= (modulo (length entry) 8) 0))
+ (if (null? entry) (apply bytes (reverse lbytes))
+  (let*-values ([(bit-list rest) (split-at entry 8)])
+   (_list-entry->bytes rest (cons (character-list->byte bit-list) lbytes))
+  )
+ )
+)
+
+
+(define (string-entry->bytes entry)
+ (let* ([length-modulo (modulo (string-length entry) 8)]
+        [compensation
+         (if (not (= length-modulo 0))
+          (make-string (- 8 length-modulo) #\0) "")])
+  (_list-entry->bytes (string->list (string-append entry compensation)))
+ )
+)
+
+; Should return the bytes that make up the huff table entry
+; that translates to an 8 length run of a 1 bit.
+(define (valid-rle-entry table)
+ (string-entry->bytes 
+  (list-ref table (string->number "#x88")))
 )
 
 ; Return the byte representation of the supplied table.
@@ -55,44 +98,61 @@
 
 ; ***** CHECKERS ***** ;
 
+(define (file-exists filename) (thunk*
+ (if (file-exists? filename) (list #t)
+  (list #f (format "Expected file '~a' to exist, but it wasn't found." filename))
+ )
+))
+
 (define (expect-code expected-code)
- (lambda (code stdout stderr)
-  (if (not (= code expected-code))
-   (list #f
-    (format "Bad error code: ~a (expected ~a)" code expected-code))
-   (list #t))
+ (lambda (results)
+  (let ([exit-code (car (hash-ref results 'status))])
+   (if (not (= exit-code expected-code))
+    (list #f
+     (format "Bad error code: ~a (expected ~a)" exit-code expected-code))
+    (list #t))
+   )
  )
 )
 
 ; Prints out stderr, always succeeds
-(define (print-output code stdout stderr)
- (list #t 
-  (string-append (style "stdout" (make-color 'white)) "\n"
-   (string-trim (bytes->string/utf-8 stdout)))
-  (string-append (style "stderr" (make-color 'white)) "\n"
-   (string-trim (bytes->string/utf-8 stderr)))
+(define (print-info results)
+ (let* ([heading-color (make-color 'white)]
+        [heading (lambda (text) (style text heading-color))]
+        [result (lambda (key) (car (hash-ref results key)))])
+  (list #t 
+   (string-append (heading "invocation: ") 
+    (string-join (cons (result 'binary) (result 'args)) " "))
+   (string-append (heading "stdout:") "\n"
+    (string-trim (bytes->string/utf-8 (result 'stdout))))
+   (string-append (heading "stderr:") "\n"
+    (string-trim (bytes->string/utf-8 (result 'stderr))))
+  )
  )
 )
 
 ; ***** TESTS ******* ;
 
 (define (no-magic)
- (generator ()
-  (yield (length-as-bytes 1))
-  (yield (table->bytes (valid-tree)))
-  (yield (hex-string->bytes "80"))
-  (yield 'stop)
+ (let ([table (valid-tree)])
+  (generator ()
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   (yield (valid-rle-entry table))
+   (yield 'stop)
+  )
  )
 )
 
 (define (bad-table-entry)
- (generator ()
-  (yield *huff-magic*)
-  (yield (length-as-bytes 1))
-  (yield (table->bytes
-          (append (cdr (valid-tree)) '("2"))))
-  (yield (hex-string->bytes "80"))
-  (yield 'stop)
+ (let ([table (append (cdr (valid-tree)) '("2"))])
+  (generator ()
+   (yield *huff-magic*)
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   (yield (valid-rle-entry table))
+   (yield 'stop)
+  )
  )
 )
 
@@ -105,13 +165,42 @@
  )
 )
 
+
 (define (normal-huff)
- (generator ()
-  (yield *huff-magic*)
-  (yield (length-as-bytes 1))
-  (yield (table->bytes (valid-tree)))
-  (yield (hex-string->bytes "80"))
-  (yield 'stop)
+ (let ([table (valid-tree)])
+  (generator ()
+   (yield *huff-magic*)
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   (yield (valid-rle-entry table))
+   (yield 'stop)
+  )
+ )
+)
+
+(define (bad-rle)
+ (let ([table (valid-tree)])
+  (generator ()
+   (yield *huff-magic*)
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   ; Translates to RLE code encoding for a run of 7 1s
+   (yield (string-entry->bytes 
+           (list-ref table (string->number "#x87"))))
+   (yield 'stop)
+  )
+ )
+)
+
+(define (no-byte-translation)
+ (let ([table (valid-tree)])
+  (generator ()
+   (yield *huff-magic*)
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   (yield (hex-string->bytes "00"))
+   (yield 'stop)
+  )
  )
 )
 
@@ -133,29 +222,35 @@
 
 (define (huff-decompress name file-generator expected-code 
          #:file-base [file-base "t"] . checkers)
- (let ([huff-name (string-append file-base ".huff")])
+ (let ([huff-name (string-append file-base *huff-ext*)]
+       [extra-checkers (if (= expected-code *success*)
+                        (cons (file-exists file-base) checkers) checkers)])
   (test name
    (list (build-file file-generator huff-name))
-   (run-binary "huff" "-d" huff-name)
-   (append (list (expect-code expected-code)) checkers)
+   (run-binary *huff-bin* "-d" huff-name)
+   (append (list (expect-code expected-code)) extra-checkers)
    #:finally (list (rm file-base)))
  )
 )
 
 (begin0 (void)
 (huff-decompress "Simple decompression"
- (normal-huff) *success* print-output)
+ (normal-huff) *success* print-info)
 (huff-decompress "Empty huff file" 
- (empty-huff) *success* print-output)
+ (empty-huff) *success* print-info)
 (huff-decompress "Incorrect length in huff file"
- (bad-length) *failure* print-output)
+ (bad-length) *failure* print-info)
+(huff-decompress "Decompress compressed file where bytes not in translation table"
+ (no-byte-translation) *failure* print-info)
 (huff-decompress "No magic number in huff file"
- (no-magic) *failure* print-output)
+ (no-magic) *failure* print-info)
 (huff-decompress "2 in translation table"
- (bad-table-entry) *failure* print-output)
+ (bad-table-entry) *failure* print-info)
 (test "Wrong extension"
- (list (build-file (normal-huff) "t"))
- (run-binary "huff" "-d" "t")
- (list (expect-code *failure*) print-output))
+ (list (build-file (normal-huff) "t.huff"))
+ (run-binary *huff-bin* "-d" "t")
+ (list (expect-code *failure*) print-info))
+(huff-decompress "RLE encodes number of bits not divisible by 8"
+ (bad-rle) *failure* print-info)
 )
 

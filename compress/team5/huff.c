@@ -14,6 +14,7 @@
 #include "compress.h"
 #include "decompress.h"
 #include "rhuff_compress.h"
+#include "rhuff_decompress.h"
 #include "huff_interface.h"
 
 int CHECK_REP;
@@ -65,13 +66,13 @@ int main (int argc, char *argv[])
 	
 	FILE* output = NULL;
 
-	huff_encode(argv[2] , input , output);
+	huff_encode(argv[2] , input , &output);
 
     } else if (strncmp(argv[1], "-d", 2) == 0) {
 	FILE *output = NULL;
-	huff_decode("interFile", input, output);
+	huff_decode("interFile", input, &output);
 	char *name = get_decompressed_file_name(argv[2]);
-	decompress(output, name);
+	decode(output, name);
 	
 
     } else {

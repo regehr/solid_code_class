@@ -19,9 +19,9 @@ val: $(bin) test.txt
 	valgrind --leak-check=yes ./$(bin) -c test.txt
 
 test:
-	python test/makeTestFiles.py
-	python test/runTests.py
-	python test/clearTestFiles.py
+	python27 test/makeTestFiles.py
+	python27 test/runTests.py
+	python27 test/clearTestFiles.py
 
 rle_test: rle.c test_rle.c
 	gcc -g -c -o rle.o rle.c

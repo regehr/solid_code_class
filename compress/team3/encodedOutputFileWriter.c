@@ -1,6 +1,6 @@
 //
 //  encodedOutputFileWriter.c
-//  huff
+//  rhuff
 //
 //  Created by Adam Bradford on 2/2/14.
 //  Copyright (c) 2014 Adam Bradford. All rights reserved.
@@ -18,7 +18,7 @@
 
 static void writeHeader(FILE *file, unsigned long long length)
 {
-    char *header = "HUFF";
+    char *header = "HURL";
     xfwrite(header, sizeof(char), strlen(header), file);
     xfwrite(&length, sizeof(unsigned long long), 1, file);
 }
@@ -140,7 +140,7 @@ void writeNonCompressedFileToCompressedOutput(
     unsigned long long currentEncodeFileLength = lengthOfFile(nonCompressedFile);
     rewind(nonCompressedFile);
 
-    //writes the HUFF and length
+    //writes the HURL and length
     writeHeader(compressedFile, currentEncodeFileLength);
 
     //writes out the encodings
