@@ -121,10 +121,11 @@ void write_out_decompress (FILE *input, FILE *output, huff_tree *root,
     uint64_t length)
 {
     huff_tree *current = root;
-    char out_c;
+    int out_c;
     int i = 0, bit, bytes_written = 0;
     char *buffer = malloc(1);
 
+    int debugTracker = 0;
     while((fread(buffer, 1, 1, input)) == 1) {
         for (i = 0; i < 8; i++) {
             bit = (*buffer) >> i & 0x1;
@@ -136,8 +137,14 @@ void write_out_decompress (FILE *input, FILE *output, huff_tree *root,
             }
 
             if (current->character != -1) {
-                out_c = (char)current->character;
-                fwrite(&out_c, 1, 1, output);
+                out_c = (int)current->character;
+		
+		debugTracker++;
+		printf("%d\n" , debugTracker);
+		
+		char toWrite = (char)out_c;
+
+                fwrite(&toWrite, sizeof(toWrite), 1, output);
 
                 current = root;
                 bytes_written++;
@@ -178,9 +185,12 @@ void decompress (FILE *input, char *filename)
     tree = build_huff_tree_from_table(input);
 
     // Name the file, and get a pointer
-    char *new_name = get_decompressed_file_name(filename);
+    char *new_name = "interFileD";// get_decompressed_file_name(filename);
     FILE *output = fopen(new_name, "w");
-
+    if(output == NULL)
+    {
+	fprintf(stderr , "panic!");
+    }
     // Write out the decompressed bits!
     write_out_decompress(input, output, tree, size);
     free_huff_tree(tree);

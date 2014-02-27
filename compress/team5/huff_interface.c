@@ -38,7 +38,7 @@ char *huff_decode (char *filename, FILE *input, FILE **output)
     decompress(input, filename);
 
     char *name = get_decompressed_file_name(filename);
-    output[0] = fopen(filename, "r");
+    *output = fopen("interFileD", "w");
 
     return name;
 }
