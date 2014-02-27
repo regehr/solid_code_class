@@ -104,11 +104,7 @@ void decompress(FILE *compressed, const char* filename){
     //
     // Write out decompressed file
     read_huff_body(compressed, decompressed, size);
-    
-    if (EOF == fclose(decompressed)){
-        fprintf(stderr, "ERROR: Could save file %s\n", filename);
-        exit(ERR_CODE);
-    }
+    fclose(decompressed);
     free_huff_tree();
 }
 
@@ -144,26 +140,40 @@ int main(int argc, const char *argv[])
         
         //close temp file
         fclose(temp_file);
-
+        
+        
+        
+//<--------------------------------------
+//<--------------------------------------    
+    
+    
     } else if (strcmp(argv[1], "-d") == 0){
         decompress(fp, argv[2]);
         //TODO:
         //open temp_file for reading
-        FILE* temp_file = fopen(TEMP_FILE, "r");
+        FILE* temp_file = fopen((TEMP_FILE), "r");
+    if (temp_file == NULL){
+        fprintf(stderr, "ERROR: Could not create file %s\n", TEMP_FILE);
+        exit(ERR_CODE);
+    }
         //create rle_encoded array
         unsigned char* rle_encoding = NULL;
         unsigned long long encoding_length = 0;
-        file_to_char_array(temp_file, &rle_encoding);
-        //remove the temp file
-        int result = remove(TEMP_FILE);
-        if(!result){
-            //don't care if temp_file wasn't deleted
-        }
+        printf("made it here.\n");
+        encoding_length = file_to_char_array(temp_file, &rle_encoding);
+        printf("length: %llu\n", encoding_length);
+        fclose(temp_file);
         //send to decode_rle to be decoded
         char* newfile = remove_ext(argv[2]);
         FILE* decompressed = fopen(newfile, "w");
-        decode_rle(rle_encoding, &encoding_length, decompressed);
+        if (decompressed == NULL){
+        fprintf(stderr, "ERROR: Could not create file %s\n", newfile);
+        exit(ERR_CODE);
+        }
 
+        decode_rle(rle_encoding, &encoding_length, decompressed);
+        fclose(temp_file);
+        remove(TEMP_FILE);
         fclose(decompressed);
     } else if (strcmp(argv[1], "-t") == 0){
         print_tree(fp, argv[2]);
