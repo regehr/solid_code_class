@@ -53,7 +53,7 @@
  (if (char=? char #\1) 1 0)
 )
 
-(define (character-list->byte char-bits [byte 0] [index 8])
+(define (character-list->byte char-bits [byte 0] [index 7])
  (if (null? char-bits) byte
   (character-list->byte 
    (cdr char-bits)
@@ -172,6 +172,20 @@
  )
 )
 
+(define (bad-rle)
+ (let ([table (valid-tree)])
+  (generator ()
+   (yield *huff-magic*)
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   ; Translates to RLE code encoding for a run of 7 1s
+   (yield (string-entry->bytes 
+           (list-ref table (string->number "#x87"))))
+   (yield 'stop)
+  )
+ )
+)
+
 (define (no-byte-translation)
  (let ([table (valid-tree)])
   (generator ()
@@ -228,5 +242,7 @@
  (list (build-file (normal-huff) "t.huff"))
  (run-binary *huff-bin* "-d" "t")
  (list (expect-code *failure*) print-info))
+(huff-decompress "RLE encodes number of bits not divisible by 8"
+ (bad-rle) *failure* print-info)
 )
 
