@@ -71,7 +71,9 @@ unsigned long long huffmanEncodingsFromFile(FILE *file, char encodings[32768])
     rewind(file);
     //get the first 4 header characters
     char magic[4];
-    xfread(magic, 4, sizeof(char), file);
+    size_t read = xfread(magic, 4, sizeof(char), file);
+    /* We should have already done size checks. */
+    assert(read == 4);
 
     //make sure it says HUFF
     if(!(magic[0] == 'H' &&
