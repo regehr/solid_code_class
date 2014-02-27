@@ -290,7 +290,11 @@ void get_huff_table(char **huff_table, FILE *file, size_t *size) {
       exit(ERR);
     }
     magic_num[i] = (char)c;
-    assert(magic_num[i]);
+    if (magic_num[i] == 0) {
+      fprintf(stderr, "Bad magic number: exiting");
+      exit(ERR);
+    }
+
   }
   
   //If not the proper number
@@ -333,13 +337,15 @@ void get_huff_table(char **huff_table, FILE *file, size_t *size) {
       }
       
       //Regular char
-      if(curr_char != '\n')
-	longest_string[j] = (char)curr_char;
-      //Convert newline to null terminated char
-      else {
+      if (curr_char == 0x00 || curr_char == 0x01) {
+        longest_string[j] = (char)curr_char;
+      } else if (curr_char == '\n') {
         found_newline = true;
-	longest_string[j] = '\0';
-	break;
+        longest_string[j] = 0x00;
+        break;
+      } else {
+        fprintf(stderr, "Bad char in hurl headers: exiting\n");
+        exit(ERR);
       }
     }
     
