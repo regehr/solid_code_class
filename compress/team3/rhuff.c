@@ -273,6 +273,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
 
             rle_encode(pFile, rle_file);
 
+            rewind(rle_file);
             unsigned pFrequencies[ENTRIES];
             memset(pFrequencies, 0, sizeof(pFrequencies));
             if (GenerateFrequenciesForGeneric(rle_file, pFrequencies) != FILE_SUCCESS)
