@@ -64,19 +64,24 @@
 )
 
 ; Fully execute the given test.
-(define (test test-name environ execution checks #:succ [on-succ '()] #:fail [on-fail '()] #:finally [finally '()])
-        (let-values ([(succ-cleanup fail-cleanup finally-cleanup)
-                      (create-test-environment environ on-succ on-fail finally)]
-                     [(checks-succeded? diagnosis)
-                      (evaluate-test (execution) checks)])
-                    (if checks-succeded?
-                        (begin (printf "~a  ~a\n" (format-succ "OK") test-name)
-                               (for-each (apply1 test-name) succ-cleanup))
-                        (begin (printf "~a  ~a\n" (format-fail "FAILED") test-name)
-                               (display diagnosis)
-                               (for-each (apply1 test-name) fail-cleanup)))
-                    (for-each (apply1 test-name) finally-cleanup)
-                    checks-succeded?))
+(define (test test-name environ execution checks #:succ [on-succ '()] 
+                                                 #:fail [on-fail '()] 
+                                                 #:finally [finally '()])
+ (let-values ([(succ-cleanup fail-cleanup finally-cleanup)
+               (create-test-environment environ on-succ on-fail finally)]
+              [(checks-succeded? diagnosis)
+               (evaluate-test (execution) checks)])
+  (if checks-succeded?
+   (begin (printf "~a  ~a\n" (format-succ "OK") test-name)
+          (for-each (apply1 test-name) succ-cleanup))
+   (begin (printf "~a  ~a\n" (format-fail "FAILED") test-name)
+          (display diagnosis)
+          (for-each (apply1 test-name) fail-cleanup))
+  )
+  (for-each (apply1 test-name) finally-cleanup)
+  checks-succeded?
+ )
+)
 
 (define (rm . files) (thunk*
  (letrec ([inner-rm
@@ -132,7 +137,13 @@
    (let ([proc-output (port->bytes proc-stdout)]
          [proc-error (port->bytes proc-stderr)])
     (subprocess-wait proc)
-    (list (subprocess-status proc) proc-output proc-error)
+    (make-immutable-hash
+     ('exit-code (subprocess-status proc))
+     ('stdout proc-output)
+     ('stderr proc-error)
+     ('binary binary)
+     ('args flags)
+    )
    )
    ; Cleanup the communication channels.
    (close-output-port proc-stdin)
