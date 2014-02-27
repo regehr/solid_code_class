@@ -94,5 +94,6 @@ void rle_decode(FILE *input, FILE *output)
 
     if (decode_index == 0) return;
 
-    xfwrite(&decode_buffer, 1, 1, output);
+    fprintf(stderr, "Bad .hurl file.\n");
+    exit(-1);
 }

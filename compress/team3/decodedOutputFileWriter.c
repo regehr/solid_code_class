@@ -33,8 +33,13 @@ void writeCompressedFileToNonCompressedOutput(FILE *compressedFile,
     {
         //get the next byte
         char encodedByte;
-        xfread(&encodedByte, 1, 1, compressedFile);
+        size_t read = xfread(&encodedByte, 1, 1, compressedFile);
 
+        if (read == 0)
+        {
+            fprintf(stderr, "Unexpected end of file.\n");
+            exit(-1);
+        }
 
         //get the value of the byte and start walking the tree;
         for(int j = 7; j >= 0; j--)
