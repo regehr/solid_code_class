@@ -41,7 +41,7 @@
 
 ; Generate a valid, yet non-sensical tree.
 (define (valid-tree [table '("1")])
- (if (= (length table) 256) table
+ (if (= (length table) 255) (cons (make-string 255 #\0) table)
   ; Generate the next table entry.
   (valid-tree (cons 
               (string-append (make-string (length table) #\0) "1") table))
