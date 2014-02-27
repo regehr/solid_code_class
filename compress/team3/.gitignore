@@ -1,6 +1,9 @@
 *.swp
 *.o
+hurl
+*.hurl
 huff
 *.huff
 tests/*.input
 tests/huff
+tests/hurl

@@ -6,7 +6,7 @@ CC = clang
 CFLAGS = -std=c99 -O3
 
 objects = syscalls.o encoder.o decoder.o decodedOutputFileWriter.o \
-encodedOutputFileWriter.o huff.o
+encodedOutputFileWriter.o hurl.o
 
 test_file = tester.rkt
 
