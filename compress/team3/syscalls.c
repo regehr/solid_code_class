@@ -44,6 +44,14 @@ void xfwrite(const void *ptr, size_t size, size_t count, FILE *stream)
     exit(-1);
 }
 
+FILE *xtmpfile()
+{
+    FILE *result = tmpfile();
+    if (result != NULL) return result;
+    fprintf(stderr, "An error occurred while creating a temporary file.\n");
+    exit(-1);
+}
+
 
 /* stdlib.h */
 

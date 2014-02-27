@@ -1,9 +1,11 @@
 //
 //  decoder.c
-//  huff
+//  rhuff
 //
 //  Created by Adam Bradford on 2/3/14.
 //  Copyright (c) 2014 Adam Bradford. All rights reserved.
+//
+//  Modified by Oscar Marshall.
 //
 
 #include <stdio.h>
@@ -32,7 +34,7 @@ void createDecodeTreeFromResultArray(huffResult *resultArray, huffNode out[511])
 
         //simply walk down the tree adding nodes as needed until we reach the final character of the current encode string.
         huffNode *currentNode = rootNode;
-        for(int j = 0;  j < strlen(valueString); j++)
+        for(int j = 0;  (unsigned)j < strlen(valueString); j++)
         {
             if (valueString[j] == '0')
             {
@@ -74,10 +76,10 @@ unsigned long long huffmanEncodingsFromFile(FILE *file, char encodings[32768])
     //make sure it says HUFF
     if(!(magic[0] == 'H' &&
        magic[1] == 'U' &&
-       magic[2] == 'F' &&
-       magic[3] == 'F'))
+       magic[2] == 'R' &&
+       magic[3] == 'L'))
     {
-        fprintf(stderr, "Invliad File Header - missing \"HUFF\"");
+        fprintf(stderr, "Invalid File Header - missing \"HURL\"\n");
         exit(-1);
     }
 
