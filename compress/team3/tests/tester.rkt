@@ -125,10 +125,6 @@
  )
 )
 
-(display "before printf\n")
-(printf "RLE bytes: ~a\n" (valid-rle-entry (valid-tree)))
-(display "after printf\n")
-
 ; ***** TESTS ******* ;
 
 (define (no-magic)
