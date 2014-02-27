@@ -156,7 +156,18 @@ void decompress(FILE *file, char *filename) {
       }
     }
   }
-  assert(byte_count == file_size);
+
+  if (byte_count < file_size) {
+    fprintf(stderr, "Header size larger than actual amount of data in compressed file: exiting\n");
+    exit(ERR);
+  }
+
+  // We were supposed to be at the end of the data, so there should be no more
+  if (fread(&curr_byte, 1, 1, file)) {
+    fprintf(stderr, "Header size smaller than actual amount of data in compressed file: exiting\n");
+    exit(ERR);
+  }
+
   size_t decoded_size;
   uint8_t *rle_decoded = rle_decode(rle_encoded, file_size, &decoded_size);
   free(rle_encoded);
