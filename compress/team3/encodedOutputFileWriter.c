@@ -78,7 +78,11 @@ static void writeEncodedFile(
         nonCompressedFileIndex++)
     {
         char nextByte;
-        xfread(&nextByte, 1, 1, nonCompressedFile);
+        size_t read = xfread(&nextByte, 1, 1, nonCompressedFile);
+        /* Because we only issue one read for every byte in the file, we should
+           never try to read past the EOF. Also, since xfread handles and exits
+           on an error, we should always get back 1 from xfread. */
+        assert(read == 1);
 
         //get the huffresult at the index of the nextbyte
         huffResult *result = &resultArray[(unsigned char)nextByte];

@@ -20,10 +20,10 @@ size_t xfread(void *ptr, size_t size, size_t count, FILE *stream)
     exit(-1);
 }
 
-int xfseek(FILE *stream, long int offset, int origin)
+void xfseek(FILE *stream, long int offset, int origin)
 {
     int result = fseek(stream, offset, origin);
-    if (ferror(stream) == 0) return result;
+    if (result == 0) return;
     fprintf(stderr, "An error occurred while seeking in a file.\n");
     exit(-1);
 }

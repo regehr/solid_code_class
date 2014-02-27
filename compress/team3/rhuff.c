@@ -145,18 +145,21 @@ eFileCode GetTableForGeneric(unsigned* pFrequencies, huffResult resultArray[256]
  * This function will generate a table of how often each character in a file occurs.
  * The result is stored in pOutFrequencies.
  */
-eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned* pOutFrequencies)
+eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned pOutFrequencies[256])
 {
     int c;
 
     assert(pFile != NULL);
 
-    for (c = fgetc(pFile); c != EOF; c = fgetc(pFile))
+    while (true)
     {
-        pOutFrequencies[c]++;
-    }
+        char byte;
+        size_t read = xfread(&byte, 1, 1, pFile);
 
-    return FILE_SUCCESS;
+        if (read == 0) return FILE_SUCCESS;
+
+        pOutFrequencies[byte]++;
+    }
 }
 
 /*
@@ -171,7 +174,7 @@ eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned* pOutFrequencies)
  * ...
  * 00001
  */
-eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName)
+eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, const char *fileName)
 {
     eFileCode fileCode; // And error code which tells if the operation was successful or not.
 
