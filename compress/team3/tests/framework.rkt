@@ -43,20 +43,18 @@
 ; General test result checking code. Evaluates to #t if the test passed,
 ; and evaluates to #f if the test failed.
 (define (evaluate-test test-output test-checks)
- (let-values ([(code stdout stderr) (apply values test-output)])
-  (let* ([check-runner (lambda (check) (check code stdout stderr))]
-         [check-results (map check-runner test-checks)]
-         [checks-passed? (andmap car check-results)])
-   (if checks-passed? (values #t (void)) ; else
-    (values #f
-     (let ([make-lines (lambda (outputs)
-                        (string-join
-                         (map (lambda (v) (string-append "    " v)) outputs)
-                         "\n"))])
-      (string-join
-       (map (lambda (v) (make-lines (cdr v))) check-results)
-       "\n" #:after-last "\n")
-     )
+ (let* ([check-runner (lambda (check) (check test-output))]
+        [check-results (map check-runner test-checks)]
+        [checks-passed? (andmap car check-results)])
+  (if checks-passed? (values #t (void)) ; else
+   (values #f
+    (let ([make-lines (lambda (outputs)
+                       (string-join
+                        (map (lambda (v) (string-append "    " v)) outputs)
+                        "\n"))])
+    (string-join
+      (map (lambda (v) (make-lines (cdr v))) check-results)
+      "\n" #:after-last "\n")
     )
    )
   )

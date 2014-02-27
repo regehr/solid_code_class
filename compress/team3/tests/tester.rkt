@@ -10,8 +10,9 @@
 (define *failure* 255)
 (define *success* 0)
 
-; HURL file magic number
-(define *huff-magic* (string->bytes/utf-8 "HUFF"))
+(define *huff-magic* (string->bytes/utf-8 "HURL"))
+(define *huff-ext* ".hurl")
+(define *huff-bin* "hurl")
 
 (define (test-success stdout stderr) (list #t))
 
@@ -133,10 +134,10 @@
 
 (define (huff-decompress name file-generator expected-code 
          #:file-base [file-base "t"] . checkers)
- (let ([huff-name (string-append file-base ".huff")])
+ (let ([huff-name (string-append file-base *huff-ext*)])
   (test name
    (list (build-file file-generator huff-name))
-   (run-binary "huff" "-d" huff-name)
+   (run-binary *huff-bin* "-d" huff-name #:echo #t)
    (append (list (expect-code expected-code)) checkers)
    #:finally (list (rm file-base)))
  )
@@ -154,8 +155,8 @@
 (huff-decompress "2 in translation table"
  (bad-table-entry) *failure* print-output)
 (test "Wrong extension"
- (list (build-file (normal-huff) "t"))
- (run-binary "huff" "-d" "t")
+ (list (build-file (normal-huff) "t.huff"))
+ (run-binary *huff-bin* "-d" "t")
  (list (expect-code *failure*) print-output))
 )
 
