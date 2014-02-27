@@ -57,24 +57,28 @@
 ; ***** CHECKERS ***** ;
 
 (define (expect-code expected-code)
- (lambda (code stdout stderr)
-  (if (not (= code expected-code))
-   (list #f
-    (format "Bad error code: ~a (expected ~a)" code expected-code))
-   (list #t))
+ (lambda (results)
+  (let ([exit-code (car (hash-ref results 'status))])
+   (if (not (= exit-code expected-code))
+    (list #f
+     (format "Bad error code: ~a (expected ~a)" exit-code expected-code))
+    (list #t))
+   )
  )
 )
 
 ; Prints out stderr, always succeeds
 (define (print-info results)
  (let* ([heading-color (make-color 'white)]
-        [heading (lambda (text) (style text heading-color))])
+        [heading (lambda (text) (style text heading-color))]
+        [result (lambda (key) (car (hash-ref results key)))])
   (list #t 
-   (string-append* (heading "invocation: " (hash-ref 'binary) (hash-ref 'args)))
+   (string-append (heading "invocation: ") 
+    (string-join (cons (result 'binary) (result 'args)) " "))
    (string-append (heading "stdout:") "\n"
-    (string-trim (bytes->string/utf-8 (hash-ref 'stdout))))
+    (string-trim (bytes->string/utf-8 (result 'stdout))))
    (string-append (heading "stderr:") "\n"
-    (string-trim (bytes->string/utf-8 (hash-ref 'stderr))))
+    (string-trim (bytes->string/utf-8 (result 'stderr))))
   )
  )
 )
@@ -141,7 +145,7 @@
  (let ([huff-name (string-append file-base *huff-ext*)])
   (test name
    (list (build-file file-generator huff-name))
-   (run-binary *huff-bin* "-d" huff-name #:echo #t)
+   (run-binary *huff-bin* "-d" huff-name)
    (append (list (expect-code expected-code)) checkers)
    #:finally (list (rm file-base)))
  )

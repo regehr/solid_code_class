@@ -134,12 +134,13 @@
    (let ([proc-output (port->bytes proc-stdout)]
          [proc-error (port->bytes proc-stderr)])
     (subprocess-wait proc)
-    (make-immutable-hash
-     ('exit-code (subprocess-status proc))
-     ('stdout proc-output)
-     ('stderr proc-error)
-     ('binary binary)
-     ('args flags)
+    (make-immutable-hash `(
+     (status ,(subprocess-status proc))
+     (stdout ,proc-output)
+     (stderr ,proc-error)
+     (binary ,binary)
+     (args   ,flags)
+     )
     )
    )
    ; Cleanup the communication channels.
