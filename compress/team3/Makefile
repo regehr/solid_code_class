@@ -10,7 +10,7 @@ encodedOutputFileWriter.o huff.o
 
 test_file = tester.rkt
 
-bin = huff
+bin = hurl 
 test_dir = tests
 
 all: $(bin)
