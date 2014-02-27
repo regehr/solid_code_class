@@ -348,7 +348,7 @@ void get_huff_table(char **huff_table, FILE *file, size_t *size) {
       }
       
       //Regular char
-      if (curr_char == 0x00 || curr_char == 0x01) {
+      if (curr_char == '0' || curr_char == '1') {
         longest_string[j] = (char)curr_char;
       } else if (curr_char == '\n') {
         found_newline = true;
