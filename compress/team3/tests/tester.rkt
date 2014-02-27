@@ -12,7 +12,7 @@
 
 (define *huff-magic* (string->bytes/utf-8 "HURL"))
 (define *huff-ext* ".hurl")
-(define *huff-bin* "hurl")
+(define *huff-bin* "rhuff")
 
 (define (test-success stdout stderr) (list #t))
 
@@ -218,7 +218,7 @@
  (empty-huff) *success* print-info)
 (huff-decompress "Incorrect length in huff file"
  (bad-length) *failure* print-info)
-(huff-decompress "Decompress compressed file where bytes not in translation table."
+(huff-decompress "Decompress compressed file where bytes not in translation table"
  (no-byte-translation) *failure* print-info)
 (huff-decompress "No magic number in huff file"
  (no-magic) *failure* print-info)
