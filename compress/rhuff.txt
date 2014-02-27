@@ -1,0 +1,180 @@
+============================================================================
+RLE/Huffman File Compressor
+============================================================================
+
+Your team is creating a program called "rhuff" that compresses and
+decompresses files on UNIX machines. It operates in three main modes:
+
+Compress a file:
+
+  rhuff -c file
+
+The compressed file is called "file.hurl". This file is silently
+overwritten if it already exists.
+
+NOTE: It is perfectly permissible (if useless) to compress a .hurl
+file. If x.hurl is compressed, the resulting file would be called
+x.hurl.hurl.
+
+NOTE: Unlike gzip and bzip2, rhuff does not remove the original file
+after it creates a compressed file.
+
+Decompress a file:
+
+  rhuff -d file
+
+The name of the uncompressed file is recovered by removing the ".hurl"
+extension. If a file of that name exists it is silently overwritten.
+
+NOTE: Unlike gzip and bzip2, rhuff does not remove the original file
+after it creates a decompressed file.
+
+Dump the compression table for a file:
+
+  rhuff -t file 
+
+If file is a rhuff file, its compression table is recovered from the
+file and dumped to stdout. Otherwise, its compression table is
+computed and dumped to stdout.
+
+============================================================================
+
+compression algorithm:
+
+1. 
+
+Apply run-length compression at the bit level to create a sequence of
+runs. Each run is 8 bits long. The high-order bit of a run is the bit
+value and the remaining 7 bits represent the length of the run. In
+order words, consider a file containing these contents:
+
+3E000FFFF
+
+in binary, the contents are:
+
+0000000001111100000000000001111111111111111
+
+the run-length encoded version of this file is:
+
+09850D90
+
+This algorithm is intended to be simple while also getting a decent
+compression ratio for files that contain long runs of the same bit
+value. One might expect to see such files when performing monochrome
+scans of text documents.
+
+2.
+
+Apply Huffman compression on the sequence of bytes that are the output
+of run-length compression.
+
+============================================================================
+
+The "expected case" is defined to be the situation where the input
+file is a regular file that can be opened for reading, the output file
+is a regular file that can be opened for writing, and library/system
+calls do not fail unexpectedly (i.e. malloc calls succeed, the hard
+disk does not fill up, etc.). In the expected case, neither file is
+modified by another program while rhuff is executing.
+
+In compression mode, rhuff is not permitted to fail in the expected
+case.
+
+In decompression mode, rhuff must fail if the file is not a valid rhuff
+file (see below). If the compressed file is valid, then rhuff must not
+fail in the expected case.
+
+In table dump mode, when the argument is a rhuff file, rhuff is required
+to fail if the file is not valid; otherwise, it is not permitted to fail
+in the expected case.
+
+If rhuff succeeds, it must return a 0 exit code
+
+If rhuff fails, it must return a 255 exit code and a reasonable error
+message should be printed.
+
+============================================================================
+
+rhuff file format
+
+A file is a valid rhuff file only if it meets all of the following
+requirements:
+
+1. Its filename ends with ".hurl"
+2. Bytes 0-3 are the magic number: the ASCII characters HURL
+3. Bytes 4-11 are the length field: a 64-bit unsigned integer in
+   little endian format indicating the size of the decompressed file,
+   which is also the number of Huffman codes in the compressed data
+   section
+4. A valid compression table (see format below) begins at byte 12
+5. The remainder of the file contains compressed data; the number of
+   items must match the length field; the only exception is that the
+   final byte of the file, if it is not filled, is padded with
+   1-7 bits whose value is unspecified. Bits are placed into bytes
+   in big-endian order.
+
+A valid compression table is comprised of a sequence of 256 strings, 
+each of which matches this Perl regex:
+
+  ^[01]+\n$
+
+In other words, each of the 256 strings is comprised of a sequence of
+0 and 1 characters of at least length 1, followed by a newline. No
+string of 0s and 1s can exceed length 255.
+
+NOTE: The strings in the compression table are not C strings. That is,
+they are not terminated by nul bytes. Each entry in the table is
+terminated by a single newline character only.
+
+============================================================================
+
+The Huffman coding has the property that no code is the prefix of any
+other code. This enables unambiguous decoding.
+
+The algorithm to generate the compression table is as follows:
+
+- Determine the frequency of occurrence of each byte in the input
+  file.
+
+- Make a list that contains one element for each byte value; this list
+  is sorted by increasing frequency (i.e., least frequently occurring
+  bytes are first). For bytes with the same frequency, the
+  lower-valued byte goes earlier in the list.
+
+- Remove the first two elements of the list and combine them into a
+  single list element whose frequency is the sum of the frequencies of
+  the removed elements. The new element should contain the removed
+  list elements as subtrees. The new element should be inserted into
+  its proper place in the sorted list. Ties are broken by putting the
+  element whose subtree contains the lowest-valued byte earlier in the
+  list.
+
+- If the list contains more than one element, go back to the previous
+  step.
+
+- Create the compression table as follows. Observe that for every
+  non-leaf node in the tree, the subtree containing the minimum-valued
+  element can be called the 0-subtree and the other subtree can be
+  called the 1-subtree. To generate the table entry for the
+  zero-valued byte, walk the tree from root to the leaf corresponding
+  to the 0 byte, generating a 0 in the Huffman code every time the
+  0-subtree is followed and a 1 in the Huffman code every time the
+  1-subtree is followed.
+
+============================================================================
+
+Additional requirements: 
+
+rhuff is implemented in C and must not execute any undefined behaviors
+on either 32-bit or 64-bit systems. Furthermore, Valgrind should
+declare it to be free of memory leaks.
+
+Running "make" in your team's directory should cause an executable
+called "rhuff" to be compiled. This must work on CADE but please make
+an effort to also support random Linux and MacOS X machines.
+
+rhuff must successfully compress and decompress files larger than 2^32
+bytes, even on a 32-bit machine (so don't mmap() the file!)
+
+============================================================================
+

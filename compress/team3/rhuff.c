@@ -1,11 +1,13 @@
 //
-// Huff.c
+// rhuff.c
 //
 // Jon Parker
 // (c) Feb, 2014
 //
+// Modified by Oscar Marshall.
+//
 // This program runs a Huffman compression algorithm on a specified file, or decompresses a compressed huffman file
-// with the .huff extension.
+// with the .hurl extension.
 //
 
 #include <assert.h>
@@ -18,6 +20,7 @@
 #include "syscalls.h"
 #include "encoder.h"
 #include "decoder.h"
+#include "rle.c"
 
 #define ENTRIES 256
 #define ENTRY_LENGTH 256
@@ -26,11 +29,11 @@
  * The mode determines if we compress, decompress, or print out the table to the
  * commandline.
  * Possibilities: -t, -c, or -d
- * If it's -d, file has to be of .huff extension type.
+ * If it's -d, file has to be of .hurl extension type.
  */
 typedef enum
 {
-    TABLE_MODE_HUFF,
+    TABLE_MODE_HURL,
     TABLE_MODE_GENERIC,
     COMPRESS_MODE,
     DECOMPRESS_MODE,
@@ -50,23 +53,23 @@ typedef enum
  */
 eMode getModeOfOperation(int argc, char *argv[3])
 {
-    // Need three arguments: the mode and a .huff if option is -d.
+    // Need three arguments: the mode and a .hurl if option is -d.
     if (argc != 3)
     {
         return INVALID_MODE;
     }
 
     int fileNameLength = strlen(argv[2]);
-    bool isHuff = strstr(argv[2], ".huff\0") != NULL && fileNameLength > 5;
+    bool isHurl = strstr(argv[2], ".hurl\0") != NULL && fileNameLength > 5;
     if (fileNameLength <= 0)
     {
         return INVALID_MODE;
     }
     if (strcmp(argv[1], "-t") == 0)
     {
-        if (isHuff)
+        if (isHurl)
         {
-            return TABLE_MODE_HUFF;
+            return TABLE_MODE_HURL;
         }
         return TABLE_MODE_GENERIC;
     }
@@ -74,7 +77,7 @@ eMode getModeOfOperation(int argc, char *argv[3])
     {
         return COMPRESS_MODE;
     }
-    if (strcmp(argv[1], "-d") == 0 && isHuff)
+    if (strcmp(argv[1], "-d") == 0 && isHurl)
     {
         return DECOMPRESS_MODE;
     }
@@ -82,8 +85,8 @@ eMode getModeOfOperation(int argc, char *argv[3])
 }
 
 /*
- * This will try to read a .huff files header (not including the compression table).
- * Reads bytes 0-3 expecting them to be HUFF
+ * This will try to read a .hurl files header (not including the compression table).
+ * Reads bytes 0-3 expecting them to be HURL
  * Reads bytes 4-11 expecting them to be bits for a 64 bit integer.
  * Returns the size of the uncompressed file (which is the also the number of huffman symbols in the compressed file).
  */
@@ -92,7 +95,7 @@ eFileCode ReadHeader(FILE* pFile, unsigned long long* pHuffmanSize)
     int i = 0;
     *pHuffmanSize = 0;
     int c;
-    char* header = "HUFF";
+    char* header = "HURL";
 
     assert(pFile != NULL);
 
@@ -189,26 +192,31 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
             char huffmanEncodings[ENTRIES * ENTRY_LENGTH];
             unsigned long long lengthOfFile =
                 huffmanEncodingsFromFile(pFile, huffmanEncodings);
-            int nameLength = strlen(fileName) - strlen(".huff");
-            char newFileName[nameLength + 1];
-            strncpy(newFileName, fileName, nameLength);
-            newFileName[nameLength] = 0;
-            FILE *pNewFile = xfopen(newFileName, "w");
 
             huffResult resultArray[ENTRIES];
             createHuffResultArrayFromFileEncodings(huffmanEncodings, resultArray);
             huffNode huffmanTree[ENTRIES + ENTRIES - 1];
             createDecodeTreeFromResultArray(resultArray, huffmanTree);
-            writeCompressedFileToNonCompressedOutput(pFile, pNewFile, lengthOfFile, &huffmanTree[0]);
+            FILE *rle_file = xtmpfile();
+            writeCompressedFileToNonCompressedOutput(pFile, rle_file, lengthOfFile, &huffmanTree[0]);
 
+            rewind(rle_file);
+            int nameLength = strlen(fileName) - strlen(".hurl");
+            char newFileName[nameLength + 1];
+            strncpy(newFileName, fileName, nameLength);
+            newFileName[nameLength] = 0;
+            FILE *pNewFile = xfopen(newFileName, "w");
+            rle_decode(rle_file, pNewFile);
+
+            fclose(rle_file);
             fclose(pNewFile);
             break;
         }
 
-        case TABLE_MODE_HUFF:
+        case TABLE_MODE_HURL:
         {
-            // If we want a table and the file is .huff, it may or may not be the same .huff we want it to be.
-            // We'll try to treat it as a .huff but if it's the wrong format, we will treat it like a generic
+            // If we want a table and the file is .hurl, it may or may not be the same .hurl we want it to be.
+            // We'll try to treat it as a .hurl but if it's the wrong format, we will treat it like a generic
             // file.
             char huffmanEncodings[ENTRIES * ENTRY_LENGTH];
             huffmanEncodingsFromFile(pFile, huffmanEncodings);
@@ -220,8 +228,8 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
             }
             else
             {
-                // File was a .huff, but internally format doesn't fit. Oh well, we can still generate a compression table.
-                // Maybe someone else in the world created their own .huff file format. We need to handle that format.
+                // File was a .hurl, but internally format doesn't fit. Oh well, we can still generate a compression table.
+                // Maybe someone else in the world created their own .hurl file format. We need to handle that format.
                 fseek(pFile, 0, SEEK_SET);
 
                 // The frequency of occurrence of each character in the uncompressed file.
@@ -242,7 +250,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
 
         case TABLE_MODE_GENERIC:
         {
-            // If the file is not a .huff, then generate frequencies and then a table for the file.
+            // If the file is not a .hurl, then generate frequencies and then a table for the file.
             // The frequency of occurrence of each character in the uncompressed file.
             unsigned pFrequencies[ENTRIES];
             memset(pFrequencies, 0, sizeof(pFrequencies));
@@ -261,30 +269,30 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, char* fileName
 
         case COMPRESS_MODE:
         {
-            // If the file is not a .huff, then generate frequencies and then a table for the file.
-            // The frequency of occurrence of each character in the uncompressed file.
+            FILE *rle_file = xtmpfile();
+
+            rle_encode(pFile, rle_file);
+
+            rewind(rle_file);
             unsigned pFrequencies[ENTRIES];
             memset(pFrequencies, 0, sizeof(pFrequencies));
-            if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
-            {
-                huffResult resultArray[ENTRIES];
-                fileCode = GetTableForGeneric(pFrequencies, resultArray);
-                FILE *pNewFile = fopen(strcat(fileName, ".huff"), "w+");
-
-                if (pNewFile == NULL)
-                {
-                    fileCode = FILE_INVALID_FORMAT;
-                }
-                else
-                {
-                    writeNonCompressedFileToCompressedOutput(pFile, pNewFile, resultArray);
-                    fclose(pNewFile);
-                }
-            }
-            else
+            if (GenerateFrequenciesForGeneric(rle_file, pFrequencies) != FILE_SUCCESS)
             {
                 fileCode = FILE_INVALID_FORMAT;
+                break;
             }
+            huffResult resultArray[ENTRIES];
+            fileCode = GetTableForGeneric(pFrequencies, resultArray);
+            FILE *pNewFile = fopen(strcat(fileName, ".hurl"), "w+");
+
+            if (pNewFile == NULL)
+            {
+                fileCode = FILE_INVALID_FORMAT;
+                break;
+            }
+            writeNonCompressedFileToCompressedOutput(rle_file, pNewFile, resultArray);
+            fclose(rle_file);
+            fclose(pNewFile);
             break;
         }
 
@@ -305,7 +313,7 @@ int main(int argc, char **argv)
     // The mode determines if we compress, decompress, or print out the table to
     // the commandline.
     // Possibilities: -t, -c, or -d
-    // If it's -d, file has to be of .huff extension type.
+    // If it's -d, file has to be of .hurl extension type.
 
     // -t, -c, or -d, plus this checks if the file name/extension is valid.
     eMode mode = getModeOfOperation(argc, argv);
@@ -314,7 +322,8 @@ int main(int argc, char **argv)
     if (mode == INVALID_MODE)
     {
         fprintf(stderr,
-            "Invalid commandline args. Should be:\nhuff (-t | -c) file\nOR\nhuff -d file.huff\ni.e.: ./huff -t MyFile.txt\n");
+            "Invalid commandline args. Should be:\n%s (-t | -c | -d) file\nOR\n%s -d file.hurl\ni.e.: %s -t MyFile.txt\n",
+            argv[0], argv[0], argv[0]);
         return -1;
     }
 

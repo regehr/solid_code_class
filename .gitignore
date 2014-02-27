@@ -1,7 +1,7 @@
 *.o
 compress/team1/huff
 *.dot
-*.huff
+*.rhuff
 *.swp
 *.swo
 *~
@@ -14,3 +14,5 @@ compress/team1/kern
 compress/team1/mach_kernel
 
 compress/team2/kernel
+
+*.pbm

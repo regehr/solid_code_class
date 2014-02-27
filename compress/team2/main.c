@@ -9,6 +9,7 @@
 #include "header.h"
 #include "tree.h"
 #include "encoder.h"
+#include "rle.h"
 
 /* Build a frequency table from the given file. Byte frequencies are filled
  * into the supplied 'table', and the size of the file is written into 'length'.
@@ -27,6 +28,7 @@ static int build_freqtable(FILE * input, uint64_t table[256], uint64_t *length) 
     if (! feof(input)) { return ENOREAD; }
 
     *length = bytes_read;
+    
     return 0;
 }
 
@@ -50,7 +52,7 @@ static int compress_file(FILE * output, FILE * input, struct huff_header * heade
     }
 
     if (! feof(input)) { return ETRUNC; }
-
+    
     /* If there's an extra byte to be written, write it out. Fail with ENOWRITE
      * if the write fails */
     if (encoder.buffer_used &&
@@ -66,30 +68,49 @@ static int compress(FILE * file, char * filename) {
     struct huff_header header;
     char * huff_filename = NULL;
     FILE * output = NULL;
-
+    
+    /* Use RLE encoding to create new rle-encoded file
+     * from parameter 'file'. */
+    FILE * rle_encoded = NULL;
+    rle_encoded = xfopen("temp.rle", "wb");
+    compress_rle(file, rle_encoded);
+    /* Close rle-encoded file. */
+    if (pfclose(rle_encoded)) {
+        return HUFF_FAILURE;
+    }
+    /* Open rle-encoded file for reading. */
+    rle_encoded = xfopen("temp.rle", "rb");
+    
+    /* Build filename. */
     huff_filename = xmalloc(strlen(filename) + HUFF_EXTLEN + 1);
     memcpy(huff_filename, filename, strlen(filename) + 1);
     strcat(huff_filename, HUFF_EXT);
-
     assert(strlen(huff_filename) == strlen(filename) + HUFF_EXTLEN &&
            "Likely memory corruption building compression output file name");
-
     output = xfopen(huff_filename, "w");
     free(huff_filename);
 
     /* build our translation table and header, then seek to the
      * start of the file */
-    build_freqtable(file, ftable, &header.length);
+    build_freqtable(rle_encoded, ftable, &header.length);
     huff_make_table(ftable, header.table);
-
-    int code = compress_file(output, file, &header);
-
+    int code = compress_file(output, rle_encoded, &header);
     huff_free_hdrtable(&header);
 
-    /* close our files */
+    /* Close output file. */
     if (pfclose(output)) {
         return HUFF_FAILURE;
-    } else if (code) {
+    }
+    /* Close rle-encoded file. */
+    if (pfclose(rle_encoded)) {
+        return HUFF_FAILURE;
+    }
+    /* Delete rle-encoded file. */
+    if (remove("temp.rle") != 0) {
+        fprintf(stderr, "Error deleting temporary rle file.");
+        return HUFF_FAILURE;
+    }
+    if (code) {
         printf("%s\n", huff_error(code));
         return HUFF_FAILURE;
     }
@@ -138,21 +159,39 @@ static int decompress(FILE * file, char * filename) {
 
     ext_index = filename + (strlen(filename) - HUFF_EXTLEN);
     assert(ext_index > filename && strcmp(ext_index, HUFF_EXT) == 0 &&
-           "Our file to decompress does not have a .huff extension.");
-    /* Remove the extension */
+           "Our file to decompress does not have a .hurl extension.");
+    /* Remove the .hurl extension */
     *ext_index = '\0';
 
-    output = xfopen(filename, "w");
+    output = xfopen(strcat(filename , ".rle"), "w");
     code = decompress_file(output, file, &header);
-
     huff_free_hdrtable(&header);
-
     if (pfclose(output)) { return HUFF_FAILURE; }
+    
+    /* Send huffman decoded file through rle decoding. */
+    FILE * rle_input = xfopen(filename , "rb");
+    /* Remove the .rle extension */
+    *ext_index = '\0';
+    FILE * rle_output = xfopen(filename, "wb");
+    decompress_rle(rle_input, rle_output);
+    
+    /* Close intermediary .rle file */
+    if (pfclose(rle_input)) {
+        return HUFF_FAILURE;
+    }
+    /* Delete intermediary .rle file */
+    if (remove(strcat(filename, ".rle")) != 0) {
+        fprintf(stderr, "Error deleting temporary rle file.");
+        return HUFF_FAILURE;
+    }
+    /* Close final decoded file. */
+    if (pfclose(rle_output)) {
+        return HUFF_FAILURE;
+    }
     if (code != 0) {
         fprintf(stderr, "Couldn't decompress: %s\n", huff_error(code));
         return HUFF_FAILURE;
     }
-
     return HUFF_SUCCESS;
 }
 
@@ -174,7 +213,7 @@ static int table(FILE * file, char * filename) {
 }
 
 static void usage(FILE * to) {
-    fputs("usage: huff [-t | -c | -d] FILE\n"
+    fputs("usage: rhuff [-t | -c | -d] FILE\n"
           "Arguments:\n"
           " -c      Compress the given file.\n"
           " -d      Decompress the given file.\n"

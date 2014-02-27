@@ -1,6 +1,6 @@
 #!/user/bin/python
 
-from subprocess import call
+import subprocess 
 import os
 
 #check where we're running from
@@ -9,13 +9,13 @@ if("test" in os.getcwd()):
     os.chdir("../")
 
 #build the executable
-call(["make"])
+subprocess.call(["make"])
 
 #move it to the test files folder
-call(["cp", "huff", "test/testFiles"])
+subprocess.call(["cp", "rhuff", "test/testFiles"])
 
 #clean up the root folder
-call(["make", "clean"])
+subprocess.call(["make", "clean"])
 
 #switch to the test file folder
 os.chdir("test/testFiles")
@@ -25,11 +25,11 @@ print "Testing..."
 #for each file in the folder
 for filename in os.listdir("."):
     #if it's a .txt file
-    if(".txt" in filename):
+    if((".txt" in filename) or (".pbm" in filename)):
 
         #get the table (saved as filename.tbl)
         writeTo = open(filename+".tbl", "w")
-        call(["./huff", "-t", filename], stdout=writeTo)
+        subprocess.call(["./rhuff", "-t", filename], stdout=writeTo)
         writeTo.close()
         
         #make sure it's right (has 256 lines and each line is unique)
@@ -51,7 +51,7 @@ for filename in os.listdir("."):
             print "Size of tree for " + filename + " is " + str(len(uniqueLines))
             
         #compress the file
-        call(["./huff", "-c", filename])
+        subprocess.call(["./rhuff", "-c", filename])
         
         #read in the original file
         originalFile = open(filename, "r")
@@ -59,9 +59,9 @@ for filename in os.listdir("."):
 
         for line in originalFile:
             originalText.append(line)
-"""
+
         #uncompress the file
-        call(["./huff", "-d", filename+".huff"])
+        subprocess.call(["./rhuff", "-d", filename+".hurl"])
 
         #read in the uncompressed version
         uncompressedFile = open(filename, "r")
@@ -73,5 +73,5 @@ for filename in os.listdir("."):
         #make sure the uncompressed file matches the original
         print filename
         print originalText == uncompressedText
-"""
+
 print "Testing done"

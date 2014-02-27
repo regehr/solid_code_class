@@ -21,7 +21,7 @@
 	struct huff_node* right_child;
 	int char_number;
 	int lowest_value;
-	int frequency;
+	unsigned long long frequency;
 	struct huff_node* parent;
 	char* encoding;
 }huff_node;
@@ -35,7 +35,7 @@
  *  The array should contain the count of each ascii character to encode.  
  *
  */
-huff_node* create_huff_tree_from_frequency(int frequencyArray[]);
+huff_node* create_huff_tree_from_frequency(unsigned long long frequencyArray[256]);
 
 /*  This method will create a huff tree based on an array containing
  *  encodings for each ascii character 0 to 255.  Element 0 referes to 
@@ -70,18 +70,7 @@ char** get_encoding(huff_node* root);
  * This method is a bit of a object hack using a static variable to keep track
  * of the current node within the tree.  Only use this with method with one
  * tree per an execution.
- * 
- * @param root
- * @param zero_bit
- * @return 
  */
 int get_next_character(huff_node* root, int one_bit);
-
-//Not sure how to do the decoding yet.  
-//Might just have to manually go through the tree since encodings are varible length.
-//  >.<
-
-
-
 
 #endif	/* HUFF_TABLE_H */

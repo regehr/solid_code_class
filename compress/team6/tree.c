@@ -1,5 +1,6 @@
 /* John Clukey
  * Date: January 30 - ...
+ # Additions made by Keith Richards
  * 
  * A tree data structure for Huffman Encoding.
  */

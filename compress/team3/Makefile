@@ -6,11 +6,11 @@ CC = clang
 CFLAGS = -std=c99 -O3
 
 objects = syscalls.o encoder.o decoder.o decodedOutputFileWriter.o \
-encodedOutputFileWriter.o hurl.o
+encodedOutputFileWriter.o rhuff.o
 
 test_file = tester.rkt
 
-bin = hurl 
+bin = rhuff
 test_dir = tests
 
 all: $(bin)
