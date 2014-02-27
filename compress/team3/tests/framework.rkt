@@ -124,9 +124,8 @@
 ; Returns a function that when executed runs the supplied command with the
 ; supplied arguments, and returns the commands response code, stdout (as bytes),
 ; and stderr (as bytes).
-(define (run-binary binary #:echo [echo? #f] . flags)
+(define (run-binary binary . flags)
  (thunk
- (when echo? (printf "$ ~a ~a\n" binary (string-join flags " ")))
  ; Run the program as a subprocess
  (let-values ([(proc proc-stdout proc-stdin proc-stderr)
                (apply subprocess (append (list #f #f #f binary) flags))])
