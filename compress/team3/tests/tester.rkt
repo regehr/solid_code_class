@@ -48,6 +48,48 @@
  )
 )
 
+(define (character->bit char)
+ (assert (or (char=? char #\1) (char=? char #\0)))
+ (if (char=? char #\1) 1 0)
+)
+
+(define (character-list->byte char-bits [byte 0] [index 8])
+ (if (null? char-bits) byte
+  (character-list->byte 
+   (cdr char-bits)
+   (bitwise-ior byte
+    (arithmetic-shift (character->bit (car char-bits)) index))
+   (sub1 index)
+  )
+ )
+)
+
+(define (_list-entry->bytes entry [lbytes '()])
+ (assert (= (modulo (length entry) 8) 0))
+ (if (null? entry) (apply bytes (reverse lbytes))
+  (let*-values ([(bit-list rest) (split-at entry 8)])
+   (_list-entry->bytes rest (cons (character-list->byte bit-list) lbytes))
+  )
+ )
+)
+
+
+(define (string-entry->bytes entry)
+ (let* ([length-modulo (modulo (string-length entry) 8)]
+        [compensation
+         (if (not (= length-modulo 0))
+          (make-string (- 8 length-modulo) #\0) "")])
+  (_list-entry->bytes (string->list (string-append entry compensation)))
+ )
+)
+
+; Should return the bytes that make up the huff table entry
+; that translates to an 8 length run of a 1 bit.
+(define (valid-rle-entry table)
+ (string-entry->bytes 
+  (list-ref table (string->number "#x88")))
+)
+
 ; Return the byte representation of the supplied table.
 (define (table->bytes table)
  (string->bytes/utf-8 
@@ -83,25 +125,32 @@
  )
 )
 
+(display "before printf\n")
+(printf "RLE bytes: ~a\n" (valid-rle-entry (valid-tree)))
+(display "after printf\n")
+
 ; ***** TESTS ******* ;
 
 (define (no-magic)
- (generator ()
-  (yield (length-as-bytes 1))
-  (yield (table->bytes (valid-tree)))
-  (yield (hex-string->bytes "80"))
-  (yield 'stop)
+ (let ([table (valid-tree)])
+  (generator ()
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   (yield (valid-rle-entry table))
+   (yield 'stop)
+  )
  )
 )
 
 (define (bad-table-entry)
- (generator ()
-  (yield *huff-magic*)
-  (yield (length-as-bytes 1))
-  (yield (table->bytes
-          (append (cdr (valid-tree)) '("2"))))
-  (yield (hex-string->bytes "80"))
-  (yield 'stop)
+ (let ([table (append (cdr (valid-tree)) '("2"))])
+  (generator ()
+   (yield *huff-magic*)
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   (yield (valid-rle-entry table))
+   (yield 'stop)
+  )
  )
 )
 
@@ -114,13 +163,28 @@
  )
 )
 
+
 (define (normal-huff)
- (generator ()
-  (yield *huff-magic*)
-  (yield (length-as-bytes 1))
-  (yield (table->bytes (valid-tree)))
-  (yield (hex-string->bytes "80"))
-  (yield 'stop)
+ (let ([table (valid-tree)])
+  (generator ()
+   (yield *huff-magic*)
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   (yield (valid-rle-entry table))
+   (yield 'stop)
+  )
+ )
+)
+
+(define (no-byte-translation)
+ (let ([table (valid-tree)])
+  (generator ()
+   (yield *huff-magic*)
+   (yield (length-as-bytes 1))
+   (yield (table->bytes table))
+   (yield (hex-string->bytes "00"))
+   (yield 'stop)
+  )
  )
 )
 
@@ -158,6 +222,8 @@
  (empty-huff) *success* print-info)
 (huff-decompress "Incorrect length in huff file"
  (bad-length) *failure* print-info)
+(huff-decompress "Decompress compressed file where bytes not in translation table."
+ (no-byte-translation) *failure* print-info)
 (huff-decompress "No magic number in huff file"
  (no-magic) *failure* print-info)
 (huff-decompress "2 in translation table"
