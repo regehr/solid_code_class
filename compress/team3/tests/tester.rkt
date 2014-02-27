@@ -66,12 +66,16 @@
 )
 
 ; Prints out stderr, always succeeds
-(define (print-output code stdout stderr)
- (list #t 
-  (string-append (style "stdout" (make-color 'white)) "\n"
-   (string-trim (bytes->string/utf-8 stdout)))
-  (string-append (style "stderr" (make-color 'white)) "\n"
-   (string-trim (bytes->string/utf-8 stderr)))
+(define (print-info results)
+ (let* ([heading-color (make-color 'white)]
+        [heading (lambda (text) (style text heading-color))])
+  (list #t 
+   (string-append* (heading "invocation: " (hash-ref 'binary) (hash-ref 'args)))
+   (string-append (heading "stdout:") "\n"
+    (string-trim (bytes->string/utf-8 (hash-ref 'stdout))))
+   (string-append (heading "stderr:") "\n"
+    (string-trim (bytes->string/utf-8 (hash-ref 'stderr))))
+  )
  )
 )
 
@@ -145,18 +149,18 @@
 
 (begin0 (void)
 (huff-decompress "Simple decompression"
- (normal-huff) *success* print-output)
+ (normal-huff) *success* print-info)
 (huff-decompress "Empty huff file" 
- (empty-huff) *success* print-output)
+ (empty-huff) *success* print-info)
 (huff-decompress "Incorrect length in huff file"
- (bad-length) *failure* print-output)
+ (bad-length) *failure* print-info)
 (huff-decompress "No magic number in huff file"
- (no-magic) *failure* print-output)
+ (no-magic) *failure* print-info)
 (huff-decompress "2 in translation table"
- (bad-table-entry) *failure* print-output)
+ (bad-table-entry) *failure* print-info)
 (test "Wrong extension"
  (list (build-file (normal-huff) "t.huff"))
  (run-binary *huff-bin* "-d" "t")
- (list (expect-code *failure*) print-output))
+ (list (expect-code *failure*) print-info))
 )
 
