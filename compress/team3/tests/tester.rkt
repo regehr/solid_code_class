@@ -1,8 +1,6 @@
 #lang racket
 
-(require (only-in racket/generator generator yield)
-         (only-in rnrs/base-6 assert))
-
+(require (only-in rnrs/base-6 assert))
 (require "term-colors.rkt")
 (require "framework.rkt")
 
@@ -133,100 +131,85 @@
 
 ; ***** TESTS ******* ;
 
+(define (normal-huff)
+ (let ([table (valid-tree)])
+  (list
+   *huff-magic*
+   (length-as-bytes 1)
+   (table->bytes table)
+   (valid-rle-entry table)
+  )
+ )
+)
+
 (define (no-magic)
  (let ([table (valid-tree)])
-  (generator ()
-   (yield (length-as-bytes 1))
-   (yield (table->bytes table))
-   (yield (valid-rle-entry table))
-   (yield 'stop)
+  (list
+   (length-as-bytes 1)
+   (table->bytes table)
+   (valid-rle-entry table)
   )
  )
 )
 
 (define (bad-table-entry)
  (let ([table (append (cdr (valid-tree)) '("2"))])
-  (generator ()
-   (yield *huff-magic*)
-   (yield (length-as-bytes 1))
-   (yield (table->bytes table))
-   (yield (valid-rle-entry table))
-   (yield 'stop)
+  (list
+   *huff-magic*
+   (length-as-bytes 1)
+   (table->bytes table)
+   (valid-rle-entry table)
   )
  )
 )
 
 (define (empty-huff)
- (generator ()
-  (yield *huff-magic*)
-  (yield (length-as-bytes 0))
-  (yield (table->bytes (valid-tree)))
-  (yield 'stop)
- )
-)
-
-
-(define (normal-huff)
- (let ([table (valid-tree)])
-  (generator ()
-   (yield *huff-magic*)
-   (yield (length-as-bytes 1))
-   (yield (table->bytes table))
-   (yield (valid-rle-entry table))
-   (yield 'stop)
-  )
+ (list
+  *huff-magic*
+  (length-as-bytes 0)
+  (table->bytes (valid-tree))
  )
 )
 
 (define (bad-rle)
  (let ([table (valid-tree)])
-  (generator ()
-   (yield *huff-magic*)
-   (yield (length-as-bytes 1))
-   (yield (table->bytes table))
+  (list
+   *huff-magic*
+   (length-as-bytes 1)
+   (table->bytes table)
    ; Translates to RLE code encoding for a run of 7 1s
-   (yield (string-entry->bytes 
-           (list-ref table (string->number "#x87"))))
-   (yield 'stop)
+   (string-entry->bytes 
+    (list-ref table (string->number "#x87")))
   )
  )
 )
 
 (define (no-byte-translation)
  (let ([table (valid-tree)])
-  (generator ()
-   (yield *huff-magic*)
-   (yield (length-as-bytes 1))
-   (yield (table->bytes table))
-   (yield (hex-string->bytes "00"))
-   (yield 'stop)
+  (list
+   *huff-magic*
+   (length-as-bytes 1)
+   (table->bytes table)
+   (hex-string->bytes "00")
   )
  )
 )
 
 (define (bad-length)
- (generator ()
-  (yield *huff-magic*)
-  (yield (length-as-bytes 1))
-  (yield (table->bytes (valid-tree)))
-  (yield 'stop)
+ (list
+  *huff-magic*
+  (length-as-bytes 1)
+  (table->bytes (valid-tree))
  )
 )
 
-(define (test-all . tests)
- (unless (null? tests)
-  (apply test (car tests))
-  (apply test-all (cdr tests))
- )
-)
-
-(define (huff-decompress name file-generator expected-code 
+(define (huff-decompress name file-bytes expected-code 
          #:file-base [file-base "t"] . checkers)
  (let ([huff-name (string-append file-base *huff-ext*)]
        [extra-checkers (if (= expected-code *success*)
                         (cons (file-exists file-base) checkers) checkers)])
   (test name
-   (list (build-file file-generator huff-name))
+   (list (build-file (in-list file-bytes) huff-name))
    (run-binary *huff-bin* "-d" huff-name)
    (append (list (expect-code expected-code)) extra-checkers)
    #:finally (list (rm file-base)))
