@@ -93,8 +93,8 @@ eMode getModeOfOperation(int argc, char *argv[3])
 eFileCode ReadHeader(FILE* pFile, unsigned long long* pHuffmanSize)
 {
     int i = 0;
-    *pHuffmanSize = 0;
     int c;
+    *pHuffmanSize = 0;
     char* header = "HURL";
 
     assert(pFile != NULL);
@@ -147,8 +147,6 @@ eFileCode GetTableForGeneric(unsigned* pFrequencies, huffResult resultArray[256]
  */
 eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned pOutFrequencies[256])
 {
-    int c;
-
     assert(pFile != NULL);
 
     while (true)
@@ -158,7 +156,7 @@ eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned pOutFrequencies[25
 
         if (read == 0) return FILE_SUCCESS;
 
-        pOutFrequencies[byte]++;
+        pOutFrequencies[(int)byte]++;
     }
 }
 
@@ -286,7 +284,9 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, const char *fi
             }
             huffResult resultArray[ENTRIES];
             fileCode = GetTableForGeneric(pFrequencies, resultArray);
-            FILE *pNewFile = fopen(strcat(fileName, ".hurl"), "w+");
+            char newFileName[strlen(fileName) + 6];
+            strcpy(newFileName, fileName);
+            FILE *pNewFile = fopen(strcat(newFileName, ".hurl"), "w+");
 
             if (pNewFile == NULL)
             {
