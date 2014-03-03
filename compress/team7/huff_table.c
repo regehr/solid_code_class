@@ -169,7 +169,7 @@ huff_node *create_parent_node(huff_node *left_child, huff_node *right_child) {
     //create huff_node
     huff_node *parent = create_huff_node( -1, left_child->frequency + right_child->frequency, NULL);
     set_children_nodes(parent, left_child, right_child);
-    parent->lowest_value = left_child->lowest_value;
+    parent->lowest_value = min(left_child->lowest_value, right_child->lowest_value);
     
     return parent;
 }
