@@ -159,9 +159,7 @@ int main(int argc, const char *argv[])
         //create rle_encoded array
         unsigned char* rle_encoding = NULL;
         unsigned long long encoding_length = 0;
-        printf("made it here.\n");
         encoding_length = file_to_char_array(temp_file, &rle_encoding);
-        printf("length: %llu\n", encoding_length);
         fclose(temp_file);
         //send to decode_rle to be decoded
         char* newfile = remove_ext(argv[2]);
