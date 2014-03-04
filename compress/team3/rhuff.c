@@ -134,7 +134,7 @@ eFileCode ReadHeader(FILE* pFile, unsigned long long* pHuffmanSize)
  * ...
  * 00001
  */
-eFileCode GetTableForGeneric(unsigned* pFrequencies, huffResult resultArray[256])
+eFileCode GetTableForGeneric(unsigned long long pFrequencies[ENTRIES], huffResult resultArray[256])
 {
     createHuffmanTree(pFrequencies, resultArray);
 
@@ -145,7 +145,7 @@ eFileCode GetTableForGeneric(unsigned* pFrequencies, huffResult resultArray[256]
  * This function will generate a table of how often each character in a file occurs.
  * The result is stored in pOutFrequencies.
  */
-eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned pOutFrequencies[256])
+eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned long long pOutFrequencies[256])
 {
     assert(pFile != NULL);
 
@@ -156,7 +156,10 @@ eFileCode GenerateFrequenciesForGeneric(FILE* pFile, unsigned pOutFrequencies[25
 
         if (read == 0) return FILE_SUCCESS;
 
-        pOutFrequencies[(int)byte]++;
+        unsigned index = (unsigned char)byte;
+        assert(index < 256);
+
+        pOutFrequencies[index]++;
     }
 }
 
@@ -234,7 +237,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, const char *fi
                 fseek(pFile, 0, SEEK_SET);
 
                 // The frequency of occurrence of each character in the uncompressed file.
-                unsigned pFrequencies[ENTRIES];
+                unsigned long long pFrequencies[ENTRIES];
                 memset(pFrequencies, 0, sizeof(pFrequencies));
                 if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
                 {
@@ -253,7 +256,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, const char *fi
         {
             // If the file is not a .hurl, then generate frequencies and then a table for the file.
             // The frequency of occurrence of each character in the uncompressed file.
-            unsigned pFrequencies[ENTRIES];
+            unsigned long long pFrequencies[ENTRIES];
             memset(pFrequencies, 0, sizeof(pFrequencies));
             if (GenerateFrequenciesForGeneric(pFile, pFrequencies) == FILE_SUCCESS)
             {
@@ -275,7 +278,7 @@ eFileCode GenerateTableAndCompressOrDecompress(eMode huffmanMode, const char *fi
             rle_encode(pFile, rle_file);
 
             rewind(rle_file);
-            unsigned pFrequencies[ENTRIES];
+            unsigned long long pFrequencies[ENTRIES];
             memset(pFrequencies, 0, sizeof(pFrequencies));
             if (GenerateFrequenciesForGeneric(rle_file, pFrequencies) != FILE_SUCCESS)
             {

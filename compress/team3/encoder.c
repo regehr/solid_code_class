@@ -69,7 +69,7 @@ void checkTable(huffResult *resultArray);
 void checkValidCode (char *s);
 
 //this craetes a tree and returns the resulting strings as an array of huffresults
-void createHuffmanTree(unsigned *frequencies, huffResult resultArray[256])
+void createHuffmanTree(unsigned long long frequencies[256], huffResult resultArray[256])
 {
     //make an array of nodes big enough to hold everything.
     huffNode nodes[512];
