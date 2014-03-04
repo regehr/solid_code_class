@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 /* magic identifiers and their sizes */
-#define HUFF_MAGIC "HUFF"
-#define HUFF_EXT   ".huff"
+#define HUFF_MAGIC "HURL"
+#define HUFF_EXT   ".hurl"
 
 #define HUFF_MAGICLEN (sizeof(HUFF_MAGIC) - 1)
 #define HUFF_EXTLEN   (sizeof(HUFF_EXT) - 1)

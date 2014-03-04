@@ -1,161 +1,112 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <assert.h>
 #include "huff_table.h"
 
 #define CHAR_RANGE 257
 
-/* get the size that our string of 0's and 1's is going to be */
-unsigned long long get_size(char** huff_table, int frequencies[]) {
+/* Write the header information for huffman encoding to the file. */
+void write_header (FILE *output, char **huff_table, uint64_t length)
+{
+	int i, write_status;
+	char *magic_number = "HUFF";
 	
-	unsigned long long size = 0;
-	int i;
-	for(i = 0; i < 257; i++) {
-		if(frequencies[i] != 0) {
-			size += frequencies[i] * strlen(huff_table[i]);
-		}	
+	write_status = fwrite(magic_number, 1, strlen(magic_number), output);
+	if (write_status != strlen(magic_number)) {
+		printf("Magic number failed to write.\n");
+		exit(255);
 	}
-	return size;
-}
-
-/* create a long string of 0's and 1's in the order of the file */
-char *get_string(char* string, FILE *input, int character, char** huff_table) {
-	unsigned long long index = 0;
- 	while((character = fgetc(input)) != EOF) {
- 		char * temp = huff_table[character];
- 		
- 		unsigned long long j = 0;	
- 		while(temp[j] != '\0'){
- 			string[index++] = temp[j++];
- 		}		
- 	}
- 	
- 	return string;
-}
-
-/* remove the extension from the file that we are compressing */
-char *get_new_name(char* filename) {
-
-	int length = strlen(filename);
-	int end = 0;
 	
-	/* start from the back and stop at the first '.' */
-	int i = length - 1;
-	for(; i > 0; i--) {
-		if(filename[i] == '.') {
-			end = i;
+	write_status = fwrite(&length, sizeof(uint64_t), 1, output);
+	if (write_status != 1) {
+		printf("Length failed to write.\n");
+		exit(255);
+	}
+
+	// Write table to the output
+	for (i = 0; i < CHAR_RANGE; i++) {
+		write_status = fprintf(output, "%s\n", huff_table[i]);
+
+		if (write_status < 0) {
+			printf("Failed to write encoding table.\n");
+			exit(255);
 		}
 	}
-	
-	printf("%i \n", end);
-	int size = end + 6;
-	char *name = malloc(size*sizeof(char));
-	
-	for(i = 0; i < end; i++) {
-		name[i] = filename[i];	
+}
+
+/* Create a long string of 0's and 1's in the order of the file. */
+void compress_contents (FILE *input, FILE *output, char **huff_table)
+{
+	int bitc = 0, i, bitout;
+	int current, character;
+	char *temp = NULL;
+
+	while ((character = fgetc(input)) != EOF) {
+		temp = huff_table[character];
+		i = 0;
+		
+		while (temp[i] != '\0') {
+			bitout = temp[i] - '0'; // Thanks SO :)
+			current = (current & ~(1 << bitc)) | bitout << bitc;
+
+			bitc++;
+			i++;
+			if (bitc == 8) {
+				bitc = 0;
+				fwrite(&current, 1, 1, output);
+			}
+		}
 	}
 
-	// Append trailing nullspace so strcat works properly
-	name[end] = '\0';
-	strcat(name, ".huff");
-	
+	// Pad last bit
+	for (; bitc < 8; bitc++) {
+		current = (current & ~(1 << bitc)) | 0 << bitc;
+	}
+	fwrite(&current, 1, 1, output);
+}
+
+/* Remove the extension from the file that we are compressing. */
+char *get_new_name (char *filename) 
+{
+	int length = strlen(filename);
+	char *name = malloc(length + 6);
+	name = strcpy(name, filename);
+
+	if (name == NULL) {
+		printf("Failed to get new name.\n");
+		exit(255);
+	}
+
+	strcat(name, ".hurl");
 	return name;
 }
 
 /* Take in a file and compress it. */
-void compress(FILE *input, char* filename, unsigned long long length) {
+void compress (FILE *input, char *filename, uint64_t length)
+{
 	int character, frequencies[CHAR_RANGE] = { 0 };
 	char **huff_table;
-	
-	/* calculate character frequencies. */
-	while((character = fgetc(input)) != EOF) {
+
+	// Build huff table
+	while ((character = fgetc(input)) != EOF) {
 	    frequencies[character]++;
 	}
-	
-	/* get the huff table */
+	rewind(input);
 	huff_table = build_huff_table(frequencies);
 
-	/* figure out how long our encoding is for a single string */
-	unsigned long long size = get_size(huff_table, frequencies);
- 	
- 	/* allocate space for the string */
- 	char* string = malloc(size*sizeof(char));
- 	if(string == NULL) {
- 		printf("Malloc failed \n");
-    	exit(255);
- 	}
- 	
- 	
- 	/* create the string */
- 	rewind(input);
-	character = 0;
-	string = get_string(string, input, character, huff_table);
+	// Get pointer to output file
+	char *new_name = get_new_name(filename);
+	FILE *output = fopen(new_name, "w");
 	
-	/* allocate space to convert the string to bytes */
-	unsigned char* bytes = malloc(((size/8)+1)*sizeof(unsigned char));
-	if(bytes == NULL) {
-		printf("Malloc failed \n");
-		exit(255);
-	}
-	
-	/* convert string to bytes */
-	int i;
-	for(i = 0; i < size/8; i++) {
-		char temp[9] = {0};
-		
-		int j = 0;
-		for(; j < 8; j++) {
-			temp[j] = string[(i*8) + j];	
-		}
-		
-		bytes[i] = (unsigned char)(strtol(temp, NULL, 2) & 0xFF);;
-	}
-	
-	i = 0;
-	int end = size%8;
-	int shift = 8 - end;
-	char final[9] = {0};
-	
-	for(; i < end; i++) {
-		final[i] = string[(size - end) + i];	
-	}
-	
-	unsigned char endString = (unsigned char)(strtol(final, NULL, 2) & 0xFF);
-	
-	bytes[size/8] = endString << shift;
-	
-	
-	/* get rid of the old files extension */
-	char* newName = get_new_name(filename);
-	
-	/* create a new file to write to */
-	FILE *output = fopen(newName, "w");
-	
-	char *magicNumber = "HUFF";
-	
-	if(fwrite(magicNumber, sizeof(char), strlen(magicNumber), output) != strlen(magicNumber)) {
-		printf("Write failure magic\n");
-		exit(255);
-	}
-	
-	if(fwrite(&length, sizeof(unsigned long long), 1, output) != 1) {
-		printf("Write failure \n");
-		exit(255);
-	}
-	
-	if(fwrite(string, sizeof(char), strlen(string), output) != strlen(string)) {
-		printf("Write failure \n");
-		exit(255);
-	}
-	
-	if(fwrite(bytes, sizeof(unsigned char), (size/8) + 1, output) != (size/8)+1) {
-		printf("Write failure \n");
-		exit(255);
-	}
-	
+	// Write out the header and the actual compressed file contents
+	write_header(output, huff_table, length);
+	compress_contents(input, output, huff_table);
+	printf("Past contents?\n");
 	fclose(output);
-	free(bytes);
-	free(string);
 
+	// Clean up
+	free(new_name);
+	free_huff_table(huff_table);
 }

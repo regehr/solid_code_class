@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include "huff_tree.h"
-#define MAGIC_NUM "HUFF"
-#define HUFF_EXT ".huff"
+#define MAGIC_NUM "HURL"
+#define HUFF_EXT ".hurl"
 #define ERR_CODE 255
 
 /**
@@ -52,5 +52,15 @@ void read_huff_body(FILE*, FILE*, unsigned long long);
  *	Returns the string with the last extension stripped.
  */
 char *remove_ext(const char* filename);
+
+
+/**
+ *      Writes the contents of the array into a new file.
+ */
+void write_array_to_file(unsigned char arr[], unsigned long long length, FILE* filename);
+
+
+int file_to_char_array(FILE*, unsigned char**);
+
 
 #endif

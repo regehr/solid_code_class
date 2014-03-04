@@ -1,34 +1,35 @@
 //
 //  encoder.h
-//  huff
+//  rhuff
 //
 //  Created by Adam Bradford on 2/2/14.
 //  Copyright (c) 2014 Adam Bradford. All rights reserved.
+//
+//  Modified by Oscar Marshall.
 //
 
 #ifndef huff_encoder_h
 #define huff_encoder_h
 
 
-typedef struct huffResult{
-    char * string;
+typedef struct huffResult {
+    char *string;
     int value;
-}huffResult;
+} huffResult;
 
-typedef struct huffNode huffNode;
-struct huffNode{
-    
+typedef struct huffNode {
+
     long long sum;
-    int representedByte;
+    int byte;
     int used;
-    
-    huffNode* parent;
-    huffNode* leftLeaf;
-    huffNode* rightLeaf;
-    
-};
 
-huffResult* createHuffmanTree(unsigned *frequencies);
+    struct huffNode *parent;
+    struct huffNode *leftLeaf;
+    struct huffNode *rightLeaf;
+
+} huffNode;
+
+void createHuffmanTree(unsigned *frequencies, huffResult out[256]);
 
 void printHuffResultArray(huffResult *resultArray);
 

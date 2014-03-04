@@ -7,11 +7,12 @@
 #include "huff.h"
 #include "huff_table.h"
 #include "util.h"
+#include "rle.h"
 
 /*
  * "Do something reasonable." ~ A Certain Professor
  */
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   //Initial check for correct arg count
   if(argc != 3) {
@@ -21,10 +22,10 @@ int main(int argc, char* argv[])
   
   //Determine flag and filename
   enum Flags given_flag = determine_flag(argv[1]);
-  char* filename = argv[2];
+  char *filename = argv[2];
   
-  FILE* file = open_file(filename, "r");
-  
+  FILE *file = open_file(filename, "r");
+
   switch(given_flag) {
   case COMPRESS:
     compress(file, filename);
@@ -45,9 +46,9 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-FILE* open_file(char* filename, char* permission) {
+FILE *open_file(char *filename, char *permission) {
   //Attempt to open the file
-  FILE* file = fopen(filename, permission);
+  FILE *file = fopen(filename, permission);
   
   //Ensure we can open the file
   if (file == NULL) {
@@ -58,36 +59,46 @@ FILE* open_file(char* filename, char* permission) {
   return file;
 }
 
-void compress(FILE* file, char* filename) {
+void compress(FILE *file, char *filename) {
   size_t fname_len = strlen(filename);
   size_t ext_len = strlen(EXT);
   // Make room for a new filename
   char *new_filename = (char *)xmalloc(fname_len + ext_len + 1);
   strncpy(new_filename, filename, fname_len + 1);
   //Cat filename with extension
-  strncat(new_filename, EXT, ext_len);
+  strncat(new_filename, EXT, ext_len + 1);
   
   //Open the file
-  FILE* comp_file = open_file(new_filename, "w");
+  FILE *comp_file = open_file(new_filename, "w");
   free(new_filename);
-  
-  unsigned long long size = det_file_size(file);
   
   unsigned long long freq_table[256];
   for(int i = 0; i < 256; i++)
     freq_table[i] = 0;
   
   //Determine frequency/encoding tables
-  create_freq_table(freq_table, file, size);	
-  huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
+  size_t size = det_file_size(file);
+
+  // Convert to rle encoding.
+  uint8_t *original = (uint8_t *)xmalloc(sizeof(uint8_t) * size);
+  size_t read = fread(original, 1, size, file);
+  if (read < size) {
+    fprintf(stderr, "Could not read full file.\n");
+    exit(ERR);
+  }
+  size_t rle_size;
+  uint8_t *rle_encoded = rle_encode(original, size, &rle_size);
+  free(original);
+  create_freq_table(freq_table, rle_encoded, rle_size);	
+  huff_node *huff_tree = create_huff_tree_from_frequency(freq_table);
   char **encoded_table = get_encoding(huff_tree);
   
   
   assert(encoded_table != NULL);
   
   //Write data
-  write_compressed_file(comp_file, file, encoded_table, size);
-  
+  write_compressed_file(comp_file, rle_encoded, encoded_table, rle_size);
+  free(rle_encoded);
   //Close the file
   fclose(comp_file);
   
@@ -96,10 +107,10 @@ void compress(FILE* file, char* filename) {
   free(encoded_table);
 }
 
-void decompress(FILE* file, char* filename) {
-  //Check if file isnt a .huff
+void decompress(FILE *file, char *filename) {
+  //Check if file isnt a .hurl
   if(!is_huff_type(filename)) {
-    fprintf(stderr, "Given file is not a .huff\n");
+    fprintf(stderr, "Given file is not a .hurl\n");
     exit(ERR);
   }
   
@@ -107,29 +118,29 @@ void decompress(FILE* file, char* filename) {
   
   for(int i = 0; i < 256; i++) {
     encoding[i] = (char *)xmalloc(257);
-    }
+  }
   
   //Get huff table from file
-  unsigned long long file_size;
+  size_t file_size;
   get_huff_table(encoding, file, &file_size);
   
   assert(encoding != NULL);
     
   //Create tree based on huff table
-  huff_node* huff_tree = create_huff_tree_from_encoding(encoding);
+  huff_node *huff_tree = create_huff_tree_from_encoding(encoding);
   
-  //Determine filename without the .huff extension
+  //Determine filename without the .hurl extension
   size_t len = strlen(filename);
-  size_t ext_len = strlen(".huff");
+  size_t ext_len = strlen(".hurl");
   filename[len-ext_len] = '\0';
   
   //Open new file
-  FILE* decomp_file = open_file(filename, "w");
+  FILE *decomp_file = open_file(filename, "w");
   
-  unsigned long long byte_count = 0;
+  size_t byte_count = 0;
   uint8_t curr_byte;
   int decoded;
-  
+  uint8_t *rle_encoded = xmalloc(sizeof(uint8_t) * file_size);
   //Loop through encoded data, decode it and add to new file
   while(fread(&curr_byte, 1, 1, file) &&  byte_count < file_size) {
     for(int i = 7; (i >= 0) && (byte_count < file_size); i--) {
@@ -140,16 +151,38 @@ void decompress(FILE* file, char* filename) {
 	byte_count++;
     	
 	//Write decompressed data to file
-	xfwrite(&decoded_char, 1, 1, decomp_file);    			
+	//xfwrite(&decoded_char, 1, 1, decomp_file);    			
+	rle_encoded[byte_count-1] = decoded_char;
       }
     }
   }
-  
-  rewind(decomp_file);
-  unsigned long long final_size = det_file_size(decomp_file);
-  
-  assert(file_size == final_size && "Compressed size information and decompressed file size don't match.");
-  
+
+  if (byte_count < file_size) {
+    fprintf(stderr, "Header size larger than actual amount of data in compressed file: exiting\n");
+    exit(ERR);
+  }
+
+  // We were supposed to be at the end of the data, so there should be no more
+  if (fread(&curr_byte, 1, 1, file)) {
+    fprintf(stderr, "Header size smaller than actual amount of data in compressed file: exiting\n");
+    exit(ERR);
+  }
+
+  size_t decoded_size;
+  uint8_t *rle_decoded = rle_decode(rle_encoded, file_size, &decoded_size);
+  free(rle_encoded);
+
+  if (rle_decoded == NULL) {
+    fprintf(stderr, "Invalid RLE data: exiting\n");
+    exit(ERR);
+  }
+
+  size_t written = fwrite(rle_decoded, sizeof(uint8_t), decoded_size, decomp_file);
+  if (written < decoded_size) {
+    fprintf(stderr, "File write error");
+    exit(ERR);
+  }
+  free(rle_decoded);
   //Close the file
   fclose(decomp_file);
   
@@ -160,11 +193,11 @@ void decompress(FILE* file, char* filename) {
   }
 }
 
-void dump(FILE* file, char* filename)
+void dump(FILE *file, char *filename)
 {
-  unsigned long long file_size = det_file_size(file);
+  size_t file_size = det_file_size(file);
   
-  //Check if file is .huff
+  //Check if file is .hurl
   if(is_huff_type(filename)) {
     char *encoded_table[256];
     
@@ -173,7 +206,6 @@ void dump(FILE* file, char* filename)
       assert(encoded_table[i] != NULL);
     }
     
-    file_size = det_file_size(file);
     get_huff_table(encoded_table, file, &file_size);
     
     assert(encoded_table != NULL);
@@ -188,9 +220,23 @@ void dump(FILE* file, char* filename)
     for(int i = 0; i < 256; i++)
       freq_table[i] = 0;
     
-    create_freq_table(freq_table, file, file_size);	
-    huff_node* huff_tree = create_huff_tree_from_frequency(freq_table);
-    char** encoded_table = get_encoding(huff_tree);
+    // Convert to rle encoding.
+    uint8_t *original = (uint8_t *)xmalloc(sizeof(uint8_t) * file_size);
+    size_t read = fread(original, sizeof(uint8_t), file_size, file);
+    if (read < file_size) {
+      fprintf(stderr, "Could not read complete file");
+      exit(ERR);
+    }
+    size_t rle_size;
+    uint8_t *rle_encoded = rle_encode(original, file_size, &rle_size);
+    free(original);
+    
+    // Now create the table.
+    create_freq_table(freq_table, rle_encoded, rle_size);	
+    free(rle_encoded);
+    
+    huff_node *huff_tree = create_huff_tree_from_frequency(freq_table);
+    char **encoded_table = get_encoding(huff_tree);
     assert(encoded_table != NULL);
     for(int i = 0; i < 256; i++) {
       printf("%s\n", encoded_table[i]);
@@ -200,22 +246,18 @@ void dump(FILE* file, char* filename)
   }
 }
 
-void create_freq_table(unsigned long long table[], FILE* file, unsigned long long size) {
+void create_freq_table(unsigned long long table[], uint8_t *rle, unsigned long long size) {
   int c;
   
   for(unsigned long long i = 0; i < size; i++) {
-    c = fgetc(file);
-    if (c == EOF) {
-      fprintf(stderr, "fgetc error: exiting.\n");
-      exit(ERR);
-    }
+    c = rle[i];
     table[c]++;
   }
 }
 
-bool is_huff_type(char* filename) {
+bool is_huff_type(char *filename) {
   //Last occurance of "."
-  char* file_type = strrchr(filename, '.');
+  char *file_type = strrchr(filename, '.');
   
   //Error check
   if(file_type == NULL)
@@ -225,7 +267,7 @@ bool is_huff_type(char* filename) {
   return (strcmp(file_type, EXT) == 0);
 }
 
-unsigned long long det_file_size(FILE* file) {
+size_t det_file_size(FILE *file) {
   //Go to end
   int res = fseek(file, 0L, SEEK_END);
   if (res < 0) {
@@ -243,10 +285,10 @@ unsigned long long det_file_size(FILE* file) {
   //Rewind file
   rewind(file);
   
-  return (unsigned long long)file_length;
+  return (size_t)file_length;
 }
 
-void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
+void get_huff_table(char **huff_table, FILE *file, size_t *size) {
   //Need to read in 4 bytes rather than string
   //Since magic number doesnt end in \n
   char magic_num[4];
@@ -259,7 +301,11 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
       exit(ERR);
     }
     magic_num[i] = (char)c;
-    assert(magic_num[i]);
+    if (magic_num[i] == 0) {
+      fprintf(stderr, "Bad magic number: exiting");
+      exit(ERR);
+    }
+
   }
   
   //If not the proper number
@@ -302,18 +348,20 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
       }
       
       //Regular char
-      if(curr_char != '\n')
-	longest_string[j] = (char)curr_char;
-      //Convert newline to null terminated char
-      else {
+      if (curr_char == '0' || curr_char == '1') {
+        longest_string[j] = (char)curr_char;
+      } else if (curr_char == '\n') {
         found_newline = true;
-	longest_string[j] = '\0';
-	break;
+        longest_string[j] = 0x00;
+        break;
+      } else {
+        fprintf(stderr, "Bad char in hurl headers: exiting\n");
+        exit(ERR);
       }
     }
     
     if (!found_newline) {
-      fprintf(stderr, "Invalid .huff file: exiting\n");
+      fprintf(stderr, "Invalid .hurl file: exiting\n");
       exit(ERR);
     }
 
@@ -321,7 +369,7 @@ void get_huff_table(char** huff_table, FILE* file, unsigned long long* size) {
   }
 }
 
-enum Flags determine_flag(char* user_flag) {
+enum Flags determine_flag(char *user_flag) {
   if(strcmp(user_flag, "-c") == 0)
     return COMPRESS;
   else if(strcmp(user_flag, "-d") == 0)
@@ -332,9 +380,9 @@ enum Flags determine_flag(char* user_flag) {
     return INVALID;
 }
 
-static void compressed_write_bit(int bit, FILE* comp_file);
-static void compressed_finish_file(FILE* comp_file);
-void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_table, unsigned long long file_size) {
+static void compressed_write_bit(int bit, FILE *comp_file);
+static void compressed_finish_file(FILE *comp_file);
+void write_compressed_file(FILE *comp_file, uint8_t * rle, char **encoded_table, size_t file_size) {
   // Write magic number
   // Apparently fprintf is used for strings?
   int res = fprintf(comp_file, "%s", NUM);
@@ -344,9 +392,10 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
   }
   // Write file size
   // Convert to LE-format for file_size (platform-indep)
-  char file_size_le[sizeof(file_size)];
-  for (int i = 0; i < sizeof(file_size); i++) {
-    file_size_le[i] = (file_size >> (i*8)) & 0xFF;
+  uint64_t file_size_64 = file_size;
+  char file_size_le[sizeof(file_size_64)];
+  for (int i = 0; i < sizeof(file_size_64); i++) {
+    file_size_le[i] = (file_size_64 >> (i*8)) & 0xFF;
   }
   // And fwrite is for binary data >.>
   xfwrite(file_size_le, 8, 1, comp_file);
@@ -361,13 +410,11 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
   }
   
   // Write compressed data
-  rewind(orig_file);
   
   int curr_char;
-  char* encoded_char;
-  curr_char = fgetc(orig_file);
-  
-  while(curr_char != EOF) {
+  char *encoded_char;
+  for (size_t j = 0; j < file_size; j++) {
+    curr_char = rle[j];
     encoded_char = encoded_table[curr_char];
     
     size_t bit_count = strlen(encoded_char);
@@ -375,8 +422,6 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
       int bit = encoded_char[i] == '0' ? 0 : 1;
       compressed_write_bit(bit, comp_file);
     }
-    
-    curr_char = fgetc(orig_file);
   }
 
   compressed_finish_file(comp_file);
@@ -385,7 +430,7 @@ void write_compressed_file(FILE* comp_file, FILE* orig_file, char** encoded_tabl
 static unsigned char bit_buf = 0;
 static int bit_idx = 0;
 
-static void compressed_write_bit(int bit, FILE* comp_file) {
+static void compressed_write_bit(int bit, FILE *comp_file) {
   // Insert the bit into the single-char buffer
   bit_buf |= (bit<< (7 - bit_idx));
   bit_idx++;
@@ -401,7 +446,7 @@ static void compressed_write_bit(int bit, FILE* comp_file) {
   }
 }
 
-static void compressed_finish_file(FILE* comp_file) {
+static void compressed_finish_file(FILE *comp_file) {
   // If we have any remaining bits
   if (bit_idx > 0) {
     // We can write the char as is, because any untouched bits will be zero

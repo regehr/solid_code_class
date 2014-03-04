@@ -4,6 +4,10 @@
 
 #include "huff_tree.h"
 #include "huff_io.h"
+#include "rle.h"
+#include <stdio.h>
+
+static char* TEMP_FILE = "temp_file";
 
 void print_tree(FILE* file, const char* filename){
     
@@ -15,7 +19,21 @@ void print_tree(FILE* file, const char* filename){
             exit(ERR_CODE);
         }
     } else {
-        gen_huff_tree(file);
+        
+        //get rle encoding
+        unsigned char* rle_encoding = NULL;
+        unsigned long long encoding_length = 0;
+        encode_rle(file, &rle_encoding, &encoding_length );
+        //save to temp file
+        FILE* temp_file = tmpfile();
+        write_array_to_file(rle_encoding, encoding_length, temp_file);
+        //rewind temp file to the beginning of the stream.
+        rewind(temp_file);
+        gen_huff_tree(temp_file);
+        //close temp file
+        fclose(temp_file);
+        //temp file is auto deleted when fclose is called.
+        //http://www.cplusplus.com/reference/cstdio/tmpfile/
         
         // Print table
         int i;
@@ -26,12 +44,19 @@ void print_tree(FILE* file, const char* filename){
 }
 
 void compress(FILE *original_file, const char* filename){
-    unsigned long long size = get_file_size(filename);
-    
-    // Ignore files with huff extension
-    if (is_huff_file(filename)){
-        return;
+    if( fseek(original_file, 0, SEEK_END) ){
+        fprintf(stderr, "ERROR: Could not get file size of file %s\n", filename);
     }
+    
+    unsigned long long size = ftell(original_file);
+    rewind(original_file);
+    
+//    // Ignore files with huff extension
+//    if (is_huff_file(filename)){
+//        return;
+//    }
+    
+
     
     // Create huff file
     strcat((char*)filename, HUFF_EXT);
@@ -71,29 +96,23 @@ void decompress(FILE *compressed, const char* filename){
     }
     
     // Create file from huff
-    char* newfile = remove_ext(filename);
-    FILE* decompressed = fopen((newfile), "w");
+    FILE* decompressed = fopen((TEMP_FILE), "w");
     if (decompressed == NULL){
-        fprintf(stderr, "ERROR: Could not create file %s\n", newfile);
+        fprintf(stderr, "ERROR: Could not create file %s\n", filename);
         exit(ERR_CODE);
     }
-    
+    //
     // Write out decompressed file
     read_huff_body(compressed, decompressed, size);
-    
-    if (EOF == fclose(decompressed)){
-        fprintf(stderr, "ERROR: Could save file %s\n", filename);
-        exit(ERR_CODE);
-    }
+    fclose(decompressed);
     free_huff_tree();
-    free(newfile);
 }
 
 int main(int argc, const char *argv[])
 {
     // Proper use
     if (argc != 3){
-        fprintf(stderr, "ERROR:\nProper use:\n huff [ -c | -d | -t ] file\n");
+        fprintf(stderr, "ERROR:\nProper use:\n rhuff [ -c | -d | -t ] file\n");
         exit(ERR_CODE);
     }
     
@@ -106,9 +125,54 @@ int main(int argc, const char *argv[])
     }
     
     if (strcmp(argv[1], "-c") == 0){
-        compress(fp, argv[2]);
+        //TODO: compress 
+        
+        //get rle encoding
+        unsigned char* rle_encoding = NULL;
+        unsigned long long encoding_length = 0;
+        encode_rle(fp, &rle_encoding, &encoding_length );
+        //save to temp file
+        FILE* temp_file = tmpfile();
+        write_array_to_file(rle_encoding, encoding_length, temp_file);
+        //rewind temp file to the beginning of the stream.
+
+        compress(temp_file, argv[2]);
+        
+        //close temp file
+        fclose(temp_file);
+        
+        
+        
+//<--------------------------------------
+//<--------------------------------------    
+    
+    
     } else if (strcmp(argv[1], "-d") == 0){
         decompress(fp, argv[2]);
+        //TODO:
+        //open temp_file for reading
+        FILE* temp_file = fopen((TEMP_FILE), "r");
+    if (temp_file == NULL){
+        fprintf(stderr, "ERROR: Could not create file %s\n", TEMP_FILE);
+        exit(ERR_CODE);
+    }
+        //create rle_encoded array
+        unsigned char* rle_encoding = NULL;
+        unsigned long long encoding_length = 0;
+        encoding_length = file_to_char_array(temp_file, &rle_encoding);
+        fclose(temp_file);
+        //send to decode_rle to be decoded
+        char* newfile = remove_ext(argv[2]);
+        FILE* decompressed = fopen(newfile, "w");
+        if (decompressed == NULL){
+        fprintf(stderr, "ERROR: Could not create file %s\n", newfile);
+        exit(ERR_CODE);
+        }
+
+        decode_rle(rle_encoding, &encoding_length, decompressed);
+        fclose(temp_file);
+        remove(TEMP_FILE);
+        fclose(decompressed);
     } else if (strcmp(argv[1], "-t") == 0){
         print_tree(fp, argv[2]);
     } else {

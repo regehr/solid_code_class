@@ -3,27 +3,16 @@
  * and the decompressor.
  */
 
+void writeByte(FILE *writeFilePointer , unsigned char *toWrite);
 
-struct rle_block {
-    // Decoded info
-    int byte_count;
-    int remaining_bit_count;
-    char * bytes;
+FILE * getFile(char *fileName , char *fileMode);
 
-    // Encoded info
-    int hex;
-    char[2] hex_str;
+// I added one more struct that works with my methods a little better
+struct bitValue
+{
+	// bit value of the run
+	unsigned char runValue;
+	// length of the run < 127
+	unsigned char runLength;
 };
 
-
-/*
- * Encodes a run of bits and returns an run length encoding block with the
- * encoded info populated.
- */
-struct rle_block encode_run (unsigned char *, int);
-
-
-/*
- * Decodes a number into a run of bits and builds a run length encoding block.
- */
-struct rle_block decode_run (int);
