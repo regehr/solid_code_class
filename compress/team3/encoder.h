@@ -29,7 +29,7 @@ typedef struct huffNode {
 
 } huffNode;
 
-void createHuffmanTree(unsigned *frequencies, huffResult out[256]);
+void createHuffmanTree(unsigned long long frequencies[256], huffResult out[256]);
 
 void printHuffResultArray(huffResult *resultArray);
 

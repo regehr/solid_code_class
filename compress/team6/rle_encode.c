@@ -37,16 +37,15 @@ static void encode_bit(unsigned char bit, struct encode_state *state)
     }
 
     assert(state->processing);
-    assert(state->bit_count);
-    
+
     /* compare the bit we are looking at, to the most recent bit */
     if (state->bit ^ bit)
     {
-	flush_encoded_state(state); /* we have enbit_counted a different bit type */
+	flush_encoded_state(state); /* we have encountered a different bit type */
     }
     else
     {
-	state->bit_count++; /* we have enbit_counted the same bit type */
+	state->bit_count++; /* we have encountered the same bit type */
     }
 
     /* store the bit and move on */
