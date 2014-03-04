@@ -133,7 +133,8 @@ void write_out_decompress (FILE *input, FILE *output, huff_tree *root,
     huff_tree *current = root;
     int out_c;
     int i = 0, bit, bytes_written = 0;
-    char *buffer = malloc(1);
+    char *buffer = (char *)malloc(1);
+    *buffer = (char){ 0 };
     while((fread(buffer, 1, 1, input)) == 1) {
         for (i = 0; i < 8; i++) {
             bit = (*buffer) >> i & 0x1;
@@ -196,5 +197,7 @@ void decompress (FILE *input, char *filename)
 
     // Write out the decompressed bits!
     write_out_decompress(input, output, tree, size);
+
+    fclose(output);
     free_huff_tree(tree);
 }
