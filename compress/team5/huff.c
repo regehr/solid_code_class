@@ -64,7 +64,8 @@ int main (int argc, char *argv[])
         huff_encode(argv[2] , input , &output);
     } else if (strncmp(argv[1], "-d", 2) == 0) {
         FILE *output = NULL;
-        huff_decode("interFile", input, &output);
+        char *interFileName = "interFile";
+        huff_decode(interFileName, input, &output);
         char *name = get_decompressed_file_name(argv[2]);
         decode(output, name);
     } else {

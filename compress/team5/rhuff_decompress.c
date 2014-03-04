@@ -83,7 +83,7 @@ void decode(FILE *readFilePointer , char *writeFileName)
 {
 	// get a FILE to write to
 	FILE *writeFilePointer = getFile(writeFileName , "wb");
-	
+
 	// make the call to decode
 	decodeFile(readFilePointer , writeFilePointer);
 	

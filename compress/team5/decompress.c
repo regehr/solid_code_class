@@ -12,7 +12,7 @@
 
 void is_huff_file (FILE *input) 
 {
-    char magic_num[5];
+    char magic_num[5] = {0};
     int i;
 
 	// Check bytes 0-3 are equal to HUFF.
@@ -55,18 +55,23 @@ char *get_decompressed_file_name (char *filename)
 
 huff_tree *build_huff_tree_from_table (FILE *input) 
 {
-    huff_tree *root = malloc(sizeof(huff_tree));
+    huff_tree *root = (huff_tree *)malloc(sizeof(huff_tree));
+    *root = (huff_tree){ 0 };
     huff_tree *current = root;
     
-    char **encodings = malloc(CHAR_RANGE * 256);
+    char **encodings = (char **)malloc(CHAR_RANGE * sizeof(char *));
+    *encodings = (char *){ 0 };
     int i, j;
 
     // Fill the encodings array with entries from the table.
     fseek(input, 12, SEEK_SET);
 
     for (i = 0; i < CHAR_RANGE; i++) {
-        encodings[i] = malloc(CHAR_RANGE);
-        fgets(encodings[i], CHAR_RANGE, input);
+        encodings[i] = (char *)malloc(sizeof(char) * CHAR_RANGE);
+        *encodings[i] = (char){0};
+        if (fgets(encodings[i], CHAR_RANGE, input) == NULL) {
+            encodings[i] = "\n";
+        }
 
         // Manually set null character.
         for (j = 0; j < CHAR_RANGE; j++) {
@@ -79,12 +84,12 @@ huff_tree *build_huff_tree_from_table (FILE *input)
 
     // Build tree from encoding array.
     for (i = 0; i < CHAR_RANGE; i++) {
-        if (strcmp(encodings[i], "(null)") == 0) {
+        if (strcmp(encodings[i], "null") == 0) {
             continue;
         }
 
         for (j = 0; j < strlen(encodings[i]); j++) {
-            build_children_if_null(current);
+            build_children_if_null(&current);
             current->character = -1;
 
             if (encodings[i][j] == '0') {
@@ -107,14 +112,16 @@ huff_tree *build_huff_tree_from_table (FILE *input)
 }
 
 /* Builds an empty huff tree, returning the root node pointer. */
-void build_children_if_null (huff_tree * parent)
+void build_children_if_null (huff_tree ** parent)
 {
-    if (parent->zero_tree == NULL) {
-        parent->zero_tree = malloc(sizeof(huff_tree));
+    if ((*parent)->zero_tree == NULL) {
+        (*parent)->zero_tree = (huff_tree *)malloc(sizeof(huff_tree));
+        (*(*parent)->zero_tree) = (huff_tree){ 0 };
     }
 
-    if (parent->one_tree == NULL) {
-        parent->one_tree = malloc(sizeof(huff_tree));
+    if ((*parent)->one_tree == NULL) {
+        (*parent)->one_tree = (huff_tree *)malloc(sizeof(huff_tree));
+        (*(*parent)->one_tree) = (huff_tree){ 0 };
     }
 }
 
@@ -183,6 +190,7 @@ void decompress (FILE *input, char *filename)
     // Name the file, and get a pointer
     char *new_name = "interFileD";
     FILE *output = fopen(new_name, "w");
+
     if(output == NULL)
         fprintf(stderr , "panic!");
 
