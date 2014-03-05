@@ -210,6 +210,7 @@ static void flush_bits (FILE* file)
 {
     //if current_bit == 7 then we haven't actually started this byte yet
     //Should return so that we don't start a new byte of all 0's isn't added.
+    //fixes bug of creating a new byte when their isn't a byte to flush.
     if(current_bit == 7){
         return;
     }
