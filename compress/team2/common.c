@@ -4,7 +4,7 @@
 #include "common.h"
 
 static const char * const ERROR_STRINGS[] = {
-    [-EBADEXT]       = "Extension was not a .huff extension.",
+    [-EBADEXT]       = "Extension was not a .hurl extension.",
     [-ENOMAGIC]      = "No magic number in the input file.",
     [-EBADENTRY]     = "A translation table entry contained invalid characters.",
     [-ETRUNC]        = "Input file ended before we finished reading.",
