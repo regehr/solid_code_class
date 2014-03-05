@@ -208,6 +208,11 @@ static void write_bit (int bit, FILE* file)
  */
 static void flush_bits (FILE* file)
 {
+    //if current_bit == 7 then we haven't actually started this byte yet
+    //Should return so that we don't start a new byte of all 0's isn't added.
+    if(current_bit == 7){
+        return;
+    }
     while (current_bit)
         write_bit (0, file);
     
