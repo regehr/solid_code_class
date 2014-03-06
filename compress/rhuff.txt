@@ -103,9 +103,8 @@ requirements:
 1. Its filename ends with ".hurl"
 2. Bytes 0-3 are the magic number: the ASCII characters HURL
 3. Bytes 4-11 are the length field: a 64-bit unsigned integer in
-   little endian format indicating the size of the decompressed file,
-   which is also the number of Huffman codes in the compressed data
-   section
+   little endian format indicating the number of Huffman codes in the 
+   compressed data section
 4. A valid compression table (see format below) begins at byte 12
 5. The remainder of the file contains compressed data; the number of
    items must match the length field; the only exception is that the
