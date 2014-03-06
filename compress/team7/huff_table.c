@@ -254,6 +254,7 @@ huff_node *build_encoded_tree(huff_node *nodes[]) {
 void generate_encoding_tree(huff_node *root) {
     assert(root != NULL);
 
+    // All encodings that go into the tree must be malloc'd - they are all freed on tree destruct
     char *encoding = (char *)xmalloc(1);
     encoding[0] = '\0';
 
