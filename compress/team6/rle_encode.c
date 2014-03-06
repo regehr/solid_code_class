@@ -39,8 +39,7 @@ static void encode_bit(unsigned char bit, struct encode_state *state)
     }
 
     /* compare the bit we are looking at, to the most recent bit */
-    if (state->bit ^ bit ||
-	state->bit_count == CHAR_MAX)
+    if (state->bit ^ bit || state->bit_count == CHAR_MAX)
     {
         /* we have encountered a different bit type or maxed our counter */
 	flush_encoded_state(state); 
