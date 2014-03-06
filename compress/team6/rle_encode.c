@@ -14,11 +14,13 @@
 #include <assert.h>
 #include "rle_encode.h"
 #include "common.h"
+#include "limits.h"
 
 static void flush_encoded_state(struct encode_state *state)
 {
     unsigned char byte = ((state->bit << 7) | state->bit_count);
     fwrite(&byte, 1, 1, state->tmp_file);
+    //printf("\tbit:%02X\tcount:%02X\n", state->bit, state->bit_count);
     /* reset the bit_count for the new bit type */
     state->bit_count = 1;
     /* increment the number of flushed bytes so far */
@@ -36,12 +38,12 @@ static void encode_bit(unsigned char bit, struct encode_state *state)
 	return;
     }
 
-    assert(state->processing);
-
     /* compare the bit we are looking at, to the most recent bit */
-    if (state->bit ^ bit)
+    if (state->bit ^ bit ||
+	state->bit_count == CHAR_MAX)
     {
-	flush_encoded_state(state); /* we have encountered a different bit type */
+        /* we have encountered a different bit type or maxed our counter */
+	flush_encoded_state(state); 
     }
     else
     {
@@ -55,7 +57,7 @@ static void encode_bit(unsigned char bit, struct encode_state *state)
 static void encode_byte(unsigned char byte, struct encode_state *state)
 {
     unsigned char bit_in_question;
-
+    // printf("byte: %02X\n", byte);
     /* iterate from most significant bit to least */
     int i;
     for (i = 7; i >= 0; i--)
