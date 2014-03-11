@@ -20,6 +20,7 @@ static void rle_encode_write(char value, char length, FILE *output)
     assert(length <= MAX_RUN_LENGTH);
     assert(output);
 
+    if (length == 0) return;
     char byte = (value << 7) | length;
     xfwrite(&byte, 1, 1, output);
 }
