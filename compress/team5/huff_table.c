@@ -104,7 +104,7 @@ int compare_huff_trees (const void *a, const void *b)
 huff_tree *build_huff_tree (int frequencies[])
 {
 	int i, length = 0;
-	huff_tree *q[CHAR_RANGE];
+	huff_tree *q[CHAR_RANGE] = {0};
 
 	// Create a huff_tree_node for each character in the frequency table
 	for(i = 0; i < CHAR_RANGE; i++) {
@@ -125,6 +125,12 @@ huff_tree *build_huff_tree (int frequencies[])
 		htree->frequency = htree->zero_tree->frequency + htree->one_tree->frequency;
 		q[length++] = htree;
 	}
+
+    if (q[0] == NULL) {
+        q[0] = (huff_tree *)malloc(sizeof(huff_tree));
+        *q[0] = (huff_tree){ 0 };
+    }
+
 	/* The queue now has only one huff_tree struct which is the complete huff tree. */
 	return q[0];
 }
@@ -149,7 +155,7 @@ void traverse_huff_tree (huff_tree *tree, char **table, char *prefix)
 char **build_huff_table (int frequencies[]) 
 {
     static char *huff_table[CHAR_RANGE];
-    char *prefix = (char *)calloc(1, sizeof(char));
+    char *prefix = (char *)calloc(1, sizeof(char *));
     huff_tree *tree = build_huff_tree(frequencies);
     traverse_huff_tree(tree, huff_table, prefix);
 

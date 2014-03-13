@@ -39,8 +39,8 @@ void write_header (FILE *output, char **huff_table, uint64_t length)
 /* Create a long string of 0's and 1's in the order of the file. */
 void compress_contents (FILE *input, FILE *output, char **huff_table)
 {
-	int bitc = 0, i, bitout;
-	int current, character;
+	int bitc = 0, i = 0, bitout = 0;
+	int current = 0, character = 0;
 	char *temp = NULL;
 
 	while ((character = fgetc(input)) != EOF) {

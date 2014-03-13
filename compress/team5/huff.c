@@ -53,7 +53,6 @@ int main (int argc, char *argv[])
     }
 
     length = sb.st_size;
-
     if (strncmp(argv[1], "-t", 2) == 0) {
         print_huff_table(input);
     } else if (strncmp(argv[1], "-c", 2) == 0) {
