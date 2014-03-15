@@ -31,23 +31,21 @@ void rle_encode(FILE *input, FILE *output)
     assert(output);
 
     char encoding_value = 0;
-    char encoding_length = 0;
+    int encoding_length = -1;
 
-    while (true)
+    /* Read out a byte. If the number of bytes read isn't 1, then we're at
+       the EOF because xfread will kill the program if there was actually an
+       error. */
+    char byte = 0;
+    while (xfread(&byte, 1, 1, input) == 1) 
     {
-        /* Read out a byte. If the number of bytes read isn't 1, then we're at
-           the EOF because xfread will kill the program if there was actually an
-           error. */
-        char byte;
-        size_t num_read = xfread(&byte, 1, 1, input);
-        if (num_read != 1) break;
-
         /* For each bit index... */
         for (int i = 0; i < 8; i++)
         {
             char bit = (byte >> (7 - i)) & 0x1;
-            if (bit != encoding_value)
-            {
+            if (encoding_length == -1) encoding_value = bit;
+
+            if (bit != encoding_value) {
                 rle_encode_write(encoding_value, encoding_length, output);
                 encoding_value = bit;
                 encoding_length = 1;
@@ -55,18 +53,20 @@ void rle_encode(FILE *input, FILE *output)
             }
 
             encoding_length++;
-            /* If we've reached the max length possible, write out the byte. */
-            if (encoding_length != MAX_RUN_LENGTH) continue;
 
-            rle_encode_write(encoding_value, encoding_length, output);
-            encoding_value = 0;
-            encoding_length = 0;
+            /* If we've reached the max length possible, write out the byte. */
+            if (encoding_length != MAX_RUN_LENGTH) {
+                encoding_value = 0;
+                encoding_length = 0;
+                rle_encode_write(encoding_value, encoding_length, output);
+            }
         }
     }
 
-    if (encoding_length == 0) return;
-
-    rle_encode_write(encoding_value, encoding_length, output);
+    /* flush the remaining encoding if one exists */
+    if (encoding_length != 0) {
+        rle_encode_write(encoding_value, encoding_length, output);
+    }
 }
 
 void rle_decode(FILE *input, FILE *output)
@@ -74,27 +74,27 @@ void rle_decode(FILE *input, FILE *output)
     char decode_buffer = 0;
     char decode_index = 0;
 
-    while (true)
+    char byte = 0;
+    while (xfread(&byte, 1, 1, input) == 1)
     {
-        char byte;
-        size_t num_read = xfread(&byte, 1, 1, input);
-        if (num_read != 1) break;
-
         for (int i = 0; i < rle_length(byte); i++)
         {
             decode_buffer |= rle_bit(byte) << (7 - decode_index);
             decode_index++;
 
-            if (decode_index != 8) continue;
-
-            xfwrite(&decode_buffer, 1, 1, output);
-            decode_buffer = 0;
-            decode_index = 0;
+            /* When we've read a whole byte, flush the buffer. */
+            if (decode_index == 8) { 
+                xfwrite(&decode_buffer, 1, 1, output);
+                decode_buffer = 0;
+                decode_index = 0;
+            }
         }
     }
 
-    if (decode_index == 0) return;
-
-    fprintf(stderr, "Bad .hurl file.\n");
-    exit(-1);
+    /* If we stopped decoding in the middle of a file, that file is
+     * poorly formatted. */
+    if (decode_index == 0) {
+        fprintf(stderr, "Bad .hurl file.\n");
+        exit(-1);
+    }
 }

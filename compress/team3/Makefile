@@ -3,7 +3,7 @@
 RKT = racket
 
 CC = clang
-CFLAGS = -std=c99 -O3
+CFLAGS = -std=c99 -O3 -Wall -Wextra -Wno-unused -Wno-unused-parameter
 
 objects = syscalls.o encoder.o decoder.o decodedOutputFileWriter.o \
 encodedOutputFileWriter.o rhuff.o

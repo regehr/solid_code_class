@@ -1,18 +1,17 @@
 *.o
-compress/team1/huff
 *.dot
 *.rhuff
 *.swp
 *.swo
 *~
 *.txt
+*.pbm
+
+*huff
+*rhuff
 
 compress/team1/copy_to_ubuntu.sh
-
 compress/team1/kern
-
 compress/team1/mach_kernel
-
 compress/team2/kernel
 
-*.pbm

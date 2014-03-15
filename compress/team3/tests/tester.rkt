@@ -102,6 +102,25 @@
  )
 ))
 
+;(define (files-match? A B #:hexdiff [hexdiff? #t])
+; (if
+;  (let ([port_a (open-input-file A #:mode 'binary)]
+;        [port_b (open-input-file B #:mode 'binary)])
+;   (begin0 
+;    (and
+;     (for ([ab port_a] [bb port_b] #:finally (not (= ab bb)))
+;      (= ab bb))
+;     (= (sequence-length port_a) (sequence-length port_b))
+;    )
+;    (close-input-port port_a)
+;    (close-input-port port_b)
+;   )
+;  )
+; ) #t
+; (when hexdiff?)
+;  (
+;)
+
 (define (expect-code expected-code)
  (lambda (results)
   (let ([exit-code (car (hash-ref results 'status))])
@@ -215,6 +234,24 @@
    #:finally (list (rm file-base)))
  )
 )
+
+
+;(define (huff-cycle name file-sequence file-base . checkers)
+; (let ([huff-name (string-append file-base *huff-hext*)])
+;  (test (string-append name ": Compress")
+;   (list (build-file file-sequence file-base) 
+;         (cp file-base (string-append file-base ".bak")))
+;   (run-binary *huff-bin* "-c" file-base)
+;   (append (list (expect-code *success*) (file-exists huff-name)) checkers)
+;  )
+;  (test (string-append name ": Decompress")
+;   (list)
+;   (run-binary *huff-bin* "-d" huff-name)
+;   (append (list (expect-code *success*) (file-exists huff-name)) checkers)
+;  )
+; )
+;)
+
 
 (begin0 (void)
 (huff-decompress "Simple decompression"
