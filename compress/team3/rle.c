@@ -46,8 +46,6 @@ void rle_encode(FILE *input, FILE *output)
 
             if (encoding_value == -1) {
                 encoding_value = bit;
-                encoding_length = 1;
-                continue;
             }
 
             if (bit != encoding_value) {
