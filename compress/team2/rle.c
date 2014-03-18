@@ -1,65 +1,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "rle.h"
 
 #define BUFFER_SIZE 1
 
-void decompress(FILE * readFrom, FILE * writeTo);//decompresses a file from RLE to normal
-void compress(FILE * readFrom, FILE * writeTo);//compresses a file using RLE
-int packByte(int current, int counter, FILE * writeTo);//packages the run information into a single byte
-void unpackByte( int packed, int* symbol, int* number);//unpacks the symbol and number of symbols from a byte
-
-/*
-int main(int argc, char *argv[])
-{
-  //open the file in binary read mode
-  FILE * fhr = fopen(argv[1], "rb");
-  if (fhr==NULL)
-    {
-      fputs ("File error", stderr);
-      exit(1);
-    }
-
-  FILE * fhw = fopen("test_write.rle", "wb");
-  if (fhw==NULL)
-    {
-      fputs ("File error", stderr);
-      exit(1);
-    }
-
-  compress(fhr, fhw);
-  fclose(fhr);
-  fclose(fhw);
-  
-  FILE * fhr2 = fopen("test_write.rle", "rb");
-  if (fhr==NULL)
-    {
-      fputs ("File error", stderr);
-      exit(1);
-    }
-
-  FILE * fhw2 = fopen(argv[2], "wb");
-  if (fhw==NULL)
-    {
-      fputs ("File error", stderr);
-      exit(1);
-    }
-
-  decompress(fhr2, fhw2);
-  fclose(fhr2);
-  fclose(fhw2);
-
-  return 0;
-}
- */
-
-/**
- * Takes the huffman decoded version of the file and writes out the appropriate number of ones and zeros
- * as specified by each byte
- * The first bit of each byte signifies whether the run is of ones (1) or zeros (0).
- * The next seven bits encode how many ones or zeros are in the run.
- * To decompress, simply read in each byte and write the appropriate number or ones or zeros to a file.
- */
+//decompresses a file from RLE to normal
 void decompress_rle(FILE * readFrom, FILE * writeTo)
 {
   char * buff = (char *)calloc(1, sizeof(char));//holds the byte as we read them in
@@ -123,15 +69,7 @@ void unpackByte( int packed, int* symbol, int* number)
   *number = packed&countMask;
 }
 
-/**
- * Takes in a file and writes the runs into a run length file.
- * Each run is encoded into a single byte with the first bit indicating if the run is of ones (1) or zeros (0)
- * and the other seven encoding the number of ones or zeros in the run.
- * Each run terminates when either:
- * 1. the character changes from one to zero or zer to one
- * 2. we hit the max number of ones or zeros we can encode in a single byte
- * When a run terminates we just get the next bit from the file and start a new run encoded in a byte
- */
+//compresses a file using RLE
 void compress_rle(FILE * readFrom, FILE * writeTo)
 {
   short mask = 0x01;//used to mask off bits as we process them

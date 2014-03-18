@@ -84,10 +84,12 @@ static int compress(FILE * file, char * filename) {
     char * huff_filename = NULL;
     FILE * output = NULL;
     
-    /* Open a file to store rle encodings. */
-    FILE * rle_encoded = xfopen("temp.rle", "wb+");
+    /* Open a temp file to store rle encodings. */
+    FILE * rle_encoded = tmpfile();
+    if (!rle_encoded) { return HUFF_FAILURE; }
     /* Compress 'file' into an rle_encoded file. */
     int code = create_rle_file(file, rle_encoded);
+    if (code != 0) { return code; }
     
     /* Build filename. */
     huff_filename = xmalloc(strlen(filename) + HUFF_EXTLEN + 1);
@@ -111,13 +113,8 @@ static int compress(FILE * file, char * filename) {
     if (pfclose(output)) {
         return HUFF_FAILURE;
     }
-    /* Close rle-encoded file. */
+    /* Close temp file. */
     if (pfclose(rle_encoded)) {
-        return HUFF_FAILURE;
-    }
-    /* Delete rle-encoded file. */
-    if (remove("temp.rle") != 0) {
-        fprintf(stderr, "Error deleting temporary rle file.\n");
         return HUFF_FAILURE;
     }
     /* Check for compression failure. */
@@ -178,7 +175,8 @@ static int decompress(FILE * file, char * filename) {
     *ext_index = '\0';
 
     /* Open file for huffman decompression. */
-    huff_output = xfopen(strcat(filename, ".rle"), "wb+");
+    huff_output = tmpfile();
+    if (!huff_output) { return HUFF_FAILURE; }
     code = decompress_file(huff_output, file, &header);
     huff_free_hdrtable(&header);
     
@@ -186,20 +184,13 @@ static int decompress(FILE * file, char * filename) {
     if (fseek(huff_output, 0L, SEEK_SET)) {
         return HUFF_FAILURE;
     }
-    
-    /* Remove the .rle extension */
-    *ext_index = '\0';
+
     /* Send huffman decompressed file through rle decompression. */
     FILE * rle_output = xfopen(filename, "wb");
     decompress_rle(huff_output, rle_output);
     
-    /* Close intermediary .rle file */
+    /* Close temp file */
     if (pfclose(huff_output)) {
-        return HUFF_FAILURE;
-    }
-    /* Delete intermediary .rle file */
-    if (remove(strcat(filename, ".rle")) != 0) {
-        fprintf(stderr, "Error deleting temporary rle file.\n");
         return HUFF_FAILURE;
     }
     /* Close final decoded file. */
