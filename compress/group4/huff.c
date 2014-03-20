@@ -116,9 +116,10 @@ int main(int argc, char* argv[])
   if(strcmp(argv[1], "-c") == 0)
   {
    //append the extension to the name
-    char *tempFile = malloc(sizeof(char) * strlen(argv[2])+5);
+    const char * extension = ".temp";
+    char *tempFile = malloc(strlen(argv[2])+strlen(extension) + 1);
     strncpy(tempFile, argv[2], strlen(argv[2]));
-    strcat(tempFile, ".temp");
+    strcat(tempFile, extension);
       
     //RLE encode the file
     rle_encode(argv[2], tempFile);
@@ -143,6 +144,7 @@ int main(int argc, char* argv[])
       decompress(file_pointer, fileLength, argv[2]);
       
       //remove the .hurl extension from the fileName;
+      
       char *tempFileName = calloc(strlen(argv[2]), sizeof(char));
       strncpy(tempFileName, argv[2], strlen(argv[2]) - strlen(".hurl"));
       strncat(tempFileName, ".temp", sizeof(".temp"));
