@@ -202,9 +202,5 @@ void decode_rle(unsigned char* encodings, unsigned long long* length, FILE* outp
   // Assert that what we wrote out to the file ended on a byte boundary
   //printf("current_bit: 0x%X and bit_buffer: 0x%X\n", current_bit, bit_buffer);
   //printf("number of bits set to be written: %llu\n", count);
-
-
-  //Assert has been commented out since it was being tripped.
-  //Program still seems to work. However.
   assert((current_bit == 7) && (bit_buffer == 0));
 }
