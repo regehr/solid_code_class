@@ -1,3 +1,4 @@
+; vim: set syn=scheme:
 #! /usr/bin/env racket
 #lang racket
 
