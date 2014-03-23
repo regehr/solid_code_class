@@ -12,6 +12,10 @@
  (not (false? (member v lst)))
 )
 
+(define (string-empty? str)
+ (string=? "" str)
+)
+
 ; **** Definitions ****
 
 ; Non-Standard specifiers (as far as I can tell) : a A I
@@ -34,44 +38,69 @@
 (define *float-types*   '("float" "double" "long double"))
 (define *string-types*  '("char *"))
 
-(define *datatype-sign*
+(define *datatype-signs*
  (uniformly-weighted '(
   "unsigned"
   "" ; signed
  ))
 )
 
-(define *datatype-size*
+(define *datatype-sizes*
  (uniformly-weighted 
   (append *integer-types* *float-types* *string-types*))
 )
 
+; **** Datatypes ****
+
+(struct datatype 
+ (sign size pointer) #:transparent)
+
+(struct variable
+ (datatype value value-writer) #:transparent)
+
+(define (datatype-signed? datatype)
+ (string-empty? (datatype-sign datatype))
+)
+
+(define (datatype-pointer? datatype)
+ (not (string-empty? (datatype-pointer datatype)))
+)
+
+(define (datatype-inclass? datatype class)
+ (in? (datatype-size datatype) class)
+)
+
+(define (datatype-string datatype)
+ (string-join
+  (filter (negate string-empty?)
+   (list (datatype-sign datatype)
+         (datatype-size datatype)
+         (datatype-pointer datatype)
+   )
+  )
+ )
+)
+
 ; **** Generators ****
 
-(define (datatype-size datatype) (cadr datatype))
-(define (datatype-signed? datatype) 
- (string=? "" (car datatype)))
-(define (datatype-pointer? datatype) 
- (not (string=? (caddr datatype) "")))
-
 (define (generate-datatype [pointer-prob 0.1] [pointer-max-depth 3])
- (let ([sign (weighted-choice *datatype-sign*)]
-       [size (weighted-choice *datatype-size*)]
+ (let ([sign (weighted-choice *datatype-signs*)]
+       [size (weighted-choice *datatype-sizes*)]
        [pointer (if (< (random) pointer-prob)
                  (make-string (random-int-between 1 pointer-max-depth) #\*) "")])
   ; Float types can't be unsigned, so make sure we only set the sign-value
   ; for integer types.
   (cond
    ([in? size *float-types*] 
-    (list "" size pointer))
+    (datatype "" size pointer))
    ([in? size *string-types*]
-    (list "" size ""))
-   (else (list sign size pointer))
+    (datatype "" size ""))
+   (else (datatype sign size pointer))
   )
  )
 )
 
-(define (integer-length datatype)
+(define (datatype-length datatype)
  (cond
   ([string=? "char" (datatype-size datatype)] "hh")
   ([string=? "short" (datatype-size datatype)] "h")
@@ -83,24 +112,24 @@
 )
 
 ; Evaluates to a valid printf conversion-specifier for the supplied datatype.
-(define (conversion-specifier datatype [char-prob 0.5])
+(define (generate-conversion-specifier datatype [char-prob 0.5])
  (cond
   ([datatype-pointer? datatype] (weighted-choice *unsigned-decimal*))
   ; String type
-  ([in? (datatype-size datatype) *string-types*] "s")
+  ([datatype-inclass? datatype *string-types*] "s")
   ; Make an actual char specifier if this is a char type and we're lucky
   ([and (string=? "char" (datatype-size datatype))
         (< (random) char-prob)] "c")
   ; Non-pointer decimal number
-  ([in? (datatype-size datatype) *integer-types*]
-   (string-append (integer-length datatype) 
+  ([datatype-inclass? datatype *integer-types*]
+   (string-append (datatype-length datatype) 
     (weighted-choice 
      (if (datatype-signed? datatype) *signed-decimal* *unsigned-decimal*)
     )
    )
   )
   ; Non-pointer floating-point number
-  ([in? (datatype-size datatype) *float-types*]
+  ([datatype-inclass? datatype *float-types*]
    (string-append 
     (if (regexp-match? #rx"long" (datatype-size datatype)) "L" "")
     (weighted-choice *floating-point*)
@@ -109,14 +138,26 @@
  )
 )
 
+(define (random-bytes count)
+ (if (= count 0) #""
+  (bytes-append 
+   (bytes (random-int-between 0 255)) 
+   (random-bytes (sub1 count))
+  )
+ )
+)
+
+(define (random-string [max-length 10]) #f)
+(define (assignable-value datatype) #f)
+
 (define (gt x)
  (let ([d (generate-datatype)])
-  (printf "~a: ~a\n" (conversion-specifier d) (string-join d " "))
+  (printf "~a: ~a\n" (generate-conversion-specifier d) (datatype-string d))
  )
  (unless (= x 0) (gt (sub1 x)))
 )
 
-(gt 100)
+(gt 10000)
 
 ;(define (generate-spec type)
 ; (string-append "%"
