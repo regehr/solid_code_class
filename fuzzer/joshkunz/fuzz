@@ -1,0 +1,79 @@
+#! /usr/bin/env racket
+#lang racket
+
+(require "term-colors.rkt")
+(require "framework.rkt")
+(require "weighted-random.rkt")
+
+; **** Helpers ****
+
+; Evaluates to #t if value 'v' is in list 'lst'. Evaluates to #f otherwise.
+(define (in? v lst)
+ (not (false? (member v lst)))
+)
+
+; **** Definitions ****
+
+(define *integer-types* '("char" "int" "long int" "long long int"))
+(define *float-types*   '("float" "double" "long double"))
+(define *string-types*  '("char *"))
+
+(define *datatype-sign*
+ (uniformly-weighted '(
+  "unsigned"
+  "" ; signed
+ ))
+)
+
+(define *datatype-size*
+ (uniformly-weighted 
+  (append *integer-types* *float-types* *string-types*))
+)
+
+; **** Generators ****
+
+(define (generate-datatype [pointer-prob 0.1] [pointer-max-depth 3])
+ (let ([sign (weighted-choice *datatype-sign*)]
+       [size (weighted-choice *datatype-size*)]
+       [pointer (if (< (random) pointer-prob)
+                 (make-string (random-int-between 1 pointer-max-depth) #\*) "")])
+  ; Float types can't be unsigned, so make sure we only set the sign-value
+  ; for integer types.
+  (cond
+   ([in? size *float-types*] 
+    (list "" size pointer))
+   ([in? size *string-types*]
+    (list "" size ""))
+   (else (list sign size pointer))
+  )
+ )
+)
+
+; Non-Standard: a A
+
+(define signed-decimal '("d" "i"))
+(define unsigned-decimal '("o" "u" "x" "X"))
+(define floating-point '("e" "E" "f" "g" "G"))
+(define character '("c"))
+(define c-string '("s"))
+(define pointer (cons "p" unsigned-decimal))
+(define all-conversions
+ (append signed-decimal unsigned-decimal floating-point c-string pointer))
+
+(define (gt x)
+ (printf "~a\n" 
+  (string-join (generate-datatype) " "))
+ (if (> x 0) (gt (sub1 x)) #t)
+)
+
+(gt 1000)
+
+;(define (generate-spec type)
+; (string-append "%"
+;  (generate-flags)
+;  (generate-width)
+;  (generate-precision)
+;  (generate-length)
+;  (conversion-spec)
+; )
+;)
