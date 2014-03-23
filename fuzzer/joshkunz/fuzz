@@ -14,7 +14,23 @@
 
 ; **** Definitions ****
 
-(define *integer-types* '("char" "int" "long int" "long long int"))
+; Non-Standard specifiers (as far as I can tell) : a A I
+
+(define *signed-decimal*
+ (uniformly-weighted '("d" "i")))
+(define *unsigned-decimal*  
+ (uniformly-weighted '("o" "u" "x" "X")))
+(define *floating-point* 
+ (uniformly-weighted '("e" "E" "f" "g" "G")))
+(define *character* 
+ (uniformly-weighted '("c")))
+(define *c-string*
+ (uniformly-weighted '("s")))
+(define *pointer* 
+ (uniformly-weighted (cons "p" (map cadr *unsigned-decimal*)))
+)
+
+(define *integer-types* '("char" "short" "int" "long int" "long long int"))
 (define *float-types*   '("float" "double" "long double"))
 (define *string-types*  '("char *"))
 
@@ -31,6 +47,12 @@
 )
 
 ; **** Generators ****
+
+(define (datatype-size datatype) (cadr datatype))
+(define (datatype-signed? datatype) 
+ (string=? "" (car datatype)))
+(define (datatype-pointer? datatype) 
+ (not (string=? (caddr datatype) "")))
 
 (define (generate-datatype [pointer-prob 0.1] [pointer-max-depth 3])
  (let ([sign (weighted-choice *datatype-sign*)]
@@ -49,24 +71,52 @@
  )
 )
 
-; Non-Standard: a A
-
-(define signed-decimal '("d" "i"))
-(define unsigned-decimal '("o" "u" "x" "X"))
-(define floating-point '("e" "E" "f" "g" "G"))
-(define character '("c"))
-(define c-string '("s"))
-(define pointer (cons "p" unsigned-decimal))
-(define all-conversions
- (append signed-decimal unsigned-decimal floating-point c-string pointer))
-
-(define (gt x)
- (printf "~a\n" 
-  (string-join (generate-datatype) " "))
- (if (> x 0) (gt (sub1 x)) #t)
+(define (integer-length datatype)
+ (cond
+  ([string=? "char" (datatype-size datatype)] "hh")
+  ([string=? "short" (datatype-size datatype)] "h")
+  (else 
+   (make-string 
+    (length (regexp-match* #rx"long" (datatype-size datatype))) #\l)
+  )
+ )
 )
 
-(gt 1000)
+; Evaluates to a valid printf conversion-specifier for the supplied datatype.
+(define (conversion-specifier datatype [char-prob 0.5])
+ (cond
+  ([datatype-pointer? datatype] (weighted-choice *unsigned-decimal*))
+  ; String type
+  ([in? (datatype-size datatype) *string-types*] "s")
+  ; Make an actual char specifier if this is a char type and we're lucky
+  ([and (string=? "char" (datatype-size datatype))
+        (< (random) char-prob)] "c")
+  ; Non-pointer decimal number
+  ([in? (datatype-size datatype) *integer-types*]
+   (string-append (integer-length datatype) 
+    (weighted-choice 
+     (if (datatype-signed? datatype) *signed-decimal* *unsigned-decimal*)
+    )
+   )
+  )
+  ; Non-pointer floating-point number
+  ([in? (datatype-size datatype) *float-types*]
+   (string-append 
+    (if (regexp-match? #rx"long" (datatype-size datatype)) "L" "")
+    (weighted-choice *floating-point*)
+   )
+  )
+ )
+)
+
+(define (gt x)
+ (let ([d (generate-datatype)])
+  (printf "~a: ~a\n" (conversion-specifier d) (string-join d " "))
+ )
+ (unless (= x 0) (gt (sub1 x)))
+)
+
+(gt 100)
 
 ;(define (generate-spec type)
 ; (string-append "%"
