@@ -8,7 +8,7 @@
 #include "huff_table.h"
 #include "decompress.h"
 
-#define MAGIC_NUM "HUFF"
+#define MAGIC_NUM "HURL"
 
 void is_huff_file (FILE *input) 
 {
@@ -22,7 +22,7 @@ void is_huff_file (FILE *input)
     magic_num[4] = '\0';
 
     if (strcmp(magic_num, MAGIC_NUM) != 0) {
-        printf("not a huff file\n");
+        printf("not a hurl file\n");
         exit(255);
     }
 }
