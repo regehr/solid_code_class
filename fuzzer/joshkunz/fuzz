@@ -18,6 +18,9 @@
 
 ; **** Definitions ****
 
+(define *pointer-bit-depth* 32)
+(define *pointer-const-tail* "")
+
 ; Non-Standard specifiers (as far as I can tell) : a A I
 
 (define *signed-decimal*
@@ -96,6 +99,13 @@
     ""
    )
   )
+ )
+)
+
+(define (pointer-writer variable)
+ (string-append "0x"
+  (number->string (variable-value variable) 16)
+  *pointer-const-tail*
  )
 )
 
@@ -182,9 +192,16 @@
  )
 )
 
+(define (generate-pointer)
+ (generate-integer *pointer-bit-depth* #f)
+)
+
 ; Generate a new variable structure using the given datatype structure
 (define (generate-variable datatype)
  (cond
+  ([datatype-pointer? datatype]
+   (variable datatype (generate-pointer) pointer-writer)
+  )
   ([datatype-inclass? datatype *integer-types*]
    (variable datatype 
     (generate-integer 
@@ -207,7 +224,6 @@
 )
 
 (define (random-string [max-length 10]) #f)
-(define (assignable-value datatype) #f)
 
 (define (gt x)
  (let* ([d (generate-datatype)]
