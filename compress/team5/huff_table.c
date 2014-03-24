@@ -82,8 +82,13 @@ void free_huff_table (char *huff_table[])
 /* Used to add a new character to the existing characters in a huff_tree_node. */
 char *concat_characters (char *prefix, char new_char)
 {
+  assert(prefix != NULL);
+
 	char *new_prefix = (char *)malloc(strlen(prefix) + 2);
-	sprintf(new_prefix, "%s%c", prefix, new_char);
+	if (sprintf(new_prefix, "%s%c", prefix, new_char) < 0) {
+    printf("Failed to sprintf the new prefix.\n");
+    exit(255);
+  }
 	return new_prefix;
 }
 
@@ -98,7 +103,6 @@ int compare_huff_trees (const void *a, const void *b)
 	} else {
 		return ((*t1)->frequency < (*t2)->frequency) ? 1 : -1;
 	}
-    	
 }
 
 huff_tree *build_huff_tree (int frequencies[])
@@ -156,6 +160,7 @@ char **build_huff_table (int frequencies[])
 {
     static char *huff_table[CHAR_RANGE];
     char *prefix = (char *)calloc(1, sizeof(char *));
+    *prefix = 0;
     huff_tree *tree = build_huff_tree(frequencies);
     traverse_huff_tree(tree, huff_table, prefix);
 

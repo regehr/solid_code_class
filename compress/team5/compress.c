@@ -11,7 +11,7 @@
 void write_header (FILE *output, char **huff_table, uint64_t length)
 {
 	int i, write_status;
-	char *magic_number = "HUFF";
+	char *magic_number = "HURL";
 	
 	write_status = fwrite(magic_number, 1, strlen(magic_number), output);
 	if (write_status != strlen(magic_number)) {
@@ -103,7 +103,6 @@ void compress (FILE *input, char *filename, uint64_t length)
 	// Write out the header and the actual compressed file contents
 	write_header(output, huff_table, length);
 	compress_contents(input, output, huff_table);
-	printf("Past contents?\n");
 	fclose(output);
 
 	// Clean up
