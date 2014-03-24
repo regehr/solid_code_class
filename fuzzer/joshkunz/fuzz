@@ -21,6 +21,18 @@
 (define *pointer-bit-depth* 32)
 (define *pointer-const-tail* "")
 
+; 32-bit numeric-type bit-depths
+(define *numeric-bit-depths* '(
+ ("char" 8)
+ ("short" 16)
+ ("int" 32)
+ ("long int" 32)
+ ("long long int" 64)
+ ("float" 32)
+ ("double" 64)
+ ("long double" 96)
+))
+
 ; Non-Standard specifiers (as far as I can tell) : a A I
 
 (define *signed-decimal*
@@ -109,6 +121,14 @@
  )
 )
 
+(define (float-writer variable)
+ (format "~a" (variable-value variable))
+)
+
+(define (string-writer variable)
+ (string-append "\"" (apply string (variable-value variable)) "\"")
+)
+
 ; **** Generation Helpers ****
 
 (define (datatype-length-spec datatype)
@@ -123,15 +143,7 @@
 )
 
 (define (datatype-bit-depth datatype)
- (let ([size (datatype-size datatype)])
-  (cond
-   ([string=? "char" size] 8)
-   ([string=? "short" size] 16) 
-   ([or (string=? "int" size) 
-        (string=? "long int" size)] 32)
-   ([string=? "long long int" size] 64)
-  )
- )
+ (cadr (assoc (datatype-size datatype) *numeric-bit-depths*))
 )
 
 ; **** Generators ****
@@ -180,7 +192,7 @@
  )
 )
 
-(define (generate-integer bit-depth signed?)
+(define (random-bounded-integer bit-depth signed?)
  (if signed?
   ; For signed
   (random-int-between 
@@ -192,8 +204,46 @@
  )
 )
 
+(define (generate-integer datatype)
+ (random-bounded-integer 
+  (datatype-bit-depth datatype) 
+  (datatype-signed? datatype)
+ )
+)
+
 (define (generate-pointer)
- (generate-integer *pointer-bit-depth* #f)
+ (random-bounded-integer *pointer-bit-depth* #f)
+)
+
+(define (random-bytes byte-count)
+ (if (= byte-count 0) #""
+  (bytes-append 
+   (bytes (random-int-between 0 255)) 
+   (random-bytes (sub1 byte-count))
+  )
+ )
+)
+
+(define (generate-string len)
+ (if (= len 0) '()
+  (let* ([v (random-int-between 0 (sub1 127))]
+         [rchar (integer->char 
+                 ; If the generated number is greater or equal to the value of 
+                 ; the quote character then, shift the value up by one. I.e, skip
+                 ; the double quote character.
+                 (if (>= v (char->integer #\")) (add1 v) v))])
+   (cons rchar (generate-string (sub1 len)))
+  )
+ )
+)
+
+; Generate a random real floating-point number.
+(define (generate-float datatype)
+ (let ([bytes (/ (datatype-bit-depth datatype) 8)])
+  (floating-point-bytes->real
+   (if (< bytes 8) (random-bytes 4) (random-bytes 8))
+  )
+ )
 )
 
 ; Generate a new variable structure using the given datatype structure
@@ -203,27 +253,16 @@
    (variable datatype (generate-pointer) pointer-writer)
   )
   ([datatype-inclass? datatype *integer-types*]
-   (variable datatype 
-    (generate-integer 
-     (datatype-bit-depth datatype) 
-     (datatype-signed? datatype))
-    integer-writer
-   )
+   (variable datatype (generate-integer datatype) integer-writer)
   )
-  (else (void))
- )
-)
-
-(define (random-bytes count)
- (if (= count 0) #""
-  (bytes-append 
-   (bytes (random-int-between 0 255)) 
-   (random-bytes (sub1 count))
+  ([datatype-inclass? datatype *float-types*]
+   (variable datatype (generate-float datatype) float-writer) 
+  )
+  ([datatype-inclass? datatype *string-types*]
+   (variable datatype (generate-string (random-int-between 1 500)) string-writer)
   )
  )
 )
-
-(define (random-string [max-length 10]) #f)
 
 (define (gt x)
  (let* ([d (generate-datatype)]
