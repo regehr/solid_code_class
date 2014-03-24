@@ -21,7 +21,7 @@
 
 ; The same as random-between except only generates integers.
 (define (random-int-between a b)
- (+ (random (add1 (- (max a b) (min a b)))) (min a b))
+ (exact-truncate (random-between a b))
 )
 
 ; Find the appropriate choice given a weighted list and a correctly-generated

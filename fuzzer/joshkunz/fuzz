@@ -81,6 +81,49 @@
  )
 )
 
+; **** Variable Writers ****
+(define (integer-writer variable)
+ (let ([type (variable-datatype variable)])
+  (string-append
+   (format "~a" (variable-value variable))
+   ; Add a U specifier for unsigned types.
+   (if (datatype-signed? type) "" "U")
+   ; If the bit depth is larger than an int, then we need trainling LLs
+   ; when we do the constant assignment.
+   (if (> (datatype-bit-depth type) 
+          (datatype-bit-depth (datatype "" "int" "")))
+    (string-upcase (datatype-length-spec type))
+    ""
+   )
+  )
+ )
+)
+
+; **** Generation Helpers ****
+
+(define (datatype-length-spec datatype)
+ (cond
+  ([string=? "char" (datatype-size datatype)] "hh")
+  ([string=? "short" (datatype-size datatype)] "h")
+  (else 
+   (make-string 
+    (length (regexp-match* #rx"long" (datatype-size datatype))) #\l)
+  )
+ )
+)
+
+(define (datatype-bit-depth datatype)
+ (let ([size (datatype-size datatype)])
+  (cond
+   ([string=? "char" size] 8)
+   ([string=? "short" size] 16) 
+   ([or (string=? "int" size) 
+        (string=? "long int" size)] 32)
+   ([string=? "long long int" size] 64)
+  )
+ )
+)
+
 ; **** Generators ****
 
 (define (generate-datatype [pointer-prob 0.1] [pointer-max-depth 3])
@@ -100,17 +143,6 @@
  )
 )
 
-(define (datatype-length datatype)
- (cond
-  ([string=? "char" (datatype-size datatype)] "hh")
-  ([string=? "short" (datatype-size datatype)] "h")
-  (else 
-   (make-string 
-    (length (regexp-match* #rx"long" (datatype-size datatype))) #\l)
-  )
- )
-)
-
 ; Evaluates to a valid printf conversion-specifier for the supplied datatype.
 (define (generate-conversion-specifier datatype [char-prob 0.5])
  (cond
@@ -122,7 +154,7 @@
         (< (random) char-prob)] "c")
   ; Non-pointer decimal number
   ([datatype-inclass? datatype *integer-types*]
-   (string-append (datatype-length datatype) 
+   (string-append (datatype-length-spec datatype) 
     (weighted-choice 
      (if (datatype-signed? datatype) *signed-decimal* *unsigned-decimal*)
     )
@@ -135,6 +167,33 @@
     (weighted-choice *floating-point*)
    )
   )
+ )
+)
+
+(define (generate-integer bit-depth signed?)
+ (if signed?
+  ; For signed
+  (random-int-between 
+   (* -1 (expt 2 (- bit-depth 1))) ; -2^(w -1)
+   (- (expt 2 (- bit-depth 1)) 1)  ; 2^(w-1) - 1
+  )
+  ; For unsigned 
+  (random-int-between 0 (- (expt 2 bit-depth) 1)) ; 2^w - 1
+ )
+)
+
+; Generate a new variable structure using the given datatype structure
+(define (generate-variable datatype)
+ (cond
+  ([datatype-inclass? datatype *integer-types*]
+   (variable datatype 
+    (generate-integer 
+     (datatype-bit-depth datatype) 
+     (datatype-signed? datatype))
+    integer-writer
+   )
+  )
+  (else (void))
  )
 )
 
@@ -151,8 +210,14 @@
 (define (assignable-value datatype) #f)
 
 (define (gt x)
- (let ([d (generate-datatype)])
-  (printf "~a: ~a\n" (generate-conversion-specifier d) (datatype-string d))
+ (let* ([d (generate-datatype)]
+        [v (generate-variable d)])
+  ;(printf "~a: ~a\n" (generate-conversion-specifier d) (datatype-string d))
+  (unless (void? v)
+   (printf "~a = ~a;\n" 
+    (datatype-string d)
+    ((variable-value-writer v) v))
+  )
  )
  (unless (= x 0) (gt (sub1 x)))
 )
