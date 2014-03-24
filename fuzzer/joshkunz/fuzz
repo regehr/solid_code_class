@@ -33,6 +33,19 @@
  ("long double" 96)
 ))
 
+(define (char-range start end)
+ (map integer->char (range start (add1 end)))
+)
+
+; Vector of non-whitespace (except SPACE) characters not including
+; ('), (") and (\).
+(define *valid-characters* (list->vector
+ (append (char-range 32 33) 
+         (char-range 35 38) 
+         (char-range 40 91)
+         (char-range 93 126)))
+)
+
 ; Non-Standard specifiers (as far as I can tell) : a A I
 
 (define *signed-decimal*
@@ -71,7 +84,7 @@
  (sign size pointer) #:transparent)
 
 (struct variable
- (datatype value value-writer) #:transparent)
+ (datatype value writer) #:transparent)
 
 (define (datatype-signed? datatype)
  (string-empty? (datatype-sign datatype))
@@ -95,8 +108,8 @@
   )
  )
 )
-
 ; **** Variable Writers ****
+
 (define (integer-writer variable)
  (let ([type (variable-datatype variable)])
   (string-append
@@ -122,7 +135,32 @@
 )
 
 (define (float-writer variable)
- (format "~a" (variable-value variable))
+ (let ([value (variable-value variable)]
+       [size (datatype-size (variable-datatype variable))])
+  (cond 
+   ([nan? value]
+    (string-append "(" size ") "
+     (if (or (eqv? +nan.0 value)
+             (eqv? +nan.f value)) "NAN" "-NAN")))
+   ([infinite? value]
+    (string-append "(" size ") "
+     (if (or (eqv? +inf.0 value)
+             (eqv? +inf.f value)) "INFINITY" "-INFINITY")))
+   (else
+    (string-append (format "~a" value)
+     (cond
+      ; Constant floats need 'f' after them to be interpreted as floats.
+      ([string=? "float" size] "f")
+      ; Long double constant floats need 'L' after them to be interpreted
+      ; as long-doubles.
+      ([string=? "long double" size] "L")
+      ; Otherwise, there's no suffix.
+      (else "")
+     )
+    )
+   )
+  )
+ )
 )
 
 (define (string-writer variable)
@@ -226,13 +264,9 @@
 
 (define (generate-string len)
  (if (= len 0) '()
-  (let* ([v (random-int-between 0 (sub1 127))]
-         [rchar (integer->char 
-                 ; If the generated number is greater or equal to the value of 
-                 ; the quote character then, shift the value up by one. I.e, skip
-                 ; the double quote character.
-                 (if (>= v (char->integer #\")) (add1 v) v))])
-   (cons rchar (generate-string (sub1 len)))
+  (cons (vector-ref *valid-characters* 
+         (random-int-between 0 (vector-length *valid-characters*)))
+   (generate-string (sub1 len))
   )
  )
 )
@@ -264,29 +298,64 @@
  )
 )
 
-(define (gt x)
- (let* ([d (generate-datatype)]
-        [v (generate-variable d)])
-  ;(printf "~a: ~a\n" (generate-conversion-specifier d) (datatype-string d))
-  (unless (void? v)
-   (printf "~a = ~a;\n" 
-    (datatype-string d)
-    ((variable-value-writer v) v))
+(define (generate-variables count)
+ (if (= count 0) '()
+  (cons
+   (generate-variable (generate-datatype))
+   (generate-variables (sub1 count))
   )
  )
- (unless (= x 0) (gt (sub1 x)))
 )
 
-(gt 10000)
+; Generate a string printf statement with 'spec-count' variables printed.
+(define (generate-printf spec-count)
+ (let ([variables (generate-variables spec-count)]
+       [variable-string-value (lambda (v) ((variable-writer v) v))]
+       [variable-conversion-spec (lambda (v)
+                                  (string-append "%" 
+                                   (generate-conversion-specifier
+                                    (variable-datatype v))))])
+  (string-append
+   "printf(\"" 
+   (string-append*
+    (map variable-conversion-spec variables))
+   "\\n\", " ; Make sure that all format strings end with '\n' for easier
+            ; debugging.
+   (string-join (map variable-string-value variables) ", ")
+   ");"
+  )
+ )
+)
 
-;(define (generate-spec type)
-; (string-append "%"
-;  (generate-flags)
-;  (generate-width)
-;  (generate-precision)
-;  (generate-length)
-;  (conversion-spec)
-; )
-;)
+
+(define *printf-prelude* (bytes-append
+ #"#include <stdio.h>\n"
+ #"#include <math.h>\n"
+ #"\n"
+ #"int main() {\n"))
+(define *printf-epilogue*
+ #"    return 0;\n}")
+
+(struct printf-stream
+ (printf-count print-prelude?)
+ #:methods gen:stream
+ [(define (stream-empty? stream)
+   (<= (printf-stream-printf-count stream) 0))
+  (define (stream-first stream)
+   (bytes-append
+    (if (printf-stream-print-prelude? stream) *printf-prelude* #"")
+    #"    " ; Formatting counts
+    (string->bytes/utf-8 (generate-printf (random-int-between 1 5)))
+    #"\n"
+    (if (= (printf-stream-printf-count stream) 1) *printf-epilogue* #"")
+   )
+  )
+  (define (stream-rest stream)
+   (printf-stream
+    (sub1 (printf-stream-printf-count stream)) #f)
+  )]
+)
+
+(sequence-for-each display (printf-stream 10000 #t))
 
 ; vim: set syn=scheme:
