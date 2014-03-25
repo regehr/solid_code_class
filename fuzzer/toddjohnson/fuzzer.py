@@ -6,6 +6,22 @@ import string
 
 #################Can't get musl to work yet#############################
 
+#Initial Hello World Test Case
+def helloTest():
+    output = "Hello World"
+    with open("hello.c", "w") as file:
+        file.write("#include<stdio.h>\nint main(){return printf(\"" + output + "\");}")
+        file.close()
+    subprocess.call(["gcc", "hello.c", "-o", "hello"])
+    #subprocess.call(["musl-gcc", "-static", "hello.c", "-o", "muslHello"])
+    with open('hello.txt', 'w') as t:
+        test1 = subprocess.call(["./hello"], stdout=t)
+
+    os.remove("hello.c")
+    os.remove("hello")
+
+    print "Hello World  Test Passed"
+
 #Generate a large random string
 def randomString(size = 4096, ranString = string.ascii_uppercase + string.digits):
     return ''.join(random.choice(ranString) for n in range(size))
