@@ -38,8 +38,8 @@ def testIntegers():
 	print("Compiling and executing testIntegers.c")
 	
 	#Compile and execute
-	subprocess.call(["musl/bin/musl-gcc", "-static", "testIntegers.c", "-w", "-o", "integers"])
-	proc = subprocess.Popen("./integers", shell=True, stdout=subprocess.PIPE)
+	subprocess.call(["musl/bin/musl-gcc", "-static", "testIntegers.c", "-w", "-o", "testIntegers"])
+	proc = subprocess.Popen("./testIntegers", shell=True, stdout=subprocess.PIPE)
 	
 	#Print non-empty output
 	out, err = proc.communicate()
@@ -49,7 +49,39 @@ def testIntegers():
 	print("-----Finished executing testIntegers.c-----")
 	
 def testChars():
-	print("Todo")
+	print("-----Generating testChars.c-----")
+	#Header of C file
+	writer = open("testChars.c", "w")
+	writer.write("#include <stdio.h>\r\n")
+	writer.write("#include <stdlib.h>\r\n")
+	writer.write("\r\n")
+	writer.write("int main (int argc, const char *argv[])\r\n")
+	writer.write("{\r\n")
+	
+	oracleList = []
+	
+	#Test values in two's complement range
+	for testChars in range(32, 127):
+		if(testChars != 39) and (testChars != 92) :
+			writer.write("printf(\"%c\\n\", \'" + str(unichr(testChars)) + "\');\n")
+			oracleList.append(str(unichr(testChars)))
+	
+	#Finish C file
+	writer.write("exit(0);}\r\n")
+	writer.close()
+	
+	print("Compiling and executing testChars.c")
+	
+	#Compile and execute
+	subprocess.call(["musl/bin/musl-gcc", "-static", "testChars.c", "-w", "-o", "testChars"])
+	proc = subprocess.Popen("./testChars", shell=True, stdout=subprocess.PIPE)
+	
+	#Print non-empty output
+	out, err = proc.communicate()
+	listOut = filter(None, out.split('\n'))
+	if(listOut != oracleList) :
+		print("Error in strings returned from testChars.c")
+	print("-----Finished executing testChars.c-----")
 	
 def testFloats():
 	print("Todo")
