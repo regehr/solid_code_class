@@ -9,7 +9,7 @@
       (list-ref lst index)))
 
   (define (gen-sl-char)
-    (let ([byte (random-natural 128)]
+    (let ([byte (random-integer 1 128)] ; generate in [1, 127] - no embedded nulls in string literals
           [out (open-output-string)])
       (fprintf out "\\x~x" byte)
       (get-output-string out)))
