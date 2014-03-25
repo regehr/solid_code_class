@@ -12,7 +12,7 @@ writeTo.write("int main (int argc, char **argv)\r\n")
 writeTo.write("{\r\n")
 
 #write the printf lines (right now we're doing the highest 1000 ints and trying to print them as chars)
-for printLines in range(2**32-1000, 2**32):
+for printLines in range(2**32-1024, 2**32):
     writeTo.write("printf(\"%c\\n\", " + str(printLines) + ");\n")
 
 #close up c program
@@ -25,7 +25,7 @@ writeTo.close()
 subprocess.call(["/usr/local/musl/bin/musl-gcc", "hello.c", "-w", "-o", "hello"])
 
 #run it
-p = subprocess.Popen(["./hello", "1", "2", "3"], stdout=subprocess.PIPE)
+p = subprocess.Popen(["./hello"], stdout=subprocess.PIPE)
 
 #get the output
 out, err = p.communicate()
