@@ -16,7 +16,7 @@ def small_fuzz():
 def string_fuzz():
 	f = open("strings.c", "w")
 	f.write("#include <stdio.h>\r\n")
-	f.write("int main(int argc, const char *argv[] {\r\n")
+	f.write("int main(int argc, const char *argv[]) {\r\n")
 	f.write("printf('string test');\n")
 	
 	n = 100000
@@ -39,7 +39,7 @@ def large_string(n):
 def rand_int_fuzz():
 	f = open("randints.c", "w")
 	f.write("#include <stdio.h>\r\n")
-	f.write("int main(int argc, const char *argv[] {\r\n")
+	f.write("int main(int argc, const char *argv[]) {\r\n")
 	f.write("printf('integer test');\n")
 	n = 10240
 	test_ints = random_bigints(n)
