@@ -48,58 +48,34 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 	unsigned char firstIter = 1;
 
 	// init for our first loop iter
-	placeHolder.runValue = 0;
-	placeHolder.runLength = 1;
+	unsigned char current = 0;
 
 	// while fread returns bytes from reading the file
 	while(fread(readBuffer , sizeof(readBuffer) , 1 , readFilePointer) == 1)
 	{
 		// init our index into the byte
-		int byteIndex = 7;
-		for(; byteIndex >= 0; --byteIndex)
+		int byteIndex = 0;
+		for(; byteIndex < 8; byteIndex++)
 		{
-			unsigned char current = 0;
-			unsigned char next = 0;
+			current = BITVAL(readBuffer[0], byteIndex);
 
-			// a gross little bandaid for some edge cases when spanning fread segments
-			if(!firstIter && byteIndex == 7)
+			if (firstIter == 1)
 			{
-				// this case is for spanning fread segments
-				current = placeHolder.runValue;
-				next = BITVAL(readBuffer[0] , byteIndex);
-			}
-			else if(byteIndex == 7)
-			{
-				// this case is for the very first loop iteration to get us off the ground
-				firstIter = 0;
-				continue;
-			}
-			else
-			{
-				// general case
-				current = BITVAL(readBuffer[0] , byteIndex + 1);
-				next = BITVAL(readBuffer[0] , byteIndex);
-
 				placeHolder.runValue = current;
+				placeHolder.runLength = 0;
+				firstIter = 0;
 			}
-			
-			// the run is over. time to write to file
-			if(current != next)
+
+			if (placeHolder.runValue != current || placeHolder.runLength == 127)
 			{
-				unsigned char toWrite;
-				// convert our info to a writable byte
-				struct2Byte(&placeHolder , &toWrite);
-				// reset our struct values
-				placeHolder.runValue = next;
-				placeHolder.runLength = 1;
-				// write out the byte
-				writeByte(writeFilePointer , &toWrite);
+				unsigned char c;
+				struct2Byte(&placeHolder, &c);
+				writeByte(writeFilePointer, &c);
+				placeHolder.runValue = current;
+				placeHolder.runLength = 0;
 			}
-			else
-			{
-				// the run continues
-				placeHolder.runLength += 1;
-			}
+
+			placeHolder.runLength++;
 		}
 	}
 	// if fread returned 0 bytes we got here.
