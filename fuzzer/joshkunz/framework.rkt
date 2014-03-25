@@ -1,6 +1,6 @@
 #lang racket
 
-(provide test run-binary build-file rm)
+(provide test run-binary build-file rm expect-code print-info)
 
 (require "term-colors.rkt")
 
@@ -120,6 +120,8 @@
      (let ([saved-file-name
             (string-append (string-downcase
              (string-replace (string-normalize-spaces test-name) " " "-"))
+             "_"
+             to-file
              ".input")])
       (rename-file-or-directory to-file saved-file-name #t)
       (printf "Triggering input saved into: ~a\n\n" saved-file-name))))
@@ -161,5 +163,34 @@
    (close-input-port proc-stderr)
   )
  )
+ )
+)
+
+; **** Verifiers ****
+
+(define (expect-code expected-code)
+ (lambda (results)
+  (let ([exit-code (car (hash-ref results 'status))])
+   (if (not (= exit-code expected-code))
+    (list #f
+     (format "Bad error code: ~a (expected ~a)" exit-code expected-code))
+    (list #t))
+   )
+ )
+)
+
+; Prints out stderr, always succeeds
+(define (print-info results)
+ (let* ([heading-color (make-color 'white)]
+        [heading (lambda (text) (style text heading-color))]
+        [result (lambda (key) (car (hash-ref results key)))])
+  (list #t 
+   (string-append (heading "invocation: ") 
+    (string-join (cons (result 'binary) (result 'args)) " "))
+   (string-append (heading "stdout:") "\n"
+    (string-trim (bytes->string/utf-8 (result 'stdout))))
+   (string-append (heading "stderr:") "\n"
+    (string-trim (bytes->string/utf-8 (result 'stderr))))
+  )
  )
 )
