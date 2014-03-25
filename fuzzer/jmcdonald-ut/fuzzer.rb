@@ -1,34 +1,45 @@
 # Jonathon McDonald
 class Fuzzer
-  def self.run
-    fuzzer = Fuzzer.new
+  def self.diff f1, f2
+    `diff <(echo "#{f1.output}") <(echo "#{f2.output}"))`
   end
 
-  def initialize
+  def initialize name, type = :musl
+    @name = name
+    @type = :musl
+
     build_template
-    write_line 'printf("Hello fuzzer!\\n");'
-    build_c_file
-    run_fuzzer
-    clean_up
   end
+
+  def output
+    write_line 'printf("Hello fuzzer!\\n");'
+
+    build_c_file
+    out = run_fuzzer
+    clean_up
+
+    out
+  end
+
+  private
 
   def build_template
-    template = File.new("template.c")
-    @template = template.read
-    template.close
+    file = File.new("template.c")
+    @template = file.read
+    file.close
   end
 
   def build_c_file
     @template.gsub!('{CODE}', @code)
 
-    out = File.new("main.c", "w")
+    out = File.new(@name, "w")
     out.write(@template)
     out.close
   end
 
   def clean_up
     File.delete('a.out')
-    File.delete('main.c')
+    File.delete(@name)
   end
 
   def write_line string
@@ -38,9 +49,14 @@ class Fuzzer
   end
 
   def run_fuzzer
-    `musl-gcc -static main.c`
-    puts `./a.out`
+    gcc = 'gcc'
+    gcc = 'musl-gcc' if @type == :musl
+    `#{gcc} -static #{@name}`
+    return `./a.out`
   end
 end
 
-Fuzzer.run
+f1 = Fuzzer.new('gcc.c', :gcc)
+f2 = Fuzzer.new('musl-gcc.c')
+
+Fuzzer.diff(f1, f2)
