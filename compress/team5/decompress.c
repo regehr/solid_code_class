@@ -175,7 +175,7 @@ uint64_t get_huff_size (FILE *input)
     return size;
 }
 
-void decompress (FILE *input, char *filename) 
+void decompress (FILE *input, FILE *output) 
 {
     huff_tree *tree;
     uint64_t size;
@@ -187,10 +187,6 @@ void decompress (FILE *input, char *filename)
 
     // Build a tree from the encodings
     tree = build_huff_tree_from_table(input);
-
-    // Name the file, and get a pointer
-    char *new_name = "interFileD";
-    FILE *output = fopen(new_name, "w");
 
     if(output == NULL)
         fprintf(stderr , "panic!");

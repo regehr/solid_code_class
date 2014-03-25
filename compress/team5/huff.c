@@ -36,7 +36,7 @@ int main (int argc, char *argv[])
     }
 
 
-    FILE *input = NULL;
+    FILE *input = NULL, *tmp = tmpfile();
     struct stat sb;
     unsigned long long length = 0;
 
@@ -56,22 +56,31 @@ int main (int argc, char *argv[])
     if (strncmp(argv[1], "-t", 2) == 0) {
         print_huff_table(input);
     } else if (strncmp(argv[1], "-c", 2) == 0) {
-        char *interFileName = "interFile";
-        encode(input, interFileName);
-        input = fopen(interFileName, "r");
-        FILE* output = NULL;
-        huff_encode(argv[2] , input , &output);
+        encode(input, tmp);
+
+        // Fetch encoded length
+        fseek(tmp, 0, SEEK_END);
+        length = ftell(tmp);
+
+        rewind(tmp);
+        compress(tmp, argv[2], length);
     } else if (strncmp(argv[1], "-d", 2) == 0) {
-        FILE *output = NULL;
-        char *interFileName = "interFile";
-        huff_decode(interFileName, input, &output);
+        decompress(input, tmp);
+
+        // Fetch decompressed length
+        fseek(tmp, 0, SEEK_END);
+        length = ftell(tmp);
+
+        rewind(tmp);
+        
         char *name = get_decompressed_file_name(argv[2]);
-        decode(output, name);
+        decode(tmp, name);
     } else {
         printf("First argument must be -t, -c or -d\n");
         exit(255); 
     }
 
     fclose(input);
+    fclose(tmp);
     exit(0);
 }
