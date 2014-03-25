@@ -84,7 +84,7 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 			}
 			
 			// the run is over. time to write to file
-			if(current != next)
+			if(current != next || placeHolder.runLength == 127)
 			{
 				unsigned char toWrite;
 				// convert our info to a writable byte
@@ -112,15 +112,8 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 }
 
 // main driver method
-void encode(FILE * readFilePointer, char * writeFileName)
+void encode(FILE * readFilePointer, FILE * writeFilePointer)
 {
-	// get a FILE to write to
-	FILE *writeFilePointer = getFile(writeFileName , "w");
-	
 	// call to main encode
 	encodeFile(readFilePointer , writeFilePointer);
-
-	// finally, close files
-	fclose(readFilePointer);
-	fclose(writeFilePointer);
 }

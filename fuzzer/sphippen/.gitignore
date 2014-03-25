@@ -1,0 +1,5 @@
+fuzz.c
+# executables
+*-fuzz
+# output from printfs
+*.bin
