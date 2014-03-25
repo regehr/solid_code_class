@@ -16,7 +16,7 @@ def removeAllFiles():
 	os.remove("muslTest")
 		
 
-def execute():
+def main():
 	for i in range(-sys.maxint - 1, sys.maxint):
 		makeCFile("%d", i)
 		subprocess.call(["gcc", "test.c", "-o", "regularTest"])
@@ -33,10 +33,7 @@ def execute():
 	
 	removeAllFiles()
 	
-	
-	
 
-
-
-
-execute()
+if __name__ == "__main__":
+    print "Begin main()"
+    main()
