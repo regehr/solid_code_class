@@ -10,6 +10,7 @@ The main script for "musl-printf-fuzzer".
     muslGcc = '/usr/local/musl/bin/musl-gcc'
     gnuGcc = 'gcc'
     callsPerFile = 1024
+    breakChance = .05
 
 
 Clean up temporary files even when an uncaught exception occurs.
@@ -44,14 +45,23 @@ Clean up temporary files even when an uncaught exception occurs.
             ]
 
             printfArgs: (callback) ->
-              callback null, ("Hello World\\n" for _ in [0...callsPerFile])
+              callback null, (for _ in [0...callsPerFile]
+                result = []
+                result[0] = ''
+                loop
+                  if Math.random() < breakChance
+                    break
+                  result[0] += 'a'
+                result[0] = "\"#{result[0]}\\n\""
+                result
+              )
 
 
             writeBody: ['writeHeader', 'printfArgs', (callback, results) ->
-              for formatString in results.printfArgs
+              for args in results.printfArgs
                 results.writer.write(
                   """
-                    printf("#{formatString}");
+                    printf(#{args.join ', '});
 
                   """
                   callback
@@ -98,7 +108,7 @@ Clean up temporary files even when an uncaught exception occurs.
             ]
 
             compareOutput: ['execMusl', 'execGnu', (callback, results) ->
-              if results.execMusl[0] isnt results.execGnu[0]
+              if results.execMusl[0] is results.execGnu[0]
                 console.log "Saving error as error#{errors}.c"
                 fs.createReadStream(results.cTmpFile)
                 .pipe fs.createWriteStream("error#{errors}.c")
