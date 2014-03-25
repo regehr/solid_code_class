@@ -28,6 +28,7 @@ def string_fuzz():
 	p = subprocess.Popen("./strings", shell=True, stdout=subprocess.PIPE)
 	out, err = p.communicate()
 	listOut = filter(None, out.split('\n'))
+	os.remove("string.c")
 	
 def large_string(n):
 	ret = ""
@@ -48,6 +49,7 @@ def rand_int_fuzz():
 	p = subprocess.Popen("./randints", shell=True, stdout=subprocess.PIPE)
 	out, err = p.communicate()
 	listOut = filter(None, out.split('\n'))
+	os.remove("randints.c")
 	
 def random_bigints(n):
 	return random.getrandbits(n)
