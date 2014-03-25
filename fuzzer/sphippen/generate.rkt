@@ -9,8 +9,9 @@
       (list-ref lst index)))
 
   (define (gen-sl-char)
-    (let ([byte (random-integer 1 128)] ; generate in [1, 127] - no embedded nulls in string literals
-          [out (open-output-string)])
+    (let* ([pre-byte (random-integer 1 127)] ; Generate a byte in [1, 126] (don't want a null char in the string literal)
+           [byte (if (>= pre-byte 37) (+ pre-byte 1) pre-byte)] ; Shift to get a byte in [1, 36] U [38, 127] to avoid '%' char
+           [out (open-output-string)])
       (fprintf out "\\x~x" byte)
       (get-output-string out)))
 

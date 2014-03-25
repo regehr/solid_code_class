@@ -1,32 +1,25 @@
 (module printf racket
 
+  (require (only-in math/base random-integer))
   (require "generate.rkt")
 
   (provide gen-printf)
 
-  (define char-max 1000)
-  (define conv-max 1000)
+  (define char-max 10)
+  (define conv-max 10)
 
   (define (gen-printf)
-    (let* ([n-char (random char-max)]
+    (let* ([n-char (random-integer 0 (+ char-max 1))]
            [chars (gen-chars n-char)]
-           [n-conv (random conv-max)]
+           [n-conv (random-integer 0 (+ conv-max 1))]
            [convs (gen-convs n-conv)])
       (shuffle (append chars convs))))
 
-  (define (gen-seq n gen)
-    (define (work n lst)
-      (match n
-        [0 lst]
-        [_ (let ([val (gen)])
-             (work (- n 1) (cons val lst)))]))
-    (work n '()))
-
   (define (gen-chars n)
-    (gen-seq n gen-sl-char))
+    (build-list n (lambda (n) (gen-sl-char))))
   
   (define (gen-convs n)
-    (gen-seq n gen-conv))
+    (build-list n (lambda (n) (gen-conv))))
 
   (define conversions
     `((,gen-int (d i)) ; int

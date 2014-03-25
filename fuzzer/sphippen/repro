@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+if [[ $# != 1 ]]; then
+  echo "Usage: $0 <blah.c>"
+  exit 1
+fi
+
+/home/sphippen/libs/musl/bin/musl-gcc -static -o musl-repro "$1"
+gcc -o glibc-repro "$1"
+
+./musl-repro
+mv out.bin musl.bin
+./glibc-repro
+mv out.bin glibc.bin
+rm musl-repro glibc-repro
+diff -a musl.bin glibc.bin
