@@ -356,6 +356,43 @@
   )]
 )
 
-(sequence-for-each display (printf-stream 10000 #t))
+(define (compile-binary source binary #:compiler [cc "cc"] . flags)
+ (thunk
+  (let ([fflags (append flags (list "-o" binary source))])
+   (when (not (system (string-join (cons cc fflags) " ")))
+    (printf "Compilation Failed.")
+    (exit 1)
+   )
+  )
+  ; Delete the binary on cleanup.
+  (list (list 'on-finally 
+         (thunk* (delete-file binary))))
+ )
+)
+
+(define (command-stdout binary . flags)
+ (let ([output ((apply run-binary (cons binary flags)))])
+  (list (car (hash-ref output 'stdout)))
+ )
+)
+
+(define (fuzz printfs-per-trial)
+ (test "1000-printfs"
+  (list 
+   (build-file (printf-stream printfs-per-trial #t) "test.c")
+   (compile-binary "test.c" "test-musl" "-static -w" 
+                   #:compiler "musl/bin/musl-gcc")
+   (compile-binary "test.c" "test-local" "-w"
+                   #:compiler "gcc")
+   (build-file (command-stdout "./test-musl") "musl.out")
+   (build-file (command-stdout "./test-local") "local.out")
+  )
+  (run-binary "/usr/bin/env" "diff" "musl.out" "local.out")
+  (list (expect-code 0) print-info)
+ )
+ (fuzz printfs-per-trial)
+)
+
+(fuzz 1000)
 
 ; vim: set syn=scheme:
