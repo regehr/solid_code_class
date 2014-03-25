@@ -88,6 +88,7 @@ void compress (FILE *input, char *filename, uint64_t length)
 {
 	int character, frequencies[CHAR_RANGE] = { 0 };
 	char **huff_table;
+	rewind(input);
 
 	// Build huff table
 	while ((character = fgetc(input)) != EOF) {

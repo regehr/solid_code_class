@@ -3,8 +3,8 @@
 
 extern int CHECK_REP;
 
-void decompress(FILE *input, char* filename);
+void decompress(FILE *, FILE *);
 void build_children_if_null (huff_tree **);
-char *get_decompressed_file_name (char* filename);
+char *get_decompressed_file_name (char *);
 
 #endif

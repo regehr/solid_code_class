@@ -84,10 +84,9 @@ void decode(FILE *readFilePointer , char *writeFileName)
 	// get a FILE to write to
 	FILE *writeFilePointer = getFile(writeFileName , "wb");
 
+	rewind(readFilePointer);
+
 	// make the call to decode
 	decodeFile(readFilePointer , writeFilePointer);
-	
-	// finally, close our two files
-	fclose(readFilePointer);
 	fclose(writeFilePointer);
 }

@@ -70,7 +70,7 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 			{
 				unsigned char c;
 				struct2Byte(&placeHolder, &c);
-				writeByte(writeFilePointer, &c);
+				fputc(c, writeFilePointer);
 				placeHolder.runValue = current;
 				placeHolder.runLength = 0;
 			}
@@ -78,6 +78,16 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 			placeHolder.runLength++;
 		}
 	}
+
+	if (placeHolder.runLength > 0)
+	{
+		unsigned char c;
+		struct2Byte(&placeHolder, &c);
+		fputc(c, writeFilePointer);
+		placeHolder.runValue = current;
+		placeHolder.runLength = 0;
+	}
+
 	// if fread returned 0 bytes we got here.
 	// lets make sure it wasnt an error
 	if(ferror(readFilePointer))
@@ -88,15 +98,8 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 }
 
 // main driver method
-void encode(FILE * readFilePointer, char * writeFileName)
+void encode(FILE * readFilePointer, FILE *out)
 {
-	// get a FILE to write to
-	FILE *writeFilePointer = getFile(writeFileName , "w");
-	
 	// call to main encode
-	encodeFile(readFilePointer , writeFilePointer);
-
-	// finally, close files
-	fclose(readFilePointer);
-	fclose(writeFilePointer);
+	encodeFile(readFilePointer , out);
 }
