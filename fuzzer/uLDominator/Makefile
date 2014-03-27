@@ -4,3 +4,5 @@ all:
 clean:
 	-@rm -rf test*
 	-@rm -rf *~
+	-@rm -rf *.txt
+	-@rm -rf gcc*
