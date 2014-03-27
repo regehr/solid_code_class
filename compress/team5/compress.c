@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "huff_table.h"
 
-#define CHAR_RANGE 257
+#define CHAR_RANGE 256
 
 /* Write the header information for huffman encoding to the file. */
 void write_header (FILE *output, char **huff_table, uint64_t length)

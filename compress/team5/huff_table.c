@@ -134,6 +134,7 @@ huff_tree *build_huff_tree (int frequencies[])
 
         // Malloc
 		huff_tree *htree = (huff_tree *)malloc(sizeof(huff_tree));
+        *htree = (huff_tree){ 0 };
 
         // Sort the current table of nodes
 		qsort(q, length, sizeof(huff_tree *), compare_huff_trees);
@@ -172,13 +173,21 @@ void traverse_huff_tree (huff_tree *tree, char **table, char *prefix)
     if(!tree->zero_tree && !tree->one_tree) {
     	table[tree->character] = prefix;	
     } else {
+        char *one_prefix = (char *)malloc(strlen(prefix) + 1);
+        char *zero_prefix = (char *)malloc(strlen(prefix) + 1);
+
+        strcpy(one_prefix, prefix);
+        strcpy(zero_prefix, prefix);
+        free(prefix);
+        
         if(tree->zero_tree) {
-        	traverse_huff_tree(tree->zero_tree, table, concat_characters(prefix, '0'));	
+        	traverse_huff_tree(tree->zero_tree, table, concat_characters(zero_prefix, '0'));	
         } 
         if(tree->one_tree) {
-        	traverse_huff_tree(tree->one_tree, table, concat_characters(prefix, '1'));	
+        	traverse_huff_tree(tree->one_tree, table, concat_characters(one_prefix, '1'));	
         } 
-        free(prefix);
+        free(one_prefix);
+        free(zero_prefix);
     }
 }
 
