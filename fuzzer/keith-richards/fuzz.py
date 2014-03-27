@@ -12,14 +12,17 @@
 
 import os
 import sys
+import random
 import unittest
+import itertools
 import select
 import types
 
 try:
     import cffi
 except ImportError:
-    print "need cffi python module\nwget https://pypi.python.org/packages/source/c/cffi/cffi-0.8.2.tar.gz#md5=37fc88c62f40d04e8a18192433f951ec"
+    print "need cffi python module"
+    print "wget https://pypi.python.org/packages/source/c/cffi/cffi-0.8.2.tar.gz#md5=37fc88c62f40d04e8a18192433f951ec"
     exit(1)
 
 class Environment():
@@ -79,50 +82,49 @@ class Test_Case(unittest.TestCase):
         self.assertTrue(self.oracle == self.result, "Command: %s\nExpected: %s\nActual: %s" % \
                             (self.case, self.oracle, self.result))
 
+
+def generate_int_tests(oracle, lib):
+    for i in range(500):
+        num = random.randint(-2147483646, 2147483647)
+        oracle.mk_primative(num, "int")
+        lib.mk_primative(num, "int")
+
+        expect = oracle.printf()
+        actual = lib.printf()
+
+        test = Test_Case('', expect, actual)
+        yield test
+
+def generate_float_tests(oracle, lib):
+    for i in range(500):
+        num = random.uniform(-2147483646, 2147483647)
+        oracle.mk_primative(num, "float")
+        lib.mk_primative(num, "float")
+
+        printf = ''
+        expect = oracle.printf()
+        actual = lib.printf()
+
+        test = Test_Case('', expect, actual)
+        yield test
+
+    
+def generate_all_tests(oracle, lib):
+    return itertools.chain(generate_int_tests(oracle, lib),
+                           generate_float_tests(oracle, lib))
+
 def main(_lib):
-
-    suite = unittest.TestSuite()
-
-    # LOOP ME:
     oracle = Environment(None) # default libc.so.6 (system C code)
     lib   = Environment(_lib) # lib you want to fuzz
-    
-    oracle.mk_primative(1, "int")
-    lib.mk_primative(1, "int")
 
-    expect = oracle.printf()
-    actual = lib.printf()
-
-    test = Test_Case('', expect, actual)
-    suite.addTest(test)
-    # END LOOP
-
+    suite = unittest.TestSuite()
     runner = unittest.TextTestRunner(verbosity=2)
+
+    suite.addTests(generate_all_tests(oracle, lib))
     runner.run(suite)
+
     Environment.clean()
     return 0
-
-    # # generate a test case
-    # for test_case in generate_test_case():
-    #     c_file = generate_printf_file(test_case)
-
-    #     # run the oracle
-    #     binary = compile_default_libc(c_file)
-    #     oracle_result = call(binary)
-    #     os.remove(binary)
-
-    #     # run musl
-    #     binary = compile_musl_libc(c_file)
-    #     musl_result = call(binary)
-    #     os.remove(binary)
-    
-    #     # bookkeeping the tests
-    #     os.remove(c_file)
-    #     test = MyTestCase(test_case, oracle_result, musl_result)
-    #     suite.addTest(test)
-
-    # runner = unittest.TextTestRunner(verbosity=2)
-    # runner.run(suite)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2 or not os.path.isfile(sys.argv[1]):
