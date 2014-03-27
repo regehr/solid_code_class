@@ -5,7 +5,7 @@
 
   (provide generate-printf)
 
-  (define char-max 0) ; binary data not very nice to examine - TODO: use only printable characters for chars?
+  (define char-max 10)
   (define conv-max 10)
 
   (define (generate-printf)
