@@ -3,44 +3,81 @@
   (require (only-in math/base random-integer))
   (require "generate.rkt")
 
-  (provide gen-printf)
+  (provide generate-printf)
 
-  (define char-max 10)
+  (define char-max 0) ; binary data not very nice to examine - TODO: use only printable characters for chars?
   (define conv-max 10)
 
-  (define (gen-printf)
+  (define (generate-printf)
     (let* ([n-char (random-integer 0 (+ char-max 1))]
-           [chars (gen-chars n-char)]
+           [chars (generate-chars n-char)]
            [n-conv (random-integer 0 (+ conv-max 1))]
-           [convs (gen-convs n-conv)])
+           [convs (generate-convs n-conv)])
       (shuffle (append chars convs))))
 
-  (define (gen-chars n)
-    (build-list n (lambda (n) (gen-sl-char))))
+  (define (generate-chars n)
+    (build-list n (lambda (n) (generate-sl-char))))
   
-  (define (gen-convs n)
-    (build-list n (lambda (n) (gen-conv))))
+  (define (generate-convs n)
+    (build-list n (lambda (n) (generate-conv))))
+
+  (struct conv
+    (char-lst   ; list of bare conversion characters
+     length-lst ; list of applicable length modifiers paired with generation functions
+     precision  ; #t if precision flag is applicable, #f otherwise
+     flags))    ; list of valid flags
+
+  (define int-length-lst '(hh h l ll j))
 
   (define conversions
-    `((,gen-int (d i)) ; int
-      (,gen-unsigned (o u x X)) ; unsigned
-;      e E ; sci notation double
-;      f F ; normal notation double
-;      g G ; shorter of e/f or E/F respectively
-;      a A ; hex double notation
-;      c ; char
-;      s ; string
-;      p ; void* as hex
-;      n ; write number of chars written so far to int* arg
-      (,(void) (%)) ; percent char
-      ))
+    `(,(conv '(d i)
+             int-length-lst
+             #t
+             '(0 - | | +))
 
-  (define (gen-conv)
-    (let* ([type (pick-from conversions)]
-           [char (pick-from (cadr type))]
-           [gen (car type)])
-      (if (void? gen)
-        (list (symbol->string char))
-        (list (symbol->string char) (gen)))))
+      ,(conv '(u)
+             int-length-lst
+             #t
+             '(0 - | | +))
+
+      ,(conv '(o x X)
+             int-length-lst
+             #t
+             '(|#| 0 - | | +))
+
+      ,(conv '(a A e E f F g G)
+             '() ; TODO: (?) investigate '(L) weirdness in gcc
+             #t
+             '(|#| 0 - | | +))
+
+      ,(conv '(c)
+             '(l)
+             #f
+             '())
+
+      ,(conv '(s)
+             '() ; TODO: (?) get '(L) to work (lots of bad things in musl currently)
+             #f
+             '())
+      ,(conv '(%)
+             '()
+             #f
+             '())))
+; TODO: add n flag for writing out "chars printed so far", p for void* as hex
+
+; TODO: generate width fields (remember '*' option)
+; TODO: generate precision fields (remember '*' option)
+  (define (generate-conv)
+    (define conv (pick-from conversions))
+    (define char (pick-from (conv-char-lst conv)))
+    (define lenmod (pick-from (cons '|| (conv-length-lst conv))))
+    (define value (generate-value char lenmod))
+
+    ; go from symbols to strings for output
+    (define conv-str (string-append (symbol->string lenmod)
+                                    (symbol->string char)))
+    (if (void? value)
+      (list conv-str)
+      (list conv-str value)))
 
 )

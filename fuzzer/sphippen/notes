@@ -1,0 +1,2 @@
+wchar_t anything
+gcc will produce different outputs if printed %a vs %La for 2.108617433950405e+299 vs (long double)2.108617433950405e+299

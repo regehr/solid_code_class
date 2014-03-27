@@ -1,18 +1,32 @@
 # Jonathon McDonald
 class Fuzzer
   def self.diff f1, f2
-    `diff <(echo "#{f1.output}") <(echo "#{f2.output}"))`
+    output1 = "#{f1.output}"
+    output2 = "#{f2.output}"
+
+    build_diff_file("output1", output1)
+    build_diff_file("output2", output2)
+
+    out = `diff output1 output2`
+
+    File.delete("output1")
+    File.delete("output2")
+
+    puts out unless out.empty?
   end
 
   def initialize name, type = :musl
     @name = name
-    @type = :musl
+    @out_name = @name.gsub('.c', '')
+    @type = type
 
     build_template
   end
 
   def output
-    write_line 'printf("Hello fuzzer!\\n");'
+    (1..1000).each do |i|
+      write_line "printf(\"Printing number %i\\n\", #{i});"
+    end
 
     build_c_file
     out = run_fuzzer
@@ -22,6 +36,14 @@ class Fuzzer
   end
 
   private
+
+  def self.build_diff_file name, text
+    file = File.new(name, "w")
+
+    file.write(text)
+
+    file.close
+  end
 
   def build_template
     file = File.new("template.c")
@@ -38,7 +60,7 @@ class Fuzzer
   end
 
   def clean_up
-    File.delete('a.out')
+    File.delete(@out_name)
     File.delete(@name)
   end
 
@@ -51,8 +73,8 @@ class Fuzzer
   def run_fuzzer
     gcc = 'gcc'
     gcc = 'musl-gcc' if @type == :musl
-    `#{gcc} -static #{@name}`
-    return `./a.out`
+    `#{gcc} -static #{@name} -o #{@out_name}`
+    return `./#{@out_name}`
   end
 end
 

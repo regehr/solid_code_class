@@ -4,6 +4,7 @@ import random
 import os
 import string
 import filecmp
+import decimal
 
 #Initial Hello World Test Case
 def helloTest():
@@ -34,7 +35,7 @@ def randomString(size = 4096, ranString = string.ascii_uppercase + string.digits
 
 #Int test pulled from another fuzzer
 def intTest():
-    for i in xrange(-5, 10):
+    for i in xrange(-5, 5):
         with open("test.c", "w") as file:
             file.write("#include<stdio.h>\nint main(){return printf(\"" + "%d" + "\"," + str(i) + ");}")
             file.close()
@@ -80,7 +81,7 @@ def stringTest():
 #Special Character Test to see if printf can handle special chars
 def charTest():
   
-    output = "!#$%&()*+,-./:;<=>?@[\]^_{|}"
+    output = "!#$%%&()*+,-./:;<=>?@[\]^_{|}"
 
     with open("test4.c", "w") as file:
         file.write("#include<stdio.h>\nint main(){return printf(\"" + output + "\");}")
@@ -104,13 +105,10 @@ def charTest():
     print "Special Char Test Passed"
 
 
-
-
-
 if __name__ == "__main__":
     helloTest()
     intTest()
     stringTest()
-    charTest()    
+    charTest()   
     
 

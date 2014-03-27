@@ -8,22 +8,27 @@
 (define printf-max 1000)
 
 (define diff-count 0)
+(define printf-count 0)
 
 (define (compile cc out . args)
   (if (apply system* `(,cc ,@args ,"-o" ,out ,src-name))
     #t
     (raise-user-error 'compile "Couldn't compile to ~a using ~a.~%" out cc)))
 
-(define (date-print str)
+(define (date-print str . rest)
   (let* ([now (current-date)])
-    (printf "[~a/~a - ~a:~a:~a]: ~a~%" (date-month now) (date-day now) (date-hour now) (date-minute now) (date-second now) str)))
+    (printf "[~a/~a - ~a:~a:~a]: " (date-month now) (date-day now) (date-hour now) (date-minute now) (date-second now))
+    (printf str rest)
+    (printf "~%")))
 
 (define (go)
   (define printfs
     (let ([n-printf (random printf-max)])
-      (build-list n-printf (lambda (n) (gen-printf)))))
+      (build-list n-printf (lambda (n) (generate-printf)))))
 
-  (date-print "New iteration...")
+  (date-print "New iteration... (~a printf's executed)" printf-count)
+
+  (set! printf-count (+ printf-count (length printfs)))
 
   ; Create source file
   (printfs-to-file printfs src-name)
