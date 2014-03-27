@@ -13,4 +13,4 @@ mv out.bin musl.bin
 ./glibc-repro
 mv out.bin glibc.bin
 rm musl-repro glibc-repro
-diff -a musl.bin glibc.bin
+cmp musl.bin glibc.bin

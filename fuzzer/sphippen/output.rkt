@@ -8,18 +8,30 @@
       (display str out-f)
       (close-output-port out-f)))
 
+  (define prologue (string-append
+"#include <stdio.h>\n"
+"#include <math.h>\n"
+"#include <stdint.h>\n"
+"#include <wchar.h>\n"
+"\n"
+"int main(int argc, char* argv[]) {\n"
+"  FILE* out = fopen(\"out.bin\", \"w\");\n"))
+
+  (define epilogue (string-append
+"  fclose(out);\n"
+"  return 0;\n"
+"}\n"))
+
   (define (printfs-to-file-string lst)
-    (let ([start "#include <stdio.h>\nint main(int argc, char* argv[]) {\nFILE* out = fopen(\"out.bin\", \"w\");\n"]
-          [end "fclose(out);\nreturn 0;\n}"])
-      (string-append (for/fold ([str start])
-                       ([printf lst])
-                       (string-append str (printf->string printf)))
-                     end)))
+    (string-append (for/fold ([str prologue])
+                     ([printf lst])
+                     (string-append str (printf->string printf)))
+                   epilogue))
 
   (define (printf->string printf)
     (define (work args format c-args)
       (if (empty? args)
-        (string-append "fprintf(out, \"" format "\"" c-args ");\n")
+        (string-append "  fprintf(out, \"" format "\"" c-args ");\n")
         (let* ([rest (cdr args)]
                [arg (car args)]
                [is-conv (list? arg)]

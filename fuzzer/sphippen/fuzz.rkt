@@ -17,7 +17,7 @@
 
 (define (date-print str . rest)
   (let* ([now (current-date)])
-    (printf "[~a/~a - ~a:~a:~a]: " (date-month now) (date-day now) (date-hour now) (date-minute now) (date-second now) str)
+    (printf "[~a/~a - ~a:~a:~a]: " (date-month now) (date-day now) (date-hour now) (date-minute now) (date-second now))
     (printf str rest)
     (printf "~%")))
 

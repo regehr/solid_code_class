@@ -5,7 +5,7 @@
 
   (provide generate-printf)
 
-  (define char-max 10)
+  (define char-max 0) ; binary data not very nice to examine - TODO: use only printable characters for chars?
   (define conv-max 10)
 
   (define (generate-printf)
@@ -42,10 +42,11 @@
 
       ,(conv '(o x X)
              int-length-lst
+             #t
              '(|#| 0 - | | +))
 
       ,(conv '(a A e E f F g G)
-             '(L)
+             '() ; TODO: (?) investigate '(L) weirdness in gcc
              #t
              '(|#| 0 - | | +))
 
@@ -55,7 +56,7 @@
              '())
 
       ,(conv '(s)
-             '(L)
+             '() ; TODO: (?) get '(L) to work (lots of bad things in musl currently)
              #f
              '())
       ,(conv '(%)
@@ -69,12 +70,12 @@
   (define (generate-conv)
     (define conv (pick-from conversions))
     (define char (pick-from (conv-char-lst conv)))
-    (define lenmod (pick-from (car '|| (conv-length-lst conv))))
+    (define lenmod (pick-from (cons '|| (conv-length-lst conv))))
     (define value (generate-value char lenmod))
 
     ; go from symbols to strings for output
-    (define conv-str (string-append "%" (symbol->string char)
-                                        (symbol->string lenmod)))
+    (define conv-str (string-append (symbol->string lenmod)
+                                    (symbol->string char)))
     (if (void? value)
       (list conv-str)
       (list conv-str value)))
