@@ -61,10 +61,12 @@ void compress_contents (FILE *input, FILE *output, char **huff_table)
 	}
 
 	// Pad last bit
-	for (; bitc < 8; bitc++) {
-		current = (current & ~(1 << bitc)) | 0 << bitc;
+	if (bitc != 0) {
+		for (; bitc < 8; bitc++) {
+			current = (current & ~(1 << bitc)) | 0 << bitc;
+		}
+		fwrite(&current, 1, 1, output);
 	}
-	fwrite(&current, 1, 1, output);
 }
 
 /* Remove the extension from the file that we are compressing. */

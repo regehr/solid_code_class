@@ -98,8 +98,8 @@ int compare_huff_trees (const void *a, const void *b)
 	const huff_tree **t1 = (const huff_tree **) a;
 	const huff_tree **t2 = (const huff_tree **) b;
 
-    if (NULL == *t1) return 1;
-    if (NULL == *t2) return -1;
+    if (NULL == *t1) return -1;
+    if (NULL == *t2) return 1;
 
 	if((*t1)->frequency == (*t2)->frequency) {
         if ((*t1)->lowest == (*t2)->lowest) return 0;	
@@ -149,7 +149,7 @@ huff_tree *build_huff_tree (int frequencies[])
         // Set the lowest
         zt_l = htree->zero_tree->lowest;
         ot_l = htree->one_tree->lowest;
-        htree->lowest = (zt_l < ot_l) ? zt_l : ot_l;
+        htree->lowest = (zt_l > ot_l) ? ot_l : zt_l;
 
         // Compute the frequency
 		htree->frequency = htree->zero_tree->frequency + htree->one_tree->frequency;
@@ -179,7 +179,7 @@ void traverse_huff_tree (huff_tree *tree, char **table, char *prefix)
         strcpy(one_prefix, prefix);
         strcpy(zero_prefix, prefix);
         free(prefix);
-        
+
         if(tree->zero_tree) {
         	traverse_huff_tree(tree->zero_tree, table, concat_characters(zero_prefix, '0'));	
         } 
