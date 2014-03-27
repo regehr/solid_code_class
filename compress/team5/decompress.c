@@ -193,7 +193,5 @@ void decompress (FILE *input, FILE *output)
 
     // Write out the decompressed bits!
     write_out_decompress(input, output, tree, size);
-
-    fclose(output);
     free_huff_tree(tree);
 }
