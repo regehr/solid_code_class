@@ -112,12 +112,14 @@ huff_tree *build_huff_tree (int frequencies[])
 
 	// Create a huff_tree_node for each character in the frequency table
 	for(i = 0; i < CHAR_RANGE; i++) {
+        huff_tree *htree = (huff_tree *)calloc(1, sizeof(huff_tree));
+        htree->character = i;
 		if(frequencies[i]) {
-			huff_tree *htree = (huff_tree *)calloc(1, sizeof(huff_tree));
-			htree->character = i;
 			htree->frequency = frequencies[i];
-			q[length++] = htree;
-		}
+		} else {
+            htree->frequency = 0;
+        }
+        q[length++] = htree;
 	}
 
 	// Compare and combine huff_trees

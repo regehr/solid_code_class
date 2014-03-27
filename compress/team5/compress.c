@@ -28,7 +28,7 @@ void write_header (FILE *output, char **huff_table, uint64_t length)
 	// Write table to the output
 	for (i = 0; i < CHAR_RANGE; i++) {
 		write_status = fprintf(output, "%s\n", huff_table[i]);
-
+		
 		if (write_status < 0) {
 			printf("Failed to write encoding table.\n");
 			exit(255);
