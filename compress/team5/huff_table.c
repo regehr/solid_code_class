@@ -82,14 +82,14 @@ void free_huff_table (char *huff_table[])
 /* Used to add a new character to the existing characters in a huff_tree_node. */
 char *concat_characters (char *prefix, char new_char)
 {
-  assert(prefix != NULL);
+    assert(prefix != NULL);
 
-	char *new_prefix = (char *)malloc(strlen(prefix) + 2);
-	if (sprintf(new_prefix, "%s%c", prefix, new_char) < 0) {
-    printf("Failed to sprintf the new prefix.\n");
-    exit(255);
-  }
-	return new_prefix;
+    char *new_prefix = (char *)malloc(strlen(prefix) + 2);
+    if (sprintf(new_prefix, "%s%c", prefix, new_char) < 0) {
+        printf("Failed to sprintf the new prefix.\n");
+        exit(255);
+    }
+    return new_prefix;
 }
 
 /* Compares 2 huff_nodes. */
@@ -98,8 +98,13 @@ int compare_huff_trees (const void *a, const void *b)
 	const huff_tree **t1 = (const huff_tree **) a;
 	const huff_tree **t2 = (const huff_tree **) b;
 
-	if((*t1)->frequency == (*t2)->frequency){
-		return 0;	
+    if (NULL == *t1) return 1;
+    if (NULL == *t2) return -1;
+
+	if((*t1)->frequency == (*t2)->frequency) {
+        if ((*t1)->lowest == (*t2)->lowest) return 0;	
+
+        return ((*t1)->lowest < (*t2)->lowest) ? 1 : -1;
 	} else {
 		return ((*t1)->frequency < (*t2)->frequency) ? 1 : -1;
 	}
@@ -114,6 +119,7 @@ huff_tree *build_huff_tree (int frequencies[])
 	for(i = 0; i < CHAR_RANGE; i++) {
         huff_tree *htree = (huff_tree *)calloc(1, sizeof(huff_tree));
         htree->character = i;
+        htree->lowest = i;
 		if(frequencies[i]) {
 			htree->frequency = frequencies[i];
 		} else {
@@ -124,11 +130,30 @@ huff_tree *build_huff_tree (int frequencies[])
 
 	// Compare and combine huff_trees
 	while(length > 1) {
+        char zt_l, ot_l; // Zero tree lowest, one tree lowest
+
+        // Malloc
 		huff_tree *htree = (huff_tree *)malloc(sizeof(huff_tree));
+
+        // Sort the current table of nodes
 		qsort(q, length, sizeof(huff_tree *), compare_huff_trees);
+
+        // Set the character to -1
+        htree->character = -1;
+
+        // Set the zero tree and one tree
 		htree->zero_tree = q[--length];
 		htree->one_tree = q[--length];
+
+        // Set the lowest
+        zt_l = htree->zero_tree->lowest;
+        ot_l = htree->one_tree->lowest;
+        htree->lowest = (zt_l < ot_l) ? zt_l : ot_l;
+
+        // Compute the frequency
 		htree->frequency = htree->zero_tree->frequency + htree->one_tree->frequency;
+
+        // Enqueue this htree
 		q[length++] = htree;
 	}
 
@@ -162,7 +187,7 @@ char **build_huff_table (int frequencies[])
 {
     static char *huff_table[CHAR_RANGE];
     char *prefix = (char *)calloc(1, sizeof(char *));
-    *prefix = 0;
+    *prefix = '\0';
     huff_tree *tree = build_huff_tree(frequencies);
     traverse_huff_tree(tree, huff_table, prefix);
 
@@ -189,8 +214,6 @@ void print_huff_table (FILE *input)
 
 	// Prints out each line of huff table.
 	for(i = 0; i < CHAR_RANGE; i++) {
-	    printf("%d - %c - ", i, (char)i);
-
 	    if(huff_table[i] == NULL)
             printf("\n");
 	    else
