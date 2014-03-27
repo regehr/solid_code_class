@@ -15,7 +15,6 @@
 #include "decompress.h"
 #include "rhuff_compress.h"
 #include "rhuff_decompress.h"
-#include "huff_interface.h"
 
 int CHECK_REP;
 
