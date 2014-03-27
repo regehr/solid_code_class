@@ -17,6 +17,7 @@ import unittest
 import itertools
 import select
 import types
+import uuid
 
 try:
     import cffi
@@ -37,11 +38,16 @@ class Environment():
         self.reader, self.writer = os.pipe()
         self.old_std = None
         self.formats = {"int"     : "%d\n",
-                        "float"   : "%f\n" }
+                        "float"   : "%f\n",
+                        "char[]"  : "%s\n"}
 
     def mk_primative(self, arg, _type):
         self.current_type = _type
         self.current_arg = self.ffi.cast(_type, arg)
+
+    def mk_string(self, arg):
+        self.current_type = "char[]"
+        self.current_arg = self.ffi.new("char[]", arg)
 
     def _capture(self):
         sys.stdout.write(' \b')
@@ -101,17 +107,29 @@ def generate_float_tests(oracle, lib):
         oracle.mk_primative(num, "float")
         lib.mk_primative(num, "float")
 
-        printf = ''
         expect = oracle.printf()
         actual = lib.printf()
 
         test = Test_Case('', expect, actual)
         yield test
 
+def generate_str_tests(oracle, lib):
+    for i in range(500):
+        string = str(uuid.uuid4())
+        oracle.mk_string(string)
+        lib.mk_string(string)
+
+        expect = oracle.printf()
+        actual = lib.printf()
+
+        test = Test_Case('', expect, actual)
+        yield test
+    
     
 def generate_all_tests(oracle, lib):
     return itertools.chain(generate_int_tests(oracle, lib),
-                           generate_float_tests(oracle, lib))
+                           generate_float_tests(oracle, lib),
+                           generate_str_tests(oracle, lib))
 
 def main(_lib):
     oracle = Environment(None) # default libc.so.6 (system C code)
