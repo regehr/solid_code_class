@@ -75,7 +75,7 @@ class TestPrintf
     compile_and_exec
   end
 
-  # Compile two file, exec and compare them
+  # Compile the two files, exec and compare them
   def compile_and_exec
     system("gcc -g -o gcc_exec test-gcc.c")
     system("gcc -g -ftest-coverage -fprofile-arcs -o musl_exec"\
