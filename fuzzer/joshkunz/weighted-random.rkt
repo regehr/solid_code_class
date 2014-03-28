@@ -4,7 +4,9 @@
  uniformly-weighted
  random-between
  random-int-between
- weighted-choice)
+ weighted-choice
+ weights
+ no-weights)
 
 (define (uniformly-weighted lst)
  (let ([prob (/ 1 (length lst))])
@@ -24,6 +26,12 @@
  (exact-truncate (random-between a b))
 )
 
+(define (weights lst)
+ (map car lst))
+
+(define (no-weights lst)
+ (map cadr lst))
+
 ; Find the appropriate choice given a weighted list and a correctly-generated
 ; random number. Usually called by weighted-choice.
 (define (find-weighted-choice lst rand)
@@ -38,7 +46,7 @@
 ; return a randomly chosen (distributed according to the given weights)
 ; 'value' from a pair.
 (define (weighted-choice lst)
- (let ([wsum (apply + (map car lst))])
+ (let ([wsum (apply + (weights lst))])
   (find-weighted-choice lst (random-between 0 wsum))
  )
 )

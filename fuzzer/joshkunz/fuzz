@@ -27,80 +27,75 @@
 
 ; **** Datatypes ****
 
-(struct datatype 
+(struct type 
  (sign size pointer) #:transparent)
 
-(struct variable
- (datatype value writer) #:transparent)
+(struct var 
+ (type value writer) #:transparent)
 
-(define (datatype-signed? datatype)
- (string-empty? (datatype-sign datatype))
-)
+(define (type-signed? type)
+ (eq? 'signed (type-sign type)))
 
-(define (datatype-pointer? datatype)
- (not (string-empty? (datatype-pointer datatype)))
-)
+(define (type-pointer? type)
+ (not (null? (type-pointer type))))
 
-(define (datatype-inclass? datatype class)
- (in? (datatype-size datatype) class)
-)
+(define (type-inclass? type class)
+ (in? (type-size type) class))
 
-(define (datatype-string datatype)
+(define (type-size->string type)
+ (string-replace (symbol->string (type-size type)) "-" " "))
+
+(define (type->string type)
  (string-join
-  (filter (negate string-empty?)
-   (list (datatype-sign datatype)
-         (datatype-size datatype)
-         (datatype-pointer datatype)
-   )
-  )
- )
-)
+  (if (type-signed? type) "" "unsigned")
+  (type-size->string type)))
+
 ; **** Variable Writers ****
 
-(define (integer-writer variable)
- (let ([type (variable-datatype variable)])
+(define (integer-writer var)
+ (let ([type (var-type var)])
   (string-append
-   (format "~a" (variable-value variable))
+   (format "~a" (var-value var))
    ; Add a U specifier for unsigned types.
-   (if (datatype-signed? type) "" "U")
+   (if (type-signed? type) "" "U")
    ; If the bit depth is larger than an int, then we need trainling LLs
    ; when we do the constant assignment.
-   (if (> (datatype-bit-depth type) 
-          (datatype-bit-depth (datatype "" "int" "")))
-    (string-upcase (datatype-length-spec type))
+   (if (> (type-bit-depth type) 
+          (type-bit-depth (type 'signed "int" null)))
+    (string-upcase (type->length-spec type))
     ""
    )
   )
  )
 )
 
-(define (pointer-writer variable)
+(define (pointer-writer var)
  (string-append "0x"
-  (number->string (variable-value variable) 16)
+  (number->string (var-value var) 16)
   *pointer-const-tail*
  )
 )
 
-(define (float-writer variable)
- (let ([value (variable-value variable)]
-       [size (datatype-size (variable-datatype variable))])
+(define (float-writer var)
+ (let ([value (var-value var)]
+       [size (type-size (var-type var))])
   (cond 
    ([nan? value]
-    (string-append "(" size ") "
+    (string-append "(" (type-size->string type) ") "
      (if (or (eqv? +nan.0 value)
              (eqv? +nan.f value)) "NAN" "-NAN")))
    ([infinite? value]
-    (string-append "(" size ") "
+    (string-append "(" (type-size->string type) ") "
      (if (or (eqv? +inf.0 value)
              (eqv? +inf.f value)) "INFINITY" "-INFINITY")))
    (else
     (string-append (format "~a" value)
      (cond
       ; Constant floats need 'f' after them to be interpreted as floats.
-      ([string=? "float" size] "f")
+      ([eq? 'float size] "f")
       ; Long double constant floats need 'L' after them to be interpreted
       ; as long-doubles.
-      ([string=? "long double" size] "L")
+      ([eq? 'long-double size] "L")
       ; Otherwise, there's no suffix.
       (else "")
      )
@@ -110,67 +105,67 @@
  )
 )
 
-(define (string-writer variable)
- (string-append "\"" (apply string (variable-value variable)) "\"")
+(define (string-writer var)
+ (string-append "\"" (apply string (var-value var)) "\"")
 )
 
 ; **** Generation Helpers ****
 
-(define (datatype-length-spec datatype)
+(define (type->length-spec type)
  (cond
-  ([string=? "char" (datatype-size datatype)] "hh")
-  ([string=? "short" (datatype-size datatype)] "h")
+  ([eq? 'char   (type-size type)] "hh")
+  ([eq? 'short  (type-size type)] "h")
   (else 
    (make-string 
-    (length (regexp-match* #rx"long" (datatype-size datatype))) #\l)
+    (length (regexp-match* #rx"long" (type-size->string type))) #\l)
   )
  )
 )
 
-(define (datatype-bit-depth datatype)
- (cadr (assoc (datatype-size datatype) *numeric-bit-depths*))
+(define (type-bit-depth type)
+ (cadr (assoc (type-size type) *numeric-bit-depths*))
 )
 
 ; **** Generators ****
 
-(define (generate-datatype [pointer-prob 0.1] [pointer-max-depth 3])
- (let ([sign (weighted-choice *datatype-signs*)]
-       [size (weighted-choice *datatype-sizes*)]
+(define (generate-type [pointer-prob 0.1] [pointer-max-depth 3])
+ (let ([sign (weighted-choice *type-signs*)]
+       [size (weighted-choice *type-sizes*)]
        [pointer (if (< (random) pointer-prob)
-                 (make-string (random-int-between 1 pointer-max-depth) #\*) "")])
+                 (random-int-between 1 pointer-max-depth) 0)])
   ; Float types can't be unsigned, so make sure we only set the sign-value
   ; for integer types.
   (cond
    ([in? size *float-types*] 
-    (datatype "" size pointer))
+    (type 'signed size pointer))
    ([in? size *string-types*]
-    (datatype "" size ""))
-   (else (datatype sign size pointer))
+    (type 'signed size null))
+   (else (type sign size pointer))
   )
  )
 )
 
-; Evaluates to a valid printf conversion-specifier for the supplied datatype.
-(define (generate-conversion-specifier datatype [char-prob 0.5])
+; Evaluates to a valid printf conversion-specifier for the supplied type.
+(define (generate-conversion-specifier type [char-prob 0.5])
  (cond
-  ([datatype-pointer? datatype] (weighted-choice *unsigned-decimal*))
+  ([type-pointer? type] (weighted-choice *unsigned-decimal*))
   ; String type
-  ([datatype-inclass? datatype *string-types*] "s")
+  ([type-inclass? type *string-types*] 's)
   ; Make an actual char specifier if this is a char type and we're lucky
-  ([and (string=? "char" (datatype-size datatype))
-        (< (random) char-prob)] "c")
+  ([and (eq? 'char (type-size type))
+        (< (random) char-prob)] 'c)
   ; Non-pointer decimal number
-  ([datatype-inclass? datatype *integer-types*]
-   (string-append (datatype-length-spec datatype) 
+  ([type-inclass? type *integer-types*]
+   ((type->length-spec type) 
     (weighted-choice 
-     (if (datatype-signed? datatype) *signed-decimal* *unsigned-decimal*)
+     (if (type-signed? type) *signed-decimal* *unsigned-decimal*)
     )
    )
   )
   ; Non-pointer floating-point number
-  ([datatype-inclass? datatype *float-types*]
+  ([type-inclass? type *float-types*]
    (string-append 
-    (if (regexp-match? #rx"long" (datatype-size datatype)) "L" "")
+    (if (eq? 'long-double (type-size type)) "L" "")
     (weighted-choice *floating-point*)
    )
   )
@@ -189,10 +184,10 @@
  )
 )
 
-(define (generate-integer datatype)
+(define (generate-integer type)
  (random-bounded-integer 
-  (datatype-bit-depth datatype) 
-  (datatype-signed? datatype)
+  (type-bit-depth type) 
+  (type-signed? type)
  )
 )
 
@@ -219,56 +214,56 @@
 )
 
 ; Generate a random real floating-point number.
-(define (generate-float datatype)
- (let ([bytes (/ (datatype-bit-depth datatype) 8)])
+(define (generate-float type)
+ (let ([bytes (/ (type-bit-depth type) 8)])
   (floating-point-bytes->real
    (if (< bytes 8) (random-bytes 4) (random-bytes 8))
   )
  )
 )
 
-; Generate a new variable structure using the given datatype structure
-(define (generate-variable datatype)
+; Generate a new var structure using the given type structure
+(define (generate-var type)
  (cond
-  ([datatype-pointer? datatype]
-   (variable datatype (generate-pointer) pointer-writer)
+  ([type-pointer? type]
+   (var type (generate-pointer) pointer-writer)
   )
-  ([datatype-inclass? datatype *integer-types*]
-   (variable datatype (generate-integer datatype) integer-writer)
+  ([type-inclass? type *integer-types*]
+   (var type (generate-integer type) integer-writer)
   )
-  ([datatype-inclass? datatype *float-types*]
-   (variable datatype (generate-float datatype) float-writer) 
+  ([type-inclass? type *float-types*]
+   (var type (generate-float type) float-writer) 
   )
-  ([datatype-inclass? datatype *string-types*]
-   (variable datatype (generate-string (random-int-between 1 500)) string-writer)
+  ([type-inclass? type *string-types*]
+   (var type (generate-string (random-int-between 1 500)) string-writer)
   )
  )
 )
 
-(define (generate-variables count)
+(define (generate-vars count)
  (if (= count 0) '()
   (cons
-   (generate-variable (generate-datatype))
-   (generate-variables (sub1 count))
+   (generate-var (generate-type))
+   (generate-vars (sub1 count))
   )
  )
 )
 
-; Generate a string printf statement with 'spec-count' variables printed.
+; Generate a string printf statement with 'spec-count' vars printed.
 (define (generate-printf spec-count)
- (let ([variables (generate-variables spec-count)]
-       [variable-string-value (lambda (v) ((variable-writer v) v))]
-       [variable-conversion-spec (lambda (v)
+ (let ([vars (generate-vars spec-count)]
+       [var-string-value (lambda (v) ((var-writer v) v))]
+       [var-conversion-spec (lambda (v)
                                   (string-append "%" 
                                    (generate-conversion-specifier
-                                    (variable-datatype v))))])
+                                    (var-type v))))])
   (string-append
    "snprintf(buffer, BUFFER_LEN, \"" 
    (string-append*
-    (map variable-conversion-spec variables))
+    (map var-conversion-spec vars))
    "\\n\", "   ; Make sure that all format strings end with '\n' for easier
                ; debugging.
-   (string-join (map variable-string-value variables) ", ")
+   (string-join (map var-string-value vars) ", ")
    "); fputs(buffer, stdout);"
   )
  )
@@ -349,8 +344,7 @@
   )
   (printf-succ "[~a] OK.\n" iter-count)
  )
- (fuzz trial-count (add1 iter-count))
-)
+ (fuzz trial-count (add1 iter-count)))
 
 (fuzz 1000)
 

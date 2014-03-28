@@ -9,14 +9,14 @@
 
 ; 32-bit numeric-type bit-depths
 (define *numeric-bit-depths* '(
- ("char" 8)
- ("short" 16)
- ("int" 32)
- ("long int" 32)
- ("long long int" 64)
- ("float" 32)
- ("double" 64)
- ("long double" 96)
+ (char 8)
+ (short 16)
+ (int 32)
+ (long-int 32)
+ (long-long-int 64)
+ (float 32)
+ (double 64)
+ (long-double 96)
 ))
 
 ;
@@ -36,32 +36,28 @@
 ; Non-Standard specifiers (as far as I can tell) : a A I
 
 (define *signed-decimal*
- (uniformly-weighted '("d" "i")))
+ (uniformly-weighted '(d i)))
 (define *unsigned-decimal*  
- (uniformly-weighted '("o" "u" "x" "X")))
+ (uniformly-weighted '(o u x X)))
 (define *floating-point* 
- (uniformly-weighted '("e" "E" "f" "g" "G")))
+ (uniformly-weighted '(e E f g G)))
 (define *character* 
- (uniformly-weighted '("c")))
+ (uniformly-weighted '(c)))
 (define *c-string*
- (uniformly-weighted '("s")))
+ (uniformly-weighted '(s)))
 (define *pointer* 
- (uniformly-weighted (cons "p" (map cadr *unsigned-decimal*)))
+ (uniformly-weighted (cons 'p (no-weights *unsigned-decimal*)))
 )
 
-(define *integer-types* '("char" "short" "int" "long int" "long long int"))
-(define *float-types*   '("float" "double" "long double"))
-(define *string-types*  '("char *"))
+(define *integer-types* '(char short int long-int long long int))
+(define *float-types*   '(float double long-double))
+(define *string-types*  '(char*))
 
-(define *datatype-signs*
- (uniformly-weighted '(
-  "unsigned"
-  "" ; signed
- ))
+(define *type-signs*
+ (uniformly-weighted '(signed unsigned))
 )
 
-(define *datatype-sizes*
+(define *type-sizes*
  (uniformly-weighted 
   (append *integer-types* *float-types* *string-types*))
 )
-
