@@ -85,6 +85,7 @@
 ; return a printf function that will printf with the given styles
 (define (make-printfs . styles)
  (let ([formats (apply make-formats styles)])
+  ; Lambdas can't have a . rest-id unless they have at least one argument.
   (lambda ( #:dummy [x #t] . fmt)
    (display (apply formats fmt))
   )

@@ -1,1 +1,5 @@
 musl
+test-musl
+test-local
+*test.c
+*.out

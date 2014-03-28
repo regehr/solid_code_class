@@ -2,8 +2,17 @@
 #lang racket
 
 (require "term-colors.rkt")
-(require "framework.rkt")
+;(require "framework.rkt")
+(require "proc.rkt")
 (require "weighted-random.rkt")
+
+; **** Printers ****
+
+(define printf-fail 
+ (make-printfs (make-color 'red)))
+
+(define printf-succ
+ (make-printfs (make-color 'green)))
 
 ; **** Helpers ****
 
@@ -17,6 +26,23 @@
 )
 
 ; **** Definitions ****
+
+; All of the files that are needed to compile musl.
+(define *musl-source* 
+ (let ([musl-base "../musl-printf-standalone/"]
+       [c-source #rx"(.*).c$"])
+  (map path->string
+   (find-files
+    (lambda (path) 
+     (let ([spath (path->string path)])
+      (and (regexp-match? c-source spath)
+           (not (regexp-match? #rx".*test-printf.*" spath)))
+     )
+    )
+    musl-base)
+  )
+ )
+)
 
 (define *pointer-bit-depth* 32)
 (define *pointer-const-tail* "")
@@ -316,23 +342,33 @@
                                    (generate-conversion-specifier
                                     (variable-datatype v))))])
   (string-append
-   "printf(\"" 
+   "snprintf(buffer, BUFFER_LEN, \"" 
    (string-append*
     (map variable-conversion-spec variables))
-   "\\n\", " ; Make sure that all format strings end with '\n' for easier
-            ; debugging.
+   "\\n\", "   ; Make sure that all format strings end with '\n' for easier
+               ; debugging.
    (string-join (map variable-string-value variables) ", ")
-   ");"
+   "); fputs(buffer, stdout);"
   )
  )
 )
 
 
-(define *printf-prelude* (bytes-append
- #"#include <stdio.h>\n"
- #"#include <math.h>\n"
- #"\n"
- #"int main() {\n"))
+(define *printf-prelude* (string->bytes/utf-8
+ "#include <stdio.h>
+  #include <math.h>
+  
+  #ifdef MUSL
+  #include \"../musl-printf-standalone/musl.h\"
+  #define snprintf musl_snprintf
+  #endif
+
+  #define BUFFER_LEN 10000
+  char buffer[BUFFER_LEN] = { 0 };
+
+  int main() {\n")
+)
+
 (define *printf-epilogue*
  #"    return 0;\n}")
 
@@ -356,41 +392,43 @@
   )]
 )
 
-(define (compile-binary source binary #:compiler [cc "cc"] . flags)
- (thunk
-  (let ([fflags (append flags (list "-o" binary source))])
-   (when (not (system (string-join (cons cc fflags) " ")))
-    (printf "Compilation Failed.")
-    (exit 1)
-   )
-  )
-  ; Delete the binary on cleanup.
-  (list (list 'on-finally 
-         (thunk* (delete-file binary))))
+
+; Returns an iterator that can be supplied to build for the given 
+; proc's stdout.
+(define (in-stdout proc)
+ (list (hash-ref proc 'stdout))
+)
+
+(define (compile source binary #:compiler [cc "cc"] . flags)
+ (let* ([source (if (pair? source) (string-join source " ") source)]
+        [cflags (append flags (list "-o" binary source))]
+        [proc (apply run (cons cc cflags))])
+  ; When the compiler exits with a non-zero exit code, return #f.
+  ; Returns #t otherwise.
+  (eq? (hash-ref proc 'status) 0)
  )
 )
 
-(define (command-stdout binary . flags)
- (let ([output ((apply run-binary (cons binary flags)))])
-  (list (car (hash-ref output 'stdout)))
- )
-)
+(define (fuzz trial-count [iter-count 0])
+ (build "test.c" (printf-stream trial-count #t))
+ (when (ormap (lambda (x) (not (= x 0))) (list
+        (system/exit-code "make test-musl") 
+        (system/exit-code "make test-local")))
+  (printf-fail "Failed to compile a test script.\n")
+  (exit 1))
+ (build "musl.out" (in-stdout (run "./test-musl")))
+ (build "local.out" (in-stdout (run "./test-local")))
 
-(define (fuzz printfs-per-trial)
- (test "1000-printfs"
-  (list 
-   (build-file (printf-stream printfs-per-trial #t) "test.c")
-   (compile-binary "test.c" "test-musl" "-static -w" 
-                   #:compiler "musl/bin/musl-gcc")
-   (compile-binary "test.c" "test-local" "-w"
-                   #:compiler "gcc")
-   (build-file (command-stdout "./test-musl") "musl.out")
-   (build-file (command-stdout "./test-local") "local.out")
+ (if (not (eq? (system/exit-code "diff musl.out local.out") 0))
+  (begin
+   (printf-fail "[~a] Had differing output.\n" iter-count)
+   (copy-file "test.c" (format "~a-test.c" iter-count))
+   (copy-file "musl.out" (format "~a-musl.out" iter-count))
+   (copy-file "local.out" (format "~a-local.out" iter-count))
   )
-  (run-binary "/usr/bin/env" "diff" "musl.out" "local.out")
-  (list (expect-code 0) print-info)
+  (printf-succ "[~a] OK.\n" iter-count)
  )
- (fuzz printfs-per-trial)
+ (fuzz trial-count (add1 iter-count))
 )
 
 (fuzz 1000)
