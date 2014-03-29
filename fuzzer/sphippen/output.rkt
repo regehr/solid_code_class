@@ -75,20 +75,20 @@
                    cov-epilogue))
 
   (define (printf->string printf converter)
-    (define (work args format c-args)
+    (define (work args c-format c-args)
       (if (empty? args)
-        (converter format c-args)
+        (converter c-format c-args)
         (let* ([rest (cdr args)]
                [arg (car args)]
                [is-conv (list? arg)]
-               [new-format (if is-conv
-                             (string-append format "%" (car arg))
-                             (string-append format arg))]
+               [new-c-format (if is-conv
+                               (string-append c-format "%" (car arg))
+                               (string-append c-format arg))]
                [new-c-args (if (and is-conv
                                     (not (null? (cdr arg))))
                              (string-append c-args ", " (cadr arg))
                              c-args)])
-          (work rest new-format new-c-args))))
+          (work rest new-c-format new-c-args))))
     (work printf "" ""))
 
 )
