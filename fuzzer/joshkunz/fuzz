@@ -3,9 +3,8 @@
 
 (require "term-colors.rkt")
 (require "common.rkt")
-(require "random-extra.rkt")
 (require "proc.rkt")
-(require "types.rkt")
+(require "printf.rkt")
 
 ; **** Printers ****
 
@@ -14,68 +13,6 @@
 
 (define printf-succ
  (make-printfs (make-color 'green)))
-
-; **** Generators ****
-
-; Generate a string printf statement with 'spec-count' vars printed.
-(define (generate-printf spec-count)
- (let ([vars (generate-vars spec-count)]
-       [var-string-value (lambda (v) ((var-writer v) v))]
-       [var-conversion-spec (lambda (v)
-                                  (string-append "%" 
-                                   (generate-conversion-specifier
-                                    (var-type v))))])
-  (string-append
-   "snprintf(buffer, BUFFER_LEN, \"" 
-   (string-append*
-    (map var-conversion-spec vars))
-   "\\n\", "   ; Make sure that all format strings end with '\n' for easier
-               ; debugging.
-   (string-join (map var-string-value vars) ", ")
-   "); fputs(buffer, stdout);"
-  )
- )
-)
-
-
-(define *printf-prelude* (string->bytes/utf-8
- "#include <stdio.h>
-  #include <math.h>
-  
-  #ifdef MUSL
-  #include \"../musl-printf-standalone/musl.h\"
-  #define snprintf musl_snprintf
-  #endif
-
-  #define BUFFER_LEN 10000
-  char buffer[BUFFER_LEN] = { 0 };
-
-  int main() {\n")
-)
-
-(define *printf-epilogue*
- #"    return 0;\n}")
-
-(struct printf-stream
- (printf-count print-prelude?)
- #:methods gen:stream
- [(define (stream-empty? stream)
-   (<= (printf-stream-printf-count stream) 0))
-  (define (stream-first stream)
-   (bytes-append
-    (if (printf-stream-print-prelude? stream) *printf-prelude* #"")
-    #"    " ; Formatting counts
-    (string->bytes/utf-8 (generate-printf (random-int-between 1 5)))
-    #"\n"
-    (if (= (printf-stream-printf-count stream) 1) *printf-epilogue* #"")
-   )
-  )
-  (define (stream-rest stream)
-   (printf-stream
-    (sub1 (printf-stream-printf-count stream)) #f)
-  )]
-)
-
 
 ; Returns an iterator that can be supplied to build for the given 
 ; proc's stdout.

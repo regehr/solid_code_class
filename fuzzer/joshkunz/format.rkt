@@ -68,7 +68,6 @@
   (format "~a" (fmt-width fmt))))
 
 (define (fmt-precision->string fmt)
- (printf "calling format precision with: ~v\n" (fmt-precision fmt))
  (match (fmt-precision fmt)
   ['() ""]
   ['empty "."]
