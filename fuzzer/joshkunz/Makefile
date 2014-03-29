@@ -1,8 +1,12 @@
 MUSL_BASE = ../musl-printf-standalone
-MUSL_SRC = $(filter-out $(MUSL_BASE)/test-printf.c,$(wildcard $(MUSL_BASE)/*.c))
+SPENCER_BASE = ../sphippen
+
+MUSL_EXCLUDE = $(MUSL_BASE)/test-printf.c $(MUSL_BASE)/vfprintf.c
+MUSL_SRC = $(filter-out $(MUSL_EXCLUDE),$(wildcard $(MUSL_BASE)/*.c)) \
+		   $(SPENCER_BASE)/vfprintf-fixed.c
 
 CC = gcc
-CFLAGS = -w
+CFLAGS = -Wno-trigraph
 LDLIBS = -lm
 
 both: test-musl test-local
