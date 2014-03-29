@@ -108,13 +108,13 @@ class TestPrintf
  
   def c_func
 
+    flags = {'-'=>'-','nil'=>''}
+    lengths = {'l'=>'l', 'nil'=>''}
     (1..100).each do |i|
-      flag = rand_flag
-      until (flag != '#')
-        flag = rand_flag
-      end
+      length = lengths[lengths.keys.sample]
+      flag = flags[flags.keys.sample]
       set_width(SecureRandom.random_number(1000000))
-      @fmt = "\"%#{flag}#{@width['w']}#{@precision['']}#{@length['l']}#{@specifier['c']}\""
+      @fmt = "\"%#{flag}#{@width['w']}#{@precision['']}#{length}#{@specifier['c']}\""
       @args = SecureRandom.random_number(1000)
       @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
@@ -127,11 +127,29 @@ class TestPrintf
 
   def d_func
 
+    flags = {'-'=>'-','+'=>'+', '-'=>'-','0'=>'0','nil'=>''}
+    lengths = {'l'=>'l', 'h'=>'h', 'nil'=>''}
+    (1..100).each do |i|
+      length = lengths[lengths.keys.sample]
+      flag = flags[flags.keys.sample]
+      @args = SecureRandom.random_number(1000)
+      if length == 'l'
+        @args = @args.to_s+"L"
+      end
+      set_width(SecureRandom.random_number(1000000))
+      @fmt = "\"%#{flag}#{@width['w']}#{@precision['']}#{length}#{@specifier['d']}\""
+      @type = "musl_"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
+      @test_musl += "musl_"+@snprintf
+      @test_gcc += @snprintf
 
+    end
+      
   end
 
 
   def e_func
+
 
 
   end
@@ -191,6 +209,10 @@ class TestPrintf
 
   def rand_flag
     return @flags[@flags.keys.sample]
+  end
+
+  def rand_length
+    return @length[@length.keys.sample]
   end
 
   # Set the width
