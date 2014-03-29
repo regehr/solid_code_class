@@ -28,7 +28,7 @@
     ; Compile files
     (compile-o fuzz-src-name)
     (compile "fuzz"
-             '("fuzz.o" "fwrite.o" "snprintf.o" "vfprintf-fixed.o" "vsnprintf.o")
+             '("fuzz.o" "fwrite.o" "snprintf.o" "vfprintf.o" "vsnprintf.o")
              coverage-flags)
     (system* "fuzz")
 
@@ -42,7 +42,7 @@
     (void
       (compile-o "../musl-printf-standalone/fwrite.c")
       (compile-o "../musl-printf-standalone/snprintf.c")
-      (compile-o "vfprintf-fixed.c" coverage-flags)
+      (compile-o "../musl-printf-standalone/vfprintf.c" coverage-flags)
       (compile-o "../musl-printf-standalone/vsnprintf.c")))
 
   (define (test-printfs printfs diff-count)
