@@ -1,3 +1,5 @@
+.PHONY: both cov
+
 MUSL_BASE = ../musl-printf-standalone
 SPENCER_BASE = ../sphippen
 
@@ -14,6 +16,9 @@ MUSL_CFLAGS = -I$(MUSL_BASE)/ -fprofile-arcs -ftest-coverage
 LDLIBS = -lm
 
 both: test-musl test-local
+
+cov: $(MUSL_LOCAL)/vfprintf-fixed.g*
+	gcov $(MUSL_LOCAL)/vfprintf-fixed
 
 $(MUSL_LOCAL)/%.o: %.c $(MUSL_LOCAL) $(MUSL_BASE)/musl.h
 	$(CC) $(MUSL_CFLAGS) $(CFLAGS) -c -o $@ $<

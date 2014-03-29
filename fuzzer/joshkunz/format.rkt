@@ -8,7 +8,7 @@
 (define *signed-decimal*
  (uniformly-weighted '(d i)))
 (define *unsigned-decimal*
- (uniformly-weighted '(o u x X)))
+ (uniformly-weighted '(o u x X p)))
 (define *floating-point*
  (uniformly-weighted '(e E f F g G a A)))
 

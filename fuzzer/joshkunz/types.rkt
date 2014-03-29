@@ -27,7 +27,8 @@
 ; ('), (") and (\).
 (define *valid-characters* (list->vector
  (append (char-range 32 33) 
-         (char-range 35 38) 
+         (char-range 35 36) 
+         (char-range 38 38) 
          (char-range 40 91)
          (char-range 93 126))))
 
@@ -52,7 +53,7 @@
 (struct type (signed? size gen writer) #:transparent)
 
 (define (signed? type) 
- (type-signed? type))
+ (eq? 'signed (type-signed? type)))
 
 (define (ofsize? size type)
  (eq? size (type-size type)))
@@ -163,9 +164,9 @@
   ; for integer types.
   (cond
    ([in? size *float-type*] 
-    (type #t size gen-float float-writer))
+    (type 'signed size gen-float float-writer))
    ([in? size *string-type*]
-    (type #f size gen-string string-writer))
+    (type 'unsigned size gen-string string-writer))
    ([in? size *integer-type*]
     (type sign size gen-integer integer-writer))
   )
