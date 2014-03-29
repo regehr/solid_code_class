@@ -15,3 +15,4 @@ test-local: test.c
 
 clean:
 	-rm -f test-musl test-local
+	-rm *.c *.out

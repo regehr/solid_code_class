@@ -41,8 +41,6 @@
  )
  (fuzz trial-count (add1 iter-count)))
 
-(sequence-for-each display (printf-stream 10 #t))
-
-;(fuzz 1000)
+(fuzz 1000)
 
 ; vim: set syn=scheme:
