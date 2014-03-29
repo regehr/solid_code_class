@@ -26,10 +26,10 @@
 
   (set! printf-count (+ printf-count (length printfs)))
 
-  (if (and (test-printfs printfs diff-count)
-           (< diff-cap diff-count))
-    (void)
-    (set! diff-count (+ diff-count 1)))
+  (if (and (not (test-printfs printfs diff-count))
+           (< diff-count diff-cap))
+    (set! diff-count (+ diff-count 1))
+    (void))
 
   (go))
 
