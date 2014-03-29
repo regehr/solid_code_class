@@ -216,7 +216,24 @@ class TestPrintf
 
   def g_func
 
-
+    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>''}
+    lengths = {'L'=>'L', 'nil'=>''}
+    (1..100).each do |i|
+      length = lengths[lengths.keys.sample]
+      flag = flags[flags.keys.sample]
+      args = SecureRandom.random_number
+      width = SecureRandom.random_number(1000)
+      precision = "."+SecureRandom.random_number(1000).to_s
+      if length == 'l' or length == 'L'
+        args = args.to_s+"L"
+      end
+      @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['g']}\""
+      @type = "musl_"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
+      @test_musl += "musl_"+@snprintf
+      @test_gcc += @snprintf
+   
+   end
   end
 
   def G_func
