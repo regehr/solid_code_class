@@ -25,7 +25,7 @@
     (char-lst   ; list of bare conversion characters
      length-lst ; list of applicable length modifiers paired with generation functions
      precision  ; #t if precision flag is applicable, #f otherwise
-     flags))    ; list of valid flags
+     flags-lst))    ; list of valid flags
 
   (define int-length-lst '(hh h l ll j))
 
@@ -33,22 +33,22 @@
     `(,(conv '(d i)
              int-length-lst
              #t
-             '(0 - | | +))
+             '(|0| - | | +))
 
       ,(conv '(u)
              int-length-lst
              #t
-             '(0 - | | +))
+             '(|0| - | | +))
 
       ,(conv '(o x X)
              int-length-lst
              #t
-             '(|#| 0 - | | +))
+             '(|#| |0| - | | +))
 
       ,(conv '(a A e E f F g G)
              '() ; TODO: (?) investigate '(L) weirdness in gcc
              #t
-             '(|#| 0 - | | +))
+             '(|#| |0| - | | +))
 
       ,(conv '(c)
              '(l)
@@ -66,16 +66,26 @@
              '())))
 ; TODO: add n flag for writing out "chars printed so far", p for void* as hex
 
-; TODO: generate width fields (remember '*' option)
-; TODO: generate precision fields (remember '*' option)
   (define (generate-conv)
     (define conv (pick-from conversions))
     (define char (pick-from (conv-char-lst conv)))
     (define lenmod (pick-from (cons '|| (conv-length-lst conv))))
+    (define flags-list ; Select a subset of flags
+      (letrec ([work (lambda (lst accum)
+                       (cond
+                         [(null? lst) accum]
+                         [(= 0 (random 2))
+                          (work (cdr lst) (cons (car lst) accum))]
+                         [(work (cdr lst) accum)]))])
+        (work (conv-flags-lst conv) '())))
+
     (define value (generate-value char lenmod))
 
     ; go from symbols to strings for output
-    (define conv-str (string-append (symbol->string lenmod)
+    (define conv-str (string-append (apply string-append (map symbol->string flags-list))
+                                    ; TODO: width goes here (remember '*')
+                                    ; TODO: precision goes here (remember '*')
+                                    (symbol->string lenmod)
                                     (symbol->string char)))
     (if (void? value)
       (list conv-str)
