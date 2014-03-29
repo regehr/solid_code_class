@@ -4,9 +4,11 @@
 # musl has form
 # int musl_vfprintf(MUSL_FILE *restrict f, const char *restrict fmt, va_list ap)
 # grammar has format: %[flags][width][.precision][length]specifier 
+require 'securerandom'
+
 class TestPrintf 
 
-  def intialize
+  def initialize
     @includes
     @main
     @main_code
@@ -15,18 +17,19 @@ class TestPrintf
     @fmt = ""
     @args = ""
     @snprintf 
-    @stream
+    @stream = ""
     @specifier = {'c'=>'c','d'=>'d','e'=>'e','E'=>'E',
       'f'=>'f','g'=>'g','G'=>'G','o'=>'o','s'=>'s',
       'u'=>'u', 'x'=>'x','p'=>'p','n'=>'n'}
     @flags = {'-'=>'-','+'=>'+','#'=>'#','0'=>'0'}
-    @width = {'w'=>"#{w}",'arg'=>'*'}
     @w #number
-    @precision = {'p'=>".#{p}", 'arg'=>'.*'}
+    @width = {"w"=>"#{@w}",'arg'=>'*'}
     @p #number
-    leng = {'h'=>'h','l'=>'l','L'=>'L'}
+    @precision = {'p'=>".#{@p}", 'arg'=>'.*'}
+    @length = {'h'=>'h','l'=>'l','L'=>'L'}
     @test_musl = ""
     @test_gcc = ""
+    @gcc_warnings
   end
 
   # Run it and test it
@@ -77,26 +80,42 @@ class TestPrintf
 
   # Compile the two files, exec and compare them
   def compile_and_exec
-    system("gcc -g -o gcc_exec test-gcc.c")
-    system("gcc -g -ftest-coverage -fprofile-arcs -o musl_exec"\
-           " test-musl.c snprintf.c vsnprintf.c vfprintf.c fwrite.c")
+    @gcc_warnings = %x[gcc -g -o gcc_exec test-gcc.c]
+    %x[gcc -g -ftest-coverage -fprofile-arcs -o musl_exec\
+            test-musl.c snprintf.c vsnprintf.c vfprintf.c fwrite.c]
+    file = File.open("warnings.txt", 'w') 
+    puts @gcc_warnings
+    file.write(@gcc_warnings) 
+    file.close
     s1 = %x[./gcc_exec]
     s2 = %x[./musl_exec]
+    puts s2
     puts s1 == s2
-    #stdout_gcc = IO.popen("./gcc_exec")
-    #stdout_musl = IO.popen("./musl_exec")
-    #%x(diff stdout_gcc stdout_musl)
   end
 
 
   # Write musl fuzzer
   def write_musl
 
-    @fmt = "\"%s\""
-    @args ="\"hello\""
+    #%[flags][width][.precision][length]specifier 
+    set_width(2)
+    set_prec("")
+    @fmt = "\"%#{@flags['-']}#{@width['w']}#{@precision['']}#{@length['h']}#{@specifier['x']}\""
+    @args = SecureRandom.random_number(100)
     @type = "musl_"
-    @snprintf = "#{@type}snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
-    @test_musl = @snprintf
+    @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
+    @test_musl = "musl_"+@snprintf
+    @test_gcc = @snprintf
+  end
+
+  # Set the width
+  def set_width(x)
+    @width['w'] = x
+  end
+  
+  # Set the precision
+  def set_prec(x)
+    @precision['p'] = "."+x.to_s
   end
 
 
@@ -105,3 +124,4 @@ end
 
 tpf = TestPrintf.new
 tpf.run_fuzz
+#tpf.write_musl
