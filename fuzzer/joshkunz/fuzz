@@ -2,9 +2,10 @@
 #lang racket
 
 (require "term-colors.rkt")
-(require "weighted-random.rkt")
-(require "defs.rkt")
+(require "common.rkt")
+(require "random-extra.rkt")
 (require "proc.rkt")
+(require "types.rkt")
 
 ; **** Printers ****
 
@@ -14,136 +15,9 @@
 (define printf-succ
  (make-printfs (make-color 'green)))
 
-; **** Helpers ****
-
-; Evaluates to #t if value 'v' is in list 'lst'. Evaluates to #f otherwise.
-(define (in? v lst)
- (not (false? (member v lst)))
-)
-
-(define (string-empty? str)
- (string=? "" str)
-)
-
 ; **** Datatypes ****
 
-(struct type 
- (sign size pointer) #:transparent)
-
-(struct var 
- (type value writer) #:transparent)
-
-(define (type-signed? type)
- (eq? 'signed (type-sign type)))
-
-(define (type-pointer? type)
- (not (null? (type-pointer type))))
-
-(define (type-inclass? type class)
- (in? (type-size type) class))
-
-(define (type-size->string type)
- (string-replace (symbol->string (type-size type)) "-" " "))
-
-(define (type->string type)
- (string-join
-  (if (type-signed? type) "" "unsigned")
-  (type-size->string type)))
-
-; **** Variable Writers ****
-
-(define (integer-writer var)
- (let ([type (var-type var)])
-  (string-append
-   (format "~a" (var-value var))
-   ; Add a U specifier for unsigned types.
-   (if (type-signed? type) "" "U")
-   ; If the bit depth is larger than an int, then we need trainling LLs
-   ; when we do the constant assignment.
-   (if (> (type-bit-depth type) 
-          (type-bit-depth (type 'signed "int" null)))
-    (string-upcase (type->length-spec type))
-    ""
-   )
-  )
- )
-)
-
-(define (pointer-writer var)
- (string-append "0x"
-  (number->string (var-value var) 16)
-  *pointer-const-tail*
- )
-)
-
-(define (float-writer var)
- (let ([value (var-value var)]
-       [size (type-size (var-type var))])
-  (cond 
-   ([nan? value]
-    (string-append "(" (type-size->string type) ") "
-     (if (or (eqv? +nan.0 value)
-             (eqv? +nan.f value)) "NAN" "-NAN")))
-   ([infinite? value]
-    (string-append "(" (type-size->string type) ") "
-     (if (or (eqv? +inf.0 value)
-             (eqv? +inf.f value)) "INFINITY" "-INFINITY")))
-   (else
-    (string-append (format "~a" value)
-     (cond
-      ; Constant floats need 'f' after them to be interpreted as floats.
-      ([eq? 'float size] "f")
-      ; Long double constant floats need 'L' after them to be interpreted
-      ; as long-doubles.
-      ([eq? 'long-double size] "L")
-      ; Otherwise, there's no suffix.
-      (else "")
-     )
-    )
-   )
-  )
- )
-)
-
-(define (string-writer var)
- (string-append "\"" (apply string (var-value var)) "\"")
-)
-
-; **** Generation Helpers ****
-
-(define (type->length-spec type)
- (cond
-  ([eq? 'char   (type-size type)] "hh")
-  ([eq? 'short  (type-size type)] "h")
-  (else 
-   (make-string 
-    (length (regexp-match* #rx"long" (type-size->string type))) #\l)
-  )
- )
-)
-
-(define (type-bit-depth type)
- (cadr (assoc (type-size type) *numeric-bit-depths*))
-)
-
 ; **** Generators ****
-
-(define (generate-type [pointer-prob 0.1] [pointer-max-depth 3])
- (let ([sign (weighted-choice *type-signs*)]
-       [size (weighted-choice *type-sizes*)]
-       [pointer (if (< (random) pointer-prob)
-                 (random-int-between 1 pointer-max-depth) 0)])
-  ; Float types can't be unsigned, so make sure we only set the sign-value
-  ; for integer types.
-  (cond
-   ([in? size *float-types*] 
-    (type 'signed size pointer))
-   ([in? size *string-types*]
-    (type 'signed size null))
-   (else (type sign size pointer))
-  )
- )
-)
 
 ; Evaluates to a valid printf conversion-specifier for the supplied type.
 (define (generate-conversion-specifier type [char-prob 0.5])
@@ -172,18 +46,6 @@
  )
 )
 
-(define (random-bounded-integer bit-depth signed?)
- (if signed?
-  ; For signed
-  (random-int-between 
-   (* -1 (expt 2 (- bit-depth 1))) ; -2^(w -1)
-   (- (expt 2 (- bit-depth 1)) 1)  ; 2^(w-1) - 1
-  )
-  ; For unsigned 
-  (random-int-between 0 (- (expt 2 bit-depth) 1)) ; 2^w - 1
- )
-)
-
 (define (generate-integer type)
  (random-bounded-integer 
   (type-bit-depth type) 
@@ -193,33 +55,6 @@
 
 (define (generate-pointer)
  (random-bounded-integer *pointer-bit-depth* #f)
-)
-
-(define (random-bytes byte-count)
- (if (= byte-count 0) #""
-  (bytes-append 
-   (bytes (random-int-between 0 255)) 
-   (random-bytes (sub1 byte-count))
-  )
- )
-)
-
-(define (generate-string len)
- (if (= len 0) '()
-  (cons (vector-ref *valid-characters* 
-         (random-int-between 0 (vector-length *valid-characters*)))
-   (generate-string (sub1 len))
-  )
- )
-)
-
-; Generate a random real floating-point number.
-(define (generate-float type)
- (let ([bytes (/ (type-bit-depth type) 8)])
-  (floating-point-bytes->real
-   (if (< bytes 8) (random-bytes 4) (random-bytes 8))
-  )
- )
 )
 
 ; Generate a new var structure using the given type structure

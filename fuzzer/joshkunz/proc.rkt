@@ -2,6 +2,10 @@
 
 (provide run build rm)
 
+; Run the given binary with the given flags. Returns an immutable hash table
+; containing the status code, stdout, stderr, binary name, and list of
+; arguments used to invoke the binary. If supplied, the ouput-poirnt given by
+; #:input is sent to the spawned processes stdin.
 (define (run binary #:input [input-port null] . flags)
  (printf "$ ~a ~a\n" binary (string-join flags " "))
  ; Run the program as a subprocess
@@ -29,6 +33,7 @@
  )
 )
 
+; Writes the output of all given sequences `seqs` to 'to-file'.
 (define (build to-file . seqs)
  (let* ([output (open-output-file to-file #:exists 'truncate)]
         [writer (lambda (bytes) (write-bytes bytes output))])
@@ -37,7 +42,7 @@
  )
 )
 
-; Deletes the given files.
+; Deletes the given files if they exist. Fails silently otherwise.
 (define (rm . files)
  (when (file-exists? (car files))
   (delete-file (car files)))
