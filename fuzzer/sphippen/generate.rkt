@@ -48,7 +48,7 @@
       ['s
        (match lenmod
          ['|| (gen-str)]
-         ['L  (string-append "L" (gen-str))])]
+         ['l  (string-append "L" (gen-str))])]
 
       ['% (void)]))
 

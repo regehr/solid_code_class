@@ -56,9 +56,10 @@
              '())
 
       ,(conv '(s)
-             '() ; TODO: (?) get '(L) to work (lots of bad things in musl currently)
+             '(l)
              #f
              '())
+
       ,(conv '(%)
              '()
              #f
