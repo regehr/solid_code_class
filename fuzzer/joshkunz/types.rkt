@@ -15,7 +15,7 @@
   (append *integer-type* *float-type* *string-type*)))
 
 (define *type-signs*
- (uniformly-weighted '(#t #f)))
+ (uniformly-weighted '(signed unsigned)))
 
 (define *string-length-range* '(5 50))
 
@@ -45,15 +45,17 @@
 
 ; Interface 
 (provide
- type type? type-size signed? oftype? type-gen 
+ type type? type-size ofsize? signed? oftype? type-gen 
  type-value type-bit-width type-postfix
- type-size->string type-value->string type->string
- type->length-specifier)
+ type-size->string type-value->string type->string)
 
 (struct type (signed? size gen writer) #:transparent)
 
 (define (signed? type) 
  (type-signed? type))
+
+(define (ofsize? size type)
+ (eq? size (type-size type)))
 
 (define (oftype? type class)
  (in? (type-size type) class))
@@ -89,17 +91,6 @@
   (type-size->string type)
   " = "
   (type-value->string type)
- )
-)
-
-(define (type->length-specifier type)
- (match (type-size type)
-  ['char "hh"]
-  ['short "h"]
-  ['long-int "l"]
-  ['long-long-int "ll"]
-  ['long-double "L"]
-  [_ ""]
  )
 )
 

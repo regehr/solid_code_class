@@ -19,32 +19,6 @@
 
 ; **** Generators ****
 
-; Evaluates to a valid printf conversion-specifier for the supplied type.
-(define (generate-conversion-specifier type [char-prob 0.5])
- (cond
-  ([type-pointer? type] (weighted-choice *unsigned-decimal*))
-  ; String type
-  ([type-inclass? type *string-types*] 's)
-  ; Make an actual char specifier if this is a char type and we're lucky
-  ([and (eq? 'char (type-size type))
-        (< (random) char-prob)] 'c)
-  ; Non-pointer decimal number
-  ([type-inclass? type *integer-types*]
-   ((type->length-spec type) 
-    (weighted-choice 
-     (if (type-signed? type) *signed-decimal* *unsigned-decimal*)
-    )
-   )
-  )
-  ; Non-pointer floating-point number
-  ([type-inclass? type *float-types*]
-   (string-append 
-    (if (eq? 'long-double (type-size type)) "L" "")
-    (weighted-choice *floating-point*)
-   )
-  )
- )
-)
 
 (define (generate-integer type)
  (random-bounded-integer 
@@ -150,16 +124,6 @@
  (list (hash-ref proc 'stdout))
 )
 
-(define (compile source binary #:compiler [cc "cc"] . flags)
- (let* ([source (if (pair? source) (string-join source " ") source)]
-        [cflags (append flags (list "-o" binary source))]
-        [proc (apply run (cons cc cflags))])
-  ; When the compiler exits with a non-zero exit code, return #f.
-  ; Returns #t otherwise.
-  (eq? (hash-ref proc 'status) 0)
- )
-)
-
 (define (fuzz trial-count [iter-count 0])
  (build "test.c" (printf-stream trial-count #t))
  (when (ormap (lambda (x) (not (= x 0))) (list
@@ -181,6 +145,8 @@
  )
  (fuzz trial-count (add1 iter-count)))
 
-(fuzz 1000)
+(sequence-for-each display (printf-stream 10 #t))
+
+;(fuzz 1000)
 
 ; vim: set syn=scheme:
