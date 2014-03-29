@@ -605,7 +605,9 @@ static int printf_core(MUSL_FILE *f, const char *fmt, va_list *ap, union arg *nl
 			if (1) a = strerror(errno); else
 		case 's':
 			a = arg.p ? arg.p : "(null)";
-			z = memchr(a, 0, p);
+			// z = memchr(a, 0, p);
+			// fix from spencer:
+			z = (p >= 0 ? memchr(a, 0, p) : memchr(a, 0, 1000000000000));
 			if (!z) z=a+p;
 			else p=z-a;
 			fl &= ~ZERO_PAD;
