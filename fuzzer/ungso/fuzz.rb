@@ -84,29 +84,107 @@ class TestPrintf
     %x[gcc -g -ftest-coverage -fprofile-arcs -o musl_exec\
             test-musl.c snprintf.c vsnprintf.c vfprintf.c fwrite.c]
     file = File.open("warnings.txt", 'w') 
-    puts @gcc_warnings
     file.write(@gcc_warnings) 
     file.close
     s1 = %x[./gcc_exec]
     s2 = %x[./musl_exec]
-    puts s2
     puts s1 == s2
   end
 
 
   # Write musl fuzzer
   def write_musl
+    #%[flags][width][.precision][length]specifier
+    specifier_walk
+  end
 
-    #%[flags][width][.precision][length]specifier 
-    set_width(2)
-    set_prec("")
-    @fmt = "\"%#{@flags['-']}#{@width['w']}#{@precision['']}#{@length['h']}#{@specifier['x']}\""
-    @args = SecureRandom.random_number(100)
+  # Walk-through each specifier
+  def specifier_walk
+
+    @specifier.each do |key, value|
+      self.send(value+"_func")
+    end
+ end
+ 
+  def c_func
+
+    (1..100).each do |i|
+    set_width(100*i)
+    @fmt = "\"%#{@flags['-']}#{@width['w']}#{@precision['']}#{@length['l']}#{@specifier['c']}\""
+    @args = SecureRandom.random_number(1000)
     @type = "musl_"
     @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
-    @test_musl = "musl_"+@snprintf
-    @test_gcc = @snprintf
+    @test_musl += "musl_"+@snprintf
+    @test_gcc += @snprintf
+    end
+
   end
+
+
+  def d_func
+
+
+  end
+
+
+  def e_func
+
+
+  end
+
+  def E_func
+
+
+  end
+
+
+  def f_func
+
+
+  end
+
+
+  def g_func
+
+
+  end
+
+  def G_func
+
+
+  end
+
+  def o_func
+
+
+  end
+
+  def s_func
+
+
+  end
+
+  def u_func
+
+
+  end
+
+  def x_func
+
+
+  end
+
+  def p_func
+
+
+  end
+
+  def n_func
+
+
+  end
+
+
 
   # Set the width
   def set_width(x)
