@@ -4,4 +4,5 @@ fuzz:
 	./fuzz.rkt
 
 clean:
-	@rm -f fuzz.c fuzz *-fuzz *.bin *.o
+	@cp vfprintf-fixed.c.gcov holy-grail
+	@rm -f fuzz.c fuzz *-fuzz *.bin *.o *.gcov *.gcno *.gcda

@@ -3,3 +3,7 @@ fuzz.c
 *-fuzz
 # output from printfs
 *.bin
+# gcov stuff
+*.gcov
+*.gcda
+*.gcno

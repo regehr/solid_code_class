@@ -4,20 +4,21 @@
 (require racket/date)
 (require "printf.rkt" "output.rkt")
 
-(define src-name "fuzz.c")
+(define fuzz-src-name "fuzz.c")
 (define printf-max 1000)
 
 (define gcc (find-executable-path "gcc"))
+(define coverage-flags '("-fprofile-arcs" "-ftest-coverage"))
 
 (define diff-count 0)
 (define printf-count 0)
 
-(define (compile out . args)
-  (if (apply system* `(,gcc ,@args ,"-o" ,out ,src-name))
+(define (compile out objs [args '()])
+  (if (apply system* `(,gcc ,@args ,"-o" ,out ,@objs))
     #t
     (raise-user-error 'compile "Couldn't compile to ~a.~%" out)))
 
-(define (compile-o src-name . args)
+(define (compile-o src-name [args '()])
   (if (apply system* `(,gcc ,@args ,"-c" ,src-name))
     #t
     (raise-user-error 'compile-o "Couldn't compile .o from ~a.~%" src-name)))
@@ -38,15 +39,13 @@
   (set! printf-count (+ printf-count (length printfs)))
 
   ; Create source file
-  (printfs-to-file printfs src-name)
+  (printfs-to-file printfs fuzz-src-name)
 
   ; Compile files
+  (compile-o fuzz-src-name)
   (compile "fuzz"
-           "fwrite.o"
-           "snprintf.o"
-           "vfprintf-fixed.o"
-           "vsnprintf.o")
-
+           '("fuzz.o" "fwrite.o" "snprintf.o" "vfprintf-fixed.o" "vsnprintf.o")
+           coverage-flags)
   (system* "fuzz")
 
   ; Run the diff
@@ -57,13 +56,14 @@
       (let ([err-src-name (string-append "diff" (number->string diff-count) ".c")])
         (printf "Difference found: offending source moved to ~a.~%" err-src-name)
         (printfs-to-file printfs err-src-name #f)
-        (rename-file-or-directory src-name (string-append err-src-name "-orig.c") #t))))
+        (rename-file-or-directory fuzz-src-name (string-append err-src-name "-orig.c") #t))))
 
     (go))
 
-(compile-o "../musl-printf-standalone/fwrite.c")
-(compile-o "../musl-printf-standalone/snprintf.c")
-(compile-o "vfprintf-fixed.c")
-(compile-o "../musl-printf-standalone/vsnprintf.c")
+(void
+  (compile-o "../musl-printf-standalone/fwrite.c")
+  (compile-o "../musl-printf-standalone/snprintf.c")
+  (compile-o "vfprintf-fixed.c" coverage-flags)
+  (compile-o "../musl-printf-standalone/vsnprintf.c"))
 
 (go)
