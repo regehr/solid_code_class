@@ -6,6 +6,8 @@
 
 (define printf-max 1000)
 
+(define diff-cap 1000) ; We don't want to store more than this many diffs, to avoid making too many files on CADE
+
 (define diff-count 0)
 (define printf-count 0)
 
@@ -24,7 +26,8 @@
 
   (set! printf-count (+ printf-count (length printfs)))
 
-  (if (test-printfs printfs diff-count)
+  (if (and (test-printfs printfs diff-count)
+           (< diff-cap diff-count))
     (void)
     (set! diff-count (+ diff-count 1)))
 
