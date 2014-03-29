@@ -55,8 +55,7 @@
       (set! diff-count (+ diff-count 1))
       (let ([err-src-name (string-append "diff" (number->string diff-count) ".c")])
         (printf "Difference found: offending source moved to ~a.~%" err-src-name)
-        (printfs-to-file printfs err-src-name #f)
-        (rename-file-or-directory fuzz-src-name (string-append err-src-name "-orig.c") #t))))
+        (printfs-to-file printfs err-src-name #f))))
 
     (go))
 
