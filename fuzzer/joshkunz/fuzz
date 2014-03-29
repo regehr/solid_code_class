@@ -15,48 +15,7 @@
 (define printf-succ
  (make-printfs (make-color 'green)))
 
-; **** Datatypes ****
-
 ; **** Generators ****
-
-
-(define (generate-integer type)
- (random-bounded-integer 
-  (type-bit-depth type) 
-  (type-signed? type)
- )
-)
-
-(define (generate-pointer)
- (random-bounded-integer *pointer-bit-depth* #f)
-)
-
-; Generate a new var structure using the given type structure
-(define (generate-var type)
- (cond
-  ([type-pointer? type]
-   (var type (generate-pointer) pointer-writer)
-  )
-  ([type-inclass? type *integer-types*]
-   (var type (generate-integer type) integer-writer)
-  )
-  ([type-inclass? type *float-types*]
-   (var type (generate-float type) float-writer) 
-  )
-  ([type-inclass? type *string-types*]
-   (var type (generate-string (random-int-between 1 500)) string-writer)
-  )
- )
-)
-
-(define (generate-vars count)
- (if (= count 0) '()
-  (cons
-   (generate-var (generate-type))
-   (generate-vars (sub1 count))
-  )
- )
-)
 
 ; Generate a string printf statement with 'spec-count' vars printed.
 (define (generate-printf spec-count)

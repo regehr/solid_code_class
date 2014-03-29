@@ -53,7 +53,8 @@
 (provide 
  fmt fmt? fmt-flags fmt-width fmt-precision fmt-length fmt-conversion
  fmt-flags->string fmt-width->string fmt-precision->string fmt-length->string
- fmt-conversion->string)
+ fmt-conversion->string
+ fmt->string)
 
 (struct fmt 
  (flags width precision length conversion) #:transparent)
@@ -67,8 +68,9 @@
   (format "~a" (fmt-width fmt))))
 
 (define (fmt-precision->string fmt)
+ (printf "calling format precision with: ~v\n" (fmt-precision fmt))
  (match (fmt-precision fmt)
-  [null   ""]
+  ['() ""]
   ['empty "."]
   [_ (format ".~a" (fmt-precision fmt))]
  )
@@ -80,6 +82,16 @@
 
 (define (fmt-conversion->string fmt)
  (symbol->string (fmt-conversion fmt)))
+
+(define (fmt->string fmt)
+ (string-append "%"
+  (fmt-flags->string fmt)
+  (fmt-width->string fmt)
+  (fmt-precision->string fmt)
+  (fmt-length->string fmt)
+  (fmt-conversion->string fmt)
+ )
+)
 
 ; **** Generation ****
 
