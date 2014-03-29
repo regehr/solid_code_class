@@ -4,4 +4,4 @@ fuzz:
 	./fuzz.rkt
 
 clean:
-	@rm -f fuzz.c *-fuzz *.bin
+	@rm -f fuzz.c fuzz *-fuzz *.bin *.o

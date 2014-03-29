@@ -7,13 +7,20 @@
 (define src-name "fuzz.c")
 (define printf-max 1000)
 
+(define gcc (find-executable-path "gcc"))
+
 (define diff-count 0)
 (define printf-count 0)
 
-(define (compile cc out . args)
-  (if (apply system* `(,cc ,@args ,"-o" ,out ,src-name))
+(define (compile out . args)
+  (if (apply system* `(,gcc ,@args ,"-o" ,out ,src-name))
     #t
-    (raise-user-error 'compile "Couldn't compile to ~a using ~a.~%" out cc)))
+    (raise-user-error 'compile "Couldn't compile to ~a.~%" out)))
+
+(define (compile-o src-name . args)
+  (if (apply system* `(,gcc ,@args ,"-c" ,src-name))
+    #t
+    (raise-user-error 'compile-o "Couldn't compile .o from ~a.~%" src-name)))
 
 (define (date-print str . rest)
   (let* ([now (current-date)])
@@ -34,13 +41,13 @@
   (printfs-to-file printfs src-name)
 
   ; Compile files
-  (compile "/home/sphippen/libs/musl/bin/musl-gcc" "musl-fuzz" "-static")
-  (compile (find-executable-path "gcc") "glibc-fuzz")
+  (compile "fuzz"
+           "fwrite.o"
+           "snprintf.o"
+           "vfprintf-fixed.o"
+           "vsnprintf.o")
 
-  (system* "musl-fuzz")
-  (rename-file-or-directory "out.bin" "musl.bin" #t)
-  (system* "glibc-fuzz")
-  (rename-file-or-directory "out.bin" "glibc.bin" #t)
+  (system* "fuzz")
 
   ; Run the diff
   (if (= (system*/exit-code (find-executable-path "diff") "-a" "musl.bin" "glibc.bin") 0)
@@ -49,8 +56,14 @@
       (set! diff-count (+ diff-count 1))
       (let ([err-src-name (string-append "diff" (number->string diff-count) ".c")])
         (printf "Difference found: offending source moved to ~a.~%" err-src-name)
-        (rename-file-or-directory src-name err-src-name #t))))
+        (printfs-to-file printfs err-src-name #f)
+        (rename-file-or-directory src-name (string-append err-src-name "-orig.c") #t))))
 
     (go))
+
+(compile-o "../musl-printf-standalone/fwrite.c")
+(compile-o "../musl-printf-standalone/snprintf.c")
+(compile-o "vfprintf-fixed.c")
+(compile-o "../musl-printf-standalone/vsnprintf.c")
 
 (go)
