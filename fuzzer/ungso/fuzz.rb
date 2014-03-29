@@ -113,11 +113,11 @@ class TestPrintf
     (1..100).each do |i|
       length = lengths[lengths.keys.sample]
       flag = flags[flags.keys.sample]
-      set_width(SecureRandom.random_number(1000000))
-      @fmt = "\"%#{flag}#{@width['w']}#{@precision['']}#{length}#{@specifier['c']}\""
-      @args = SecureRandom.random_number(1000)
+      width = SecureRandom.random_number(1000000)
+      @fmt = "\"%#{flag}#{width}#{@precision['']}#{length}#{@specifier['c']}\""
+      args = SecureRandom.random_number(1000)
       @type = "musl_"
-      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
       @test_musl += "musl_"+@snprintf
       @test_gcc += @snprintf
     end
@@ -127,19 +127,19 @@ class TestPrintf
 
   def d_func
 
-    flags = {'-'=>'-','+'=>'+', '-'=>'-','0'=>'0','nil'=>''}
+    flags = {'-'=>'-','+'=>'+', '0'=>'0','nil'=>''}
     lengths = {'l'=>'l', 'h'=>'h', 'nil'=>''}
     (1..100).each do |i|
       length = lengths[lengths.keys.sample]
       flag = flags[flags.keys.sample]
-      @args = SecureRandom.random_number(1000)
+      args = SecureRandom.random_number(1000)
       if length == 'l'
-        @args = @args.to_s+"L"
+        args = args.to_s+"L"
       end
-      set_width(SecureRandom.random_number(1000000))
-      @fmt = "\"%#{flag}#{@width['w']}#{@precision['']}#{length}#{@specifier['d']}\""
+      width = SecureRandom.random_number(1000000)
+      @fmt = "\"%#{flag}#{width}#{@precision['']}#{length}#{@specifier['d']}\""
       @type = "musl_"
-      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
       @test_musl += "musl_"+@snprintf
       @test_gcc += @snprintf
 
@@ -150,8 +150,23 @@ class TestPrintf
 
   def e_func
 
-
-
+    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>''}
+    lengths = {'L'=>'L', 'nil'=>''}
+    (1..100).each do |i|
+      length = lengths[lengths.keys.sample]
+      flag = flags[flags.keys.sample]
+      args = SecureRandom.random_number
+      width = SecureRandom.random_number(1000)
+      precision = "."+SecureRandom.random_number(1000).to_s
+      if length == 'l' or length == 'L'
+        args = args.to_s+"L"
+      end
+      @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['e']}\""
+      @type = "musl_"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
+      @test_musl += "musl_"+@snprintf
+      @test_gcc += @snprintf
+    end
   end
 
   def E_func
