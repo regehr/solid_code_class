@@ -109,13 +109,17 @@ class TestPrintf
   def c_func
 
     (1..100).each do |i|
-    set_width(100*i)
-    @fmt = "\"%#{@flags['-']}#{@width['w']}#{@precision['']}#{@length['l']}#{@specifier['c']}\""
-    @args = SecureRandom.random_number(1000)
-    @type = "musl_"
-    @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
-    @test_musl += "musl_"+@snprintf
-    @test_gcc += @snprintf
+      flag = rand_flag
+      until (flag != '#')
+        flag = rand_flag
+      end
+      set_width(SecureRandom.random_number(1000000))
+      @fmt = "\"%#{flag}#{@width['w']}#{@precision['']}#{@length['l']}#{@specifier['c']}\""
+      @args = SecureRandom.random_number(1000)
+      @type = "musl_"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{@args});\n"
+      @test_musl += "musl_"+@snprintf
+      @test_gcc += @snprintf
     end
 
   end
@@ -185,6 +189,9 @@ class TestPrintf
   end
 
 
+  def rand_flag
+    return @flags[@flags.keys.sample]
+  end
 
   # Set the width
   def set_width(x)
