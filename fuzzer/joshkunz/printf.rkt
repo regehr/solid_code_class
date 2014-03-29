@@ -11,7 +11,7 @@
   #include <math.h>
   
   #ifdef MUSL
-  #include \"../musl-printf-standalone/musl.h\"
+  #include \"musl.h\"
   #define snprintf musl_snprintf
   #endif
 
