@@ -23,7 +23,7 @@
 
 (define (go)
   (define printfs
-    (let ([n-printf (random printf-max)])
+    (let ([n-printf (+ 1 (random printf-max))])
       (build-list n-printf (lambda (n) (generate-printf)))))
 
   (date-print "New iteration... (~a printf's executed)" printf-count)

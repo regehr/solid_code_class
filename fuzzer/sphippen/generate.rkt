@@ -61,7 +61,12 @@
     (string-append cast-str value suffix))
 
   (define (gen-str)
-    "\"hello, world!\"") ; TODO: expand
+    (define len (random-integer 0 101))
+    (let ([out (open-output-string)])
+      (for ([i (range len)])
+        (define byte (random-integer 33 127)) ; only printable characters
+        (fprintf out "\\x~x" byte))
+      (string-append "\"" (get-output-string out) "\"")))
 
   (define (gen-double)
     (match (random-integer 0 1000)
