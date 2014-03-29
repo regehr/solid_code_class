@@ -89,8 +89,6 @@
  (string-append
   (if (signed? type) "" "unsigned ")
   (type-size->string type)
-  " = "
-  (type-value->string type)
  )
 )
 
@@ -98,6 +96,7 @@
 
 (define (integer-writer type)
  (string-append
+  "(" (type->string type) ") "
   (format "~a" (type-value type))
   (type-postfix type)))
 
