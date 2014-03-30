@@ -13,7 +13,6 @@ class TestPrintf
     @main
     @main_code
     @code
-    @type = ""
     @fmt = ""
     @args = ""
     @snprintf 
@@ -51,7 +50,6 @@ class TestPrintf
   def mk_muslf
     @includes = "#include <stdio.h>\n#include <stdarg.h>\n#include <wchar.h>\n#include \"musl.h\"\n"\
     "#define BUFF_SIZE 100\n\n"
-    @type = "musl_"
     @main_code = " char buff[BUFF_SIZE];\n  #{@test_musl}\n  fputs(buff, stdout);\n  return 0;"
     @main = "\nint main(){\n\n #{@main_code}\n}\n"
     file = File.open("test-musl.c", 'w') 
@@ -63,7 +61,6 @@ class TestPrintf
   # Makes a gcc test file (for differential testing)
   def mk_gccf
     @includes = "#include <stdio.h>\n#include <stdarg.h>\n#include <wchar.h>\n#define BUFF_SIZE 100\n"
-    @type = ""
     @main_code = " char buff[BUFF_SIZE];\n"\
                  "  #{@test_gcc}\n  fputs(buff, stdout);\n  return 0;"
     @main = "\nint main(){\n\n #{@main_code}\n}\n"
@@ -116,10 +113,9 @@ class TestPrintf
       width = SecureRandom.random_number(1000000)
       @fmt = "\"%#{flag}#{width}#{@precision['']}#{length}#{@specifier['c']}\""
       args = SecureRandom.random_number(1000)
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end
   end
 
@@ -145,10 +141,9 @@ class TestPrintf
       end
       width = SecureRandom.random_number(1000000)
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['d']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end      
   end
 
@@ -172,10 +167,9 @@ class TestPrintf
         args = args.to_s+"L"
       end
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['e']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end
   end
 
@@ -198,10 +192,9 @@ class TestPrintf
         args = args.to_s+"L"
       end
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['E']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
    
     end
   end
@@ -227,10 +220,9 @@ class TestPrintf
         args = args.to_s+"L"
       end
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['f']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
    
     end
   end
@@ -255,10 +247,9 @@ class TestPrintf
         args = args.to_s+"L"
       end
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['g']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
    
    end
   end
@@ -282,10 +273,9 @@ class TestPrintf
         args = args.to_s+"L"
       end
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['G']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
    
     end
   end
@@ -311,10 +301,9 @@ class TestPrintf
         args = args.to_s+"L"
       end
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['o']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end
   end
  
@@ -339,10 +328,9 @@ class TestPrintf
       end
       args = args.to_s + arg_s
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['s']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end
   end
 
@@ -367,10 +355,9 @@ class TestPrintf
       end
       width = SecureRandom.random_number(1000000)
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['u']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end      
   end
 
@@ -395,10 +382,9 @@ class TestPrintf
       end
       width = SecureRandom.random_number(1000000)
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['x']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end      
   end
 
@@ -418,10 +404,9 @@ class TestPrintf
       end
       args = args.to_s + arg_s
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['p']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end
   end
 
@@ -429,20 +414,26 @@ class TestPrintf
 
     flags = {'nil'=>''}
     lengths = {'l'=>'l', 'h'=>'h','nil'=>''}
+    @test_gcc += "  int n;\n"
+    @test_musl += "  int n;\n"
     (1..100).each do |i|
-      length = lengths[lengths.keys.sample]
+      #length = lengths[lengths.keys.sample]
+      length = ''
       flag = flags[flags.keys.sample]
       width = ''
       precision = ''
-      args = args.to_s + SecureRandom.random_number().to_s
+      args = 'n'
       if length == 'l'
-        args = args.to_s+"L"
+        args = "(long int*)"+args.to_s
+      elsif length == 'h'
+        args = args.to_s
+      else
+        args = "&"+args.to_s
       end
       @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['n']}\""
-      @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
-      @test_musl += "musl_"+@snprintf
-      @test_gcc += @snprintf
+      @test_musl += "  musl_"+@snprintf
+      @test_gcc += "  "+@snprintf
     end
   end
 
