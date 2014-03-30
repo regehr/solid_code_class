@@ -7,7 +7,6 @@
 ; arguments used to invoke the binary. If supplied, the ouput-poirnt given by
 ; #:input is sent to the spawned processes stdin.
 (define (run binary #:input [input-port null] . flags)
- (printf "$ ~a ~a\n" binary (string-join flags " "))
  ; Run the program as a subprocess
  (let-values ([(proc proc-stdout proc-stdin proc-stderr)
                (apply subprocess (append (list #f #f #f binary) flags))])

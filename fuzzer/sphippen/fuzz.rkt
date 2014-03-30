@@ -14,7 +14,7 @@
   (define (date-print str . rest)
     (let* ([now (current-date)])
       (printf "[~a/~a - ~a:~a:~a]: " (date-month now) (date-day now) (date-hour now) (date-minute now) (date-second now))
-      (printf str rest)
+      (apply printf (cons str rest))
       (printf "~%")))
 
 (define (go)
@@ -22,7 +22,7 @@
     (let ([n-printf (+ 1 (random printf-max))])
       (build-list n-printf (lambda (n) (generate-printf)))))
 
-  (date-print "New iteration... (~a printf's executed)" printf-count)
+  (date-print "New iteration... (~a printf's executed, ~a differences found)" printf-count diff-count)
 
   (set! printf-count (+ printf-count (length printfs)))
 
