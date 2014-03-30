@@ -417,16 +417,16 @@ class TestPrintf
     @test_gcc += "  int n;\n"
     @test_musl += "  int n;\n"
     (1..100).each do |i|
-      #length = lengths[lengths.keys.sample]
-      length = ''
+      length = lengths[lengths.keys.sample]
+      #length = ''
       flag = flags[flags.keys.sample]
       width = ''
       precision = ''
       args = 'n'
       if length == 'l'
-        args = "(long int*)"+args.to_s
+        args = "(long int*)&"+args.to_s
       elsif length == 'h'
-        args = args.to_s
+        args = "(short int *)&"+args.to_s
       else
         args = "&"+args.to_s
       end
