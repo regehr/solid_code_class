@@ -23,8 +23,8 @@
 (define (fuzz trial-count [iter-count 0])
  (build "test.c" (printf-stream trial-count #t))
  (when (ormap (lambda (x) (not (= x 0))) (list
-        (system/exit-code "make test-musl > /dev/null") 
-        (system/exit-code "make test-local > /dev/null")))
+        (system/exit-code "make --quiet test-musl") 
+        (system/exit-code "make --quiet test-local")))
   (printf-fail "Failed to compile a test script.\n")
   (exit 1))
  (build "musl.out" (in-stdout (run "./test-musl")))
@@ -39,10 +39,10 @@
   )
   (printf-succ "[~a] OK.\n" iter-count)
  )
- (when (= iter-count 100) (exit 0))
+ (when (= iter-count 30) (exit 0))
  (fuzz trial-count (add1 iter-count)))
 
-(sequence-for-each display (printf-stream 10 #t))
-;(fuzz 1000)
+;(sequence-for-each display (printf-stream 10 #t))
+(fuzz 1000)
 
 ; vim: set syn=scheme:
