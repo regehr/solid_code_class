@@ -7,7 +7,8 @@
  *integer-type* *float-type* *string-type*)
 
 (define *integer-type* 
- '(char wint_t short int long-int long-long-int))
+ '(char wint_t short int long-int long-long-int
+   ptrdiff_t size_t ssize_t intmax_t uintmax_t))
 (define *float-type*   '(float double long-double))
 (define *string-type*  '(char* wchar_t*))
 (define *pointer-type* '(void*))
@@ -36,22 +37,42 @@
 
 ; 32-bit numeric-type bit-depths
 (define *bit-widths* '(
+ ; Standard types
  (char 8)
  (short 16)
  (int 32)
- (wint_t 32)
+ ; See comment below on compatability.
  (long-int 32)
  (long-long-int 64)
- ; Set out pointer size small, just to be safe.
- (void* 32)
  (float 32)
  (double 64)
  (long-double 96)
- ;(char* 8)
- ; I'm pretty sure this isn't *actually* the case, 
- ; but it will always be true.
- ;(wchar_t* 8)
+ (void* 32)
+ ; Wide character
+ (wint_t 32)
+ ; Less-used types
+ (intmax_t  64)
+ (uintmax_t 64)
+ ; These types are 8 bytes on LP64, but I'm keeping them
+ ; at 32 bits to maintain compatability with ILP32.
+ (ptrdiff_t 32)
+ (size_t 32)
+ (ssize_t 32)
 ))
+
+; Map an integer's size to it's signed-ness. If the type can be
+; signed or unsigned, 'default' is returned.
+(define (integer-size->sign size default)
+ (match size
+  ['void* 'unsigned]
+  ['intmax_t 'signed]
+  ['uintmax_t 'unsigned]
+  ['ptrdiff_t 'signed]
+  ['size_t 'unsigned]
+  ['ssize_t 'signed]
+  [_ default]
+ )
+)
 
 ; Interface 
 (provide
@@ -207,15 +228,15 @@
   ; Float types can't be unsigned, so make sure we only set the sign-value
   ; for integer types.
   (cond
-   ([in? size *pointer-type*]
-    (type 'unsigned size var-name gen-integer integer-writer))
    ([in? size *float-type*] 
-    (type 'signed size var-name gen-float float-writer)) ([in? size *string-type*]
+    (type 'signed size var-name gen-float float-writer)) 
+   ([in? size *string-type*]
     (type 'signed size var-name gen-string string-writer))
    ([eq? size 'wint_t]
     (type 'signed size var-name gen-char char-writer))
    ([in? size *integer-type*]
-    (type sign size var-name gen-integer integer-writer))
+    (type (integer-size->sign size sign) 
+     size var-name gen-integer integer-writer))
   )
  )
 )
