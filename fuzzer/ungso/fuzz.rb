@@ -21,8 +21,6 @@ class TestPrintf
       'f'=>'f','g'=>'g','G'=>'G','o'=>'o','s'=>'s',
       'u'=>'u', 'x'=>'x','p'=>'p','n'=>'n'}
     @flags = {'-'=>'-','+'=>'+','#'=>'#','0'=>'0'}
-    @w #number
-    @width = {"w"=>"#{@w}",'arg'=>'*'}
     @precision = {'p'=>'.', 'arg'=>'.*', 'nil'=>''}
     @length = {'h'=>'h','l'=>'l','L'=>'L'}
     @flag
@@ -444,16 +442,6 @@ class TestPrintf
 
   def rand_length
     return @length[@length.keys.sample]
-  end
-
-  # Set the width
-  def set_width(x)
-    @width['w'] = x
-  end
-  
-  # Set the precision
-  def set_prec(x)
-    @precision['p'] = "."+x.to_s
   end
 
   # Set the precision
