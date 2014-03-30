@@ -8,19 +8,24 @@
 
 (define *integer-type* 
  '(char wint_t short int long-int long-long-int
-   ptrdiff_t size_t ssize_t intmax_t uintmax_t))
+   ptrdiff_t size_t ssize_t intmax_t uintmax_t
+   void*))
 (define *float-type*   '(float double long-double))
 (define *string-type*  '(char* wchar_t*))
-(define *pointer-type* '(void*))
 
 (define *type-sizes* 
  (uniformly-weighted 
-  (append *integer-type* *float-type* *string-type* *pointer-type*)))
+  (append *integer-type* *float-type* *string-type*)))
 
 (define *type-signs*
  (uniformly-weighted '(signed unsigned)))
 
 (define *string-length-range* '(5 50))
+
+; All of these types don't need a sign, because their sign is
+; implicit in their definition.
+(define *implicit-sign*
+ '(void* ptrdiff_t size_t ssize_t intmax_t uintmax_t))
 
 ; Evaluates a list of characters in the range [start, end]
 (define (char-range start end)
@@ -102,6 +107,8 @@
   (match (type-size type)
    ['long-int      "L"]
    ['long-long-int "LL"]
+   ['intmax_t      "LL"]
+   ['uintmax_t     "LL"]
    ['float         "F"]
    ['long-double   "L"]
    [_ ""]
@@ -129,8 +136,10 @@
 
 (define (type->string type [string-pointer? #f])
  (string-append
-  (if [or (signed? type) 
-          (ofsize? 'void* type)] "" "unsigned ")
+  (cond
+   ([signed? type] "")
+   ([in? (type-size type) *implicit-sign*] "")
+   (else "unsigned "))
   (type-size->string type string-pointer?)))
 
 (define (type-assignment->string type)
@@ -237,6 +246,7 @@
    ([in? size *integer-type*]
     (type (integer-size->sign size sign) 
      size var-name gen-integer integer-writer))
+   (else (unreachable))
   )
  )
 )

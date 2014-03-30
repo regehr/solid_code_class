@@ -15,7 +15,7 @@
  (uniformly-weighted '(s m)))
 
 (define *hash-allowed* 
- (append '(p) (no-weights *unsigned-decimal*)
+ (append '(p) (remove 'u (no-weights *unsigned-decimal*))
               (no-weights *floating-point*)))
 
 (define *zero-allowed*
@@ -39,6 +39,11 @@
   ['long-int 'l]
   ['long-long-int 'll]
   ['long-double 'L]
+  ['intmax_t 'j]
+  ['uintmax_t 'j]
+  ['size_t 'z]
+  ['ssize_t 'z]
+  ['ptrdiff_t 't]
   [_ null]
  )
 )
@@ -57,6 +62,7 @@
      (if (signed? type) *signed-decimal* *unsigned-decimal*)))
   ([oftype? type *float-type*]
    (weighted-choice *floating-point*))
+  (else (unreachable))
  )
 )
 
