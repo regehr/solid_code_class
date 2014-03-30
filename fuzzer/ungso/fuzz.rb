@@ -1,4 +1,4 @@
-# Chad Miller March 2014
+ # Chad Miller March 2014
 # gcc has form
 # int vfprintf(FILE *stream, const char *format, va_list arg)
 # musl has form
@@ -24,9 +24,9 @@ class TestPrintf
     @flags = {'-'=>'-','+'=>'+','#'=>'#','0'=>'0'}
     @w #number
     @width = {"w"=>"#{@w}",'arg'=>'*'}
-    @p #number
-    @precision = {'p'=>".#{@p}", 'arg'=>'.*'}
+    @precision = {'p'=>'.', 'arg'=>'.*', 'nil'=>''}
     @length = {'h'=>'h','l'=>'l','L'=>'L'}
+    @flag
     @test_musl = ""
     @test_gcc = ""
     @gcc_warnings
@@ -49,7 +49,7 @@ class TestPrintf
 
   # Makes a musl test file
   def mk_muslf
-    @includes = "#include <stdio.h>\n#include <stdarg.h>\n#include \"musl.h\"\n"\
+    @includes = "#include <stdio.h>\n#include <stdarg.h>\n#include <wchar.h>\n#include \"musl.h\"\n"\
     "#define BUFF_SIZE 100\n\n"
     @type = "musl_"
     @main_code = " char buff[BUFF_SIZE];\n  #{@test_musl}\n  fputs(buff, stdout);\n  return 0;"
@@ -62,7 +62,7 @@ class TestPrintf
 
   # Makes a gcc test file (for differential testing)
   def mk_gccf
-    @includes = "#include <stdio.h>\n#include <stdarg.h>\n#define BUFF_SIZE 100\n"
+    @includes = "#include <stdio.h>\n#include <stdarg.h>\n#include <wchar.h>\n#define BUFF_SIZE 100\n"
     @type = ""
     @main_code = " char buff[BUFF_SIZE];\n"\
                  "  #{@test_gcc}\n  fputs(buff, stdout);\n  return 0;"
@@ -121,43 +121,53 @@ class TestPrintf
       @test_musl += "musl_"+@snprintf
       @test_gcc += @snprintf
     end
-
   end
 
 
   def d_func
 
-    flags = {'-'=>'-','+'=>'+', '0'=>'0','nil'=>''}
+    flags = {'-'=>'-','+'=>'+', '0'=>'0','nil'=>'', 'space'=>' '}
     lengths = {'l'=>'l', 'h'=>'h', 'nil'=>''}
     (1..100).each do |i|
       length = lengths[lengths.keys.sample]
       flag = flags[flags.keys.sample]
-      args = SecureRandom.random_number(1000)
+      precision = @precision[@precision.keys.sample]    
+      if precision == '.*'
+        args = SecureRandom.random_number(1000).to_s+","
+        flag = set_nonzero_flag()
+      elsif precision == '.'
+        precision = "."+SecureRandom.random_number(1000).to_s
+        flag = set_nonzero_flag()
+      end
+      args = args.to_s + SecureRandom.random_number(1000).to_s
       if length == 'l'
-        args = args.to_s+"L"
+        args = args+"L"
       end
       width = SecureRandom.random_number(1000000)
-      @fmt = "\"%#{flag}#{width}#{@precision['']}#{length}#{@specifier['d']}\""
+      @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['d']}\""
       @type = "musl_"
       @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
       @test_musl += "musl_"+@snprintf
       @test_gcc += @snprintf
-
-    end
-      
+    end      
   end
 
 
   def e_func
 
-    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>''}
+    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>'', 'space'=>' '}
     lengths = {'L'=>'L', 'nil'=>''}
     (1..100).each do |i|
       length = lengths[lengths.keys.sample]
       flag = flags[flags.keys.sample]
-      args = SecureRandom.random_number
       width = SecureRandom.random_number(1000)
-      precision = "."+SecureRandom.random_number(1000).to_s
+      precision = @precision[@precision.keys.sample]    
+      if precision == '.*'
+        args = SecureRandom.random_number(1000).to_s+","
+      elsif precision == '.'
+        precision = "."+SecureRandom.random_number(1000).to_s
+      end
+      args = args.to_s + SecureRandom.random_number().to_s
       if length == 'l' or length == 'L'
         args = args.to_s+"L"
       end
@@ -171,14 +181,19 @@ class TestPrintf
 
   def E_func
 
-    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>''}
+    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>'', 'space'=>' '}
     lengths = {'L'=>'L', 'nil'=>''}
     (1..100).each do |i|
       length = lengths[lengths.keys.sample]
       flag = flags[flags.keys.sample]
-      args = SecureRandom.random_number
       width = SecureRandom.random_number(1000)
-      precision = "."+SecureRandom.random_number(1000).to_s
+      precision = @precision[@precision.keys.sample]    
+      if precision == '.*'
+        args = SecureRandom.random_number(1000).to_s+","
+      elsif precision == '.'
+        precision = "."+SecureRandom.random_number(1000).to_s
+      end
+      args = args.to_s + SecureRandom.random_number().to_s
       if length == 'l' or length == 'L'
         args = args.to_s+"L"
       end
@@ -194,14 +209,20 @@ class TestPrintf
 
   def f_func
 
-    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>''}
+
+    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>'', 'space'=>' '}
     lengths = {'L'=>'L', 'nil'=>''}
     (1..100).each do |i|
       length = lengths[lengths.keys.sample]
       flag = flags[flags.keys.sample]
-      args = SecureRandom.random_number
       width = SecureRandom.random_number(1000)
-      precision = "."+SecureRandom.random_number(1000).to_s
+      precision = @precision[@precision.keys.sample]    
+      if precision == '.*'
+        args = SecureRandom.random_number(1000).to_s+","
+      elsif precision == '.'
+        precision = "."+SecureRandom.random_number(1000).to_s
+      end
+      args = args.to_s + SecureRandom.random_number().to_s
       if length == 'l' or length == 'L'
         args = args.to_s+"L"
       end
@@ -216,14 +237,20 @@ class TestPrintf
 
   def g_func
 
-    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>''}
+
+    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>'', 'space'=>' '}
     lengths = {'L'=>'L', 'nil'=>''}
     (1..100).each do |i|
       length = lengths[lengths.keys.sample]
       flag = flags[flags.keys.sample]
-      args = SecureRandom.random_number
       width = SecureRandom.random_number(1000)
-      precision = "."+SecureRandom.random_number(1000).to_s
+      precision = @precision[@precision.keys.sample]    
+      if precision == '.*'
+        args = SecureRandom.random_number(1000).to_s+","
+      elsif precision == '.'
+        precision = "."+SecureRandom.random_number(1000).to_s
+      end
+      args = args.to_s + SecureRandom.random_number().to_s
       if length == 'l' or length == 'L'
         args = args.to_s+"L"
       end
@@ -238,17 +265,83 @@ class TestPrintf
 
   def G_func
 
-
+    flags = {'-'=>'-','+'=>'+', '#'=>'#','0'=>'0','nil'=>'', 'space'=>' '}
+    lengths = {'L'=>'L', 'nil'=>''}
+    (1..100).each do |i|
+      length = lengths[lengths.keys.sample]
+      flag = flags[flags.keys.sample]
+      width = SecureRandom.random_number(1000)     
+      precision = @precision[@precision.keys.sample]    
+      if precision == '.*'
+        args = SecureRandom.random_number(1000).to_s+","
+      elsif precision == '.'
+        precision = "."+SecureRandom.random_number(1000).to_s
+      end
+      args = args.to_s + SecureRandom.random_number().to_s
+      if length == 'l' or length == 'L'
+        args = args.to_s+"L"
+      end
+      @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['G']}\""
+      @type = "musl_"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
+      @test_musl += "musl_"+@snprintf
+      @test_gcc += @snprintf
+   
+    end
   end
 
   def o_func
 
-
+    flags = {'-'=>'-', '#'=>'#','0'=>'0','nil'=>''}
+    lengths = {'l'=>'l', 'h'=>'h', 'nil'=>''}
+    (1..100).each do |i|
+      length = lengths[lengths.keys.sample]
+      flag = flags[flags.keys.sample]
+      width = SecureRandom.random_number(1000)     
+      precision = @precision[@precision.keys.sample]    
+      if precision == '.*'
+        args = SecureRandom.random_number(1000).to_s+","
+      elsif precision == '.'
+        precision = "."+SecureRandom.random_number(1000).to_s
+      end
+      args = args.to_s + SecureRandom.random_number(1000).to_s
+      if length == 'l' or length == 'L'
+        args = args.to_s+"L"
+      end
+      @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['o']}\""
+      @type = "musl_"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
+      @test_musl += "musl_"+@snprintf
+      @test_gcc += @snprintf
+    end
   end
-
+ 
   def s_func
 
-
+    flags = {'-'=>'-', 'nil'=>''}
+    lengths = {'l'=>'l', 'nil'=>''}
+    (1..100).each do |i|
+      length = lengths[lengths.keys.sample]
+      flag = flags[flags.keys.sample]
+      width = SecureRandom.random_number(1000)     
+      precision = @precision[@precision.keys.sample]    
+      if precision == '.*'
+        args = SecureRandom.random_number(1000).to_s+","
+      elsif precision == '.'
+        precision = "."+SecureRandom.random_number(1000).to_s
+      end
+      arg1 = SecureRandom.random_number(1000).to_s  
+      arg_s = "\"#{arg1}\""   
+      if length == 'l'
+        arg_s = "(wchar_t *)"+arg_s
+      end
+      args = args.to_s + arg_s
+      @fmt = "\"%#{flag}#{width}#{precision}#{length}#{@specifier['s']}\""
+      @type = "musl_"
+      @snprintf = "snprintf(buff, BUFF_SIZE, #{@fmt},#{args});\n"
+      @test_musl += "musl_"+@snprintf
+      @test_gcc += @snprintf
+    end
   end
 
   def u_func
@@ -288,6 +381,12 @@ class TestPrintf
   # Set the precision
   def set_prec(x)
     @precision['p'] = "."+x.to_s
+  end
+
+  # Set the precision
+  def set_nonzero_flag()
+    flags = {'-'=>'-','+'=>'+','nil'=>'', 'space'=>' '}
+    return flags[flags.keys.sample]
   end
 
 
