@@ -10,10 +10,11 @@
  '(char wint_t short int long-int long-long-int))
 (define *float-type*   '(float double long-double))
 (define *string-type*  '(char* wchar_t*))
+(define *pointer-type* '(void*))
 
 (define *type-sizes* 
  (uniformly-weighted 
-  (append *integer-type* *float-type* *string-type*)))
+  (append *integer-type* *float-type* *string-type* *pointer-type*)))
 
 (define *type-signs*
  (uniformly-weighted '(signed unsigned)))
@@ -41,6 +42,8 @@
  (wint_t 32)
  (long-int 32)
  (long-long-int 64)
+ ; Set out pointer size small, just to be safe.
+ (void* 32)
  (float 32)
  (double 64)
  (long-double 96)
@@ -105,12 +108,15 @@
 
 (define (type->string type [string-pointer? #f])
  (string-append
-  (if (signed? type) "" "unsigned ")
+  (if [or (signed? type) 
+          (ofsize? 'void* type)] "" "unsigned ")
   (type-size->string type string-pointer?)))
 
 (define (type-assignment->string type)
  (string-append
-  (type->string type #t)
+  (if [ofsize? 'void* type]
+   (type->string type)
+   (type->string type #t))
   " "
   (type-name->string type)
   (if [oftype? type *string-type*] "[]" "")
@@ -201,9 +207,10 @@
   ; Float types can't be unsigned, so make sure we only set the sign-value
   ; for integer types.
   (cond
+   ([in? size *pointer-type*]
+    (type 'unsigned size var-name gen-integer integer-writer))
    ([in? size *float-type*] 
-    (type 'signed size var-name gen-float float-writer))
-   ([in? size *string-type*]
+    (type 'signed size var-name gen-float float-writer)) ([in? size *string-type*]
     (type 'signed size var-name gen-string string-writer))
    ([eq? size 'wint_t]
     (type 'signed size var-name gen-char char-writer))

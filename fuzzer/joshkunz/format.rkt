@@ -8,15 +8,15 @@
 (define *signed-decimal*
  (uniformly-weighted '(d i n)))
 (define *unsigned-decimal*
- (uniformly-weighted '(o u x X p)))
+ (uniformly-weighted '(o u x X)))
 (define *floating-point*
  (uniformly-weighted '(e E f F g G a A)))
 (define *string*
  (uniformly-weighted '(s m)))
 
 (define *hash-allowed* 
- (append (no-weights *unsigned-decimal*)
-         (no-weights *floating-point*)))
+ (append '(p) (no-weights *unsigned-decimal*)
+              (no-weights *floating-point*)))
 
 (define *zero-allowed*
  (append (no-weights *signed-decimal*) *hash-allowed*))
@@ -48,6 +48,7 @@
   ([ofsize? 'wint_t type] 'c)
   ([and (ofsize? 'char type) 
         (chance? 'actual-char)] 'c)
+  ([ofsize? 'void* type] 'p)
   ([oftype? type *integer-type*]
     (weighted-choice 
      (if (signed? type) *signed-decimal* *unsigned-decimal*)))
@@ -109,9 +110,11 @@
   (if [and (in? conv *zero-allowed*)
            (chance? 'zero-flag)] "0" "")
   (if [chance? 'left-flag] "-" "")
-  (if [and (signed? type)
+  (if [and (signed? type) 
+           (not (eq? conv 'c))
            (chance? 'space-flag)] " " "")
   (if [and (signed? type)
+           (not (eq? conv 'c))
            (chance? 'sign-flag)] "+" "")
  )
 )

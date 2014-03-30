@@ -22,6 +22,9 @@
  ; that consists of a single '.'.
  (precision-dotonly 0.1)
 
+ ; Probability that an unsigned integer argument will be cast as a pointer.
+ (pointer-conversion 0.3)
+
  ; Various flag probabilities
  (hash-flag  0.3)
  (zero-flag  0.3)
