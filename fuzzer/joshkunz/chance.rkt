@@ -14,6 +14,9 @@
  (format-flags 0.3)
  (format-width 0.3)
  (format-precision 0.3)
+ ;(format-flags 0.0)
+ ;(format-width 0.0)
+ ;(format-precision 0.0)
 
  ; The probability that we'll generate precision field
  ; that consists of a single '.'.

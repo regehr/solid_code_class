@@ -6,11 +6,13 @@
 (require "types.rkt")
 
 (define *signed-decimal*
- (uniformly-weighted '(d i)))
+ (uniformly-weighted '(d i n)))
 (define *unsigned-decimal*
  (uniformly-weighted '(o u x X p)))
 (define *floating-point*
  (uniformly-weighted '(e E f F g G a A)))
+(define *string*
+ (uniformly-weighted '(s m)))
 
 (define *hash-allowed* 
  (append (no-weights *unsigned-decimal*)
@@ -29,6 +31,8 @@
  (match (type-size type)
   ['char 'hh]
   ['short 'h]
+  ['wint_t 'l]
+  ['wchar_t* 'l]
   ['long-int 'l]
   ['long-long-int 'll]
   ['long-double 'L]
@@ -39,7 +43,9 @@
 ; Evaluates to a valid printf conversion-specifier for the supplied type.
 (define (type->conv-specifier type)
  (cond
-  ([oftype? type *string-type*] 's)
+  ([oftype? type *string-type*]
+   (weighted-choice *string*))
+  ([ofsize? 'wint_t type] 'c)
   ([and (ofsize? 'char type) 
         (chance? 'actual-char)] 'c)
   ([oftype? type *integer-type*]
@@ -130,8 +136,9 @@
     (gen-precision) null)
    ; Chars have a length specifier, but if we want print a char
    ; as an actual character we shouldn't include it.
-   (if (not (eq? 'c conv))
-    (type->length-specifier type) null)
+   (if [and (eq? 'c conv)
+            (not (ofsize? 'wint_t type))] null
+    (type->length-specifier type))
    conv
   )
  )

@@ -6,9 +6,10 @@
 (provide
  *integer-type* *float-type* *string-type*)
 
-(define *integer-type* '(char short int long-int long-long-int))
+(define *integer-type* 
+ '(char wint_t short int long-int long-long-int))
 (define *float-type*   '(float double long-double))
-(define *string-type*  '(char*))
+(define *string-type*  '(char* wchar_t*))
 
 (define *type-sizes* 
  (uniformly-weighted 
@@ -37,20 +38,27 @@
  (char 8)
  (short 16)
  (int 32)
+ (wint_t 32)
  (long-int 32)
  (long-long-int 64)
  (float 32)
  (double 64)
  (long-double 96)
+ ;(char* 8)
+ ; I'm pretty sure this isn't *actually* the case, 
+ ; but it will always be true.
+ ;(wchar_t* 8)
 ))
 
 ; Interface 
 (provide
- type type? type-size ofsize? signed? oftype? type-gen 
+ type type? type-size ofsize? signed? oftype? type-name
  type-value type-bit-width type-postfix
- type-size->string type-value->string type->string)
+ type-size->string type-value->string type-name->string
+ type->string type-assignment->string)
 
-(struct type (signed? size gen writer) #:transparent)
+(struct type 
+ (signed? size name gen writer) #:transparent)
 
 (define (signed? type) 
  (eq? 'signed (type-signed? type)))
@@ -77,21 +85,38 @@
  )
 )
 
-(define (type-size->string type)
- (string-replace (symbol->string (type-size type)) "-" " "))
+(define (type-size->string type [strip-pointer? #f])
+ (let ([halfway (string-replace 
+                 (symbol->string (type-size type)) "-" " ")])
+  (if strip-pointer? 
+   (string-replace halfway "*" "")
+   halfway)
+ )
+)
 
 (define (type-value type)
  ((type-gen type) type))
 
+(define (type-name->string type)
+ (symbol->string (type-name type)))
+
 (define (type-value->string type)
  ((type-writer type) type))
 
-(define (type->string type)
+(define (type->string type [string-pointer? #f])
  (string-append
   (if (signed? type) "" "unsigned ")
-  (type-size->string type)
- )
-)
+  (type-size->string type string-pointer?)))
+
+(define (type-assignment->string type)
+ (string-append
+  (type->string type #t)
+  " "
+  (type-name->string type)
+  (if [oftype? type *string-type*] "[]" "")
+  " = "
+  (type-value->string type)
+  ";"))
 
 ; **** Value Writers ****
 
@@ -121,7 +146,14 @@
 )
 
 (define (string-writer type)
- (string-append "\"" (apply string (type-value type)) "\""))
+ (string-append 
+  (if [ofsize? 'wchar_t* type] "L" "") 
+  "\"" (apply string (type-value type)) "\""))
+
+(define (char-writer type)
+ (string-append
+  (if [ofsize? 'wint_t type] "L" "")
+  "'" (string (type-value type)) "'"))
 
 ; Generation
 
@@ -130,7 +162,9 @@
 (define (gen-string type)
  (define (_gen-string len)
   (if (= len 0) '()
-   (cons (vector-pick *valid-characters*) (_gen-string (sub1 len))))
+   (cons (vector-pick *valid-characters*)
+    (_gen-string (sub1 len)))
+  )
  )
  (_gen-string (apply random-integer *string-length-range*)))
 
@@ -157,18 +191,24 @@
  )
 )
 
+(define (gen-char type)
+ (vector-pick *valid-characters*))
+
 (define (gen-type)
- (let ([sign (weighted-choice *type-signs*)]
-       [size (weighted-choice *type-sizes*)])
+ (let* ([sign (weighted-choice *type-signs*)]
+        [size (weighted-choice *type-sizes*)]
+        [var-name (gensym)])
   ; Float types can't be unsigned, so make sure we only set the sign-value
   ; for integer types.
   (cond
    ([in? size *float-type*] 
-    (type 'signed size gen-float float-writer))
+    (type 'signed size var-name gen-float float-writer))
    ([in? size *string-type*]
-    (type 'unsigned size gen-string string-writer))
+    (type 'signed size var-name gen-string string-writer))
+   ([eq? size 'wint_t]
+    (type 'signed size var-name gen-char char-writer))
    ([in? size *integer-type*]
-    (type sign size gen-integer integer-writer))
+    (type sign size var-name gen-integer integer-writer))
   )
  )
 )

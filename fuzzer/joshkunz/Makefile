@@ -1,4 +1,4 @@
-.PHONY: both cov
+.PHONY: both cov clean
 
 MUSL_BASE = ../musl-printf-standalone
 SPENCER_BASE = ../sphippen
@@ -18,7 +18,7 @@ LDLIBS = -lm
 both: test-musl test-local
 
 cov: $(MUSL_LOCAL)/vfprintf-fixed.g*
-	gcov $(MUSL_LOCAL)/vfprintf-fixed
+	gcov -b $(MUSL_LOCAL)/vfprintf-fixed
 
 $(MUSL_LOCAL)/%.o: %.c $(MUSL_LOCAL) $(MUSL_BASE)/musl.h
 	$(CC) $(MUSL_CFLAGS) $(CFLAGS) -c -o $@ $<
