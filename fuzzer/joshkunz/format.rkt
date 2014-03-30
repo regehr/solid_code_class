@@ -21,6 +21,9 @@
 (define *zero-allowed*
  (append (no-weights *signed-decimal*) *hash-allowed*))
 
+; These format specifiers can never have anything more then length modifiers
+(define *length-only* '(m n p))
+
 (define *field-width-range* '(-1 60))
 (define *precision-range* '(-1 60))
 
@@ -128,21 +131,26 @@
 
 (define (gen-fmt type)
  (let ([conv (type->conv-specifier type)])
-  (fmt
-   (if (chance? 'format-flags) 
-    (gen-flags type conv) null)
-   (if (chance? 'format-width)
-    (gen-width) null)
-   ; Precision is not valid for character conversions
-   (if [and (not (eq? conv 'c)) 
-            (chance? 'format-precision)]
-    (gen-precision) null)
-   ; Chars have a length specifier, but if we want print a char
-   ; as an actual character we shouldn't include it.
-   (if [and (eq? 'c conv)
-            (not (ofsize? 'wint_t type))] null
-    (type->length-specifier type))
-   conv
+  (if (in? conv *length-only*)
+   (fmt null null null 
+    (if (eq? conv 'm) null (type->length-specifier type)) conv)
+   (fmt
+    (if [and (not (eq? conv 's))
+             (chance? 'format-flags)]
+     (gen-flags type conv) null)
+    (if (chance? 'format-width)
+     (gen-width) null)
+    ; Precision is not valid for character conversions
+    (if [and (not (eq? conv 'c)) 
+             (chance? 'format-precision)]
+     (gen-precision) null)
+    ; Chars have a length specifier, but if we want print a char
+    ; as an actual character we shouldn't include it.
+    (if [and (eq? 'c conv) 
+             (not (ofsize? 'wint_t type))] null
+     (type->length-specifier type))
+    conv
+   )
   )
  )
 )
