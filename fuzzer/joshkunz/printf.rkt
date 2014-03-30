@@ -11,6 +11,7 @@
 "#include <stdio.h>
 #include <math.h>
 #include <wchar.h>
+#inlcude <stdint.h>
   
 #ifdef MUSL
 #include \"musl.h\"
