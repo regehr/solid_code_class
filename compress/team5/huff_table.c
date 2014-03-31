@@ -102,9 +102,7 @@ int compare_huff_trees (const void *a, const void *b)
     if (NULL == *t2) return 1;
 
 	if((*t1)->frequency == (*t2)->frequency) {
-        if ((*t1)->lowest == (*t2)->lowest) return 0;	
-
-        return ((*t1)->lowest < (*t2)->lowest) ? 1 : -1;
+        return ((*t2)->lowest - (*t1)->lowest);
 	} else {
 		return ((*t1)->frequency < (*t2)->frequency) ? 1 : -1;
 	}
