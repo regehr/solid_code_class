@@ -6,11 +6,6 @@
 (require "proc.rkt")
 (require "printf.rkt")
 
-(define break-triggered? #f)
-
-(define (break-sync)
- (when break-triggered? (exit 0)))
-
 ; **** Printers ****
 
 (define printf-fail 
@@ -27,44 +22,25 @@
 
 (define (fuzz trial-count [iter-count 0])
  (build "test.c" (printf-stream trial-count #t))
- (break-sync)
  (when (not (= 0 (system/exit-code "make -j2 --quiet")))
   (printf-fail "Failed to compile a test binary.\n")
   (exit 1))
- (break-sync)
  (build "musl.out" (in-stdout (run "./test-musl")))
  (build "local.out" (in-stdout (run "./test-local")))
- (break-sync)
 
  (printf "[I: ~a] " iter-count)
  (if (not (eq? (system/exit-code "diff musl.out local.out > /dev/null") 0))
   (begin
    (printf-fail "Output Differs.\n")
-   (copy-file "test.c" (format "test-~a.c" iter-count)))
+   (copy-file "test.c" (format "~a-test.c" iter-count))
+   (copy-file "musl.out" (format "~a-musl.out" iter-count))
+   (copy-file "local.out" (format "~a-local.out" iter-count)))
   (printf-succ "OK.\n")
  )
- (break-sync)
+ (when (= iter-count 12) (exit 0))
  (fuzz trial-count (add1 iter-count)))
 
-; Make sure our subprocesses are put into a seperate process group so
-; that break signals aren't sent to our children.
-(subprocess-group-enabled #t)
-
-(define (break-handler exn)
- (if (exn:break? exn)
-  (begin
-   (set! break-triggered? #t)
-   (display "\rCleaning up...\n")
-   ((exn:break-continuation exn)))
-  ; If we're not handling it, let it rise
-  exn
- )
-) 
-
 ;(sequence-for-each display (printf-stream 100 #t))
-
-; Wrap fuzz call in a break exception handler so that we terminate the fuzz
-; at a location where coverate data is available
-(call-with-exception-handler break-handler (thunk (fuzz 1000)))
+(fuzz 1000)
 
 ; vim: set syn=scheme:
