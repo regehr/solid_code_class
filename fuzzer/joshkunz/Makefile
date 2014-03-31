@@ -20,11 +20,11 @@ both: test-musl test-local
 cov: $(MUSL_LOCAL)/vfprintf-fixed.g*
 	gcov -b $(MUSL_LOCAL)/vfprintf-fixed
 
-$(MUSL_LOCAL)/%.o: %.c $(MUSL_LOCAL) $(MUSL_BASE)/musl.h
-	$(CC) $(MUSL_CFLAGS) $(CFLAGS) -c -o $@ $<
-
 $(MUSL_LOCAL):
 	mkdir $(MUSL_LOCAL)
+
+$(MUSL_LOCAL)/%.o: %.c $(MUSL_BASE)/musl.h | $(MUSL_LOCAL)
+	$(CC) $(MUSL_CFLAGS) $(CFLAGS) -c -o $@ $<
 
 test-musl: test.c $(MUSL_OBJS) $(MUSL_BASE)/musl.h
 	$(CC) $(MUSL_CFLAGS) $(CFLAGS) -DMUSL $(LDLIBS) $(MUSL_OBJS) -o $@ $<
