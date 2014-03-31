@@ -5,16 +5,17 @@
 (provide chance chance?)
 
 (define *chances* '(
+ ; Probability that we'll generate a 'nan' or 'inf',
+ ; value for a floating-point argument
+ (gen-nan 0.1)
+ (gen-inf 0.1)
+
  ; Probablility that a 'char' type will get an actual 'c' conversion specifier
  ; instead of an 'hh' length modifier.
  (actual-char 0.5)
 
  ; Probability that some format fields will be converted to arguments.
  (star-args 0.3)
- ; Probability that the field width will be converted to a star arg.
- ;(star-field-width 0.5) UNUSED
- ; Probability that the precision will be converted to a star arg.
- ;(star-precision 0.5) UNUSED
 
  ; Probabilities on whether or not to include certain parts of
  ; a format specifier

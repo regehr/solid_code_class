@@ -1,6 +1,7 @@
 #lang racket
 
 (require "common.rkt")
+(require "chance.rkt")
 (require "random-extra.rkt")
 
 (provide
@@ -206,9 +207,15 @@
 
 ; Generate a random real floating-point number.
 (define (gen-float type)
- (let ([bytes (/ (type-bit-width type) 8)])
-  (floating-point-bytes->real
-   (if (< bytes 8) (random-bytes 4) (random-bytes 8))
+ (cond
+  ([chance? 'gen-nan]
+   (if (< 0.5 (random-real 0 1)) +nan.0 -nan.0))
+  ([chance? 'gen-inf]
+   (if (< 0.5 (random-real 0 1)) +inf.0 -inf.0))
+  (else
+   (let ([bytes (/ (type-bit-width type) 8)])
+    (floating-point-bytes->real
+     (if (< bytes 8) (random-bytes 4) (random-bytes 8))))
   )
  )
 )
