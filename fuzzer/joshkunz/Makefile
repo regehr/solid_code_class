@@ -11,7 +11,7 @@ MUSL_OBJS = $(patsubst %.c,%.o,$(MUSL_SRC))
 vpath %.c $(MUSL_BASE):$(SPENCER_BASE)
 
 CC = gcc 
-CFLAGS = -Wall -Wno-trigraphs -Wno-unused -w
+CFLAGS = -O0 -Wall -Wno-trigraphs -Wno-unused -w
 MUSL_CFLAGS = -I$(MUSL_BASE)/ -fprofile-arcs -ftest-coverage
 LDLIBS = -lm
 
