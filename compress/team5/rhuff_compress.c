@@ -45,7 +45,7 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 	// variable declarations
 	char readBuffer[1];
  	struct bitValue placeHolder;
-	unsigned char firstIter = 1;
+	unsigned char firstIter = 1, lastIter = 1;
 
 	// init for our first loop iter
 	placeHolder.runValue = 0;
@@ -102,12 +102,22 @@ void encodeFile(FILE * readFilePointer , FILE * writeFilePointer)
 			}
 		}
 	}
+
 	// if fread returned 0 bytes we got here.
 	// lets make sure it wasnt an error
+	// lastIter is set if the last run wasn't written out, so we can write out that last byte
 	if(ferror(readFilePointer))
 	{
 		fprintf(stderr , "read file error in encode -> encodeFile");
 		exit(1);
+	} else { 
+		unsigned char toWrite;
+		// convert our info to a writable byte
+
+		struct2Byte(&placeHolder , &toWrite);
+		// write out the byte
+
+		writeByte(writeFilePointer , &toWrite);
 	}
 }
 

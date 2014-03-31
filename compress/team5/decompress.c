@@ -145,6 +145,10 @@ void write_out_decompress (FILE *input, FILE *output, huff_tree *root,
                 current = current->zero_tree;
             }
 
+            if (bytes_written > length) {
+                printf("%i", bit);
+            }
+
             if (current->character != -1) {
                 out_c = current->character;
 
@@ -152,15 +156,14 @@ void write_out_decompress (FILE *input, FILE *output, huff_tree *root,
 
                 current = root;
                 bytes_written++;
+                if (bytes_written == length) break;
             }
-
-            if (bytes_written == length) break;
         }
-        if (bytes_written == length) break;
     }
 
-    if (bytes_written < length) {
-        printf("Bytes decompressed vs. length encoded do not match.\n");
+    if (bytes_written != length) {
+        printf("Decompression failed.  Wrote out: %i, expected %lu\n", 
+            bytes_written, length);
         exit(255);
     }
 }
