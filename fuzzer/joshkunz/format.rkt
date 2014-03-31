@@ -13,6 +13,7 @@
  (uniformly-weighted '(e E f F g G a A)))
 (define *string*
  (uniformly-weighted '(s m)))
+; Specified below: c p
 
 (define *hash-allowed* 
  (append '(p) (remove 'u (no-weights *unsigned-decimal*))
@@ -68,6 +69,7 @@
 
 (provide 
  fmt fmt? fmt-flags fmt-width fmt-precision fmt-length fmt-conversion
+ fmt-precision->integer
  fmt-flags->string fmt-width->string fmt-precision->string fmt-length->string
  fmt-conversion->string
  fmt->string)
@@ -82,6 +84,16 @@
 (define (fmt-width->string fmt) 
  (if [null? (fmt-width fmt)] ""
   (format "~a" (fmt-width fmt))))
+
+; Converts a fmt's precision field to an integer if the field
+; is specified, and 'null' if it isn't specified.
+(define (fmt-precision->integer fmt)
+ (match (fmt-precision fmt)
+  ['() '()]
+  ['empty 0]
+  [_ (fmt-precision fmt)]
+ )
+)
 
 (define (fmt-precision->string fmt)
  (match (fmt-precision fmt)

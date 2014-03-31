@@ -39,10 +39,10 @@
   )
   (printf-succ "[~a] OK.\n" iter-count)
  )
- (when (= iter-count 30) (exit 0))
+ (when (= iter-count 12) (exit 0))
  (fuzz trial-count (add1 iter-count)))
 
-;(sequence-for-each display (printf-stream 10 #t))
+;(sequence-for-each display (printf-stream 100 #t))
 (fuzz 1000)
 
 ; vim: set syn=scheme:

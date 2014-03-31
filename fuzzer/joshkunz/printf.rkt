@@ -4,6 +4,7 @@
 (require "random-extra.rkt")
 (require "types.rkt")
 (require "format.rkt")
+(require "chance.rkt")
 
 (define *printf-arg-range* '(1 5))
 
@@ -28,19 +29,22 @@ int main() {\n"))
 "    return 0;
 }\n"))
 
-(define (gen-args count)
- (if (= count 0) '()
-  (let ([type (gen-type)])
-   (cons
-    (list (gen-fmt type) type)
-    (gen-args (sub1 count)))
+; Unzip a list of pairs '(a . b) into two seperate lists '((a) (b)).
+(define (unzip-pairs pairs)
+ (if (null? pairs) '(() ())
+  (let ([next (unzip-pairs (cdr pairs))])
+   (list 
+    (cons (caar pairs) (car next))
+    (cons (cdar pairs) (cadr next)))
   )
  )
 )
 
-(define (arg->string arg)
- (let ([conv (fmt-conversion (car arg))]
-       [type (cadr arg)])
+; **** Formatting Helpers ****
+
+(define (fmt-pair->arg-string fmt-pair)
+ (let ([conv (fmt-conversion (car fmt-pair))]
+       [type (cdr fmt-pair)])
   (string-append
    (if [eq? conv 'n] "&" "")
    (if [eq? conv 'm] ""
@@ -49,21 +53,93 @@ int main() {\n"))
  )
 )
 
+; Return a pair of strings
+(define (fmt-pair->string-pair/star fmt-pair)
+ (let* ([fmt (car fmt-pair)]
+        [type (cdr fmt-pair)]
+        [width (fmt-width fmt)] 
+        [width? (not (null? width))]
+        [prec (fmt-precision->integer fmt)]
+        [prec? (not (null? prec))])
+  (cons
+   (string-append "%"
+    (fmt-flags->string fmt)
+    (if width? "*" (fmt-width->string fmt))
+    (if prec? ".*" (fmt-precision->string fmt))
+    (fmt-length->string fmt)
+    (fmt-conversion->string fmt))
+   (string-join
+    (filter-not string-empty?
+     (list (if width? (number->string width) "")
+           (if prec? (number->string prec) "")
+           (fmt-pair->arg-string fmt-pair))) ", ")
+   )
+ )
+)
+
+
+; **** Formatters ****
+
+(define (fmt-pairs->string/standard fmt-pairs)
+ (let ([formats (map car fmt-pairs)]
+       [args (filter-not string-empty? (map fmt-pair->arg-string fmt-pairs))])
+  (list
+   (string-join (map fmt->string formats) "")
+   (if (= (length args) 0) ""
+    (string-join args ", "))
+  )
+ )
+)
+
+(define (fmt-pairs->string/star fmt-pairs)
+ (let ([groups (unzip-pairs 
+                (map fmt-pair->string-pair/star fmt-pairs))])
+  (list
+   (string-join (car groups) "")
+   (string-join (filter-not string-empty? (cadr groups)) ", "))))
+
+(define (fmt-pairs->string/positional fmt-pairs) 
+ (unreachable))
+
+(define *formatters*
+ (uniformly-weighted 
+  (list 
+   fmt-pairs->string/standard 
+   fmt-pairs->string/star )))
+;   fmt-pairs->string/positional)))
+
+(define (fmt-pairs->string fmt-pairs)
+ (apply values 
+  (cons (string-join 
+         (map type-assignment->string (map cdr fmt-pairs))
+         "\n    " #:after-last "\n")
+   ((weighted-choice *formatters*) fmt-pairs))))
+
+; **** Generation ****
+
+(define (gen-fmt-pairs count)
+ (if (= count 0) '()
+  (let ([type (gen-type)])
+   (cons
+    (cons (gen-fmt type) type)
+    (gen-fmt-pairs (sub1 count)))
+  )
+ )
+)
+
 ; Generate a string printf statement with 'spec-count' vars printed.
 (define (gen-printf spec-count)
- (let* ([args (gen-args spec-count)]
-        [formats (map car args)]
-        [values (map cadr args)]
-        [sargs (filter-not string-empty? (map arg->string args))])
+ (let-values ([(assignment sformat svalue)
+               (fmt-pairs->string (gen-fmt-pairs spec-count))])
   (string-append
-   (string-join (map type-assignment->string values) "\n    " #:after-last "\n")
+   assignment
    "    snprintf(buffer, BUFFER_LEN, \"" 
-   (string-join (map fmt->string formats) "")
-   "\\n\"" ; Make sure that all format strings end with '\n' for easier
-           ; debugging.
-   (if (= (length sargs) 0) ""
-    (string-append ", " 
-     (string-join (filter-not string-empty? (map arg->string args)) ", ")))
+   sformat
+   "\\n\""   ; Make sure that all format strings end with '\n' for easier
+             ; debugging.
+   (if (string-empty? svalue) 
+    "" ", ")
+   svalue
    "); fputs(buffer, stdout);"
   )
  )
