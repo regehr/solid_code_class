@@ -22,7 +22,7 @@
 
 (define (fuzz trial-count [iter-count 0])
  (build "test.c" (printf-stream trial-count #t))
- (when (not (= 0 (system/exit-code "make -j2 --quiet")))
+ (when (not (= 0 (system/exit-code "make -j2 --quiet 2> /dev/null")))
   (printf-fail "Failed to compile a test binary.\n")
   (exit 1))
  (build "musl.out" (in-stdout (run "./test-musl")))
@@ -38,6 +38,6 @@
  (fuzz trial-count (add1 iter-count)))
 
 ;(sequence-for-each display (printf-stream 100 #t))
-(fuzz 1000)
+(with-handlers ([exn:break? (thunk* (display "\n"))]) (fuzz 1000))
 
 ; vim: set syn=scheme:
