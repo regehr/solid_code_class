@@ -9,8 +9,8 @@ fi
 gcc -o glibc-repro "$1"
 
 ./musl-repro
-mv out.bin musl.bin
+mv out.bin musl.repro
 ./glibc-repro
-mv out.bin glibc.bin
+mv out.bin glibc.repro
 rm musl-repro glibc-repro
-cmp musl.bin glibc.bin
+cmp musl.repro glibc.repro

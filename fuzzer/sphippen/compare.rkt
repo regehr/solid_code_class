@@ -12,12 +12,12 @@
   (define coverage-flags '("-fprofile-arcs" "-ftest-coverage"))
 
   (define (compile out objs [args '()])
-    (if (apply system* `(,gcc ,@args ,"-o" ,out ,@objs))
+    (if (apply system* `(,gcc ,@args "-o" ,out ,@objs))
       #t
       (raise-user-error 'compile "Couldn't compile to ~a.~%" out)))
 
   (define (compile-o src-name [args '()])
-    (if (apply system* `(,gcc ,@args ,"-c" ,src-name))
+    (if (apply system* `(,gcc ,@args "-c" ,src-name))
       #t
       (raise-user-error 'compile-o "Couldn't compile .o from ~a.~%" src-name)))
 

@@ -38,12 +38,12 @@
       ,(conv '(u)
              int-length-lst
              #t
-             '(|0| - | | +))
+             '(|0| -))
 
       ,(conv '(o x X)
              int-length-lst
              #t
-             '(|#| |0| - | | +))
+             '(|#| |0| -))
 
       ,(conv '(a A e E f F g G)
              '() ; TODO: (?) investigate '(L) weirdness in gcc
@@ -57,7 +57,7 @@
 
       ,(conv '(s)
              '(l)
-             #f
+             #t
              '())
 
       ,(conv '(%)
@@ -81,14 +81,56 @@
 
     (define value (generate-value char lenmod))
 
+    (define width
+      (if (and (not (void? value))
+               (= (random-integer 0 2) 0))
+        (let ([base (random-integer 0 2)])
+          (match base
+            [0 "*"]
+            [_ (generate-w/p)]))
+        ""))
+
+    (define width-value
+      (if (equal? width "*")
+        (generate-w/p)
+        (void)))
+
+    (define precision
+      (if (and (not (void? value))
+               (conv-precision conv)
+               (= (random-integer 0 2) 0))
+        (string-append "."
+          (let ([base (random-integer 0 3)])
+            (match base
+              [0 "*"]
+              [1 ""]
+              [_ (generate-w/p)])))
+        ""))
+
+    (define precision-value
+      (if (equal? precision ".*")
+        (generate-w/p)
+        (void)))
+
+    (define final-value
+      (cond
+        [(and (void? width-value)
+              (void? precision-value))
+         value]
+        [(void? width-value)
+         (string-append precision-value ", " value)]
+        [(void? precision-value)
+         (string-append width-value ", " value)]
+        [else (string-append width-value ", " precision-value ", " value)]))
+               
     ; go from symbols to strings for output
     (define conv-str (string-append (apply string-append (map symbol->string flags-list))
-                                    ; TODO: width goes here (remember '*')
-                                    ; TODO: precision goes here (remember '*')
+                                    width
+                                    precision
                                     (symbol->string lenmod)
                                     (symbol->string char)))
-    (if (void? value)
+    (if (void? final-value)
       (list conv-str)
-      (list conv-str value)))
+      (list conv-str final-value)))
 
 )
