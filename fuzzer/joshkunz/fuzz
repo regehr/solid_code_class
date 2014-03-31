@@ -30,14 +30,14 @@
  (build "musl.out" (in-stdout (run "./test-musl")))
  (build "local.out" (in-stdout (run "./test-local")))
 
+ (printf "[I: ~a] " iter-count)
  (if (not (eq? (system/exit-code "diff musl.out local.out > /dev/null") 0))
   (begin
-   (printf-fail "[~a] Had differing output.\n" iter-count)
+   (printf-fail "Output Differs.\n")
    (copy-file "test.c" (format "~a-test.c" iter-count))
    (copy-file "musl.out" (format "~a-musl.out" iter-count))
-   (copy-file "local.out" (format "~a-local.out" iter-count))
-  )
-  (printf-succ "[~a] OK.\n" iter-count)
+   (copy-file "local.out" (format "~a-local.out" iter-count)))
+  (printf-succ "OK.\n")
  )
  (when (= iter-count 12) (exit 0))
  (fuzz trial-count (add1 iter-count)))
