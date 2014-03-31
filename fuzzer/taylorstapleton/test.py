@@ -75,7 +75,7 @@ def runFiles(fileList, testCase , logfile):
 			print e
 
 		if(output != outputGcc):
-			logfile.write("print failed! expected = " + output + " actual = " + outputGcc + "file = \n" + file + "\n")
+			logfile.write("print failed! expected = " + output + " actual = " + outputGcc + "\n")
 			logfile.write("printf params = " + str(testCase[0]) + " " + str(testCase[1]) + " " + str(testCase[2]) + "\n" + "\n")
 			return False
 		else:
