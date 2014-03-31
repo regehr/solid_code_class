@@ -32,12 +32,9 @@
  (if (not (eq? (system/exit-code "diff musl.out local.out > /dev/null") 0))
   (begin
    (printf-fail "Output Differs.\n")
-   (copy-file "test.c" (format "~a-test.c" iter-count))
-   (copy-file "musl.out" (format "~a-musl.out" iter-count))
-   (copy-file "local.out" (format "~a-local.out" iter-count)))
+   (copy-file "test.c" (format "test-~a.c" iter-count))
   (printf-succ "OK.\n")
  )
- (when (= iter-count 12) (exit 0))
  (fuzz trial-count (add1 iter-count)))
 
 ;(sequence-for-each display (printf-stream 100 #t))
