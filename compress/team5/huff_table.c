@@ -126,35 +126,28 @@ huff_tree *build_huff_tree (int frequencies[])
         q[length++] = htree;
 	}
 
-	// Compare and combine huff_trees
-	while(length > 1) {
-        char zt_l, ot_l; // Zero tree lowest, one tree lowest
+    int zt_l, ot_l; // Zero tree lowest, one tree lowest
+    i = (CHAR_RANGE - 1);
+    for (; i > 0; i--) {
+        // Sort so the lowest valued nodes are in last of index
+        qsort(q, (i + 1), sizeof(huff_tree *), compare_huff_trees);
 
-        // Malloc
-		huff_tree *htree = (huff_tree *)malloc(sizeof(huff_tree));
-        *htree = (huff_tree){ 0 };
+        // Combine the smallest two into a new node
+        huff_tree *node = (huff_tree*)malloc(sizeof(huff_tree));
+        *node = (huff_tree){ 0 };
 
-        // Sort the current table of nodes
-		qsort(q, length, sizeof(huff_tree *), compare_huff_trees);
+        node->character = -1;
+        node->zero_tree = q[i];
+        node->one_tree = q[i - 1];
 
-        // Set the character to -1
-        htree->character = -1;
+        node->frequency = node->zero_tree->frequency + node->one_tree->frequency;
 
-        // Set the zero tree and one tree
-		htree->zero_tree = q[--length];
-		htree->one_tree = q[--length];
+        zt_l = node->zero_tree->lowest;
+        ot_l = node->one_tree->lowest;
 
-        // Set the lowest
-        zt_l = htree->zero_tree->lowest;
-        ot_l = htree->one_tree->lowest;
-        htree->lowest = (zt_l > ot_l) ? ot_l : zt_l;
-
-        // Compute the frequency
-		htree->frequency = htree->zero_tree->frequency + htree->one_tree->frequency;
-
-        // Enqueue this htree
-		q[length++] = htree;
-	}
+        node->lowest = (zt_l > ot_l) ? ot_l : zt_l;
+        q[i - 1] = node;
+    }
 
     if (q[0] == NULL) {
         q[0] = (huff_tree *)malloc(sizeof(huff_tree));
