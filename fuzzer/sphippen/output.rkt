@@ -16,7 +16,7 @@
 "#include <wchar.h>\n"
 "#include \"../musl-printf-standalone/musl.h\"\n"
 "\n"
-"#define LEN 10000\n"
+"#define LEN 1000000\n"
 "char buf[LEN];\n"
 "\n"
 "int main(int argc, char* argv[]) {\n"

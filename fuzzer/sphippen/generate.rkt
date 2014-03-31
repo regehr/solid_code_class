@@ -2,7 +2,7 @@
 
   (require (only-in math/base random-integer random-natural))
 
-  (provide pick-from generate-sl-char generate-value)
+  (provide pick-from generate-sl-char generate-value generate-w/p)
 
   (define (pick-from lst)
     (let ([index (random-natural (length lst))])
@@ -14,6 +14,9 @@
            [out (open-output-string)])
       (fprintf out "\\x~x" byte)
       (get-output-string out)))
+
+  (define (generate-w/p)
+    (number->string (random-integer 0 500)))
 
   (define (generate-value char lenmod)
     (match char
