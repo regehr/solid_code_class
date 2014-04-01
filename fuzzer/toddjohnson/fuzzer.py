@@ -7,6 +7,10 @@ import filecmp
 import decimal
 from random import randrange
 
+#Collaborated with Lynn Gao
+
+#Helo World Test 
+#Ensures code coverage is working
 def helloTest(value):
     file = open('test-printf.c', 'w')
     file.write("#include <stdio.h>\n")
@@ -20,6 +24,7 @@ def helloTest(value):
     file.write("return 0;\n}")
     file.close()
 
+#Fuzz Test 
 def fuzz(value, typeof):
     file = open("test-printf.c", "w")
     file.write("#include <stdio.h>\n")
@@ -33,44 +38,93 @@ def fuzz(value, typeof):
     file.write("return 0;\n}")
     file.close()
 
+#Fuzz Test adding options -, +, " ", #
+def fuzz_options(value, typeof, option):
+    file = open("test-printf.c", "w")
+    file.write("#include <stdio.h>\n")
+    file.write("#include <stdarg.h>\n")
+    file.write("#include \"musl.h\"\n")
+    file.write("#define LEN 10000\n")
+    file.write("char buf[LEN];\n")
+    file.write("int main(int argc, const char *argv[]) {\n")
+    file.write("musl_snprintf(buf, LEN, \"%" + option + typeof + "\" , " + str(value) + ");\n")
+    file.write("printf(\"%s\", buf);")
+    file.write("return 0;\n}")
+    file.close()
+
+#Test as many types (i.e. %d, %s, %i, etc.) as can think of
+
 #Int Test
 def intTest():
     fuzz(-2147483648, "i")
+    fuzz_options(-2147483648, "i", "-")
+    fuzz_options(-2147483648, "i", "+")
+    fuzz_options(-2147483648, "i", "\" \" ")
+    fuzz_options(-2147483648, "i", "#")
 
 def uintTest():
     fuzz(4294967295, "u")
+    fuzz(4294967295, "o")
+    fuzz_options(4294967295, "o", "#")
+    fuzz_options(4294967295, "u", "-")
+    fuzz_options(4294967295, "u", "+")
+    fuzz_options(4294967295, "u", " ")
+    fuzz_options(4294967295, "u", "#")
 
+#Hext Test
 def hexTest():
     fuzz(-2147483648, "x")
     fuzz(4294967295, "x")
+    fuzz(4294967295, "X")
+    fuzz_options(4294967295, "x", "#")
+
+#Long Test
+def longTest():
+    fuzz(-1024, "l")
+    fuzz(1024, "ul")
 
 #Long Long
 def longlongTest():
     fuzz(-2147483647L, "lli")
-
-def ulonglongTest():
     fuzz(4294967295L, "llu")
+    fuzz(-2147483647L, "llx")
+    fuzz(4294967295L, "llx")
+
+def longdoubleTest():
+    fuzz(1e37, "Lf")
+    fuzz(1e37, "llf")
+    fuzz(1e-37, "llf")
+    fuzz(1e+37, "lle")
+    fuzz(1e-37, "lle")
 
 #Char Test
 def charTest(value):
     fuzz(value, "c")
+    fuzz(value, "u")
 
 #Double Test
 def doubleTest():
     fuzz(12.22, "d")
+    fuzz(12.22, "E")
+    fuzz(12.22, "g")
 
 #Float Test
 def floatTest():
     fuzz(1.34, "f")
+    fuzz(1.34, "F")
+    fuzz(1.34, "G")
 
 #Short Test
 def ushortTest():
     fuzz(65535, "hu")
+    fuzz(65535, "hx")
 
 def shortTest():
     fuzz(-32768 , "hi")
+    fuzz(-32768, "hx")
 
 
+#Fuzz randomness
 def int_fuzz():
     n = 63
     test_ints = random_int(n)
@@ -115,9 +169,10 @@ def short_int():
 def bit_16():
     a = format(random.getrandbits(16), '016b')
     num = int(a, 2)
-    fuzz(num, "d")
-    fuzz(num, "u")
-    fuzz(num, "x")
+    fuzz_options(num, "d", "-")
+    fuzz_options(num, "u", "+")
+    fuzz_options(num, "x", "#")
+
 
 # long int, int, float
 def bit_32():
@@ -140,8 +195,9 @@ def main():
     intTest()        #23.71%
     uintTest()
     hexTest()
+    longTest()
     longlongTest()
-    ulonglongTest()
+    longdoubleTest()
     s = " ' d ' "
     charTest(s)
     doubleTest()
@@ -157,7 +213,7 @@ def main():
     fuzz(uint_test, "lu") 
     bit_16()
     bit_32()
-    bit_64() #40.87%
+    bit_64() #40.87% (Gotten 42.51%)
 
     print os.system("gcov vfprintf.c")
 
