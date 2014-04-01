@@ -1,0 +1,3 @@
+test-printf
+*.gcov
+*.gcno

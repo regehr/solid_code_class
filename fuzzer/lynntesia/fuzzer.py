@@ -5,12 +5,13 @@ import random
 import os
 import filecmp
 import decimal
-
+from random import randrange
 
 def fuzz_it(value):
 	file = open("test-printf.c", "w")
 	file.write("#include <stdio.h>\n")
 	file.write("#include <stdarg.h>\n")
+	file.write("#include <math.h>\n")
 	file.write("#include \"musl.h\"\n")
 	file.write("#define LEN 10000\n")
 	file.write("char buf[LEN];\n")
@@ -50,7 +51,7 @@ def int_fuzz():
 	test_ints = random_int(n)
 	return test_ints
 
-def bigint_fuzz():
+def sm_int_fuzz():
 	n = 31
 	test_ints = random_int(n)
 	return test_ints
@@ -59,16 +60,102 @@ def bigint_fuzz():
 def random_int(n):
 	return random.getrandbits(n)
 
+def large_int_fuzz():
+	n = 100
+	test_ints = random_int(n)
+	return test_ints
+
+def char_fuzz():
+	for i in range(255):
+		intstr = str(randrange(255))
+		fuzz_it_type(intstr, "c")
+	for i in range(255):
+		intstr2 = str(randrange(-128, 127))
+		fuzz_it_type(intstr2, "c")
+	a = format(random.getrandbits(8), '08b')
+	num = int(a, 2)
+	fuzz_it_type(num, "c")
+
+def u_short_int():
+	for i in range(200):
+		ui = str(randrange(0, 65535))
+		fuzz_it_type(ui, "u")
+	
+def short_int():
+	for i in range(200):
+		ssi = str(randrange(-32768, 32767))
+		fuzz_it_type(ssi, "i")
+
+# short int, unsigned short int, unsigned int
+def bit_16():
+	a = format(random.getrandbits(16), '016b')
+	num = int(a, 2)
+	fuzz_it_type(num, "d")
+	fuzz_it_type(num, "u")
+	fuzz_it_type(num, "x")
+
+# long int, int, float
+def bit_32():
+	a = format(random.getrandbits(32), '032b')
+	num = int(a, 2)
+	fuzz_it_type(num, "f")
+
+# double
+def bit_64():
+	a = format(random.getrandbits(64), '064b')
+	num = int(a, 2)
+	fuzz_it_type(num, "lf")
+	fuzz_it_type(num, "lg")
+	fuzz_it_type(num, "le")
+
+# long double
+def bit_96():
+	a = format(random.getrandbits(96), '096b')
+	num = int(a, 2)
+	fuzz_it_type(num, "ld")
+
+# strings 2048 bytes (?)
+def byte_2048():
+	st = "".join([random.choice(string.ascii_lowercase)
+        for x in xrange(2048)])
+	st = " \" " + st + " \\n \" "
+	fuzz_it(st)		
+
 
 def main():
+	'''
+	 d /* int, signed base 10 */
+	 i /* int, signed base 10 */
+	 o /* int, unsigned base 8, no leading 0 */
+	 x /* int, unsigned base 16, abcdef with no leading 0x */
+	 X /* int, unsigned base 16, ABCDEF with no leading 0X */
+	 u /* int, unsigned base 10 */
+	 s /* char *, nul terminated sequence of characters */
+	 c /* int, single character */
+	 f /* double, notation [-]mm.dd */
+	 e /* double, notation [-]m.dde[+/-]xx */
+	 E /* double, notation [-]m.ddE[+/-]xx */
+	 g /* double, %e if exponent is less than -4 or >= the precision, %f otherwise */
+	 G /* double, %E if exponent is less than -4 or >= the precision, %f otherwise */
+	'''
+	char_fuzz()
+	u_short_int()
+	short_int()
 	hello_test = " \" Hello fuzzer \\n \" "
 	fuzz_it(hello_test)
 	string_test = string_fuzz()
 	fuzz_it(string_test)
 	int_test = int_fuzz()
 	fuzz_it_type(int_test, "i")
-	uint_test = bigint_fuzz()
+	uint_test = sm_int_fuzz()
 	fuzz_it_type(uint_test, "lu")
+	bit_16()
+	bit_32()
+	bit_64()
+	
+	
+	
+		
 	
 	
 	print os.system("gcov vfprintf.c")
@@ -77,3 +164,4 @@ if __name__ == "__main__":
 	main()
 	
 	
+

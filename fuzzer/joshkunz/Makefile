@@ -43,4 +43,4 @@ clean:
 	-rm -f test-musl test-local
 	-rm -rf $(MUSL_LOCAL)
 	-rm *.c *.out
-	-rm -f *.gcda *.gcno *.gcov
+	-rm -f *.gcda *.gcno
