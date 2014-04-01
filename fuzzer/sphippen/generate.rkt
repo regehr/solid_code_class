@@ -58,9 +58,7 @@
       ['p
        (gen-in 0 18446744073709551615 "ULL" #:cast "void*")] ; need 64-bit for this to work
 
-      ['m
-       (symbol->string (pick-from '(EALREADY EINPROGRESS EPERM ENETDOWN)))] ; great list, I know
-
+      ['m (void)]
       ['% (void)]
       ['n (void)])) ; special cased down below
 
@@ -95,7 +93,7 @@
     (let ([expo (random-integer -300 301)]
           [mant (random)])
       (string-append
-        (number->string random)
+        (number->string mant)
         "e"
         (number->string expo))))
 

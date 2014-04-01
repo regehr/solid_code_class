@@ -16,6 +16,7 @@
 "#include <math.h>\n"
 "#include <stdint.h>\n"
 "#include <wchar.h>\n"
+"#include <errno.h>\n"
 "#include \"../musl-printf-standalone/musl.h\"\n"
 "\n"
 "#define LEN 1000000\n"
@@ -48,6 +49,7 @@
 "#include <math.h>\n"
 "#include <stdint.h>\n"
 "#include <wchar.h>\n"
+"#include <errno.h>\n"
 "\n"
 "int main(int argc, char* argv[]) {\n"
 "  FILE* out = fopen(\"out.bin\", \"w\");\n"))
