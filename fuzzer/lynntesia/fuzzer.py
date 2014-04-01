@@ -114,6 +114,13 @@ def bit_96():
 	num = int(a, 2)
 	fuzz_it_type(num, "ld")
 
+# strings 2048 bytes (?)
+def byte_2048():
+	st = "".join([random.choice(string.ascii_lowercase)
+        for x in xrange(2048)])
+	st = " \" " + st + " \\n \" "
+	fuzz_it(st)		
+
 
 def main():
 	'''
@@ -145,6 +152,7 @@ def main():
 	bit_16()
 	bit_32()
 	bit_64()
+	
 	
 	
 		
