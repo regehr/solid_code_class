@@ -83,15 +83,21 @@
   (define (gen-double)
     (match (random-integer 0 1000)
       [0 "INFINITY"]
-      [1 "NAN"]
+      [1 "-INFINITY"]
+      [2 "NAN"]
+      [3 "-NAN"]
       [_ (gen-number-double)]))
 
   (define (gen-long-double)
-    (string-append "(long double)" (gen-double))) ; TODO - better coverage here
+    (string-append "(long double)" (gen-double)))
 
   (define (gen-number-double)
-    (number->string
-      (* 1e300 (- (random) 0.5)))) ; TODO: better coverage here
+    (let ([expo (random-integer -300 301)]
+          [mant (random)])
+      (string-append
+        (number->string random)
+        "e"
+        (number->string expo))))
 
   (define (generate-n-values var lenmod)
     (let ([type (match lenmod
