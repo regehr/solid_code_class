@@ -19,6 +19,6 @@ cov:
 	$(GCOV) vfprintf.c
 
 clean:
-	rm -f *.o *.gcov *.gcno *.gcda *.a fuzzer
+	rm -f *.o *.gcno *.gcda *.a fuzzer
 	rm test-printf.c
 
