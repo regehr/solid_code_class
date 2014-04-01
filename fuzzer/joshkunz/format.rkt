@@ -7,10 +7,17 @@
 
 (define *signed-decimal*
  (uniformly-weighted '(d i n)))
+
 (define *unsigned-decimal*
  (uniformly-weighted '(o u x X)))
+;(define *unsigned-decimal*
+; (uniformly-weighted '(u x X)))
+
 (define *floating-point*
  (uniformly-weighted '(e E f F g G a A)))
+;(define *floating-point*
+; (uniformly-weighted '(e E f F g G)))
+
 (define *string*
  (uniformly-weighted '(s m)))
 ; Specified below: c p
@@ -25,7 +32,7 @@
 ; These format specifiers can never have anything more then length modifiers
 (define *length-only* '(m n p))
 
-(define *field-width-range* '(-5 60))
+(define *field-width-range* '(-5 275))
 (define *precision-range* '(0 60))
 
 (provide 
@@ -69,6 +76,7 @@
 
 (provide 
  fmt fmt? fmt-flags fmt-width fmt-precision fmt-length fmt-conversion
+ takes-arg?
  fmt-precision->integer
  fmt-flags->string fmt-width->string fmt-precision->string fmt-length->string
  fmt-conversion->string
@@ -76,6 +84,9 @@
 
 (struct fmt 
  (flags width precision length conversion) #:transparent)
+
+(define (takes-arg? fmt)
+ (not (eq? (fmt-conversion fmt) 'm)))
 
 (define (fmt-flags->string fmt)
  (if [null? (fmt-flags fmt)] ""
@@ -133,9 +144,11 @@
   (if [chance? 'left-flag] "-" "")
   (if [and (signed? type) 
            (not (eq? conv 'c))
+           ;(not (in? conv (no-weights *floating-point*)))
            (chance? 'space-flag)] " " "")
   (if [and (signed? type)
            (not (eq? conv 'c))
+           ;(not (in? conv (no-weights *floating-point*)))
            (chance? 'sign-flag)] "+" "")
  )
 )
@@ -143,15 +156,19 @@
 (define (gen-width)
  (apply random-integer *field-width-range*))
 
-(define (gen-precision)
+(define (gen-precision type)
  (if (chance? 'precision-dotonly) 'empty
-  (apply random-integer *precision-range*)))
+  (apply random-integer
+   *precision-range*)))
+   ;(if (oftype? type *float-type*) '(0 5) *precision-range*))))
 
 (define (gen-fmt type)
  (let ([conv (type->conv-specifier type)])
   (if (in? conv *length-only*)
    (fmt null null null 
-    (if (eq? conv 'm) null (type->length-specifier type)) conv)
+    ; M doesn't convert, so omit any applicable length spec.
+    (if (eq? conv 'm) null 
+     (type->length-specifier type)) conv)
    (fmt
     (if [and (not (eq? conv 's))
              (chance? 'format-flags)]
@@ -161,7 +178,7 @@
     ; Precision is not valid for character conversions
     (if [and (not (eq? conv 'c)) 
              (chance? 'format-precision)]
-     (gen-precision) null)
+     (gen-precision type) null)
     ; Chars have a length specifier, but if we want print a char
     ; as an actual character we shouldn't include it.
     (if [and (eq? 'c conv) 

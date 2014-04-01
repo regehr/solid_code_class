@@ -1,0 +1,548 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4DC2A6AB18E5052C00106587 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2A6AA18E5052C00106587 /* Cocoa.framework */; };
+		4DC2A6B518E5052C00106587 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2A6B318E5052C00106587 /* InfoPlist.strings */; };
+		4DC2A6B718E5052C00106587 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6B618E5052C00106587 /* main.m */; };
+		4DC2A6BB18E5052C00106587 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2A6B918E5052C00106587 /* Credits.rtf */; };
+		4DC2A6BE18E5052C00106587 /* MUSAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6BD18E5052C00106587 /* MUSAppDelegate.m */; };
+		4DC2A6C118E5052C00106587 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2A6BF18E5052C00106587 /* MainMenu.xib */; };
+		4DC2A6C318E5052C00106587 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2A6C218E5052C00106587 /* Images.xcassets */; };
+		4DC2A6CA18E5052C00106587 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2A6C918E5052C00106587 /* XCTest.framework */; };
+		4DC2A6CB18E5052C00106587 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2A6AA18E5052C00106587 /* Cocoa.framework */; };
+		4DC2A6D318E5052C00106587 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2A6D118E5052C00106587 /* InfoPlist.strings */; };
+		4DC2A6D518E5052C00106587 /* muslFuzzerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6D418E5052C00106587 /* muslFuzzerTests.m */; };
+		4DC2A6EF18E505E500106587 /* MUSFuzzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6EE18E505E500106587 /* MUSFuzzer.m */; };
+		4DC2A6F518E5062B00106587 /* fwrite.c in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6F018E5062B00106587 /* fwrite.c */; };
+		4DC2A6F618E5062B00106587 /* snprintf.c in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6F218E5062B00106587 /* snprintf.c */; };
+		4DC2A6F718E5062B00106587 /* vfprintf.c in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6F318E5062B00106587 /* vfprintf.c */; };
+		4DC2A6F818E5062B00106587 /* vsnprintf.c in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6F418E5062B00106587 /* vsnprintf.c */; };
+		4DC2A6FB18E519CA00106587 /* MUSErrorObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2A6FA18E519CA00106587 /* MUSErrorObject.m */; };
+		4DD447A718E5544C002E90ED /* MUSFuzzController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD447A618E5544C002E90ED /* MUSFuzzController.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4DC2A6CC18E5052C00106587 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DC2A69F18E5052C00106587 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4DC2A6A618E5052C00106587;
+			remoteInfo = muslFuzzer;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4DC2A6A718E5052C00106587 /* muslFuzzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = muslFuzzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DC2A6AA18E5052C00106587 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		4DC2A6AD18E5052C00106587 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		4DC2A6AE18E5052C00106587 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		4DC2A6AF18E5052C00106587 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		4DC2A6B218E5052C00106587 /* muslFuzzer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "muslFuzzer-Info.plist"; sourceTree = "<group>"; };
+		4DC2A6B418E5052C00106587 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4DC2A6B618E5052C00106587 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4DC2A6B818E5052C00106587 /* muslFuzzer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "muslFuzzer-Prefix.pch"; sourceTree = "<group>"; };
+		4DC2A6BA18E5052C00106587 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		4DC2A6BC18E5052C00106587 /* MUSAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MUSAppDelegate.h; sourceTree = "<group>"; };
+		4DC2A6BD18E5052C00106587 /* MUSAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MUSAppDelegate.m; sourceTree = "<group>"; };
+		4DC2A6C018E5052C00106587 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		4DC2A6C218E5052C00106587 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		4DC2A6C818E5052C00106587 /* muslFuzzerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = muslFuzzerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DC2A6C918E5052C00106587 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		4DC2A6D018E5052C00106587 /* muslFuzzerTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "muslFuzzerTests-Info.plist"; sourceTree = "<group>"; };
+		4DC2A6D218E5052C00106587 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4DC2A6D418E5052C00106587 /* muslFuzzerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = muslFuzzerTests.m; sourceTree = "<group>"; };
+		4DC2A6ED18E505E500106587 /* MUSFuzzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MUSFuzzer.h; path = ../MUSFuzzer.h; sourceTree = "<group>"; };
+		4DC2A6EE18E505E500106587 /* MUSFuzzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MUSFuzzer.m; path = ../MUSFuzzer.m; sourceTree = "<group>"; };
+		4DC2A6F018E5062B00106587 /* fwrite.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fwrite.c; sourceTree = "<group>"; };
+		4DC2A6F118E5062B00106587 /* musl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = musl.h; sourceTree = "<group>"; };
+		4DC2A6F218E5062B00106587 /* snprintf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = snprintf.c; sourceTree = "<group>"; };
+		4DC2A6F318E5062B00106587 /* vfprintf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vfprintf.c; sourceTree = "<group>"; };
+		4DC2A6F418E5062B00106587 /* vsnprintf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vsnprintf.c; sourceTree = "<group>"; };
+		4DC2A6F918E519CA00106587 /* MUSErrorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MUSErrorObject.h; sourceTree = "<group>"; };
+		4DC2A6FA18E519CA00106587 /* MUSErrorObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MUSErrorObject.m; sourceTree = "<group>"; };
+		4DD447A518E5544C002E90ED /* MUSFuzzController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MUSFuzzController.h; sourceTree = "<group>"; };
+		4DD447A618E5544C002E90ED /* MUSFuzzController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MUSFuzzController.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4DC2A6A418E5052C00106587 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2A6AB18E5052C00106587 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DC2A6C518E5052C00106587 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2A6CB18E5052C00106587 /* Cocoa.framework in Frameworks */,
+				4DC2A6CA18E5052C00106587 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4DC2A69E18E5052C00106587 = {
+			isa = PBXGroup;
+			children = (
+				4DD447A518E5544C002E90ED /* MUSFuzzController.h */,
+				4DD447A618E5544C002E90ED /* MUSFuzzController.m */,
+				4DC2A6F918E519CA00106587 /* MUSErrorObject.h */,
+				4DC2A6FA18E519CA00106587 /* MUSErrorObject.m */,
+				4DC2A6B018E5052C00106587 /* muslFuzzer */,
+				4DC2A6CE18E5052C00106587 /* muslFuzzerTests */,
+				4DC2A6A918E5052C00106587 /* Frameworks */,
+				4DC2A6A818E5052C00106587 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4DC2A6A818E5052C00106587 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2A6A718E5052C00106587 /* muslFuzzer.app */,
+				4DC2A6C818E5052C00106587 /* muslFuzzerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DC2A6A918E5052C00106587 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2A6AA18E5052C00106587 /* Cocoa.framework */,
+				4DC2A6C918E5052C00106587 /* XCTest.framework */,
+				4DC2A6AC18E5052C00106587 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4DC2A6AC18E5052C00106587 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2A6AD18E5052C00106587 /* AppKit.framework */,
+				4DC2A6AE18E5052C00106587 /* CoreData.framework */,
+				4DC2A6AF18E5052C00106587 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		4DC2A6B018E5052C00106587 /* muslFuzzer */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2A6DE18E5053400106587 /* musl lib */,
+				4DC2A6ED18E505E500106587 /* MUSFuzzer.h */,
+				4DC2A6EE18E505E500106587 /* MUSFuzzer.m */,
+				4DC2A6BC18E5052C00106587 /* MUSAppDelegate.h */,
+				4DC2A6BD18E5052C00106587 /* MUSAppDelegate.m */,
+				4DC2A6BF18E5052C00106587 /* MainMenu.xib */,
+				4DC2A6C218E5052C00106587 /* Images.xcassets */,
+				4DC2A6B118E5052C00106587 /* Supporting Files */,
+			);
+			path = muslFuzzer;
+			sourceTree = "<group>";
+		};
+		4DC2A6B118E5052C00106587 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2A6B218E5052C00106587 /* muslFuzzer-Info.plist */,
+				4DC2A6B318E5052C00106587 /* InfoPlist.strings */,
+				4DC2A6B618E5052C00106587 /* main.m */,
+				4DC2A6B818E5052C00106587 /* muslFuzzer-Prefix.pch */,
+				4DC2A6B918E5052C00106587 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4DC2A6CE18E5052C00106587 /* muslFuzzerTests */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2A6D418E5052C00106587 /* muslFuzzerTests.m */,
+				4DC2A6CF18E5052C00106587 /* Supporting Files */,
+			);
+			path = muslFuzzerTests;
+			sourceTree = "<group>";
+		};
+		4DC2A6CF18E5052C00106587 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2A6D018E5052C00106587 /* muslFuzzerTests-Info.plist */,
+				4DC2A6D118E5052C00106587 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4DC2A6DE18E5053400106587 /* musl lib */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2A6F018E5062B00106587 /* fwrite.c */,
+				4DC2A6F118E5062B00106587 /* musl.h */,
+				4DC2A6F218E5062B00106587 /* snprintf.c */,
+				4DC2A6F318E5062B00106587 /* vfprintf.c */,
+				4DC2A6F418E5062B00106587 /* vsnprintf.c */,
+			);
+			name = "musl lib";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4DC2A6A618E5052C00106587 /* muslFuzzer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DC2A6D818E5052C00106587 /* Build configuration list for PBXNativeTarget "muslFuzzer" */;
+			buildPhases = (
+				4DC2A6A318E5052C00106587 /* Sources */,
+				4DC2A6A418E5052C00106587 /* Frameworks */,
+				4DC2A6A518E5052C00106587 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = muslFuzzer;
+			productName = muslFuzzer;
+			productReference = 4DC2A6A718E5052C00106587 /* muslFuzzer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4DC2A6C718E5052C00106587 /* muslFuzzerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DC2A6DB18E5052C00106587 /* Build configuration list for PBXNativeTarget "muslFuzzerTests" */;
+			buildPhases = (
+				4DC2A6C418E5052C00106587 /* Sources */,
+				4DC2A6C518E5052C00106587 /* Frameworks */,
+				4DC2A6C618E5052C00106587 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4DC2A6CD18E5052C00106587 /* PBXTargetDependency */,
+			);
+			name = muslFuzzerTests;
+			productName = muslFuzzerTests;
+			productReference = 4DC2A6C818E5052C00106587 /* muslFuzzerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4DC2A69F18E5052C00106587 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = MUS;
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "Adam Bradford";
+				TargetAttributes = {
+					4DC2A6C718E5052C00106587 = {
+						TestTargetID = 4DC2A6A618E5052C00106587;
+					};
+				};
+			};
+			buildConfigurationList = 4DC2A6A218E5052C00106587 /* Build configuration list for PBXProject "muslFuzzer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4DC2A69E18E5052C00106587;
+			productRefGroup = 4DC2A6A818E5052C00106587 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4DC2A6A618E5052C00106587 /* muslFuzzer */,
+				4DC2A6C718E5052C00106587 /* muslFuzzerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4DC2A6A518E5052C00106587 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2A6B518E5052C00106587 /* InfoPlist.strings in Resources */,
+				4DC2A6C318E5052C00106587 /* Images.xcassets in Resources */,
+				4DC2A6BB18E5052C00106587 /* Credits.rtf in Resources */,
+				4DC2A6C118E5052C00106587 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DC2A6C618E5052C00106587 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2A6D318E5052C00106587 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4DC2A6A318E5052C00106587 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2A6BE18E5052C00106587 /* MUSAppDelegate.m in Sources */,
+				4DD447A718E5544C002E90ED /* MUSFuzzController.m in Sources */,
+				4DC2A6FB18E519CA00106587 /* MUSErrorObject.m in Sources */,
+				4DC2A6F618E5062B00106587 /* snprintf.c in Sources */,
+				4DC2A6F818E5062B00106587 /* vsnprintf.c in Sources */,
+				4DC2A6F718E5062B00106587 /* vfprintf.c in Sources */,
+				4DC2A6EF18E505E500106587 /* MUSFuzzer.m in Sources */,
+				4DC2A6F518E5062B00106587 /* fwrite.c in Sources */,
+				4DC2A6B718E5052C00106587 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DC2A6C418E5052C00106587 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2A6D518E5052C00106587 /* muslFuzzerTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4DC2A6CD18E5052C00106587 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4DC2A6A618E5052C00106587 /* muslFuzzer */;
+			targetProxy = 4DC2A6CC18E5052C00106587 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		4DC2A6B318E5052C00106587 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4DC2A6B418E5052C00106587 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		4DC2A6B918E5052C00106587 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4DC2A6BA18E5052C00106587 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		4DC2A6BF18E5052C00106587 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4DC2A6C018E5052C00106587 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		4DC2A6D118E5052C00106587 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4DC2A6D218E5052C00106587 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4DC2A6D618E5052C00106587 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-ftest-coverage",
+					"-fprofile-arcs",
+				);
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4DC2A6D718E5052C00106587 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_CFLAGS = (
+					"-ftest-coverage",
+					"-fprofile-arcs",
+				);
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4DC2A6D918E5052C00106587 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "muslFuzzer/muslFuzzer-Prefix.pch";
+				GENERATE_PROFILING_CODE = NO;
+				INFOPLIST_FILE = "muslFuzzer/muslFuzzer-Info.plist";
+				OTHER_CFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		4DC2A6DA18E5052C00106587 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "muslFuzzer/muslFuzzer-Prefix.pch";
+				GENERATE_PROFILING_CODE = NO;
+				INFOPLIST_FILE = "muslFuzzer/muslFuzzer-Info.plist";
+				OTHER_CFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		4DC2A6DC18E5052C00106587 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/muslFuzzer.app/Contents/MacOS/muslFuzzer";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "muslFuzzer/muslFuzzer-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "muslFuzzerTests/muslFuzzerTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		4DC2A6DD18E5052C00106587 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/muslFuzzer.app/Contents/MacOS/muslFuzzer";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "muslFuzzer/muslFuzzer-Prefix.pch";
+				INFOPLIST_FILE = "muslFuzzerTests/muslFuzzerTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4DC2A6A218E5052C00106587 /* Build configuration list for PBXProject "muslFuzzer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DC2A6D618E5052C00106587 /* Debug */,
+				4DC2A6D718E5052C00106587 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4DC2A6D818E5052C00106587 /* Build configuration list for PBXNativeTarget "muslFuzzer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DC2A6D918E5052C00106587 /* Debug */,
+				4DC2A6DA18E5052C00106587 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4DC2A6DB18E5052C00106587 /* Build configuration list for PBXNativeTarget "muslFuzzerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DC2A6DC18E5052C00106587 /* Debug */,
+				4DC2A6DD18E5052C00106587 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4DC2A69F18E5052C00106587 /* Project object */;
+}

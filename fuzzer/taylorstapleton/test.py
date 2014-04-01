@@ -277,6 +277,13 @@ def createTestCase():
         elif(randomNumber == 61):
                 testCase[0] = "Xll"
                 testCase[1] = str(random.getrandbits(63))
+        elif(randomNumber == 62):
+                testCase[0] = "S"
+                testCase[1] = str(random.getrandbits(32))
+        elif(randomNumber == 63):
+                testCase[0] = "C"
+                testCase[1] = str(random.getrandbits(8))
+
 
 
 	randomOper = random.randint(0,1)

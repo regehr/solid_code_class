@@ -2,22 +2,49 @@
 
 The main script for "musl-printf-fuzzer".
 
+## Requires
+
     async = require 'async'
     exec = require('child_process').exec
     fs = require 'fs'
     tmp = require 'tmp'
 
-    muslGcc = '/usr/local/musl/bin/musl-gcc'
-    gnuGcc = 'gcc'
-    callsPerFile = 1
+## Configuration
+
+    cc = 'gcc'
+    cflags = '-coverage'
+    times = 1024
+    callsPerFile = 1024
+    bufferSize = 1024
+    maxPadding = 64
+
+### Probabilities
+
+The chance we're done generating the format string.
 
     breakChance = .05
+
+The chance that we insert a format string instead of a displayable character.
+
     formatStringChance = .2
+
+The chance that a flag is present in a format string.
+
     flagChance = .1
+
+The chance that a width is specified.
+
     widthChance = .1
+
+The chance that a precision is specified.
+
     precisionChance = .1
+
+The chance that an `*` will be used instead of a number for width and precision.
+
     starChance = .2
-    maxPadding = 64
+
+### Types
 
     types =
       'int':
@@ -39,18 +66,23 @@ The main script for "musl-printf-fuzzer".
         min: -(2 ** 31)
         max: 2 ** 31 - 1
 
+### Displayable Characters
+
+An array of escaped, single-character, string literals.
+
     displayable = [
-      ' ',   '!',   '\\"', '#',   '$',   '&',   '\'',  '(',   ')',   '*'
-      '+',   ',',   '-',   '.',   '/',   '0',   '1',   '2',   '3',   '4'
-      '5',   '6',   '7',   '8',   '9',   ':',   ';',   '<',   '=',   '>'
-      '?',   '@',   'A',   'B',   'C',   'D',   'E',   'F',   'G',   'H'
-      'I',   'J',   'K',   'L',   'M',   'N',   'O',   'P',   'Q',   'R'
-      'S',   'T',   'U',   'V',   'W',   'X',   'Y',   'Z',   '[',   '\\\\'
-      ']',   '^',   '_',   '`',   'a',   'b',   'c',   'd',   'e',   'f'
-      'g',   'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',   'p'
-      'q',   'r',   's',   't',   'u',   'v',   'w',   'x',   'y',   'z'
-      '{',   '|',   '}',   '~'
+      ' ',   '!',   '\\"', '#',   '$',   '&',   '\'',  '(',   ')',   '*',   '+'
+      ',',   '-',   '.',   '/',   '0',   '1',   '2',   '3',   '4',   '5',   '6'
+      '7',   '8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',   '@',   'A'
+      'B',   'C',   'D',   'E',   'F',   'G',   'H',   'I',   'J',   'K',   'L'
+      'M',   'N',   'O',   'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W'
+      'X',   'Y',   'Z',   '[',   '\\\\',']',   '^',   '_',   '`',   'a',   'b'
+      'c',   'd',   'e',   'f',   'g',   'h',   'i',   'j',   'k',   'l',   'm'
+      'n',   'o',   'p',   'q',   'r',   's',   't',   'u',   'v',   'w',   'x'
+      'y',   'z',   '{',   '|',   '}',   '~'
     ]
+
+### Format Specifiers
 
     formatSpecifiers = [
       {
@@ -71,23 +103,56 @@ The main script for "musl-printf-fuzzer".
       }
     ]
 
+### `tmp` Cleanup Setting
+
 Clean up temporary files even when an uncaught exception occurs.
 
     tmp.setGracefulCleanup()
 
+## Helper Functions
+
+### `randomInRange()`
+
+Returns a random number in the range [`min`, `max`).
+
     randomInRange = (min, max) -> Math.floor(Math.random() * (max - min)) + min
+
+### `randomElement()`
+
+Returns a random element from `array`.
+
     randomElement = (array) -> array[randomInRange(0, array.length)]
 
-    tries = 0
+### `pad()
+
+    pad = (n, width) ->
+      n = String n
+      if n.length >= width
+        n
+      else
+        new Array(width - n.length + 1).join('0') + n
+
+## Main Script
+
+### State
+
+The small amount of state necessary to display which "try" the app is executing
+and how many tries have resulted in errors.
+
     errors = 0
 
-    async.forever(
-      (callback) ->
-        console.log "Try: #{tries} Errors: #{errors}"
-        tries += 1
+### The Loop
+
+    async.timesSeries(
+      times
+      (n, callback) ->
+        console.log "Try: #{n} Errors: #{errors}"
         async.auto(
           {
-            cTmpFile: (callback) -> tmp.tmpName postfix: '.c', callback
+            cTmpFile: (callback) -> tmp.tmpName(
+              prefix: pad(n, 4), postfix: '.c'
+              callback
+            )
 
             writer: ['cTmpFile', (callback, results) ->
               callback null, fs.createWriteStream(results.cTmpFile)
@@ -97,8 +162,11 @@ Clean up temporary files even when an uncaught exception occurs.
               results.writer.write(
                 """
                 #include <stdio.h>
+                #include "#{process.cwd()}/../musl-printf-standalone/musl.h"
 
                 int main() {
+                  char musl[#{bufferSize}];
+                  char gnu[#{bufferSize}];
 
                 """
                 callback
@@ -107,7 +175,7 @@ Clean up temporary files even when an uncaught exception occurs.
 
             printfCalls: (callback) ->
               vars = 0
-              callback null, (for _ in [0...callsPerFile]
+              callback null, (for i in [0...callsPerFile]
                 declarations = []
                 args = []
                 args[0] = []
@@ -155,8 +223,11 @@ Clean up temporary files even when an uncaught exception occurs.
 
                 args[0] = "\"#{args[0].join ''}\\n\""
                 """
+                  // #{i}
                 #{declarations.join '\n'}
-                  printf(#{args.join ', '});
+                  musl_snprintf(musl, #{bufferSize}, #{args.join ', '});
+                  snprintf(gnu, #{bufferSize}, #{args.join ', '});
+                  if (strcmp(musl, gnu) != 0) printf("Call #{i} failed!");
 
                 """
               )
@@ -164,13 +235,7 @@ Clean up temporary files even when an uncaught exception occurs.
 
             writeBody: ['writeHeader', 'printfCalls', (callback, results) ->
               for call, i in results.printfCalls
-                results.writer.write(
-                  """
-                    // #{i}
-                  #{call}
-                  """
-                  callback
-                )
+                results.writer.write call, callback
             ]
 
             writeFooter: ['writeBody', (callback, results) ->
@@ -184,61 +249,39 @@ Clean up temporary files even when an uncaught exception occurs.
               )
             ]
 
-            muslOutFile: (callback) -> tmp.tmpName postfix: '.out', callback
+            outFile: (callback) -> tmp.tmpName(
+              prefix: pad(n, 4), postfix: '.out'
+              callback
+            )
 
-            compileMusl: ['writeFooter', 'muslOutFile', (callback, results) ->
+            compile: ['writeFooter', 'outFile', (callback, results) ->
               exec(
-                "#{muslGcc} -o #{results.muslOutFile} #{results.cTmpFile}"
+                "#{cc} #{cflags} -o #{results.outFile} #{results.cTmpFile}
+                  ../musl-printf-standalone/fwrite.o
+                  ../musl-printf-standalone/snprintf.o
+                  ../musl-printf-standalone/vfprintf.o
+                  ../musl-printf-standalone/vsnprintf.o"
                 callback
               )
             ]
 
-            muslStdoutFile: (callback) -> tmp.tmpName callback
-
-            execMusl: ['compileMusl', 'muslStdoutFile', (callback, results) ->
-              stdoutFile = fs.createWriteStream results.muslStdoutFile
-              child = exec "#{results.muslOutFile}", callback
-              child.stdout.pipe stdoutFile
-            ]
-
-            gnuOutFile: (callback) -> tmp.tmpName postfix: '.out', callback
-
-            compileGnu: ['writeFooter', 'gnuOutFile', (callback, results) ->
-              exec(
-                "#{gnuGcc} -o #{results.gnuOutFile} #{results.cTmpFile}"
-                callback
-              )
-            ]
-
-            gnuStdoutFile: (callback) -> tmp.tmpName callback
-
-            execGnu: ['compileGnu', 'gnuStdoutFile', (callback, results) ->
-              stdoutFile = fs.createWriteStream results.gnuStdoutFile
-              child = exec "#{results.gnuOutFile}", callback
-              child.stdout.pipe stdoutFile
-            ]
-
-            diffOutputs: ['execMusl', 'execGnu', (callback, results) ->
-              exec "diff #{results.muslStdoutFile} #{results.gnuStdoutFile}",
-                callback
+            exec: ['compile', (callback, results) ->
+              exec "#{results.outFile}", callback
             ]
           }
           (err, results) ->
             if err? then callback err
 
-            if results.diffOutputs[0] isnt ''
+            if results.exec[0] isnt ''
               console.log "Saving error as error#{errors}.c"
               fs.createReadStream(results.cTmpFile)
               .pipe fs.createWriteStream("error#{errors}.c")
               errors += 1
 
             fs.unlink results.cTmpFile
-            fs.unlink results.muslOutFile
-            fs.unlink results.gnuOutFile
-            fs.unlink results.muslStdoutFile
-            fs.unlink results.gnuStdoutFile
+            fs.unlink results.outFile
 
             callback()
         )
-      (err) -> throw err if err?
-    )
+      (err) -> if err? then throw err
+      )

@@ -16,7 +16,9 @@
 
 (define *type-sizes* 
  (uniformly-weighted 
-  (append *integer-type* *float-type* *string-type*)))
+  (append *integer-type* *float-type* *string-type*)
+  ;(append *integer-type* *string-type*)
+))
 
 (define *type-signs*
  (uniformly-weighted '(signed unsigned)))

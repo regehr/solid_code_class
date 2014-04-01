@@ -71,3 +71,9 @@ for lines in range(0, 1000):
 #close up the C file
 writeTo.write('return 0;\n}\n')
 writeTo.close()
+
+#run the make file
+subprocess.call(['make'])
+
+#run the executable
+subprocess.call(['./test-printf'])

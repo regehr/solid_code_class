@@ -1,0 +1,3011 @@
+#include <stdio.h>
+#include <stdarg.h>
+#include "musl.h"
+
+#define LEN 10000
+char buf[LEN];
+
+int main (void)
+{
+musl_snprintf(buf, LEN, "%lg\n%le\n%f\n%o\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%x\n%le\n%o\n", 2.22507385851e-308, -2147483649, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%u\n%le\n%c\n", 1.79769313486e+308, 0, 2.22507385851e-308, 'R');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%ld\n%ld\n%o\n", 1.79769313486e+308, 9223372036854775807, -9223372036854775809, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%le\n%s\n%le\n", 0, 1.79769313486e+308, "and\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%ld\n%lu\n%g\n", '^', 9223372036854775807, 18446744073709551616, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%u\n%lu\n%lf\n", 9223372036854775807, 4294967296, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%g\n%g\n%lu\n", '`', 2.22507385851e-308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%c\n%e\n", 0, 2.22507385851e-308, 'S', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%s\n%lf\n%o\n", 2147483647, "for\n", 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%s\n%lf\n%s\n", -9223372036854775809, "now\n", 2.22507385851e-308, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%f\n%lf\n", -2147483649, 2147483647, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lg\n%d\n%u\n", 1.79769313486e+308, 2.22507385851e-308, 2147483647, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%le\n%o\n%e\n", 1.79769313486e+308, 1.79769313486e+308, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%c\n%x\n%u\n", 18446744073709551616, 'u', 2147483647, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%le\n%d\n%lg\n", 2.22507385851e-308, 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%x\n%lu\n%lg\n", "completely\n", 2147483647, 18446744073709551616, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%f\n%le\n%d\n", 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%ld\n%lg\n%lf\n", -9223372036854775809, -9223372036854775809, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lf\n%x\n%u\n", 1.79769313486e+308, 2.22507385851e-308, 2147483647, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%lf\n%ld\n", -2147483649, 18446744073709551616, 2.22507385851e-308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%lf\n%lu\n", "completely\n", 'Y', 2.22507385851e-308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%x\n%g\n%le\n", 1.79769313486e+308, -2147483649, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%o\n%s\n%f\n", 1.79769313486e+308, -2147483649, "completely\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%le\n%g\n", 4294967296, -9223372036854775809, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lu\n%e\n%x\n", 1.79769313486e+308, 18446744073709551616, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%o\n%lf\n%x\n", -9223372036854775809, -2147483649, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lu\n%f\n%lf\n", -2147483649, 18446744073709551616, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%le\n%s\n%le\n", 'W', 1.79769313486e+308, "completely\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%s\n%u\n%u\n", 2.22507385851e-308, "now\n", 4294967296, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lg\n%o\n%ld\n", 1.79769313486e+308, 1.79769313486e+308, 2147483647, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%o\n%lf\n%x\n", 9223372036854775807, 2147483647, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%u\n%c\n%lg\n", 18446744073709551616, 4294967296, 'X', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%f\n%s\n", 2.22507385851e-308, -2147483649, 1.79769313486e+308, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%g\n%le\n%ld\n", 0, 2.22507385851e-308, 2.22507385851e-308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%o\n%c\n%d\n", 18446744073709551616, 2147483647, '2', -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%c\n%g\n%x\n", 1.79769313486e+308, 'P', 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%le\n%f\n%o\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%g\n%le\n%d\n", -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%d\n%s\n%lf\n", 0, 2147483647, "now\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%le\n%s\n%lg\n", "and\n", 1.79769313486e+308, "different\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lu\n%d\n%o\n", 2.22507385851e-308, 18446744073709551616, -2147483649, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%d\n%o\n", 'v', -2147483649, 2147483647, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%u\n%d\n%s\n", "for\n", 0, -2147483649, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lu\n%f\n%e\n", 0, 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%ld\n%e\n%u\n", 2.22507385851e-308, -9223372036854775809, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lu\n%lu\n%lg\n", 2.22507385851e-308, 0, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%g\n%ld\n", '5', 2147483647, 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%o\n%lg\n%ld\n", 2.22507385851e-308, -2147483649, 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%le\n%lu\n%lu\n", 2.22507385851e-308, 2.22507385851e-308, 0, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lf\n%e\n%o\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%e\n%lu\n%s\n", -2147483649, 1.79769313486e+308, 18446744073709551616, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%le\n%c\n%lf\n", 2.22507385851e-308, 1.79769313486e+308, 'G', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%f\n%c\n%lu\n", "for\n", 1.79769313486e+308, '1', 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lu\n%g\n%e\n", 0, 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lf\n%e\n%lg\n", 2147483647, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%g\n%f\n", 2147483647, -9223372036854775809, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%d\n%lu\n%f\n", 2.22507385851e-308, 2147483647, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lg\n%le\n%lu\n", 9223372036854775807, 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%e\n%lg\n%lg\n", '`', 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%f\n%lg\n%x\n", '{', 2.22507385851e-308, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%s\n%e\n%g\n", -2147483649, "and\n", 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%o\n%lu\n%lu\n", 4294967296, 2147483647, 18446744073709551616, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%f\n%f\n%lg\n", 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%ld\n%f\n%o\n", 1.79769313486e+308, 9223372036854775807, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lu\n%d\n%f\n", 1.79769313486e+308, 18446744073709551616, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lg\n%f\n%lu\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%u\n%d\n%x\n", 1.79769313486e+308, 4294967296, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%g\n%g\n%le\n", "and\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%x\n%o\n%f\n", -2147483649, -2147483649, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%s\n%le\n%d\n", 9223372036854775807, "and\n", 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%ld\n%lf\n", 1.79769313486e+308, 0, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%c\n%u\n%lf\n", 2147483647, 'Y', 4294967296, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%c\n%s\n%lu\n", 2.22507385851e-308, 'O', "something\n", 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%u\n%o\n", "for\n", 1.79769313486e+308, 4294967296, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%ld\n%le\n%o\n", 2.22507385851e-308, -9223372036854775809, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%f\n%u\n", 0, 'T', 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%f\n%g\n%ld\n", -2147483649, 2.22507385851e-308, 1.79769313486e+308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%ld\n%x\n%ld\n", 1.79769313486e+308, -9223372036854775809, -2147483649, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%g\n%ld\n%d\n", 9223372036854775807, 2.22507385851e-308, 9223372036854775807, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%lu\n%ld\n", 'o', -2147483649, 0, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lf\n%lf\n%c\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, 'N');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%ld\n%ld\n%g\n", '^', 9223372036854775807, -9223372036854775809, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lg\n%u\n%d\n", 2.22507385851e-308, 1.79769313486e+308, 4294967296, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%d\n%ld\n", -2147483649, 18446744073709551616, 2147483647, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%o\n%s\n%o\n", 0, 2147483647, "now\n", -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%g\n%o\n%x\n", 1.79769313486e+308, 1.79769313486e+308, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%g\n%u\n%s\n", 2.22507385851e-308, 1.79769313486e+308, 0, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%u\n%ld\n", 'L', 'N', 4294967296, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%le\n%lg\n%o\n", 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%u\n%x\n", 0, 2.22507385851e-308, 4294967296, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%u\n%ld\n%le\n", 2.22507385851e-308, 4294967296, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%le\n%s\n%ld\n", -2147483649, 2.22507385851e-308, "and\n", 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%u\n%o\n%lf\n", -2147483649, 0, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%o\n%ld\n", -2147483649, 9223372036854775807, 2147483647, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%e\n%g\n%u\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%s\n%c\n%u\n", 18446744073709551616, "completely\n", 'r', 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%x\n%x\n%g\n", 2.22507385851e-308, -2147483649, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%f\n%u\n%u\n", 2.22507385851e-308, 2.22507385851e-308, 0, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%c\n%e\n%f\n", -2147483649, '2', 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%d\n%u\n%d\n", 2147483647, 2147483647, 4294967296, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lu\n%lf\n%ld\n", -2147483649, 0, 2.22507385851e-308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%le\n%o\n%o\n", 2147483647, 2.22507385851e-308, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%le\n%e\n%u\n", "different\n", 1.79769313486e+308, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%u\n%ld\n", 2.22507385851e-308, -2147483649, 0, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%ld\n%s\n%f\n", 2.22507385851e-308, -9223372036854775809, "completely\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%e\n%lu\n%c\n", 2.22507385851e-308, 2.22507385851e-308, 0, 'y');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%e\n%g\n%ld\n", 2147483647, 1.79769313486e+308, 1.79769313486e+308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%g\n%g\n%e\n", 0, 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%le\n%lf\n%u\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%g\n%ld\n%s\n", 1.79769313486e+308, 2.22507385851e-308, -9223372036854775809, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%x\n%s\n%ld\n", -2147483649, -2147483649, "and\n", 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%d\n%f\n%e\n", -2147483649, -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%g\n%le\n%f\n", -2147483649, 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%o\n%o\n", 1.79769313486e+308, "now\n", -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%o\n%lf\n", 4294967296, 'a', -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%f\n%d\n%d\n", 0, 2.22507385851e-308, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%u\n%lu\n%lf\n", 4294967296, 4294967296, 18446744073709551616, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%d\n%lg\n%u\n", 2.22507385851e-308, -2147483649, 2.22507385851e-308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lu\n%c\n%g\n", 2.22507385851e-308, 0, '~', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lu\n%le\n%s\n", 2.22507385851e-308, 18446744073709551616, 2.22507385851e-308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%x\n%lg\n%d\n", "completely\n", 2147483647, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%u\n%x\n%ld\n", -2147483649, 0, -2147483649, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%e\n%f\n%g\n", 4294967296, 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%x\n%le\n%x\n", 1.79769313486e+308, 2147483647, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%d\n%le\n", -2147483649, 0, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%s\n%d\n%f\n", -2147483649, "something\n", -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%le\n%c\n%lg\n", "now\n", 1.79769313486e+308, 'h', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lg\n%s\n%x\n", 2147483647, 2.22507385851e-308, "and\n", -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%f\n%e\n%ld\n", 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%d\n%s\n%s\n", 18446744073709551616, -2147483649, "for\n", "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%o\n%lf\n%s\n", 4294967296, 2147483647, 2.22507385851e-308, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lg\n%lg\n%e\n", 2147483647, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lg\n%g\n%ld\n", 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%lf\n%u\n", '=', 'x', 1.79769313486e+308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%e\n%lu\n%d\n", 2.22507385851e-308, 2.22507385851e-308, 18446744073709551616, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%f\n%e\n%le\n", '~', 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%f\n%ld\n%d\n", 1.79769313486e+308, 2.22507385851e-308, -9223372036854775809, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lu\n%lf\n%e\n", 2.22507385851e-308, 0, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%c\n%lf\n%ld\n", 2.22507385851e-308, ']', 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%u\n%lg\n%s\n", -9223372036854775809, 4294967296, 1.79769313486e+308, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%x\n%g\n", 1.79769313486e+308, 2147483647, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lf\n%lg\n%x\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lf\n%s\n%x\n", -2147483649, 1.79769313486e+308, "for\n", -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%g\n%g\n%lf\n", 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%s\n%le\n%g\n", 4294967296, "and\n", 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%x\n%lu\n%c\n", 2147483647, -2147483649, 0, '#');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%f\n%le\n%s\n", "now\n", 2.22507385851e-308, 2.22507385851e-308, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%f\n%d\n%s\n", 18446744073709551616, 1.79769313486e+308, -2147483649, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%le\n%u\n%c\n", 2.22507385851e-308, 1.79769313486e+308, 4294967296, 'h');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%s\n%f\n", 0, -2147483649, "something\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%c\n%lu\n%o\n", 1.79769313486e+308, 'M', 18446744073709551616, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%e\n%c\n", "completely\n", 2.22507385851e-308, 2.22507385851e-308, '0');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%g\n%lg\n%u\n", 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%s\n%le\n%lu\n", 2.22507385851e-308, "for\n", 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%g\n%ld\n%ld\n", 2147483647, 1.79769313486e+308, 9223372036854775807, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%s\n%x\n%e\n", 2.22507385851e-308, "different\n", -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%c\n%f\n%e\n", 2.22507385851e-308, '6', 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lf\n%ld\n%o\n", 2.22507385851e-308, 1.79769313486e+308, 9223372036854775807, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%ld\n%e\n%e\n", 9223372036854775807, -9223372036854775809, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lu\n%s\n%s\n", 1.79769313486e+308, 0, "completely\n", "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lu\n%ld\n%s\n", 2147483647, 18446744073709551616, 9223372036854775807, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%ld\n%c\n%lg\n", -2147483649, -9223372036854775809, '=', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%c\n%f\n%d\n", 2.22507385851e-308, 'G', 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%f\n%g\n%o\n", 0, 2.22507385851e-308, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%ld\n%lf\n%d\n", 1.79769313486e+308, -9223372036854775809, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lu\n%lf\n%x\n", '}', 18446744073709551616, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%f\n%s\n%lg\n", 2.22507385851e-308, 1.79769313486e+308, "now\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lg\n%o\n%ld\n", 1.79769313486e+308, 1.79769313486e+308, 2147483647, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lg\n%x\n%lf\n", 2147483647, 2.22507385851e-308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%s\n%le\n%s\n", 1.79769313486e+308, "and\n", 2.22507385851e-308, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%x\n%ld\n%g\n", -2147483649, 2147483647, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%ld\n%lu\n", "completely\n", 1.79769313486e+308, 9223372036854775807, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%u\n%s\n%f\n", 2147483647, 0, "completely\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%g\n%lu\n%u\n", 4294967296, 2.22507385851e-308, 18446744073709551616, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%g\n%g\n%lf\n", 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%s\n%lg\n%o\n", 0, "completely\n", 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lg\n%ld\n%ld\n", 2147483647, 1.79769313486e+308, -9223372036854775809, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%f\n%lg\n", 2147483647, -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%o\n%o\n%c\n", 9223372036854775807, -2147483649, 2147483647, '5');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lg\n%g\n%o\n", 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%e\n%g\n%c\n", -2147483649, 2.22507385851e-308, 2.22507385851e-308, '^');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%x\n%g\n%d\n", 0, 2147483647, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lu\n%lg\n%o\n", 1.79769313486e+308, 0, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%g\n%le\n", 1.79769313486e+308, "now\n", 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%le\n%f\n%le\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%o\n%d\n%lu\n", 1.79769313486e+308, -2147483649, 2147483647, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%g\n%le\n%lu\n", -2147483649, 2.22507385851e-308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%g\n%c\n%o\n", 1.79769313486e+308, 2.22507385851e-308, 'L', 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lf\n%ld\n%ld\n", 'a', 1.79769313486e+308, 9223372036854775807, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%e\n%e\n%lf\n", 2147483647, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%le\n%o\n%lu\n", 2.22507385851e-308, 2.22507385851e-308, 2147483647, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%f\n%ld\n%d\n", 0, 1.79769313486e+308, -9223372036854775809, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%e\n%x\n%u\n", 2.22507385851e-308, 2.22507385851e-308, 2147483647, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%s\n%o\n%lg\n", ']', "and\n", -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%e\n%le\n%s\n", -2147483649, 1.79769313486e+308, 2.22507385851e-308, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lf\n%lf\n%u\n", 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%o\n%le\n%c\n", 0, 2147483647, 1.79769313486e+308, 'D');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%x\n%c\n%ld\n", 1.79769313486e+308, 2147483647, '[', 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%c\n%d\n", "now\n", 1.79769313486e+308, '3', 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%le\n%o\n%e\n", 4294967296, 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lf\n%s\n%f\n", -2147483649, 2.22507385851e-308, "now\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%g\n%g\n%x\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%c\n%lf\n%s\n", 18446744073709551616, '=', 2.22507385851e-308, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%x\n%g\n%lu\n", 2.22507385851e-308, 2147483647, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%ld\n%ld\n%d\n", 2.22507385851e-308, -9223372036854775809, -9223372036854775809, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%e\n%lu\n%ld\n", 1.79769313486e+308, 1.79769313486e+308, 0, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%s\n%lu\n%o\n", 18446744073709551616, "different\n", 18446744073709551616, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%s\n%ld\n", -2147483649, 2147483647, "different\n", 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%ld\n%lu\n%d\n", 2147483647, -9223372036854775809, 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%e\n%c\n%g\n", -9223372036854775809, 1.79769313486e+308, '&', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%e\n%lg\n%s\n", 4294967296, 2.22507385851e-308, 2.22507385851e-308, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%d\n%d\n%ld\n", "now\n", -2147483649, -2147483649, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%le\n%d\n%le\n", "something\n", 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lf\n%d\n%d\n", 2.22507385851e-308, 1.79769313486e+308, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%d\n%x\n%lf\n", -9223372036854775809, 2147483647, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%d\n%d\n%d\n", 1.79769313486e+308, -2147483649, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%c\n%x\n%d\n", -2147483649, '$', 2147483647, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%c\n%lf\n", 2.22507385851e-308, 'V', '/', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%g\n%le\n%e\n", 2147483647, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%le\n%ld\n%lg\n", 2.22507385851e-308, 1.79769313486e+308, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%f\n%lu\n", 1.79769313486e+308, 2147483647, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lg\n%le\n%s\n", 0, 1.79769313486e+308, 2.22507385851e-308, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%c\n%s\n%o\n", -2147483649, '+', "different\n", -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%u\n%lu\n%c\n", 9223372036854775807, 0, 0, '5');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%g\n%f\n", 'I', 2147483647, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%c\n%lg\n", 'k', '>', 'H', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lf\n%s\n%ld\n", 2.22507385851e-308, 2.22507385851e-308, "something\n", 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lf\n%c\n%x\n", '\"', 2.22507385851e-308, '{', -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%le\n%le\n%lf\n", -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%d\n%s\n%ld\n", 1.79769313486e+308, -2147483649, "completely\n", -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lf\n%u\n%lg\n", 2147483647, 2.22507385851e-308, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%s\n%lf\n%u\n", 2.22507385851e-308, "something\n", 1.79769313486e+308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%u\n%e\n%le\n", 2147483647, 0, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lg\n%e\n%lg\n", -9223372036854775809, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%g\n%e\n%d\n", 9223372036854775807, 1.79769313486e+308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%le\n%lg\n%d\n", 0, 1.79769313486e+308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%le\n%f\n%lf\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%d\n%c\n%ld\n", "something\n", -2147483649, '(', -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%g\n%o\n%le\n", 1.79769313486e+308, 1.79769313486e+308, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%e\n%o\n%ld\n", 2.22507385851e-308, 2.22507385851e-308, -2147483649, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%d\n%ld\n%lu\n", -2147483649, -2147483649, -9223372036854775809, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%f\n%c\n%lg\n", 1.79769313486e+308, 1.79769313486e+308, 'A', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%f\n%d\n%o\n", 2.22507385851e-308, 1.79769313486e+308, 2147483647, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%d\n%lf\n%f\n", 2.22507385851e-308, 2147483647, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%f\n%c\n%lu\n", 2.22507385851e-308, 2.22507385851e-308, '%', 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%o\n%g\n%c\n", 2147483647, 2147483647, 1.79769313486e+308, 'S');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%u\n%e\n%x\n", "for\n", 4294967296, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%le\n%f\n", ']', -2147483649, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%x\n%lg\n%e\n", 1.79769313486e+308, 2147483647, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%s\n%x\n%s\n", 1.79769313486e+308, "and\n", -2147483649, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%g\n%u\n%x\n", 1.79769313486e+308, 1.79769313486e+308, 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%u\n%lu\n%u\n", 2147483647, 0, 18446744073709551616, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%o\n%lg\n%ld\n", 2147483647, 2147483647, 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%d\n%g\n%u\n", -9223372036854775809, 2147483647, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%ld\n%ld\n%x\n", 2.22507385851e-308, 9223372036854775807, -9223372036854775809, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%g\n%o\n%u\n", 4294967296, 2.22507385851e-308, 2147483647, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%o\n%lg\n%lf\n", 2147483647, -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%d\n%e\n%s\n", 9223372036854775807, 2147483647, 1.79769313486e+308, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%d\n%e\n%o\n", 2147483647, -2147483649, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lu\n%le\n%e\n", "for\n", 0, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%lg\n%s\n", 4294967296, 2147483647, 1.79769313486e+308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%s\n%c\n%e\n", 2.22507385851e-308, "something\n", 'j', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lg\n%x\n%o\n", 1.79769313486e+308, 1.79769313486e+308, -2147483649, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%g\n%x\n%s\n", 2.22507385851e-308, 1.79769313486e+308, -2147483649, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%d\n%lf\n%d\n", 9223372036854775807, -2147483649, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lf\n%lg\n%ld\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%u\n%u\n%e\n", 1.79769313486e+308, 0, 4294967296, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%s\n%le\n%g\n", 2.22507385851e-308, "different\n", 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%x\n%lu\n%c\n", "completely\n", 2147483647, 18446744073709551616, '_');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lu\n%d\n%le\n", 0, 18446744073709551616, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%x\n%le\n%lg\n", "and\n", -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%x\n%c\n%ld\n", 1.79769313486e+308, 2147483647, 'a', -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lu\n%x\n%d\n", -2147483649, 18446744073709551616, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%le\n%le\n%le\n", 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%o\n%d\n%f\n", 2147483647, -2147483649, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%lg\n%lg\n", 1.79769313486e+308, 0, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%ld\n%lg\n%c\n", 't', -9223372036854775809, 2.22507385851e-308, '\'');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lf\n%u\n%le\n", -2147483649, 1.79769313486e+308, 4294967296, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lf\n%x\n%u\n", -2147483649, 1.79769313486e+308, 2147483647, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lf\n%d\n%le\n", -9223372036854775809, 1.79769313486e+308, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lu\n%f\n%g\n", 'N', 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%o\n%u\n%ld\n", 2147483647, -2147483649, 0, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%d\n%lf\n%d\n", 1.79769313486e+308, -2147483649, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%x\n%le\n%o\n", 2.22507385851e-308, -2147483649, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%ld\n%u\n%g\n", 2147483647, 9223372036854775807, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%c\n%lg\n", 1.79769313486e+308, -2147483649, 'd', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%s\n%s\n%c\n", -2147483649, "something\n", "different\n", 'O');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%le\n%lg\n%o\n", 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%le\n%o\n", 4294967296, 2.22507385851e-308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%u\n%u\n%s\n", "something\n", 0, 0, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%d\n%lg\n%x\n", 2.22507385851e-308, -2147483649, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%u\n%u\n%x\n", 1.79769313486e+308, 0, 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%c\n%g\n%lg\n", 2.22507385851e-308, 'K', 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lf\n%lu\n%d\n", 2147483647, 2.22507385851e-308, 18446744073709551616, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lg\n%lu\n%lg\n", 2.22507385851e-308, 2.22507385851e-308, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lg\n%le\n%o\n", "and\n", 2.22507385851e-308, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%u\n%o\n%d\n", 18446744073709551616, 0, 2147483647, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lf\n%x\n%f\n", 2147483647, 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%c\n%x\n", 0, 2.22507385851e-308, 'r', -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%g\n%le\n%lg\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%o\n%c\n%e\n", 1.79769313486e+308, 2147483647, '@', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%x\n%u\n", -2147483649, 0, 2147483647, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%d\n%f\n%lf\n", ' ', -2147483649, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%g\n%lu\n%s\n", 2.22507385851e-308, 1.79769313486e+308, 18446744073709551616, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%x\n%f\n%le\n", 2147483647, -2147483649, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%g\n%g\n%s\n", "now\n", 1.79769313486e+308, 2.22507385851e-308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lg\n%ld\n%lu\n", "different\n", 1.79769313486e+308, -9223372036854775809, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%o\n%u\n%d\n", 1.79769313486e+308, 2147483647, 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%u\n%g\n%ld\n", 4294967296, 0, 2.22507385851e-308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%o\n%le\n%ld\n", 2.22507385851e-308, 2147483647, 2.22507385851e-308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%lg\n%lg\n", 2147483647, 4294967296, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%x\n%lf\n", 'G', 'T', -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%d\n%lu\n%u\n", 1.79769313486e+308, 2147483647, 0, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%o\n%f\n%d\n", -2147483649, -2147483649, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%x\n%u\n%s\n", 2.22507385851e-308, 2147483647, 4294967296, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%u\n%le\n", 1.79769313486e+308, "now\n", 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%s\n%d\n%x\n", 2.22507385851e-308, "and\n", 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%u\n%ld\n%f\n", 2.22507385851e-308, 0, 9223372036854775807, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%u\n%s\n", 4294967296, 'N', 0, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%o\n%u\n%f\n", 18446744073709551616, 2147483647, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%u\n%e\n%o\n", 1.79769313486e+308, 0, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lu\n%lu\n%ld\n", 9223372036854775807, 18446744073709551616, 0, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%f\n%o\n%s\n", -2147483649, 2.22507385851e-308, 2147483647, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%e\n%lg\n", 0, 'c', 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lu\n%g\n%ld\n", 2.22507385851e-308, 18446744073709551616, 1.79769313486e+308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%e\n%o\n", 2147483647, 18446744073709551616, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%x\n%lf\n%e\n", 2.22507385851e-308, -2147483649, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%e\n%c\n%g\n", -2147483649, 1.79769313486e+308, '/', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%x\n%e\n%x\n", 2.22507385851e-308, -2147483649, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%o\n%ld\n%d\n", 1.79769313486e+308, -2147483649, 9223372036854775807, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%d\n%f\n%e\n", 2.22507385851e-308, 2147483647, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%u\n%x\n%s\n", 2.22507385851e-308, 4294967296, 2147483647, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%c\n%d\n%le\n", -2147483649, '_', 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lu\n%lg\n%lg\n", 1.79769313486e+308, 18446744073709551616, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%u\n%le\n%u\n", 1.79769313486e+308, 0, 2.22507385851e-308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lf\n%ld\n%c\n", 1.79769313486e+308, 1.79769313486e+308, 9223372036854775807, 'v');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%f\n%u\n%d\n", 1.79769313486e+308, 2.22507385851e-308, 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%o\n%x\n", 1.79769313486e+308, 0, -2147483649, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%s\n%lf\n%lu\n", -2147483649, "something\n", 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%f\n%ld\n%s\n", 1.79769313486e+308, 2.22507385851e-308, 9223372036854775807, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lg\n%e\n%c\n", -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308, '=');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%e\n%c\n%lu\n", 1.79769313486e+308, 2.22507385851e-308, '4', 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%o\n%le\n", -2147483649, -2147483649, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%x\n%lf\n%o\n", 2.22507385851e-308, -2147483649, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%o\n%f\n%d\n", 1.79769313486e+308, -2147483649, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%x\n%g\n%f\n", 9223372036854775807, 2147483647, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%u\n%lf\n%g\n", 0, 4294967296, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lu\n%e\n%s\n", 2147483647, 0, 1.79769313486e+308, "and\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%x\n%c\n%u\n", 1.79769313486e+308, 2147483647, 'y', 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%g\n%lg\n%x\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%ld\n%e\n%u\n", -9223372036854775809, -9223372036854775809, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%le\n%lu\n%ld\n", 18446744073709551616, 2.22507385851e-308, 0, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%f\n%x\n%lu\n", -9223372036854775809, 2.22507385851e-308, 2147483647, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lu\n%lf\n%u\n", 2.22507385851e-308, 18446744073709551616, 2.22507385851e-308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lg\n%s\n%g\n", 9223372036854775807, 1.79769313486e+308, "now\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%x\n%x\n%c\n", 'x', 2147483647, 2147483647, 'E');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%u\n%g\n%c\n", 0, 0, 1.79769313486e+308, 'v');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lf\n%lu\n%lu\n", -2147483649, 2.22507385851e-308, 0, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%x\n%g\n", 0, 1.79769313486e+308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%f\n%lf\n%ld\n", 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%s\n%g\n%d\n", -9223372036854775809, "something\n", 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%s\n%d\n%s\n", 1.79769313486e+308, "different\n", 2147483647, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%le\n%lf\n%ld\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%c\n%f\n%lu\n", -2147483649, 'N', 2.22507385851e-308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%s\n%lg\n%g\n", 0, "something\n", 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%x\n%s\n%c\n", 2.22507385851e-308, 2147483647, "completely\n", '$');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%g\n%lg\n%s\n", "for\n", 2.22507385851e-308, 2.22507385851e-308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lg\n%e\n%le\n", 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lu\n%lu\n%lf\n", '?', 0, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%s\n%e\n%lg\n", -9223372036854775809, "something\n", 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%s\n%le\n%o\n", -2147483649, "something\n", 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%le\n%s\n%c\n", 0, 1.79769313486e+308, "now\n", 'U');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lu\n%lg\n%lu\n", 2.22507385851e-308, 18446744073709551616, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%x\n%e\n%o\n", 9223372036854775807, 2147483647, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%s\n%f\n%x\n", -2147483649, "for\n", 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%lg\n%e\n", "and\n", '6', 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%le\n%x\n%x\n", "different\n", 2.22507385851e-308, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lg\n%u\n%c\n", -2147483649, 1.79769313486e+308, 4294967296, 'k');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%e\n%g\n%c\n", 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308, '6');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%o\n%lf\n%x\n", 0, 2147483647, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%s\n%u\n%lf\n", 2.22507385851e-308, "completely\n", 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%o\n%lu\n%lu\n", 0, 2147483647, 0, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%ld\n%u\n%lg\n", 2.22507385851e-308, -9223372036854775809, 4294967296, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%c\n%lf\n%o\n", -2147483649, 's', 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lg\n%e\n%e\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%o\n%lf\n%f\n", 2.22507385851e-308, -2147483649, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%d\n%c\n%lu\n", 2.22507385851e-308, 2147483647, '[', 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%f\n%le\n%g\n", -2147483649, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%e\n%lg\n%lu\n", 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%d\n%x\n", 0, '{', 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%d\n%le\n%s\n", 0, 2147483647, 2.22507385851e-308, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%d\n%x\n%o\n", 9223372036854775807, -2147483649, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%ld\n%lg\n%lg\n", 2.22507385851e-308, -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lf\n%lf\n%o\n", 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%f\n%g\n%x\n", 2147483647, 1.79769313486e+308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%lf\n%le\n", 0, -9223372036854775809, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%c\n%le\n%lf\n", 2.22507385851e-308, 'h', 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lf\n%x\n%f\n", -2147483649, 2.22507385851e-308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%d\n%ld\n%lg\n", 9223372036854775807, 2147483647, 9223372036854775807, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%le\n%c\n%s\n", 1.79769313486e+308, 2.22507385851e-308, 'x', "and\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%le\n%le\n%c\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, '{');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%s\n%s\n%e\n", 2147483647, "completely\n", "different\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%o\n%o\n%g\n", 2.22507385851e-308, -2147483649, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%lf\n%lu\n", "completely\n", 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%d\n%d\n", 4294967296, -2147483649, -2147483649, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%d\n%g\n", 2147483647, 9223372036854775807, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%d\n%f\n%s\n", 2147483647, 2147483647, 2.22507385851e-308, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%s\n%lg\n%le\n", '[', "something\n", 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lg\n%c\n%x\n", 1.79769313486e+308, 1.79769313486e+308, '@', 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%c\n%le\n%f\n", 1.79769313486e+308, 'N', 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%lf\n%ld\n", 1.79769313486e+308, '>', 2.22507385851e-308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%le\n%c\n%x\n", 1.79769313486e+308, 1.79769313486e+308, ')', -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%f\n%x\n%g\n", '/', 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%f\n%ld\n%lu\n", 9223372036854775807, 1.79769313486e+308, -9223372036854775809, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%c\n%f\n%c\n", 1.79769313486e+308, 'U', 2.22507385851e-308, '0');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lg\n%u\n%s\n", 2147483647, 2.22507385851e-308, 0, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%le\n%lu\n%g\n", "something\n", 2.22507385851e-308, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%e\n%o\n", 2.22507385851e-308, 4294967296, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lg\n%u\n%lf\n", 0, 1.79769313486e+308, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%o\n%lf\n", -2147483649, 4294967296, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lu\n%e\n%e\n", 0, 0, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lg\n%e\n%o\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%f\n%o\n%s\n", 9223372036854775807, 1.79769313486e+308, 2147483647, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lg\n%le\n%o\n", -2147483649, 1.79769313486e+308, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lf\n%g\n%f\n", 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lf\n%ld\n%le\n", 2147483647, 2.22507385851e-308, 9223372036854775807, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lg\n%e\n%lg\n", -2147483649, 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lf\n%o\n%lf\n", 1.79769313486e+308, 1.79769313486e+308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%f\n%lu\n%c\n", 1.79769313486e+308, 2.22507385851e-308, 18446744073709551616, 'a');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%lf\n%lg\n", 1.79769313486e+308, "now\n", 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%c\n%c\n%o\n", 1.79769313486e+308, ')', 'p', -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%ld\n%s\n%le\n", 0, 9223372036854775807, "different\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%c\n%c\n", 'S', 2147483647, '\\', ')');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%c\n%ld\n%x\n", 2.22507385851e-308, 'B', 9223372036854775807, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lg\n%ld\n%g\n", '1', 2.22507385851e-308, -9223372036854775809, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%g\n%u\n%x\n", 2147483647, 1.79769313486e+308, 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%f\n%u\n%s\n", 1.79769313486e+308, 2.22507385851e-308, 4294967296, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%g\n%le\n%u\n", '_', 1.79769313486e+308, 1.79769313486e+308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lf\n%s\n%s\n", 2.22507385851e-308, 2.22507385851e-308, "and\n", "and\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%d\n%lg\n%le\n", -2147483649, 2147483647, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%f\n%u\n%ld\n", '+', 2.22507385851e-308, 0, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%x\n%lf\n", -2147483649, 0, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%x\n%lf\n%e\n", 2147483647, -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%c\n%u\n%d\n", 2147483647, 'L', 4294967296, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%c\n%lf\n", 0, 2147483647, 'Z', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%lu\n%lg\n", '!', 'd', 18446744073709551616, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%g\n%ld\n%e\n", 2.22507385851e-308, 2.22507385851e-308, -9223372036854775809, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%lf\n%ld\n", 2.22507385851e-308, 0, 2.22507385851e-308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%lf\n%x\n", 2.22507385851e-308, '[', 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lg\n%g\n%s\n", 0, 2.22507385851e-308, 2.22507385851e-308, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%x\n%f\n%o\n", 2147483647, -2147483649, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%ld\n%d\n", -2147483649, 0, 9223372036854775807, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%o\n%o\n%s\n", 2.22507385851e-308, -2147483649, -2147483649, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%le\n%e\n%lf\n", 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lf\n%d\n%lu\n", 2147483647, 2.22507385851e-308, 2147483647, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lg\n%lg\n%lu\n", -2147483649, 2.22507385851e-308, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lf\n%s\n%e\n", 2.22507385851e-308, 1.79769313486e+308, "for\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%g\n%lg\n%lg\n", 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%e\n%g\n", 1.79769313486e+308, 4294967296, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%s\n%c\n%s\n", 1.79769313486e+308, "now\n", 'T', "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lf\n%u\n%c\n", 2.22507385851e-308, 1.79769313486e+308, 0, '\\');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%x\n%x\n%f\n", "for\n", -2147483649, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lu\n%lf\n%lf\n", 0, 0, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%f\n%u\n%f\n", 2147483647, 1.79769313486e+308, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%x\n%f\n%o\n", 'I', -2147483649, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lu\n%e\n%c\n", 2.22507385851e-308, 0, 2.22507385851e-308, 't');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lu\n%g\n%f\n", 2147483647, 0, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lf\n%g\n%lg\n", 2147483647, 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%c\n%u\n%g\n", -9223372036854775809, ',', 4294967296, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lu\n%g\n%f\n", 1.79769313486e+308, 18446744073709551616, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%le\n%f\n%lu\n", 18446744073709551616, 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lf\n%lu\n%d\n", 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%lf\n%lg\n", 2.22507385851e-308, "different\n", 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%x\n%lf\n%f\n", "different\n", -2147483649, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%c\n%e\n%lg\n", -2147483649, 'F', 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%ld\n%ld\n%f\n", 2.22507385851e-308, -9223372036854775809, -9223372036854775809, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%u\n%d\n%s\n", 2.22507385851e-308, 0, -2147483649, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%le\n%g\n", 2147483647, -2147483649, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lf\n%g\n%f\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%g\n%o\n%d\n", 'u', 1.79769313486e+308, -2147483649, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%s\n%lg\n%lg\n", 4294967296, "now\n", 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lu\n%le\n%lg\n", 4294967296, 0, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%x\n%g\n%e\n", 1.79769313486e+308, 2147483647, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%u\n%x\n%g\n", "for\n", 0, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%le\n%f\n%o\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%o\n%d\n%ld\n", 0, -2147483649, 2147483647, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%f\n%lu\n%f\n", -9223372036854775809, 1.79769313486e+308, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lf\n%x\n%lg\n", "different\n", 1.79769313486e+308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%c\n%lf\n%s\n", -2147483649, '\'', 2.22507385851e-308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lu\n%f\n%e\n", 0, 0, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%d\n%d\n%g\n", 2.22507385851e-308, -2147483649, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%o\n%lu\n%f\n", 1.79769313486e+308, 2147483647, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lg\n%c\n%c\n", "now\n", 2.22507385851e-308, '%', 'c');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lf\n%d\n%g\n", 2147483647, 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%g\n%lg\n%o\n", 4294967296, 2.22507385851e-308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%g\n%lu\n%u\n", -2147483649, 1.79769313486e+308, 0, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%c\n%x\n%e\n", -2147483649, 'T', -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%lg\n%lu\n", 2.22507385851e-308, 4294967296, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lu\n%c\n%ld\n", 2.22507385851e-308, 18446744073709551616, 'J', 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%le\n%lg\n%lf\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lf\n%d\n%f\n", 'W', 2.22507385851e-308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lf\n%c\n%d\n", 1.79769313486e+308, 1.79769313486e+308, '3', -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%u\n%d\n%e\n", "for\n", 0, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%e\n%o\n%lu\n", 0, 1.79769313486e+308, -2147483649, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%f\n%lu\n", 0, 9223372036854775807, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%ld\n%lu\n", -2147483649, 0, -9223372036854775809, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%d\n%o\n%f\n", 0, 2147483647, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%lf\n%lg\n", '9', -2147483649, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%x\n%s\n%f\n", 1.79769313486e+308, -2147483649, "now\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%d\n%g\n%x\n", 2147483647, 2147483647, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%f\n%lg\n%lu\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%lf\n%d\n", 2.22507385851e-308, 'x', 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%s\n%o\n%d\n", 0, "different\n", -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%le\n%le\n%lg\n", 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%o\n%u\n%s\n", 1.79769313486e+308, 2147483647, 0, "and\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%s\n%g\n%u\n", 1.79769313486e+308, "and\n", 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%ld\n%x\n%g\n", 9223372036854775807, 9223372036854775807, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%u\n%f\n%u\n", 2.22507385851e-308, 0, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%u\n%f\n%ld\n", 2147483647, 4294967296, 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%f\n%c\n%u\n", -2147483649, 2.22507385851e-308, '!', 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%f\n%x\n%le\n", -2147483649, 2.22507385851e-308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%ld\n%g\n%f\n", 2.22507385851e-308, -9223372036854775809, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%ld\n%s\n", 4294967296, 9223372036854775807, 9223372036854775807, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%le\n%lf\n%lf\n", 'e', 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%o\n%lu\n%u\n", 1.79769313486e+308, 2147483647, 18446744073709551616, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lg\n%g\n%lu\n", '{', 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%o\n%d\n", "for\n", 1.79769313486e+308, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lu\n%d\n%f\n", -2147483649, 0, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lf\n%ld\n%lu\n", 2147483647, 1.79769313486e+308, 9223372036854775807, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%d\n%g\n%ld\n", 1.79769313486e+308, 2147483647, 2.22507385851e-308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%le\n%c\n%s\n", 2.22507385851e-308, 2.22507385851e-308, ' ', "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%d\n%f\n%lf\n", 1.79769313486e+308, -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%c\n%lg\n%f\n", -9223372036854775809, '\'', 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%g\n%lg\n%g\n", -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%le\n%lg\n", 2.22507385851e-308, 0, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%c\n%e\n%x\n", 2147483647, 'B', 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%s\n%o\n%u\n", -2147483649, "different\n", -2147483649, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%o\n%f\n%ld\n", 2.22507385851e-308, -2147483649, 2.22507385851e-308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lg\n%d\n%e\n", -9223372036854775809, 1.79769313486e+308, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%s\n%g\n%o\n", 18446744073709551616, "now\n", 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%o\n%d\n", -2147483649, 2147483647, 2147483647, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%o\n%o\n%f\n", 2.22507385851e-308, -2147483649, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%f\n%lf\n%s\n", 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%d\n%g\n", 1.79769313486e+308, "something\n", 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%f\n%f\n%d\n", '>', 2.22507385851e-308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%f\n%lf\n", 2.22507385851e-308, "now\n", 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lu\n%s\n%f\n", 1.79769313486e+308, 0, "and\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%g\n%g\n", 2.22507385851e-308, '1', 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%x\n%g\n%e\n", 0, 2147483647, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%s\n%x\n%u\n", 9223372036854775807, "and\n", -2147483649, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lg\n%e\n%f\n", 2147483647, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%lf\n%o\n", 2147483647, 2147483647, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lu\n%s\n%o\n", 1.79769313486e+308, 18446744073709551616, "different\n", 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%le\n%c\n%lg\n", 2.22507385851e-308, 2.22507385851e-308, ',', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%x\n%g\n", 2147483647, 0, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%s\n%s\n%u\n", 1.79769313486e+308, "now\n", "something\n", 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%x\n%c\n%e\n", 1.79769313486e+308, 2147483647, 'q', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%ld\n%g\n", "and\n", 2.22507385851e-308, -9223372036854775809, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%f\n%x\n%c\n", -2147483649, 2.22507385851e-308, -2147483649, 'c');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%d\n%g\n", -2147483649, 2147483647, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%o\n%lg\n%c\n", 2147483647, -2147483649, 2.22507385851e-308, 'G');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lg\n%x\n%s\n", -2147483649, 2.22507385851e-308, -2147483649, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%s\n%f\n%o\n", 1.79769313486e+308, "and\n", 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lg\n%s\n%u\n", '~', 2.22507385851e-308, "and\n", 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%c\n%lg\n%o\n", 2.22507385851e-308, 'k', 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%c\n%d\n%o\n", 1.79769313486e+308, 't', 2147483647, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%e\n%e\n%lu\n", '+', 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%d\n%c\n%u\n", 1.79769313486e+308, -2147483649, 'U', 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%c\n%x\n%o\n", 18446744073709551616, 'J', -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%g\n%x\n%c\n", 4294967296, 2.22507385851e-308, 2147483647, 'B');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%g\n%g\n%e\n", -2147483649, 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%d\n%ld\n", 'e', 'M', -2147483649, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%d\n%lf\n", 0, '<', -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%x\n%s\n", 1.79769313486e+308, 2147483647, -2147483649, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%u\n%s\n%lf\n", 2147483647, 4294967296, "different\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lg\n%lu\n%f\n", 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%c\n%x\n%s\n", 1.79769313486e+308, ':', -2147483649, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%x\n%d\n%s\n", 2.22507385851e-308, 2147483647, -2147483649, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lg\n%le\n%lf\n", 'T', 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%x\n%f\n%e\n", -2147483649, -2147483649, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%u\n%le\n%le\n", 2.22507385851e-308, 4294967296, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%c\n%lf\n%ld\n", 9223372036854775807, 'X', 2.22507385851e-308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%e\n%o\n%ld\n", 18446744073709551616, 1.79769313486e+308, 2147483647, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%f\n%c\n%d\n", 'K', 2.22507385851e-308, 'O', 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%f\n%x\n%le\n", 2.22507385851e-308, 2.22507385851e-308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%le\n%e\n%e\n", 2147483647, 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%d\n%lf\n%d\n", -2147483649, -2147483649, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%c\n%d\n%le\n", 2.22507385851e-308, ',', -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%d\n%u\n", '|', 2147483647, 2147483647, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%f\n%lf\n%d\n", 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%g\n%f\n%f\n", 0, 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%d\n%g\n", 2.22507385851e-308, -2147483649, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%le\n%lg\n%f\n", 2147483647, 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%u\n%le\n%u\n", 4294967296, 0, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%o\n%e\n%e\n", 4294967296, -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%c\n%le\n", 0, 'v', 'V', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%s\n%le\n%e\n", -2147483649, "something\n", 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%u\n%e\n%ld\n", 2.22507385851e-308, 0, 1.79769313486e+308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%x\n%lu\n%f\n", 2.22507385851e-308, 2147483647, 18446744073709551616, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%o\n%lu\n%lg\n", 1.79769313486e+308, 2147483647, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%lf\n%le\n", ']', 'Z', 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%ld\n%o\n%o\n", 1.79769313486e+308, -9223372036854775809, 2147483647, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%x\n%g\n", 4294967296, -9223372036854775809, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%le\n%u\n%x\n", 2.22507385851e-308, 1.79769313486e+308, 4294967296, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%lu\n%d\n", 0, 9223372036854775807, 18446744073709551616, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%ld\n%e\n%c\n", 2.22507385851e-308, -9223372036854775809, 1.79769313486e+308, 'D');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%e\n%g\n%u\n", -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%le\n%e\n%c\n", 0, 2.22507385851e-308, 1.79769313486e+308, 'W');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lf\n%le\n%s\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%e\n%o\n%c\n", 4294967296, 2.22507385851e-308, 2147483647, 'U');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%e\n%f\n%o\n", 0, 2.22507385851e-308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%u\n%d\n%lu\n", '3', 4294967296, -2147483649, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%c\n%g\n%d\n", -2147483649, ' ', 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%le\n%u\n%ld\n", 2147483647, 1.79769313486e+308, 4294967296, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%e\n%c\n%le\n", 1.79769313486e+308, 1.79769313486e+308, '@', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%o\n%lu\n", -2147483649, -2147483649, -2147483649, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%g\n%o\n%f\n", ':', 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lu\n%ld\n%g\n", 1.79769313486e+308, 0, -9223372036854775809, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lu\n%e\n%e\n", 2.22507385851e-308, 0, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%o\n%x\n", 2.22507385851e-308, 'Y', 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%s\n%lu\n%lg\n", "different\n", "different\n", 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%c\n%le\n%o\n", 1.79769313486e+308, 'A', 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%s\n%x\n%lf\n", 2.22507385851e-308, "now\n", 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%ld\n%c\n%x\n", -9223372036854775809, -9223372036854775809, '\"', 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%ld\n%le\n%le\n", 1.79769313486e+308, -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%s\n%c\n", 4294967296, 1.79769313486e+308, "different\n", 'q');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%g\n%o\n%s\n", 2.22507385851e-308, 1.79769313486e+308, -2147483649, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%x\n%e\n", 2.22507385851e-308, 2147483647, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%e\n%g\n%o\n", 0, 2.22507385851e-308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%x\n%lu\n%ld\n", 1.79769313486e+308, -2147483649, 18446744073709551616, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%ld\n%o\n%d\n", 2.22507385851e-308, 9223372036854775807, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%u\n%lf\n%lu\n", 0, 0, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%f\n%g\n%x\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%d\n%ld\n%ld\n", "and\n", 2147483647, -9223372036854775809, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%g\n%o\n", -2147483649, 18446744073709551616, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%s\n%o\n%o\n", 9223372036854775807, "different\n", -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lu\n%x\n%f\n", 2.22507385851e-308, 0, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%d\n%x\n", "completely\n", 1.79769313486e+308, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%d\n%c\n%o\n", -2147483649, 2147483647, '%', -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%ld\n%c\n%lu\n", "for\n", -9223372036854775809, 'g', 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%e\n%x\n%lf\n", 2.22507385851e-308, 2.22507385851e-308, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%s\n%g\n", 2.22507385851e-308, 'm', "different\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lg\n%lu\n%u\n", -2147483649, 2.22507385851e-308, 0, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lg\n%o\n%lu\n", -9223372036854775809, 2.22507385851e-308, -2147483649, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%d\n%lf\n%lf\n", 9223372036854775807, -2147483649, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%s\n%e\n%e\n", -2147483649, "different\n", 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%e\n%x\n%lf\n", 1.79769313486e+308, 2.22507385851e-308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%s\n%c\n%e\n", "different\n", "for\n", 'G', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%x\n%f\n%lg\n", 'L', -2147483649, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%g\n%d\n%x\n", 2.22507385851e-308, 1.79769313486e+308, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%d\n%lu\n", 4294967296, -2147483649, 2147483647, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%le\n%d\n%c\n", 2.22507385851e-308, 1.79769313486e+308, 2147483647, 'u');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lf\n%u\n%c\n", 0, 2.22507385851e-308, 0, '=');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lg\n%f\n%ld\n", "different\n", 2.22507385851e-308, 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%g\n%ld\n%x\n", 2.22507385851e-308, 1.79769313486e+308, 9223372036854775807, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lu\n%le\n%g\n", -9223372036854775809, 18446744073709551616, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%le\n%ld\n%c\n", 9223372036854775807, 1.79769313486e+308, 9223372036854775807, ',');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%s\n%ld\n%e\n", 1.79769313486e+308, "completely\n", 9223372036854775807, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%f\n%le\n%g\n", -2147483649, 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%f\n%s\n%c\n", 2.22507385851e-308, 2.22507385851e-308, "something\n", '!');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lg\n%u\n%f\n", '}', 1.79769313486e+308, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%x\n%le\n", '&', ' ', -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%s\n%c\n%le\n", 1.79769313486e+308, "something\n", '&', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%c\n%g\n%o\n", 2.22507385851e-308, '~', 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%ld\n%c\n%lu\n", "now\n", 9223372036854775807, '>', 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%o\n%lf\n%lg\n", -2147483649, 2147483647, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%x\n%u\n%o\n", 2147483647, 2147483647, 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%x\n%e\n%lg\n", 't', 2147483647, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%lg\n%s\n", 4294967296, 9223372036854775807, 2.22507385851e-308, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lf\n%s\n%u\n", 2.22507385851e-308, 2.22507385851e-308, "something\n", 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lg\n%s\n%ld\n", 1.79769313486e+308, 1.79769313486e+308, "now\n", -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%o\n%o\n%le\n", 2.22507385851e-308, -2147483649, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%c\n%g\n%le\n", 2147483647, 'g', 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%u\n%x\n%lf\n", 2.22507385851e-308, 4294967296, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%c\n%d\n%c\n", 2.22507385851e-308, '!', 2147483647, '_');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%le\n%f\n%g\n", -9223372036854775809, 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lu\n%le\n%u\n", 0, 0, 1.79769313486e+308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%c\n%c\n%s\n", 1.79769313486e+308, '8', '=', "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%d\n%s\n%g\n", 1.79769313486e+308, 2147483647, "completely\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%u\n%e\n%lf\n", 1.79769313486e+308, 4294967296, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lf\n%e\n%lg\n", 18446744073709551616, 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%g\n%ld\n%f\n", 'c', 1.79769313486e+308, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%ld\n%o\n%lu\n", 18446744073709551616, -9223372036854775809, -2147483649, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%e\n%e\n%c\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308, 'i');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%le\n%lf\n", 4294967296, 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%le\n%f\n%ld\n", '6', 1.79769313486e+308, 2.22507385851e-308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%e\n%e\n%d\n", 2147483647, 2.22507385851e-308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%lu\n%le\n", -2147483649, -2147483649, 18446744073709551616, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%o\n%lf\n", '<', -2147483649, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%le\n%e\n%s\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lu\n%u\n%lu\n", '?', 18446744073709551616, 0, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%ld\n%f\n", 2147483647, 18446744073709551616, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%ld\n%lg\n%s\n", 0, -9223372036854775809, 2.22507385851e-308, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%ld\n%g\n%c\n", 18446744073709551616, 9223372036854775807, 1.79769313486e+308, 'H');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%ld\n%u\n%lf\n", 2.22507385851e-308, 9223372036854775807, 4294967296, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%u\n%le\n", ']', 2147483647, 4294967296, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%le\n%c\n%x\n", 0, 1.79769313486e+308, 'g', -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%f\n%c\n%ld\n", 'j', 1.79769313486e+308, 'G', 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%o\n%s\n", 2.22507385851e-308, -2147483649, -2147483649, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%o\n%c\n%g\n", 2.22507385851e-308, -2147483649, 'v', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lf\n%le\n%lu\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%x\n%s\n%s\n", 9223372036854775807, 2147483647, "something\n", "and\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%c\n%g\n%c\n", 2.22507385851e-308, '2', 2.22507385851e-308, '~');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lu\n%x\n%d\n", 2147483647, 0, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%ld\n%lg\n%lf\n", 2.22507385851e-308, 9223372036854775807, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%d\n%ld\n%x\n", 1.79769313486e+308, -2147483649, -9223372036854775809, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%le\n%lg\n%ld\n", 2147483647, 2.22507385851e-308, 1.79769313486e+308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%f\n%f\n", 2.22507385851e-308, 0, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%f\n%u\n%s\n", ']', 1.79769313486e+308, 4294967296, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%u\n%x\n%ld\n", -2147483649, 0, -2147483649, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lg\n%u\n%c\n", 'E', 2.22507385851e-308, 0, 'b');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%u\n%lg\n%c\n", 9223372036854775807, 4294967296, 1.79769313486e+308, 'y');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%d\n%u\n%lf\n", 1.79769313486e+308, 2147483647, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lu\n%o\n%e\n", 2147483647, 0, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%g\n%lg\n%o\n", -2147483649, 1.79769313486e+308, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lg\n%c\n%d\n", 1.79769313486e+308, 2.22507385851e-308, 'i', 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%s\n%e\n", 1.79769313486e+308, 2147483647, "completely\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lu\n%f\n%lf\n", 4294967296, 18446744073709551616, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%s\n%ld\n%s\n", 1.79769313486e+308, "completely\n", -9223372036854775809, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%d\n%e\n%e\n", -2147483649, -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lu\n%e\n%lu\n", 0, 18446744073709551616, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%d\n%x\n%x\n", 2.22507385851e-308, -2147483649, -2147483649, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%ld\n%f\n", "completely\n", 2.22507385851e-308, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%o\n%o\n", "for\n", '.', 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%c\n%u\n%f\n", 2147483647, '/', 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%o\n%d\n%ld\n", 1.79769313486e+308, -2147483649, -2147483649, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%g\n%e\n%c\n", 2147483647, 2.22507385851e-308, 2.22507385851e-308, 'b');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%ld\n%lu\n", -2147483649, -9223372036854775809, -9223372036854775809, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%e\n%u\n%c\n", 0, 2.22507385851e-308, 0, 'V');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%f\n%lf\n%c\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, 'K');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%d\n%g\n", 2.22507385851e-308, -2147483649, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%o\n%ld\n%lf\n", "something\n", 2147483647, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lf\n%d\n%le\n", "and\n", 2.22507385851e-308, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%d\n%u\n%lg\n", 2.22507385851e-308, -2147483649, 4294967296, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%u\n%g\n%u\n", 2.22507385851e-308, 4294967296, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lf\n%lg\n%e\n", 0, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%c\n%lf\n", "for\n", 1.79769313486e+308, ')', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%o\n%c\n%le\n", 2147483647, 2147483647, 'P', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%x\n%lg\n", -2147483649, 9223372036854775807, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%d\n%ld\n%le\n", 2147483647, -2147483649, 9223372036854775807, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%s\n%le\n", 2.22507385851e-308, "different\n", "something\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%c\n%e\n%lu\n", 0, 'M', 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%lu\n%ld\n", 0, -2147483649, 18446744073709551616, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%g\n%o\n%s\n", -2147483649, 2.22507385851e-308, -2147483649, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%o\n%lg\n", 4294967296, 9223372036854775807, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%le\n%s\n%lg\n", 'W', 1.79769313486e+308, "something\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%x\n%x\n", "now\n", '=', 2147483647, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%s\n%o\n%f\n", 2.22507385851e-308, "something\n", 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%e\n%c\n%g\n", -2147483649, 2.22507385851e-308, 'H', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lf\n%o\n%s\n", -2147483649, 2.22507385851e-308, 2147483647, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%u\n%d\n%lf\n", 0, 0, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lg\n%le\n%x\n", "now\n", 1.79769313486e+308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%lf\n%ld\n", 1.79769313486e+308, '_', 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%e\n%ld\n%c\n", 1.79769313486e+308, 1.79769313486e+308, -9223372036854775809, ']');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lu\n%u\n%u\n", 9223372036854775807, 18446744073709551616, 4294967296, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%d\n%c\n%le\n", '=', 2147483647, 'B', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%u\n%o\n%lf\n", 18446744073709551616, 4294967296, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%c\n%le\n%c\n", 1.79769313486e+308, '^', 2.22507385851e-308, '<');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lg\n%lg\n%e\n", 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%lu\n%lg\n", "something\n", 'u', 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%o\n%o\n", 1.79769313486e+308, -2147483649, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%e\n%ld\n%lf\n", 2147483647, 2.22507385851e-308, 9223372036854775807, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%o\n%d\n%lu\n", 2.22507385851e-308, 2147483647, -2147483649, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lg\n%lg\n%c\n", -2147483649, 2.22507385851e-308, 2.22507385851e-308, 'G');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%lf\n%le\n", 2147483647, 4294967296, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%g\n%d\n%lg\n", 2.22507385851e-308, 2.22507385851e-308, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lg\n%f\n%f\n", 9223372036854775807, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%d\n%lu\n%c\n", "completely\n", -2147483649, 18446744073709551616, '7');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lu\n%f\n%g\n", 2.22507385851e-308, 0, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%f\n%g\n", 4294967296, 'd', 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lf\n%lg\n%le\n", "for\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lg\n%x\n%lf\n", 18446744073709551616, 1.79769313486e+308, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%g\n%u\n%lf\n", -2147483649, 2.22507385851e-308, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%d\n%u\n%ld\n", 2147483647, -2147483649, 4294967296, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%lg\n%s\n", 4294967296, 2147483647, 2.22507385851e-308, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%u\n%f\n%c\n", -9223372036854775809, 4294967296, 2.22507385851e-308, 'Z');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lf\n%e\n%lf\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%s\n%e\n%le\n", 0, "for\n", 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lg\n%u\n%u\n", 0, 1.79769313486e+308, 4294967296, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%f\n%f\n%le\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%e\n%lg\n%lg\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%f\n%lu\n%s\n", 1.79769313486e+308, 1.79769313486e+308, 0, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%x\n%ld\n%o\n", 0, -2147483649, 9223372036854775807, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lg\n%lu\n%le\n", 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%ld\n%u\n%c\n", 1.79769313486e+308, 9223372036854775807, 0, ' ');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%x\n%lf\n%le\n", 1.79769313486e+308, -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%lg\n%o\n", "for\n", '4', 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%g\n%lu\n", -2147483649, 9223372036854775807, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%s\n%c\n%le\n", -2147483649, "now\n", '}', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lg\n%c\n%o\n", "and\n", 1.79769313486e+308, 'E', 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%f\n%lf\n%c\n", -9223372036854775809, 2.22507385851e-308, 1.79769313486e+308, 'I');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lu\n%e\n%f\n", 0, 0, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%le\n%d\n%u\n", 2147483647, 2.22507385851e-308, 2147483647, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%g\n%u\n%u\n", 0, 2.22507385851e-308, 0, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lu\n%lf\n%f\n", 1.79769313486e+308, 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lg\n%x\n%le\n", "now\n", 1.79769313486e+308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%c\n%ld\n%e\n", 18446744073709551616, 'W', -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%s\n%le\n%u\n", 1.79769313486e+308, "now\n", 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%f\n%e\n%e\n", "different\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%u\n%s\n%ld\n", '&', 4294967296, "completely\n", 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%s\n%lu\n%e\n", 18446744073709551616, "now\n", 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%o\n%lu\n%g\n", 2.22507385851e-308, 2147483647, 18446744073709551616, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%o\n%lf\n%lf\n", -2147483649, -2147483649, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%o\n%ld\n%d\n", 1.79769313486e+308, 2147483647, -9223372036854775809, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%lu\n%g\n", "now\n", '(', 18446744073709551616, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%e\n%x\n%lu\n", -2147483649, 2.22507385851e-308, -2147483649, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%ld\n%x\n%x\n", '6', -9223372036854775809, -2147483649, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%g\n%lf\n%f\n", 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%g\n%o\n", 2147483647, 0, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%o\n%s\n%s\n", -2147483649, 2147483647, "now\n", "and\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%f\n%u\n%lu\n", 1.79769313486e+308, 1.79769313486e+308, 0, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%e\n%x\n%c\n", "now\n", 2.22507385851e-308, -2147483649, 'w');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%e\n%ld\n%lg\n", 4294967296, 2.22507385851e-308, -9223372036854775809, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%s\n%f\n%lu\n", 1.79769313486e+308, "different\n", 2.22507385851e-308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%d\n%e\n%le\n", 2.22507385851e-308, 2147483647, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%g\n%o\n%f\n", 1.79769313486e+308, 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%e\n%ld\n%lu\n", 1.79769313486e+308, 2.22507385851e-308, -9223372036854775809, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%f\n%x\n%s\n", 1.79769313486e+308, 1.79769313486e+308, -2147483649, "now\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%s\n%o\n%f\n", 1.79769313486e+308, "for\n", -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%f\n%ld\n", 4294967296, 1.79769313486e+308, 2.22507385851e-308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%lg\n%s\n%u\n", 0, 2.22507385851e-308, "different\n", 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%d\n%g\n%lu\n", "something\n", 2147483647, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%s\n%g\n%o\n", 2.22507385851e-308, "for\n", 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lg\n%c\n%c\n", 2147483647, 2.22507385851e-308, '\'', 'M');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lu\n%e\n%o\n", 0, 18446744073709551616, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%d\n%o\n%f\n", 9223372036854775807, -2147483649, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%le\n%d\n", 'y', 2147483647, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lf\n%d\n%f\n", -2147483649, 1.79769313486e+308, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lg\n%lu\n%g\n", 2147483647, 1.79769313486e+308, 18446744073709551616, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%c\n%c\n%e\n", 18446744073709551616, 'u', '<', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%c\n%s\n%s\n", 1.79769313486e+308, 'n', "and\n", "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%u\n%d\n%e\n", "different\n", 4294967296, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%e\n%ld\n%g\n", 1.79769313486e+308, 2.22507385851e-308, -9223372036854775809, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%u\n%c\n%lu\n", -2147483649, 0, 'L', 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%d\n%o\n%ld\n", 2147483647, -2147483649, 2147483647, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%x\n%le\n%s\n", 0, -2147483649, 1.79769313486e+308, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lf\n%d\n%u\n", 2.22507385851e-308, 1.79769313486e+308, -2147483649, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%x\n%f\n%lg\n", 'Y', -2147483649, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%s\n%u\n%u\n", 'f', "and\n", 0, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%g\n%o\n%ld\n", -2147483649, 1.79769313486e+308, -2147483649, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%lu\n%lg\n", "and\n", 'F', 18446744073709551616, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%f\n%e\n%lf\n", 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%g\n%g\n%s\n", 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%e\n%lg\n%le\n", 0, 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lg\n%u\n%o\n", "something\n", 2.22507385851e-308, 0, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%x\n%g\n", '\\', 2147483647, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%e\n%x\n", 1.79769313486e+308, -2147483649, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%x\n%le\n%s\n", 0, -2147483649, 2.22507385851e-308, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%f\n%u\n%o\n", 2147483647, 1.79769313486e+308, 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%s\n%o\n%e\n", -2147483649, "different\n", -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%u\n%e\n%ld\n", 1.79769313486e+308, 0, 1.79769313486e+308, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%e\n%o\n%f\n", 1.79769313486e+308, 2.22507385851e-308, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%g\n%o\n", 2.22507385851e-308, 0, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%f\n%f\n%g\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%s\n%f\n%u\n", 2.22507385851e-308, "for\n", 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%le\n%x\n%le\n", 2.22507385851e-308, 2.22507385851e-308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%x\n%lf\n", 2.22507385851e-308, 2147483647, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%f\n%x\n%lf\n", 1.79769313486e+308, 1.79769313486e+308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lu\n%f\n%e\n", 2.22507385851e-308, 0, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%s\n%f\n%o\n", "and\n", "something\n", 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%u\n%e\n%ld\n", 2.22507385851e-308, 0, 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%s\n%o\n%c\n", '/', "different\n", 2147483647, 'V');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%g\n%d\n%x\n", 2147483647, 2.22507385851e-308, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lf\n%lf\n%e\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lf\n%le\n%d\n", 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%le\n%le\n%o\n", '=', 2.22507385851e-308, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%le\n%s\n%s\n", -9223372036854775809, 2.22507385851e-308, "now\n", "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%s\n%e\n%s\n", -2147483649, "and\n", 2.22507385851e-308, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%lu\n%ld\n%ld\n", 2.22507385851e-308, 0, 9223372036854775807, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%c\n%le\n%e\n", 2.22507385851e-308, '2', 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%le\n%f\n%u\n", 0, 1.79769313486e+308, 1.79769313486e+308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%ld\n%e\n%d\n", 1.79769313486e+308, -9223372036854775809, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%f\n%c\n%f\n", 0, 2.22507385851e-308, 'x', 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%c\n%u\n%le\n", 2147483647, 'f', 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%x\n%u\n%u\n", 2147483647, -2147483649, 4294967296, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lg\n%ld\n%f\n", -2147483649, 2.22507385851e-308, 9223372036854775807, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lu\n%c\n%lg\n", 0, 0, 'y', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%o\n%g\n%x\n", 4294967296, -2147483649, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%x\n%lf\n", -2147483649, 4294967296, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%le\n%lf\n%d\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%c\n%ld\n%g\n", 'P', 'g', -9223372036854775809, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%c\n%u\n%e\n", 9223372036854775807, 'f', 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lg\n%g\n%d\n", 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%le\n%lu\n%s\n", 1.79769313486e+308, 2.22507385851e-308, 0, "different\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%le\n%e\n%ld\n", -9223372036854775809, 1.79769313486e+308, 1.79769313486e+308, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%f\n%lg\n%s\n", 2147483647, 2.22507385851e-308, 1.79769313486e+308, "for\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%g\n%g\n%lg\n", "for\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%le\n%x\n%ld\n", -2147483649, 2.22507385851e-308, -2147483649, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lg\n%x\n%lf\n", -2147483649, 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%x\n%c\n%ld\n", 4294967296, -2147483649, 'H', 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%s\n%g\n%lf\n", -2147483649, "something\n", 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lu\n%lg\n%c\n", 2.22507385851e-308, 0, 1.79769313486e+308, 'D');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lu\n%lf\n%o\n", 2.22507385851e-308, 18446744073709551616, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lf\n%o\n%lu\n", 2.22507385851e-308, 2.22507385851e-308, -2147483649, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%x\n%x\n%ld\n", "different\n", -2147483649, -2147483649, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%c\n%o\n%u\n", 0, '3', -2147483649, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%u\n%lu\n%c\n", 2147483647, 4294967296, 0, 'i');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%o\n%g\n%s\n", "completely\n", 2147483647, 1.79769313486e+308, "completely\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%x\n%lf\n%lf\n", 2147483647, -2147483649, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%u\n%f\n%u\n", 2.22507385851e-308, 4294967296, 1.79769313486e+308, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%f\n%x\n", ')', 2147483647, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%le\n%lf\n%lg\n", 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%g\n%lg\n%x\n", -2147483649, 2.22507385851e-308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%d\n%c\n%lu\n", 2.22507385851e-308, 2147483647, '%', 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%le\n%d\n%ld\n", 2147483647, 2.22507385851e-308, 2147483647, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lu\n%o\n%x\n", -2147483649, 0, -2147483649, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%le\n%o\n%e\n", "different\n", 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lf\n%c\n%s\n", 1.79769313486e+308, 2.22507385851e-308, '`', "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lg\n%lu\n%e\n", 0, 1.79769313486e+308, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%f\n%lu\n", "something\n", 'S', 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%c\n%u\n%d\n", 1.79769313486e+308, 'W', 0, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%ld\n%lg\n", 0, 9223372036854775807, 9223372036854775807, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%lu\n%g\n%e\n", -9223372036854775809, 0, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%x\n%le\n%g\n", 2.22507385851e-308, -2147483649, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%s\n%g\n%e\n", "now\n", "different\n", 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%u\n%s\n%f\n", 2.22507385851e-308, 4294967296, "something\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lg\n%e\n%e\n", 2.22507385851e-308, 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lg\n%lu\n%o\n", 1.79769313486e+308, 1.79769313486e+308, 18446744073709551616, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%c\n%f\n%c\n", "something\n", 'W', 1.79769313486e+308, '4');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%s\n%x\n%lf\n", 0, "something\n", -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lg\n%e\n%le\n", 2147483647, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lg\n%lf\n%c\n", 1.79769313486e+308, 2.22507385851e-308, 1.79769313486e+308, '_');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%u\n%c\n%x\n", 2.22507385851e-308, 4294967296, 'u', 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%s\n%f\n", 2147483647, -9223372036854775809, "completely\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%g\n%lf\n", 0, 2147483647, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lf\n%u\n%le\n", -2147483649, 2.22507385851e-308, 4294967296, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%o\n%s\n%g\n", 0, 2147483647, "different\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%u\n%u\n%lf\n", 1.79769313486e+308, 4294967296, 4294967296, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%u\n%lf\n%c\n", -9223372036854775809, 0, 1.79769313486e+308, 'm');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lg\n%lu\n%o\n", 1.79769313486e+308, 2.22507385851e-308, 0, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%le\n%lg\n%x\n", 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%ld\n%s\n%lu\n", "for\n", -9223372036854775809, "completely\n", 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%le\n%s\n%u\n", 2147483647, 2.22507385851e-308, "different\n", 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%f\n%x\n", 1.79769313486e+308, -2147483649, 1.79769313486e+308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%lg\n%f\n", 1.79769313486e+308, -2147483649, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%c\n%x\n%c\n", 2.22507385851e-308, 'Q', -2147483649, 'Q');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%ld\n%d\n%f\n", "for\n", -9223372036854775809, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%g\n%f\n%x\n", 18446744073709551616, 1.79769313486e+308, 2.22507385851e-308, 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%ld\n%s\n%lg\n", 0, 9223372036854775807, "now\n", 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%le\n%e\n%c\n", 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308, 'I');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%lf\n%g\n%lf\n", "different\n", 2.22507385851e-308, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lg\n%s\n%c\n", 1.79769313486e+308, 2.22507385851e-308, "for\n", '7');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%s\n%lf\n%g\n", 1.79769313486e+308, "completely\n", 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%g\n%s\n%o\n", 2.22507385851e-308, 1.79769313486e+308, "and\n", 2147483647);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%u\n%f\n%f\n", -9223372036854775809, 0, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%f\n%o\n%lf\n", 18446744073709551616, 1.79769313486e+308, 2147483647, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%f\n%le\n%lg\n", 1.79769313486e+308, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%u\n%u\n%c\n", 2.22507385851e-308, 0, 4294967296, 'c');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%d\n%e\n%lu\n", 4294967296, -2147483649, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lf\n%d\n%e\n", 2147483647, 1.79769313486e+308, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%x\n%f\n%c\n", ',', 2147483647, 2.22507385851e-308, 'S');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%o\n%u\n%c\n", 'L', 2147483647, 4294967296, '[');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%le\n%x\n%lg\n", '=', 1.79769313486e+308, 2147483647, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%u\n%lu\n%f\n", 'S', 4294967296, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%x\n%lu\n%lg\n", 2.22507385851e-308, -2147483649, 18446744073709551616, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%s\n%lf\n%d\n", 2.22507385851e-308, "different\n", 1.79769313486e+308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%ld\n%x\n%f\n", 1.79769313486e+308, 9223372036854775807, -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lg\n%g\n%e\n", -2147483649, 1.79769313486e+308, 1.79769313486e+308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%x\n%u\n%ld\n", 2.22507385851e-308, -2147483649, 4294967296, -9223372036854775809);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%le\n%le\n%lu\n", 0, 1.79769313486e+308, 2.22507385851e-308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%x\n%u\n%e\n", 1.79769313486e+308, -2147483649, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%lu\n%x\n%s\n", ',', 18446744073709551616, 2147483647, "something\n");
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lf\n%lf\n%f\n", 2.22507385851e-308, 1.79769313486e+308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lg\n%lu\n%u\n", 2.22507385851e-308, 2.22507385851e-308, 0, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%u\n%u\n%x\n", -9223372036854775809, 0, 4294967296, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lf\n%g\n%lu\n", -2147483649, 2.22507385851e-308, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lu\n%lf\n%le\n%lg\n", 0, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%c\n%d\n%le\n", 2147483647, 'l', -2147483649, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%o\n%lf\n%lu\n", 2.22507385851e-308, 2147483647, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lf\n%s\n%c\n", 1.79769313486e+308, 2.22507385851e-308, "and\n", 'K');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%le\n%s\n%c\n", "something\n", 2.22507385851e-308, "completely\n", 'h');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lu\n%lg\n%o\n", 2.22507385851e-308, 0, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%ld\n%le\n%e\n", 1.79769313486e+308, 9223372036854775807, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%ld\n%g\n%o\n%lf\n", 9223372036854775807, 1.79769313486e+308, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%g\n%lf\n%x\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%s\n%d\n%lg\n%e\n", "completely\n", -2147483649, 1.79769313486e+308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%o\n%d\n%lf\n", -2147483649, 2147483647, -2147483649, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lu\n%lu\n%lg\n", 1.79769313486e+308, 18446744073709551616, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%lu\n%c\n%lu\n", -2147483649, 18446744073709551616, 'd', 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%d\n%le\n%lu\n", 1.79769313486e+308, -2147483649, 2.22507385851e-308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%ld\n%e\n%f\n", -2147483649, 9223372036854775807, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%lf\n%g\n%c\n", 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308, 'i');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%lf\n%s\n%lf\n", 1.79769313486e+308, 1.79769313486e+308, "now\n", 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lg\n%u\n%lg\n%lg\n", 1.79769313486e+308, 0, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%f\n%u\n%x\n%u\n", 2.22507385851e-308, 4294967296, 2147483647, 4294967296);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%lf\n%lg\n%ld\n%lu\n", 2.22507385851e-308, 1.79769313486e+308, -9223372036854775809, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%u\n%g\n%c\n%f\n", 0, 2.22507385851e-308, 'u', 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%c\n%d\n%le\n%f\n", 'I', 2147483647, 2.22507385851e-308, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lf\n%u\n%lg\n", 2.22507385851e-308, 1.79769313486e+308, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%lu\n%d\n%ld\n", -2147483649, 18446744073709551616, -2147483649, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%g\n%o\n%x\n", 2.22507385851e-308, 2.22507385851e-308, 2147483647, -2147483649);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%d\n%x\n%lu\n%le\n", 2147483647, -2147483649, 0, 1.79769313486e+308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%lg\n%x\n%ld\n", 2.22507385851e-308, 2.22507385851e-308, 2147483647, 9223372036854775807);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%le\n%d\n%g\n%c\n", 2.22507385851e-308, 2147483647, 1.79769313486e+308, '8');
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%e\n%ld\n%g\n%lu\n", 2.22507385851e-308, 9223372036854775807, 1.79769313486e+308, 18446744073709551616);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%x\n%f\n%lg\n%u\n", 2147483647, 2.22507385851e-308, 1.79769313486e+308, 0);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%e\n%e\n%g\n", -2147483649, 2.22507385851e-308, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%g\n%lu\n%lg\n%lf\n", 2.22507385851e-308, 18446744073709551616, 2.22507385851e-308, 2.22507385851e-308);
+printf("%s\n", buf);
+
+musl_snprintf(buf, LEN, "%o\n%lg\n%u\n%le\n", -2147483649, 2.22507385851e-308, 0, 2.22507385851e-308);
+printf("%s\n", buf);
+
+return 0;
+}

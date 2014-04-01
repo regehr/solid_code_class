@@ -1,5 +1,7 @@
 (module output racket
 
+  (require "printf.rkt")
+
   (provide printfs-to-file)
 
   (define (printfs-to-file lst file [cov #t])
@@ -14,6 +16,7 @@
 "#include <math.h>\n"
 "#include <stdint.h>\n"
 "#include <wchar.h>\n"
+"#include <errno.h>\n"
 "#include \"../musl-printf-standalone/musl.h\"\n"
 "\n"
 "#define LEN 1000000\n"
@@ -24,6 +27,7 @@
 "  FILE* glibcout = fopen(\"glibc.bin\", \"w\");\n"))
 
   (define cov-format (string-append
+"~a"
 "  musl_snprintf(buf, LEN, \"~a\"~a);\n"
 "  fputs(buf, muslout);\n"
 "  snprintf(buf, LEN, \"~a\"~a);\n"
@@ -35,9 +39,9 @@
 "  return 0;\n"
 "}\n"))
 
-  (define (cov-make-printf-string c-format c-args)
+  (define (cov-make-printf-string prologue c-format c-args)
     (let ([out (open-output-string)])
-      (fprintf out cov-format c-format c-args c-format c-args)
+      (fprintf out cov-format prologue c-format c-args c-format c-args)
       (get-output-string out)))
 
   (define prologue (string-append
@@ -45,11 +49,13 @@
 "#include <math.h>\n"
 "#include <stdint.h>\n"
 "#include <wchar.h>\n"
+"#include <errno.h>\n"
 "\n"
 "int main(int argc, char* argv[]) {\n"
 "  FILE* out = fopen(\"out.bin\", \"w\");\n"))
 
   (define format (string-append
+"~a"
 "  fprintf(out, \"~a\"~a);\n"))
 
   (define epilogue (string-append
@@ -57,9 +63,9 @@
 "  return 0;\n"
 "}\n"))
 
-  (define (make-printf-string c-format c-args)
+  (define (make-printf-string prologue c-format c-args)
     (let ([out (open-output-string)])
-      (fprintf out format c-format c-args)
+      (fprintf out format prologue c-format c-args)
       (get-output-string out)))
 
   (define (printfs-to-file-string lst)
@@ -75,20 +81,35 @@
                    cov-epilogue))
 
   (define (printf->string printf converter)
-    (define (work args c-format c-args)
-      (if (empty? args)
-        (converter c-format c-args)
-        (let* ([rest (cdr args)]
-               [arg (car args)]
-               [is-conv (list? arg)]
-               [new-c-format (if is-conv
-                               (string-append c-format "%" (car arg))
-                               (string-append c-format arg))]
-               [new-c-args (if (and is-conv
-                                    (not (null? (cdr arg))))
-                             (string-append c-args ", " (cadr arg))
-                             c-args)])
-          (work rest new-c-format new-c-args))))
-    (work printf "" ""))
+    (define (work specs c-prologue c-format c-args c-epilogue)
+      (if (empty? specs)
+        (string-append (converter c-prologue c-format c-args)
+                       c-epilogue)
+        (let* ([rest (cdr specs)]
+               [arg (car specs)]
+               [is-conv (pf-spec? arg)]
+               [new-c-prologue
+                 (if is-conv
+                   (string-append c-prologue (pf-spec-prologue arg))
+                   c-prologue)]
+               [new-c-format
+                 (if is-conv
+                   (string-append c-format "%" (pf-spec-conv arg))
+                   (string-append c-format arg))]
+               [new-c-args
+                 (if is-conv
+                   (string-append c-args (apply string-append
+                                                (map (lambda (s) (string-append ", " s))
+                                                     (pf-spec-value-lst arg))))
+                   c-args)]
+               [new-c-epilogue
+                 (if (and is-conv
+                          (not (void? (pf-spec-epilogue arg))))
+                   (let ([epi (printf->string (pf-spec-epilogue arg) converter)])
+                     (string-append c-epilogue epi))
+                   c-epilogue)])
+
+          (work rest new-c-prologue new-c-format new-c-args new-c-epilogue))))
+    (work printf "" "" "" ""))
 
 )

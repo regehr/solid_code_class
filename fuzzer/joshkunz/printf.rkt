@@ -53,14 +53,19 @@ int main() {\n"))
  )
 )
 
-; Return a pair of strings
-(define (fmt-pair->string-pair/star fmt-pair)
+(define (fmt-pair->fmt-list fmt-pair)
  (let* ([fmt (car fmt-pair)]
         [type (cdr fmt-pair)]
         [width (fmt-width fmt)] 
         [width? (not (null? width))]
         [prec (fmt-precision->integer fmt)]
         [prec? (not (null? prec))])
+  (list fmt type width width? prec prec?)))
+
+; Return a pair of strings
+(define (fmt-pair->string-pair/star fmt-pair)
+ (let-values ([(fmt type width width? prec prec?)
+               (apply values (fmt-pair->fmt-list fmt-pair))])
   (cons
    (string-append "%"
     (fmt-flags->string fmt)
@@ -73,7 +78,62 @@ int main() {\n"))
      (list (if width? (number->string width) "")
            (if prec? (number->string prec) "")
            (fmt-pair->arg-string fmt-pair))) ", ")
+  )
+ )
+)
+
+(define (fmt-pair->positional-pair fmt-pair)
+ ; Evalutates to the given integer as a string post-fixed with a dollar.
+ (define (darg v) 
+  (string-append (number->string v) "$"))
+ (let-values ([(fmt type width width? prec prec?)
+               (apply values (fmt-pair->fmt-list fmt-pair))])
+  (cons
+   (list "%"
+    (if [takes-arg? fmt] (lambda (i) (darg i)) "")
+    (fmt-flags->string fmt)
+    (if width? (lambda (i) (string-append "*" (darg i))) "")
+    (if prec? 
+     (lambda (i) (string-append ".*" (darg i))) "")
+    (fmt-length->string fmt)
+    (fmt-conversion->string fmt))
+   (filter-not void?
+    (list
+     ; The conversion spec arg needs to go first because the algorithm assumes
+     ; that the lambdas are in the same order as the arguments.
+     (when (takes-arg? fmt) 
+      (fmt-pair->arg-string fmt-pair))
+     (when width? (number->string width))
+     (when prec? (number->string prec))))
+  )
+ )
+)
+
+(define (resolve-group/positional arg-map)
+ (lambda (next fold)
+  (let-values ([(index group-string) (apply values fold)])
+   (cond
+    ([procedure? next]
+     (list (add1 index) 
+      (string-append group-string 
+       ; We have to add 1 because assf-index is 0-indexed and
+       ; printf is 1 indexed.
+       (next (add1 (assf-index eq? index arg-map))))))
+    ([string? next]
+     (list index (string-append group-string next)))
    )
+  )
+ )
+)
+ 
+(define (resolve-args/positional fmt-lists arg-map [index 1])
+ (if [null? fmt-lists] '()
+  (let-values ([(next-index group-string) 
+                (apply values 
+                 (foldl (resolve-group/positional arg-map)
+                  (list index "") (car fmt-lists)))])
+   (cons group-string 
+    (resolve-args/positional (cdr fmt-lists) arg-map next-index)))
  )
 )
 
@@ -99,14 +159,23 @@ int main() {\n"))
    (string-join (filter-not string-empty? (cadr groups)) ", "))))
 
 (define (fmt-pairs->string/positional fmt-pairs) 
- (unreachable))
+ (let* ([groups (unzip-pairs (map fmt-pair->positional-pair fmt-pairs))]
+        ; Flatten automagically removes empty lists for us.
+        [arg-map (shuffle (enumerate (flatten (cadr groups))))]
+        [formats (shuffle (resolve-args/positional (car groups) arg-map))])
+  (list 
+   (string-join formats "")
+   (string-join (map cadr arg-map) ", ")
+  )
+ )
+)
 
 (define *formatters*
  (uniformly-weighted 
   (list 
    fmt-pairs->string/standard 
-   fmt-pairs->string/star )))
-;   fmt-pairs->string/positional)))
+   fmt-pairs->string/star
+   fmt-pairs->string/positional)))
 
 (define (fmt-pairs->string fmt-pairs)
  (apply values 
