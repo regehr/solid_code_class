@@ -12,7 +12,7 @@ optionsPerPrint = 4
 writeTo = open('test-printf.c', 'w')
 
 #write the beginning of the C file
-writeTo.write('#include <stdio.h>\n#include <stdarg.h>\n#include "musl.h"\n\n#define LEN 10000\nchar buf[LEN];\n\nint main (void)\n{\n')
+writeTo.write('#include <math.h>\n#include <stdio.h>\n#include <stdarg.h>\n#include "musl.h"\n\n#define LEN 10000\nchar buf[LEN];\n\nint main (void)\n{\n')
 
 #set up the structures the fuzzer uses
 options = ['%d', '%o', '%x', '%ld', '%u', '%lu', '%c', '%s', '%f', '%g', '%e', '%lf', '%lg', '%le']
@@ -31,7 +31,7 @@ chars = ["' '", "'!'", "'\\\"'", "'#'", "'$'", "'%'", "'&'", "'\\''", "'('", "')
 
 strings = ['"and"', '"now"', '"for"', '"something"', '"completely"', '"different"']
 
-doubles = [sys.float_info.max, sys.float_info.min]
+doubles = [sys.float_info.max, sys.float_info.min, 'INFINITY', '-INFINITY']
 
 #combine all of the values into a list (index corresponds with type for options)
 values = [integers, integers, integers, longs, unsignedInt, unsignedLong, chars, strings, doubles, doubles, doubles, doubles, doubles, doubles]
