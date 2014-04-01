@@ -5,6 +5,8 @@
 
   (provide generate-printf (struct-out pf-spec))
 
+  (define n-count 0)
+
   (struct pf-spec
     (conv        ; string containing conversion specifier
      value-lst   ; list of values (may be multiple for width/precision)
@@ -33,7 +35,7 @@
      precision   ; #t if precision flag is applicable, #f otherwise
      flags-lst)) ; list of valid flags
 
-  (define int-length-lst '(hh h l ll j))
+  (define int-length-lst '(hh h l ll j z))
 
   (define conversions
     `(,(conv '(d i)
@@ -71,11 +73,15 @@
              #f
              '(- | | +))
 
+      ,(conv '(n)
+             int-length-lst
+             #f
+             '())
+
       ,(conv '(%)
              '()
              #f
              '())))
-; TODO: add n flag for writing out "chars printed so far"
 
   (define (generate-conv)
     (define conv (pick-from conversions))
@@ -94,6 +100,7 @@
 
     (define width
       (if (and (not (void? value))
+               (not (equal? char 'n)) ; special case
                (= (random-integer 0 2) 0))
         (let ([base (random-integer 0 2)])
           (match base
@@ -123,12 +130,8 @@
         (generate-w/p)
         (void)))
 
-    (define value-lst '())
-
-    (for ([i `(,value ,precision-value ,width-value)])
-      (if (not (void? i))
-        (set! value-lst (cons i value-lst))
-        (void)))
+    (define prologue "")
+    (define epilogue (void))
 
     ; go from symbols to strings for output
     (define conv-str (string-append (apply string-append (map symbol->string flags-list))
@@ -137,6 +140,26 @@
                                     (symbol->string lenmod)
                                     (symbol->string char)))
 
-    (pf-spec conv-str value-lst "" (void)))
+    ; n specifier special case
+    (if (equal? char 'n)
+      (let ([var-name (string-append "nvar" (number->string n-count))])
+        (let-values ([(pro val) (generate-n-values var-name lenmod)])
+          (set! n-count (+ 1 n-count))
+          (set! value val)
+          (set! prologue pro)
+          (set! epilogue `(,(pf-spec (string-append (symbol->string lenmod) "d")
+                                     (list var-name)
+                                     ""
+                                     (void))))))
+      (void))
+
+    (define value-lst '())
+
+    (for ([i `(,value ,precision-value ,width-value)])
+      (if (not (void? i))
+        (set! value-lst (cons i value-lst))
+        (void)))
+
+    (pf-spec conv-str value-lst prologue epilogue))
 
 )

@@ -2,7 +2,7 @@
 
   (require (only-in math/base random-integer random-natural))
 
-  (provide pick-from generate-sl-char generate-value generate-w/p)
+  (provide pick-from generate-sl-char generate-value generate-w/p generate-n-values)
 
   (define (pick-from lst)
     (let ([index (random-natural (length lst))])
@@ -27,7 +27,8 @@
          ['h  (gen-in -32767 32767)] ; short
          ['l  (gen-in -2147483647 2147483647 "L")] ; long
          ['ll (gen-in -9223372036854775807 9223372036854775807 "LL")] ; long long
-         ['j  (gen-in -9223372036854775807 9223372036854775807 "LL" #:cast "intmax_t")])] ; intmax_t
+         ['j  (gen-in -9223372036854775807 9223372036854775807 "LL" #:cast "intmax_t")] ; intmax_t
+         ['z  (gen-in 0 18446744073709551615 "ULL" #:cast "size_t")])] ; size_t (64-bit => 8 bytes big)
 
       [(or 'u 'o 'x 'X)
        (match lenmod
@@ -36,7 +37,8 @@
          ['h  (gen-in 0 65535)] ; unsigned short
          ['l  (gen-in 0 4294967295 "UL")] ; unsigned long
          ['ll (gen-in 0 18446744073709551615 "ULL")] ; unsigned long long
-         ['j  (gen-in 0 18446744073709551615 "ULL" #:cast "uintmax_t")])] ; uintmax_t
+         ['j  (gen-in 0 18446744073709551615 "ULL" #:cast "uintmax_t")]
+         ['z  (gen-in 0 18446744073709551615 "ULL" #:cast "size_t")])] ; size_t (64-bit => 8 bytes big)
 
       [(or 'f 'F 'e 'E 'g 'G 'a 'A)
        (match lenmod
@@ -56,10 +58,11 @@
       ['p
        (gen-in 0 18446744073709551615 "ULL" #:cast "void*")] ; need 64-bit for this to work
 
-      ['% (void)]))
+      ['% (void)]
+      ['n (void)])) ; special cased down below
 
   (define (gen-in bottom top [suffix ""] #:cast [cast ""])
-    (define cast-str (if (eq? cast "")
+    (define cast-str (if (equal? cast "")
                        ""
                        (string-append "(" cast ")")))
     (define value (number->string
@@ -86,5 +89,17 @@
   (define (gen-number-double)
     (number->string
       (* 1e300 (- (random) 0.5)))) ; TODO: better coverage here
+
+  (define (generate-n-values var lenmod)
+    (let ([type (match lenmod
+                  ['|| "int"]
+                  ['hh "signed char"]
+                  ['h  "short int"]
+                  ['l  "long int"]
+                  ['ll "long long int"]
+                  ['j  "intmax_t"]
+                  ['z  "size_t"])])
+      (values (string-append type " " var " = 0;\n")
+              (string-append "&" var))))
 
 )
