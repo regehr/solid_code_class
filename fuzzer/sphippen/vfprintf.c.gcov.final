@@ -1,0 +1,1191 @@
+File '../musl-printf-standalone/vfprintf.c'
+Lines executed:94.82% of 367
+Branches executed:99.51% of 408
+Taken at least once:90.93% of 408
+Calls executed:95.52% of 67
+../musl-printf-standalone/vfprintf.c:creating 'vfprintf.c.gcov'
+
+        -:    0:Source:../musl-printf-standalone/vfprintf.c
+        -:    0:Graph:vfprintf.gcno
+        -:    0:Data:vfprintf.gcda
+        -:    0:Runs:22093
+        -:    0:Programs:1
+        -:    1:// #include "stdio_impl.h"
+        -:    2:
+        -:    3:#include <errno.h>
+        -:    4:#include <ctype.h>
+        -:    5:#include <limits.h>
+        -:    6:#include <string.h>
+        -:    7:#include <stdlib.h>
+        -:    8:#include <stdarg.h>
+        -:    9:#include <wchar.h>
+        -:   10:#include <inttypes.h>
+        -:   11:#include <math.h>
+        -:   12:#include <float.h>
+        -:   13:
+        -:   14:#include "musl.h"
+        -:   15:
+        -:   16:/* Some useful macros */
+        -:   17:
+        -:   18:#define MAX(a,b) ((a)>(b) ? (a) : (b))
+        -:   19:#define MIN(a,b) ((a)<(b) ? (a) : (b))
+        -:   20:#define CONCAT2(x,y) x ## y
+        -:   21:#define CONCAT(x,y) CONCAT2(x,y)
+        -:   22:
+        -:   23:/* Convenient bit representation for modifier flags, which all fall
+        -:   24: * within 31 codepoints of the space character. */
+        -:   25:
+        -:   26:#define ALT_FORM   (1U<<'#'-' ')
+        -:   27:#define ZERO_PAD   (1U<<'0'-' ')
+        -:   28:#define LEFT_ADJ   (1U<<'-'-' ')
+        -:   29:#define PAD_POS    (1U<<' '-' ')
+        -:   30:#define MARK_POS   (1U<<'+'-' ')
+        -:   31:#define GROUPED    (1U<<'\''-' ')
+        -:   32:
+        -:   33:#define FLAGMASK (ALT_FORM|ZERO_PAD|LEFT_ADJ|PAD_POS|MARK_POS|GROUPED)
+        -:   34:
+        -:   35:#if UINT_MAX == ULONG_MAX
+        -:   36:#define LONG_IS_INT
+        -:   37:#endif
+        -:   38:
+        -:   39:#if SIZE_MAX != ULONG_MAX || UINTMAX_MAX != ULLONG_MAX
+        -:   40:#define ODD_TYPES
+        -:   41:#endif
+        -:   42:
+        -:   43:/* State machine to accept length modifiers + conversion specifiers.
+        -:   44: * Result is 0 on failure, or an argument type to pop on success. */
+        -:   45:
+        -:   46:enum {
+        -:   47:	BARE, LPRE, LLPRE, HPRE, HHPRE, BIGLPRE,
+        -:   48:	ZTPRE, JPRE,
+        -:   49:	STOP,
+        -:   50:	PTR, INT, UINT, ULLONG,
+        -:   51:#ifndef LONG_IS_INT
+        -:   52:	LONG, ULONG,
+        -:   53:#else
+        -:   54:#define LONG INT
+        -:   55:#define ULONG UINT
+        -:   56:#endif
+        -:   57:	SHORT, USHORT, CHAR, UCHAR,
+        -:   58:#ifdef ODD_TYPES
+        -:   59:	LLONG, SIZET, IMAX, UMAX, PDIFF, UIPTR,
+        -:   60:#else
+        -:   61:#define LLONG ULLONG
+        -:   62:#define SIZET ULONG
+        -:   63:#define IMAX LLONG
+        -:   64:#define UMAX ULLONG
+        -:   65:#define PDIFF LONG
+        -:   66:#define UIPTR ULONG
+        -:   67:#endif
+        -:   68:	DBL, LDBL,
+        -:   69:	NOARG,
+        -:   70:	MAXSTATE
+        -:   71:};
+        -:   72:
+        -:   73:#define S(x) [(x)-'A']
+        -:   74:
+        -:   75:static const unsigned char states[]['z'-'A'+1] = {
+        -:   76:	{ /* 0: bare types */
+        -:   77:		S('d') = INT, S('i') = INT,
+        -:   78:		S('o') = UINT, S('u') = UINT, S('x') = UINT, S('X') = UINT,
+        -:   79:		S('e') = DBL, S('f') = DBL, S('g') = DBL, S('a') = DBL,
+        -:   80:		S('E') = DBL, S('F') = DBL, S('G') = DBL, S('A') = DBL,
+        -:   81:		S('c') = CHAR, S('C') = INT,
+        -:   82:		S('s') = PTR, S('S') = PTR, S('p') = UIPTR, S('n') = PTR,
+        -:   83:		S('m') = NOARG,
+        -:   84:		S('l') = LPRE, S('h') = HPRE, S('L') = BIGLPRE,
+        -:   85:		S('z') = ZTPRE, S('j') = JPRE, S('t') = ZTPRE,
+        -:   86:	}, { /* 1: l-prefixed */
+        -:   87:		S('d') = LONG, S('i') = LONG,
+        -:   88:		S('o') = ULONG, S('u') = ULONG, S('x') = ULONG, S('X') = ULONG,
+        -:   89:		S('e') = DBL, S('f') = DBL, S('g') = DBL, S('a') = DBL,
+        -:   90:		S('E') = DBL, S('F') = DBL, S('G') = DBL, S('A') = DBL,
+        -:   91:		S('c') = INT, S('s') = PTR, S('n') = PTR,
+        -:   92:		S('l') = LLPRE,
+        -:   93:	}, { /* 2: ll-prefixed */
+        -:   94:		S('d') = LLONG, S('i') = LLONG,
+        -:   95:		S('o') = ULLONG, S('u') = ULLONG,
+        -:   96:		S('x') = ULLONG, S('X') = ULLONG,
+        -:   97:		S('n') = PTR,
+        -:   98:	}, { /* 3: h-prefixed */
+        -:   99:		S('d') = SHORT, S('i') = SHORT,
+        -:  100:		S('o') = USHORT, S('u') = USHORT,
+        -:  101:		S('x') = USHORT, S('X') = USHORT,
+        -:  102:		S('n') = PTR,
+        -:  103:		S('h') = HHPRE,
+        -:  104:	}, { /* 4: hh-prefixed */
+        -:  105:		S('d') = CHAR, S('i') = CHAR,
+        -:  106:		S('o') = UCHAR, S('u') = UCHAR,
+        -:  107:		S('x') = UCHAR, S('X') = UCHAR,
+        -:  108:		S('n') = PTR,
+        -:  109:	}, { /* 5: L-prefixed */
+        -:  110:		S('e') = LDBL, S('f') = LDBL, S('g') = LDBL, S('a') = LDBL,
+        -:  111:		S('E') = LDBL, S('F') = LDBL, S('G') = LDBL, S('A') = LDBL,
+        -:  112:		S('n') = PTR,
+        -:  113:	}, { /* 6: z- or t-prefixed (assumed to be same size) */
+        -:  114:		S('d') = PDIFF, S('i') = PDIFF,
+        -:  115:		S('o') = SIZET, S('u') = SIZET,
+        -:  116:		S('x') = SIZET, S('X') = SIZET,
+        -:  117:		S('n') = PTR,
+        -:  118:	}, { /* 7: j-prefixed */
+        -:  119:		S('d') = IMAX, S('i') = IMAX,
+        -:  120:		S('o') = UMAX, S('u') = UMAX,
+        -:  121:		S('x') = UMAX, S('X') = UMAX,
+        -:  122:		S('n') = PTR,
+        -:  123:	}
+        -:  124:};
+        -:  125:
+        -:  126:#define OOB(x) ((unsigned)(x)-'A' > 'z'-'A')
+        -:  127:
+        -:  128:union arg
+        -:  129:{
+        -:  130:	uintmax_t i;
+        -:  131:	long double f;
+        -:  132:	void *p;
+        -:  133:};
+        -:  134:
+function pop_arg called 59434360 returned 100% blocks executed 96%
+ 59434360:  135:static void pop_arg(union arg *arg, int type, va_list *ap)
+        -:  136:{
+        -:  137:	/* Give the compiler a hint for optimizing the switch. */
+ 59434360:  138:	if ((unsigned)type > MAXSTATE) return;
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+ 59434360:  139:	switch (type) {
+branch  0 taken 23%
+branch  1 taken 28%
+branch  2 taken 2%
+branch  3 taken 4%
+branch  4 taken 12%
+branch  5 taken 9%
+branch  6 taken 2%
+branch  7 taken 2%
+branch  8 taken 6%
+branch  9 taken 2%
+branch 10 taken 4%
+branch 11 taken 4%
+branch 12 taken 0%
+ 13874672:  140:	       case PTR:	arg->p = va_arg(*ap, void *);
+branch  0 taken 48% (fallthrough)
+branch  1 taken 52%
+ 13874672:  141:	break; case INT:	arg->i = va_arg(*ap, int);
+branch  0 taken 54% (fallthrough)
+branch  1 taken 46%
+ 16817374:  142:	break; case UINT:	arg->i = va_arg(*ap, unsigned int);
+branch  0 taken 47% (fallthrough)
+branch  1 taken 53%
+        -:  143:#ifndef LONG_IS_INT
+  1319422:  144:	break; case LONG:	arg->i = va_arg(*ap, long);
+branch  0 taken 73% (fallthrough)
+branch  1 taken 27%
+  2644149:  145:	break; case ULONG:	arg->i = va_arg(*ap, unsigned long);
+branch  0 taken 48% (fallthrough)
+branch  1 taken 52%
+        -:  146:#endif
+  7268166:  147:	break; case ULLONG:	arg->i = va_arg(*ap, unsigned long long);
+branch  0 taken 60% (fallthrough)
+branch  1 taken 40%
+  5284399:  148:	break; case SHORT:	arg->i = (short)va_arg(*ap, int);
+branch  0 taken 73% (fallthrough)
+branch  1 taken 27%
+  1320707:  149:	break; case USHORT:	arg->i = (unsigned short)va_arg(*ap, int);
+branch  0 taken 47% (fallthrough)
+branch  1 taken 53%
+  1324467:  150:	break; case CHAR:	arg->i = (signed char)va_arg(*ap, int);
+branch  0 taken 57% (fallthrough)
+branch  1 taken 43%
+  3636034:  151:	break; case UCHAR:	arg->i = (unsigned char)va_arg(*ap, int);
+branch  0 taken 47% (fallthrough)
+branch  1 taken 53%
+        -:  152:#ifdef ODD_TYPES
+        -:  153:	break; case LLONG:	arg->i = va_arg(*ap, long long);
+        -:  154:	break; case SIZET:	arg->i = va_arg(*ap, size_t);
+        -:  155:	break; case IMAX:	arg->i = va_arg(*ap, intmax_t);
+        -:  156:	break; case UMAX:	arg->i = va_arg(*ap, uintmax_t);
+        -:  157:	break; case PDIFF:	arg->i = va_arg(*ap, ptrdiff_t);
+        -:  158:	break; case UIPTR:	arg->i = (uintptr_t)va_arg(*ap, void *);
+        -:  159:#endif
+  1320613:  160:	break; case DBL:	arg->f = va_arg(*ap, double);
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+  2311342:  161:	break; case LDBL:	arg->f = va_arg(*ap, long double);
+        -:  162:	}
+        -:  163:}
+        -:  164:
+function out called 517114698 returned 100% blocks executed 100%
+517114698:  165:static void out(MUSL_FILE *f, const char *s, size_t l)
+        -:  166:{
+517114698:  167:	__fwritex((void *)s, l, f);
+call    0 returned 100%
+517114698:  168:}
+        -:  169:
+function pad called 175722764 returned 100% blocks executed 100%
+175722764:  170:static void pad(MUSL_FILE *f, char c, int w, int l, int fl)
+        -:  171:{
+        -:  172:	char pad[256];
+175722764:  173:	if (fl & (LEFT_ADJ | ZERO_PAD) || l >= w) return;
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+branch  2 taken 72% (fallthrough)
+branch  3 taken 28%
+ 24732673:  174:	l = w - l;
+ 24732673:  175:	memset(pad, c, l>sizeof pad ? sizeof pad : l);
+ 35584874:  176:	for (; l >= sizeof pad; l -= sizeof pad)
+branch  0 taken 30%
+branch  1 taken 70% (fallthrough)
+ 10852201:  177:		out(f, pad, sizeof pad);
+call    0 returned 100%
+ 24732673:  178:	out(f, pad, l);
+call    0 returned 100%
+        -:  179:}
+        -:  180:
+        -:  181:static const char xdigits[16] = {
+        -:  182:	"0123456789ABCDEF"
+        -:  183:};
+        -:  184:
+function fmt_x called 7706900 returned 100% blocks executed 100%
+  7706900:  185:static char *fmt_x(uintmax_t x, char *s, int lower)
+        -:  186:{
+  7706900:  187:	for (; x; x>>=4) *--s = xdigits[(x&15)]|lower;
+branch  0 taken 93%
+branch  1 taken 7% (fallthrough)
+  7706900:  188:	return s;
+        -:  189:}
+        -:  190:
+function fmt_o called 1542618 returned 100% blocks executed 100%
+  1542618:  191:static char *fmt_o(uintmax_t x, char *s)
+        -:  192:{
+  1542618:  193:	for (; x; x>>=3) *--s = '0' + (x&7);
+branch  0 taken 93%
+branch  1 taken 7% (fallthrough)
+  1542618:  194:	return s;
+        -:  195:}
+        -:  196:
+function fmt_u called 49549047 returned 100% blocks executed 100%
+ 49549047:  197:static char *fmt_u(uintmax_t x, char *s)
+        -:  198:{
+        -:  199:	unsigned long y;
+ 49549047:  200:	for (   ; x>ULONG_MAX; x/=10) *--s = '0' + x%10;
+ 49549047:  201:	for (y=x;           y; y/=10) *--s = '0' + y%10;
+branch  0 taken 88%
+branch  1 taken 12% (fallthrough)
+ 49549047:  202:	return s;
+        -:  203:}
+        -:  204:
+        -:  205:/* Do not override this check. The floating point printing code below
+        -:  206: * depends on the float.h constants being right. If they are wrong, it
+        -:  207: * may overflow the stack. */
+        -:  208:#if LDBL_MANT_DIG == 53
+        -:  209:typedef char compiler_defines_long_double_incorrectly[9-(int)sizeof(long double)];
+        -:  210:#endif
+        -:  211:
+function fmt_fp called 4624357 returned 100% blocks executed 99%
+  4624357:  212:static int fmt_fp(MUSL_FILE *f, long double y, int w, int p, int fl, int t)
+        -:  213:{
+        -:  214:	uint32_t big[(LDBL_MANT_DIG+28)/29 + 1          // mantissa expansion
+        -:  215:		+ (LDBL_MAX_EXP+LDBL_MANT_DIG+28+8)/9]; // exponent expansion
+        -:  216:	uint32_t *a, *d, *r, *z;
+  4624357:  217:	int e2=0, e, i, j, l;
+        -:  218:	char buf[9+LDBL_MANT_DIG/4], *s;
+  4624357:  219:	const char *prefix="-0X+0X 0X-0x+0x 0x";
+        -:  220:	int pl;
+  4624357:  221:	char ebuf0[3*sizeof(int)], *ebuf=&ebuf0[3*sizeof(int)], *estr;
+        -:  222:
+  4624357:  223:	pl=1;
+  4624357:  224:	if (signbit(y)) {
+call    0 returned 100%
+branch  1 taken 1% (fallthrough)
+branch  2 taken 99%
+     9326:  225:		y=-y;
+  4615031:  226:	} else if (fl & MARK_POS) {
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+  2307375:  227:		prefix+=3;
+  2307656:  228:	} else if (fl & PAD_POS) {
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+  1153591:  229:		prefix+=6;
+  1154065:  230:	} else prefix++, pl=0;
+        -:  231:
+  4624357:  232:	if (!isfinite(y)) {
+call    0 returned 100%
+branch  1 taken 1% (fallthrough)
+branch  2 taken 99%
+    18499:  233:		char *s = (t&32)?"inf":"INF";
+branch  0 taken 49% (fallthrough)
+branch  1 taken 51%
+    18499:  234:		if (y!=y) s=(t&32)?"nan":"NAN", pl=0;
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+branch  2 taken 49% (fallthrough)
+branch  3 taken 51%
+    18499:  235:		pad(f, ' ', w, 3+pl, fl&~ZERO_PAD);
+call    0 returned 100%
+    18499:  236:		out(f, prefix, pl);
+call    0 returned 100%
+    18499:  237:		out(f, s, 3);
+call    0 returned 100%
+    18499:  238:		pad(f, ' ', w, 3+pl, fl^LEFT_ADJ);
+call    0 returned 100%
+    18499:  239:		return MAX(w, 3+pl);
+        -:  240:	}
+        -:  241:
+  4605858:  242:	y = frexpl(y, &e2) * 2;
+  4605858:  243:	if (y) e2--;
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+        -:  244:
+  4605858:  245:	if ((t|32)=='a') {
+branch  0 taken 25% (fallthrough)
+branch  1 taken 75%
+  1152274:  246:		long double round = 8.0;
+        -:  247:		int re;
+        -:  248:
+  1152274:  249:		if (t&32) prefix += 9;
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+  1152274:  250:		pl += 2;
+        -:  251:
+  1152274:  252:		if (p<0 || p>=LDBL_MANT_DIG/4-1) re=0;
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+branch  2 taken 65% (fallthrough)
+branch  3 taken 35%
+   203828:  253:		else re=LDBL_MANT_DIG/4-1-p;
+        -:  254:
+  1152274:  255:		if (re) {
+branch  0 taken 18% (fallthrough)
+branch  1 taken 82%
+   203828:  256:			while (re--) round*=16;
+branch  0 taken 94%
+branch  1 taken 6% (fallthrough)
+   203828:  257:			if (*prefix=='-') {
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+    #####:  258:				y=-y;
+    #####:  259:				y-=round;
+    #####:  260:				y+=round;
+    #####:  261:				y=-y;
+        -:  262:			} else {
+   203828:  263:				y+=round;
+   203828:  264:				y-=round;
+        -:  265:			}
+        -:  266:		}
+        -:  267:
+  1152274:  268:		estr=fmt_u(e2<0 ? -e2 : e2, ebuf);
+call    0 returned 100%
+  1152274:  269:		if (estr==ebuf) *--estr='0';
+branch  0 taken 1% (fallthrough)
+branch  1 taken 99%
+  1152274:  270:		*--estr = (e2<0 ? '-' : '+');
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+  1152274:  271:		*--estr = t+('p'-'a');
+        -:  272:
+  1152274:  273:		s=buf;
+        -:  274:		do {
+ 13498723:  275:			int x=y;
+ 13498723:  276:			*s++=xdigits[x]|(t&32);
+ 13498723:  277:			y=16*(y-x);
+ 13498723:  278:			if (s-buf==1 && (y||p>0||(fl&ALT_FORM))) *s++='.';
+branch  0 taken 9% (fallthrough)
+branch  1 taken 91%
+branch  2 taken 17% (fallthrough)
+branch  3 taken 83%
+branch  4 taken 99% (fallthrough)
+branch  5 taken 1%
+branch  6 taken 50% (fallthrough)
+branch  7 taken 50%
+ 13498723:  279:		} while (y);
+branch  0 taken 91%
+branch  1 taken 9% (fallthrough)
+        -:  280:
+  1525695:  281:		if (p && s-buf-2 < p)
+branch  0 taken 83% (fallthrough)
+branch  1 taken 17%
+branch  2 taken 39% (fallthrough)
+branch  3 taken 61%
+   373421:  282:			l = (p+2) + (ebuf-estr);
+        -:  283:		else
+   778853:  284:			l = (s-buf) + (ebuf-estr);
+        -:  285:
+  1152274:  286:		pad(f, ' ', w, pl+l, fl);
+call    0 returned 100%
+  1152274:  287:		out(f, prefix, pl);
+call    0 returned 100%
+  1152274:  288:		pad(f, '0', w, pl+l, fl^ZERO_PAD);
+call    0 returned 100%
+  1152274:  289:		out(f, buf, s-buf);
+call    0 returned 100%
+  1152274:  290:		pad(f, '0', l-(ebuf-estr)-(s-buf), 0, 0);
+call    0 returned 100%
+  1152274:  291:		out(f, estr, ebuf-estr);
+call    0 returned 100%
+  1152274:  292:		pad(f, ' ', w, pl+l, fl^LEFT_ADJ);
+call    0 returned 100%
+  1152274:  293:		return MAX(w, pl+l);
+        -:  294:	}
+  3453584:  295:	if (p<0) p=6;
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+        -:  296:
+  3453584:  297:	if (y) y *= 0x1p28, e2-=28;
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+        -:  298:
+  3453584:  299:	if (e2<0) a=r=z=big;
+branch  0 taken 51% (fallthrough)
+branch  1 taken 49%
+  1676806:  300:	else a=r=z=big+sizeof(big)/sizeof(*big) - LDBL_MANT_DIG - 1;
+        -:  301:
+        -:  302:	do {
+ 13760211:  303:		*z = y;
+ 13760211:  304:		y = 1000000000*(y-*z++);
+ 13760211:  305:	} while (y);
+branch  0 taken 75%
+branch  1 taken 25% (fallthrough)
+        -:  306:
+ 35692496:  307:	while (e2>0) {
+branch  0 taken 89%
+branch  1 taken 11% (fallthrough)
+ 28785328:  308:		uint32_t carry=0;
+ 28785328:  309:		int sh=MIN(29,e2);
+377966972:  310:		for (d=z-1; d>=a; d--) {
+branch  0 taken 92%
+branch  1 taken 8% (fallthrough)
+349181644:  311:			uint64_t x = ((uint64_t)*d<<sh)+carry;
+349181644:  312:			*d = x % 1000000000;
+349181644:  313:			carry = x / 1000000000;
+        -:  314:		}
+ 28785328:  315:		if (!z[-1] && z>a) z--;
+branch  0 taken 17% (fallthrough)
+branch  1 taken 83%
+branch  2 taken 100% (fallthrough)
+branch  3 taken 0%
+ 28785328:  316:		if (carry) *--a = carry;
+branch  0 taken 97% (fallthrough)
+branch  1 taken 3%
+ 28785328:  317:		e2-=sh;
+        -:  318:	}
+109270062:  319:	while (e2<0) {
+branch  0 taken 97%
+branch  1 taken 3% (fallthrough)
+102362894:  320:		uint32_t carry=0, *b;
+102362894:  321:		int sh=MIN(9,-e2), need=1+(p+LDBL_MANT_DIG/3+8)/9;
+931831359:  322:		for (d=a; d<z; d++) {
+branch  0 taken 89%
+branch  1 taken 11% (fallthrough)
+829468465:  323:			uint32_t rm = *d & (1<<sh)-1;
+829468465:  324:			*d = (*d>>sh) + carry;
+829468465:  325:			carry = (1000000000>>sh) * rm;
+        -:  326:		}
+102362894:  327:		if (!*a) a++;
+branch  0 taken 24% (fallthrough)
+branch  1 taken 76%
+102362894:  328:		if (carry) *z++ = carry;
+branch  0 taken 81% (fallthrough)
+branch  1 taken 19%
+        -:  329:		/* Avoid (slow!) computation past requested precision */
+102362894:  330:		b = (t|32)=='f' ? r : a;
+branch  0 taken 33% (fallthrough)
+branch  1 taken 67%
+102362894:  331:		if (z-b > need) z = b+need;
+branch  0 taken 49% (fallthrough)
+branch  1 taken 51%
+102362894:  332:		e2+=sh;
+        -:  333:	}
+        -:  334:
+  3453584:  335:	if (a<z) for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
+branch  0 taken 88% (fallthrough)
+branch  1 taken 12%
+branch  2 taken 80%
+branch  3 taken 20%
+   399368:  336:	else e=0;
+        -:  337:
+        -:  338:	/* Perform rounding: j is precision after the radix (possibly neg) */
+  3453584:  339:	j = p - ((t|32)!='f')*e - ((t|32)=='g' && p);
+branch  0 taken 33% (fallthrough)
+branch  1 taken 67%
+branch  2 taken 83% (fallthrough)
+branch  3 taken 17%
+  3453584:  340:	if (j < 9*(z-r-1)) {
+branch  0 taken 72% (fallthrough)
+branch  1 taken 28%
+        -:  341:		uint32_t x;
+        -:  342:		/* We avoid C's broken division of negative numbers */
+  2498485:  343:		d = r + 1 + ((j+9*LDBL_MAX_EXP)/9 - LDBL_MAX_EXP);
+  2498485:  344:		j += 9*LDBL_MAX_EXP;
+  2498485:  345:		j %= 9;
+  2498485:  346:		for (i=10, j++; j<9; i*=10, j++);
+branch  0 taken 80%
+branch  1 taken 20% (fallthrough)
+  2498485:  347:		x = *d % i;
+        -:  348:		/* Are there any significant digits past j? */
+  2498485:  349:		if (x || d+1!=z) {
+branch  0 taken 19% (fallthrough)
+branch  1 taken 81%
+branch  2 taken 97% (fallthrough)
+branch  3 taken 3%
+  2483828:  350:			long double round = CONCAT(0x1p,LDBL_MANT_DIG);
+        -:  351:			long double small;
+  2483828:  352:			if (*d/i & 1) round += 2;
+branch  0 taken 37% (fallthrough)
+branch  1 taken 63%
+  2483828:  353:			if (x<i/2) small=0x0.8p0;
+branch  0 taken 59% (fallthrough)
+branch  1 taken 41%
+  1022595:  354:			else if (x==i/2 && d+1==z) small=0x1.0p0;
+branch  0 taken 3% (fallthrough)
+branch  1 taken 97%
+branch  2 taken 3% (fallthrough)
+branch  3 taken 97%
+  1021861:  355:			else small=0x1.8p0;
+  2483828:  356:			if (pl && *prefix=='-') round*=-1, small*=-1;
+branch  0 taken 75% (fallthrough)
+branch  1 taken 25%
+branch  2 taken 0% (fallthrough)
+branch  3 taken 100%
+  2483828:  357:			*d -= x;
+        -:  358:			/* Decide whether to round by probing round+small */
+  2483828:  359:			if (round+small != round) {
+branch  0 taken 41% (fallthrough)
+branch  1 taken 59%
+  1022171:  360:				*d = *d + i;
+  2171488:  361:				while (*d > 999999999) {
+branch  0 taken 11%
+branch  1 taken 89% (fallthrough)
+   127146:  362:					*d--=0;
+   127146:  363:					(*d)++;
+        -:  364:				}
+  1022171:  365:				if (d<a) a=d;
+branch  0 taken 1% (fallthrough)
+branch  1 taken 99%
+  1022171:  366:				for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
+branch  0 taken 80%
+branch  1 taken 20% (fallthrough)
+        -:  367:			}
+        -:  368:		}
+  2498485:  369:		if (z>d+1) z=d+1;
+branch  0 taken 99% (fallthrough)
+branch  1 taken 1%
+  2498485:  370:		for (; !z[-1] && z>a; z--);
+branch  0 taken 22% (fallthrough)
+branch  1 taken 78%
+branch  2 taken 25%
+branch  3 taken 75% (fallthrough)
+        -:  371:	}
+        -:  372:	
+  3453584:  373:	if ((t|32)=='g') {
+branch  0 taken 33% (fallthrough)
+branch  1 taken 67%
+  1149918:  374:		if (!p) p++;
+branch  0 taken 17% (fallthrough)
+branch  1 taken 83%
+  1296776:  375:		if (p>e && e>=-4) {
+branch  0 taken 62% (fallthrough)
+branch  1 taken 38%
+branch  2 taken 21% (fallthrough)
+branch  3 taken 79%
+   146858:  376:			t--;
+   146858:  377:			p-=e+1;
+        -:  378:		} else {
+  1003060:  379:			t-=2;
+  1003060:  380:			p--;
+        -:  381:		}
+  1149918:  382:		if (!(fl&ALT_FORM)) {
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+        -:  383:			/* Count trailing zeros in last place */
+   575314:  384:			if (z>a && z[-1]) for (i=10, j=0; z[-1]%i==0; i*=10, j++);
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+branch  2 taken 99% (fallthrough)
+branch  3 taken 1%
+branch  4 taken 78%
+branch  5 taken 22% (fallthrough)
+     3930:  385:			else j=9;
+   575314:  386:			if ((t|32)=='f')
+branch  0 taken 13% (fallthrough)
+branch  1 taken 87%
+    73286:  387:				p = MIN(p,MAX(0,9*(z-r-1)-j));
+        -:  388:			else
+   502028:  389:				p = MIN(p,MAX(0,9*(z-r-1)+e-j));
+        -:  390:		}
+        -:  391:	}
+  3453584:  392:	l = 1 + p + (p || (fl&ALT_FORM));
+branch  0 taken 19% (fallthrough)
+branch  1 taken 81%
+branch  2 taken 45% (fallthrough)
+branch  3 taken 55%
+  3453584:  393:	if ((t|32)=='f') {
+branch  0 taken 38% (fallthrough)
+branch  1 taken 62%
+  1299199:  394:		if (e>0) l+=e;
+branch  0 taken 55% (fallthrough)
+branch  1 taken 45%
+        -:  395:	} else {
+  2154385:  396:		estr=fmt_u(e<0 ? -e : e, ebuf);
+call    0 returned 100%
+  2154385:  397:		while(ebuf-estr<2) *--estr='0';
+branch  0 taken 2%
+branch  1 taken 98% (fallthrough)
+  2154385:  398:		*--estr = (e<0 ? '-' : '+');
+branch  0 taken 53% (fallthrough)
+branch  1 taken 47%
+  2154385:  399:		*--estr = t;
+  2154385:  400:		l += ebuf-estr;
+        -:  401:	}
+        -:  402:
+  3453584:  403:	pad(f, ' ', w, pl+l, fl);
+call    0 returned 100%
+  3453584:  404:	out(f, prefix, pl);
+call    0 returned 100%
+  3453584:  405:	pad(f, '0', w, pl+l, fl^ZERO_PAD);
+call    0 returned 100%
+        -:  406:
+  3453584:  407:	if ((t|32)=='f') {
+branch  0 taken 38% (fallthrough)
+branch  1 taken 62%
+  1299199:  408:		if (a>r) a=r;
+branch  0 taken 45% (fallthrough)
+branch  1 taken 55%
+ 13730679:  409:		for (d=a; d<=r; d++) {
+branch  0 taken 91%
+branch  1 taken 9% (fallthrough)
+ 12431480:  410:			char *s = fmt_u(*d, buf+9);
+call    0 returned 100%
+ 12431480:  411:			if (d!=a) while (s>buf) *--s='0';
+branch  0 taken 90% (fallthrough)
+branch  1 taken 10%
+branch  2 taken 10%
+branch  3 taken 90%
+  1299199:  412:			else if (s==buf+9) *--s='0';
+branch  0 taken 45% (fallthrough)
+branch  1 taken 55%
+ 12431480:  413:			out(f, s, buf+9-s);
+call    0 returned 100%
+        -:  414:		}
+  1299199:  415:		if (p || (fl&ALT_FORM)) out(f, ".", 1);
+branch  0 taken 20% (fallthrough)
+branch  1 taken 80%
+branch  2 taken 38% (fallthrough)
+branch  3 taken 62%
+call    4 returned 100%
+  6465346:  416:		for (; d<z && p>0; d++, p-=9) {
+branch  0 taken 82% (fallthrough)
+branch  1 taken 18%
+branch  2 taken 98%
+branch  3 taken 2% (fallthrough)
+  5166147:  417:			char *s = fmt_u(*d, buf+9);
+call    0 returned 100%
+  5166147:  418:			while (s>buf) *--s='0';
+branch  0 taken 83%
+branch  1 taken 17% (fallthrough)
+  5166147:  419:			out(f, s, MIN(9,p));
+call    0 returned 100%
+        -:  420:		}
+  1299199:  421:		pad(f, '0', p+9, 9, 0);
+call    0 returned 100%
+        -:  422:	} else {
+  2154385:  423:		if (z<=a) z=a+1;
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+ 16924683:  424:		for (d=a; d<z && p>=0; d++) {
+branch  0 taken 87% (fallthrough)
+branch  1 taken 13%
+branch  2 taken 100%
+branch  3 taken 0% (fallthrough)
+ 14770298:  425:			char *s = fmt_u(*d, buf+9);
+call    0 returned 100%
+ 14770298:  426:			if (s==buf+9) *--s='0';
+branch  0 taken 1% (fallthrough)
+branch  1 taken 99%
+ 14770298:  427:			if (d!=a) while (s>buf) *--s='0';
+branch  0 taken 85% (fallthrough)
+branch  1 taken 15%
+branch  2 taken 10%
+branch  3 taken 90%
+        -:  428:			else {
+  2154385:  429:				out(f, s++, 1);
+call    0 returned 100%
+  2154385:  430:				if (p>0||(fl&ALT_FORM)) out(f, ".", 1);
+branch  0 taken 18% (fallthrough)
+branch  1 taken 82%
+branch  2 taken 50% (fallthrough)
+branch  3 taken 50%
+call    4 returned 100%
+        -:  431:			}
+ 14770298:  432:			out(f, s, MIN(buf+9-s, p));
+call    0 returned 100%
+ 14770298:  433:			p -= buf+9-s;
+        -:  434:		}
+  2154385:  435:		pad(f, '0', p+18, 18, 0);
+call    0 returned 100%
+  2154385:  436:		out(f, estr, ebuf-estr);
+call    0 returned 100%
+        -:  437:	}
+        -:  438:
+  3453584:  439:	pad(f, ' ', w, pl+l, fl^LEFT_ADJ);
+call    0 returned 100%
+        -:  440:
+  3453584:  441:	return MAX(w, pl+l);
+        -:  442:}
+        -:  443:
+function getint called 95555778 returned 100% blocks executed 100%
+ 95555778:  444:static int getint(char **s) {
+        -:  445:	int i;
+167573923:  446:	for (i=0; isdigit(**s); (*s)++)
+call    0 returned 100%
+branch  1 taken 43%
+branch  2 taken 57% (fallthrough)
+ 72018145:  447:		i = 10*i + (**s-'0');
+ 95555778:  448:	return i;
+        -:  449:}
+        -:  450:
+function printf_core called 31453700 returned 100% blocks executed 94%
+ 31453700:  451:static int printf_core(MUSL_FILE *f, const char *fmt, va_list *ap, union arg *nl_arg, int *nl_type)
+        -:  452:{
+ 31453700:  453:	char *a, *z, *s=(char *)fmt;
+ 31453700:  454:	unsigned l10n=0, fl;
+        -:  455:	int w, p;
+        -:  456:	union arg arg;
+        -:  457:	int argpos;
+        -:  458:	unsigned st, ps;
+ 31453700:  459:	int cnt=0, l=0;
+        -:  460:	int i;
+        -:  461:	char buf[sizeof(uintmax_t)*3+3+LDBL_MANT_DIG/4];
+        -:  462:	const char *prefix;
+        -:  463:	int t, pl;
+        -:  464:	wchar_t wc[2], *ws;
+        -:  465:	char mb[4];
+        -:  466:
+        -:  467:	for (;;) {
+        -:  468:		/* Update output count, end loop when fmt is exhausted */
+169466836:  469:		if (cnt >= 0) {
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+169466836:  470:			if (l > INT_MAX - cnt) {
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+    #####:  471:				errno = EOVERFLOW;
+call    0 never executed
+    #####:  472:				cnt = -1;
+169466836:  473:			} else cnt += l;
+        -:  474:		}
+169466836:  475:		if (!*s) break;
+branch  0 taken 15% (fallthrough)
+branch  1 taken 85%
+        -:  476:
+        -:  477:		/* Handle literal text and %% format specifiers */
+144567489:  478:		for (a=s; *s && *s!='%'; s++);
+branch  0 taken 96% (fallthrough)
+branch  1 taken 4%
+branch  2 taken 43%
+branch  3 taken 57% (fallthrough)
+144567489:  479:		for (z=s; s[0]=='%' && s[1]=='%'; z++, s+=2);
+branch  0 taken 91% (fallthrough)
+branch  1 taken 9%
+branch  2 taken 6%
+branch  3 taken 94% (fallthrough)
+144567489:  480:		l = z-a;
+144567489:  481:		if (f) out(f, a, l);
+branch  0 taken 57% (fallthrough)
+branch  1 taken 43%
+call    2 returned 100%
+144567489:  482:		if (l) continue;
+branch  0 taken 33% (fallthrough)
+branch  1 taken 67%
+        -:  483:
+158172750:  484:		if (isdigit(s[1]) && s[2]=='$') {
+call    0 returned 100%
+branch  1 taken 67% (fallthrough)
+branch  2 taken 33%
+branch  3 taken 95% (fallthrough)
+branch  4 taken 5%
+ 61519990:  485:			l10n=1;
+ 61519990:  486:			argpos = s[1]-'0';
+ 61519990:  487:			s+=3;
+        -:  488:		} else {
+ 35132770:  489:			argpos = -1;
+ 35132770:  490:			s++;
+        -:  491:		}
+        -:  492:
+        -:  493:		/* Read modifier flags */
+155623020:  494:		for (fl=0; (unsigned)*s-' '<32 && (FLAGMASK&(1U<<*s-' ')); s++)
+branch  0 taken 68% (fallthrough)
+branch  1 taken 32%
+branch  2 taken 56%
+branch  3 taken 44% (fallthrough)
+ 58970260:  495:			fl |= 1U<<*s-' ';
+        -:  496:
+        -:  497:		/* Read field width */
+ 96652760:  498:		if (*s=='*') {
+branch  0 taken 18% (fallthrough)
+branch  1 taken 82%
+ 28906691:  499:			if (isdigit(s[1]) && s[2]=='$') {
+call    0 returned 100%
+branch  1 taken 71% (fallthrough)
+branch  2 taken 29%
+branch  3 taken 100% (fallthrough)
+branch  4 taken 0%
+ 11953522:  500:				l10n=1;
+ 11953522:  501:				nl_type[s[1]-'0'] = INT;
+ 11953522:  502:				w = nl_arg[s[1]-'0'].i;
+ 11953522:  503:				s+=3;
+  4999647:  504:			} else if (!l10n) {
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+  4999647:  505:				w = f ? va_arg(*ap, int) : 0;
+branch  0 taken 89% (fallthrough)
+branch  1 taken 11%
+branch  2 taken 32% (fallthrough)
+branch  3 taken 68%
+  4999647:  506:				s++;
+    #####:  507:			} else return -1;
+ 16953169:  508:			if (w<0) fl|=LEFT_ADJ, w=-w;
+branch  0 taken 7% (fallthrough)
+branch  1 taken 93%
+ 79699591:  509:		} else if ((w=getint(&s))<0) return -1;
+call    0 returned 100%
+branch  1 taken 0% (fallthrough)
+branch  2 taken 100%
+        -:  510:
+        -:  511:		/* Read precision */
+104122958:  512:		if (*s=='.' && s[1]=='*') {
+branch  0 taken 24% (fallthrough)
+branch  1 taken 76%
+branch  2 taken 32% (fallthrough)
+branch  3 taken 68%
+ 12630630:  513:			if (isdigit(s[2]) && s[3]=='$') {
+call    0 returned 100%
+branch  1 taken 69% (fallthrough)
+branch  2 taken 31%
+branch  3 taken 100% (fallthrough)
+branch  4 taken 0%
+  5160432:  514:				nl_type[s[2]-'0'] = INT;
+  5160432:  515:				p = nl_arg[s[2]-'0'].i;
+  5160432:  516:				s+=4;
+  2309766:  517:			} else if (!l10n) {
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+  2309766:  518:				p = f ? va_arg(*ap, int) : 0;
+branch  0 taken 88% (fallthrough)
+branch  1 taken 12%
+branch  2 taken 30% (fallthrough)
+branch  3 taken 70%
+  2309766:  519:				s+=2;
+    #####:  520:			} else return -1;
+ 89182562:  521:		} else if (*s=='.') {
+branch  0 taken 18% (fallthrough)
+branch  1 taken 82%
+ 15856187:  522:			s++;
+ 15856187:  523:			p = getint(&s);
+call    0 returned 100%
+ 73326375:  524:		} else p = -1;
+        -:  525:
+        -:  526:		/* Format specifier state machine */
+ 96652760:  527:		st=0;
+        -:  528:		do {
+155154614:  529:			if (OOB(*s)) return -1;
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+155154614:  530:			ps=st;
+155154614:  531:			st=states[st]S(*s++);
+155154614:  532:		} while (st-1<STOP);
+branch  0 taken 38%
+branch  1 taken 62% (fallthrough)
+ 96652760:  533:		if (!st) return -1;
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+        -:  534:
+        -:  535:		/* Check validity of argument type (nl/normal) */
+ 96652760:  536:		if (st==NOARG) {
+branch  0 taken 9% (fallthrough)
+branch  1 taken 91%
+  8461029:  537:			if (argpos>=0) return -1;
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+        -:  538:		} else {
+ 88191731:  539:			if (argpos>=0) nl_type[argpos]=st, arg=nl_arg[argpos];
+branch  0 taken 70% (fallthrough)
+branch  1 taken 30%
+ 26671741:  540:			else if (f) pop_arg(&arg, st, ap);
+branch  0 taken 75% (fallthrough)
+branch  1 taken 25%
+call    2 returned 100%
+  6554353:  541:			else return 0;
+        -:  542:		}
+        -:  543:
+ 90098407:  544:		if (!f) continue;
+branch  0 taken 38% (fallthrough)
+branch  1 taken 62%
+        -:  545:
+ 55503322:  546:		z = buf + sizeof(buf);
+ 55503322:  547:		prefix = "-+   0X0x";
+ 55503322:  548:		pl = 0;
+ 55503322:  549:		t = s[-1];
+        -:  550:
+        -:  551:		/* Transform ls,lc -> S,C */
+ 55503322:  552:		if (ps && (t&15)==3) t&=~32;
+branch  0 taken 48% (fallthrough)
+branch  1 taken 52%
+branch  2 taken 17% (fallthrough)
+branch  3 taken 83%
+        -:  553:
+        -:  554:		/* - and 0 flags are mutually exclusive */
+ 55503322:  555:		if (fl & LEFT_ADJ) fl &= ~ZERO_PAD;
+branch  0 taken 21% (fallthrough)
+branch  1 taken 79%
+        -:  556:
+ 55503322:  557:		switch(t) {
+branch  0 taken 8%
+branch  1 taken 8%
+branch  2 taken 6%
+branch  3 taken 3%
+branch  4 taken 17%
+branch  5 taken 8%
+branch  6 taken 4%
+branch  7 taken 8%
+branch  8 taken 4%
+branch  9 taken 13%
+branch 10 taken 12%
+branch 11 taken 8%
+branch 12 taken 0%
+        -:  558:		case 'n':
+  4625457:  559:			switch(ps) {
+branch  0 taken 14%
+branch  1 taken 14%
+branch  2 taken 14%
+branch  3 taken 14%
+branch  4 taken 14%
+branch  5 taken 14%
+branch  6 taken 14%
+branch  7 taken 0%
+   660652:  560:			case BARE: *(int *)arg.p = cnt; break;
+   661660:  561:			case LPRE: *(long *)arg.p = cnt; break;
+   659688:  562:			case LLPRE: *(long long *)arg.p = cnt; break;
+   659505:  563:			case HPRE: *(unsigned short *)arg.p = cnt; break;
+   661840:  564:			case HHPRE: *(unsigned char *)arg.p = cnt; break;
+   660487:  565:			case ZTPRE: *(size_t *)arg.p = cnt; break;
+   661625:  566:			case JPRE: *(uintmax_t *)arg.p = cnt; break;
+        -:  567:			}
+  4625457:  568:			continue;
+        -:  569:		case 'p':
+  4626476:  570:			p = MAX(p, 2*sizeof(void*));
+  4626476:  571:			t = 'x';
+  4626476:  572:			fl |= ALT_FORM;
+        -:  573:		case 'x': case 'X':
+  7706900:  574:			a = fmt_x(arg.i, z, t&32);
+call    0 returned 100%
+  7706900:  575:			if (arg.i && (fl & ALT_FORM)) prefix+=(t>>4), pl=2;
+branch  0 taken 99% (fallthrough)
+branch  1 taken 1%
+branch  2 taken 80% (fallthrough)
+branch  3 taken 20%
+  7706900:  576:			if (0) {
+        -:  577:		case 'o':
+  1542618:  578:			a = fmt_o(arg.i, z);
+call    0 returned 100%
+  1542618:  579:			if ((fl&ALT_FORM) && arg.i) prefix+=5, pl=1;
+branch  0 taken 50% (fallthrough)
+branch  1 taken 50%
+branch  2 taken 99% (fallthrough)
+branch  3 taken 1%
+  9249518:  580:			} if (0) {
+        -:  581:		case 'd': case 'i':
+  9249902:  582:			pl=1;
+  9249902:  583:			if (arg.i>INTMAX_MAX) {
+branch  0 taken 27% (fallthrough)
+branch  1 taken 73%
+  2525651:  584:				arg.i=-arg.i;
+  6724251:  585:			} else if (fl & MARK_POS) {
+branch  0 taken 17% (fallthrough)
+branch  1 taken 83%
+  1156021:  586:				prefix++;
+  5568230:  587:			} else if (fl & PAD_POS) {
+branch  0 taken 10% (fallthrough)
+branch  1 taken 90%
+   578219:  588:				prefix+=2;
+  4990011:  589:			} else pl=0;
+        -:  590:		case 'u':
+ 13874463:  591:			a = fmt_u(arg.i, z);
+call    0 returned 100%
+        -:  592:			}
+ 23123981:  593:			if (p>=0) fl &= ~ZERO_PAD;
+branch  0 taken 30% (fallthrough)
+branch  1 taken 70%
+ 23123981:  594:			if (!arg.i && !p) {
+branch  0 taken 2% (fallthrough)
+branch  1 taken 98%
+branch  2 taken 1% (fallthrough)
+branch  3 taken 99%
+     1283:  595:				a=z;
+     1283:  596:				break;
+        -:  597:			}
+ 23122698:  598:			p = MAX(p, z-a + !arg.i);
+ 23122698:  599:			break;
+        -:  600:		case 'c':
+  2314000:  601:			*(a=z-(p=1))=arg.i;
+  2314000:  602:			fl &= ~ZERO_PAD;
+  2314000:  603:			break;
+        -:  604:		case 'm':
+  4625939:  605:			if (1) a = strerror(errno); else
+call    0 returned 100%
+call    1 returned 100%
+        -:  606:		case 's':
+  2313739:  607:			a = arg.p ? arg.p : "(null)";
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+        -:  608:			// z = memchr(a, 0, p);
+        -:  609:			// fix from spencer:
+  6939678:  610:			z = (p >= 0 ? memchr(a, 0, p) : memchr(a, 0, 1000000000000));
+branch  0 taken 17% (fallthrough)
+branch  1 taken 83%
+  6939678:  611:			if (!z) z=a+p;
+branch  0 taken 7% (fallthrough)
+branch  1 taken 93%
+  6475406:  612:			else p=z-a;
+  6939678:  613:			fl &= ~ZERO_PAD;
+  6939678:  614:			break;
+        -:  615:		case 'C':
+  6940373:  616:			wc[0] = arg.i;
+  6940373:  617:			wc[1] = 0;
+  6940373:  618:			arg.p = wc;
+  6940373:  619:			p = -1;
+        -:  620:		case 'S':
+ 13875849:  621:			ws = arg.p;
+ 13875849:  622:			for (i=l=0; i<0U+p && *ws && (l=wctomb(mb, *ws++))>=0 && l<=0U+p-i; i+=l);
+branch  0 taken 99% (fallthrough)
+branch  1 taken 1%
+branch  2 taken 96% (fallthrough)
+branch  3 taken 4%
+call    4 returned 100%
+branch  5 taken 100% (fallthrough)
+branch  6 taken 0%
+branch  7 taken 100%
+branch  8 taken 0% (fallthrough)
+ 13875849:  623:			if (l<0) return -1;
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+ 13875849:  624:			p = i;
+ 13875849:  625:			pad(f, ' ', w, p, fl);
+call    0 returned 100%
+ 13875849:  626:			ws = arg.p;
+302020633:  627:			for (i=0; i<0U+p && *ws && i+(l=wctomb(mb, *ws++))<=p; i+=l)
+branch  0 taken 95% (fallthrough)
+branch  1 taken 5%
+branch  2 taken 100% (fallthrough)
+branch  3 taken 0%
+call    4 returned 100%
+branch  5 taken 100%
+branch  6 taken 0% (fallthrough)
+288144784:  628:				out(f, mb, l);
+call    0 returned 100%
+ 13875849:  629:			pad(f, ' ', w, p, fl^LEFT_ADJ);
+call    0 returned 100%
+ 13875849:  630:			l = w>p ? w : p;
+ 13875849:  631:			continue;
+        -:  632:		case 'e': case 'f': case 'g': case 'a':
+        -:  633:		case 'E': case 'F': case 'G': case 'A':
+  4624357:  634:			l = fmt_fp(f, arg.f, w, p, fl, t);
+call    0 returned 100%
+  4624357:  635:			continue;
+        -:  636:		}
+        -:  637:
+ 32377659:  638:		if (p < z-a) p = z-a;
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+ 32377659:  639:		if (w < pl+p) w = pl+p;
+branch  0 taken 68% (fallthrough)
+branch  1 taken 32%
+        -:  640:
+ 32377659:  641:		pad(f, ' ', w, pl+p, fl);
+call    0 returned 100%
+ 32377659:  642:		out(f, prefix, pl);
+call    0 returned 100%
+ 32377659:  643:		pad(f, '0', w, pl+p, fl^ZERO_PAD);
+call    0 returned 100%
+ 32377659:  644:		pad(f, '0', p, z-a, 0);
+call    0 returned 100%
+ 32377659:  645:		out(f, a, z-a);
+call    0 returned 100%
+ 32377659:  646:		pad(f, ' ', w, pl+p, fl^LEFT_ADJ);
+call    0 returned 100%
+        -:  647:
+ 32377659:  648:		l = w;
+138013136:  649:	}
+        -:  650:
+ 24899347:  651:	if (f) return cnt;
+branch  0 taken 63% (fallthrough)
+branch  1 taken 37%
+  9172497:  652:	if (!l10n) return 0;
+branch  0 taken 13% (fallthrough)
+branch  1 taken 87%
+        -:  653:
+ 47277462:  654:	for (i=1; i<=NL_ARGMAX && nl_type[i]; i++)
+branch  0 taken 98% (fallthrough)
+branch  1 taken 2%
+branch  2 taken 85%
+branch  3 taken 15% (fallthrough)
+ 39316972:  655:		pop_arg(nl_arg+i, nl_type[i], ap);
+call    0 returned 100%
+  7960490:  656:	for (; i<=NL_ARGMAX && !nl_type[i]; i++);
+branch  0 taken 80% (fallthrough)
+branch  1 taken 20%
+branch  2 taken 100%
+branch  3 taken 0% (fallthrough)
+  7960490:  657:	if (i<=NL_ARGMAX) return -1;
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+  7960490:  658:	return 1;
+        -:  659:}
+        -:  660:
+function musl_vfprintf called 15726850 returned 100% blocks executed 56%
+ 15726850:  661:int musl_vfprintf(MUSL_FILE *restrict f, const char *restrict fmt, va_list ap)
+        -:  662:{
+        -:  663:	va_list ap2;
+ 15726850:  664:	int nl_type[NL_ARGMAX+1] = {0};
+        -:  665:	union arg nl_arg[NL_ARGMAX+1];
+ 15726850:  666:	unsigned char internal_buf[80], *saved_buf = 0;
+        -:  667:	int ret;
+        -:  668:
+        -:  669:	/* the copy allows passing va_list* even if va_list is an array */
+ 15726850:  670:	va_copy(ap2, ap);
+call    0 returned 100%
+ 15726850:  671:	if (printf_core(0, fmt, &ap2, nl_arg, nl_type) < 0) {
+call    0 returned 100%
+branch  1 taken 0% (fallthrough)
+branch  2 taken 100%
+    #####:  672:		va_end(ap2);
+call    0 never executed
+    #####:  673:		return -1;
+        -:  674:	}
+        -:  675:
+        -:  676:	// FLOCK(f);
+ 15726850:  677:	if (!f->buf_size) {
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+    #####:  678:		saved_buf = f->buf;
+    #####:  679:		f->wpos = f->wbase = f->buf = internal_buf;
+    #####:  680:		f->buf_size = sizeof internal_buf;
+    #####:  681:		f->wend = internal_buf + sizeof internal_buf;
+        -:  682:	}
+ 15726850:  683:	ret = printf_core(f, fmt, &ap2, nl_arg, nl_type);
+call    0 returned 100%
+ 15726850:  684:	if (saved_buf) {
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+    #####:  685:		f->write(f, 0, 0);
+call    0 never executed
+    #####:  686:		if (!f->wpos) ret = -1;
+branch  0 never executed
+branch  1 never executed
+    #####:  687:		f->buf = saved_buf;
+    #####:  688:		f->buf_size = 0;
+    #####:  689:		f->wpos = f->wbase = f->wend = 0;
+        -:  690:	}
+        -:  691:	// FUNLOCK(f);
+ 15726850:  692:	va_end(ap2);
+call    0 returned 100%
+ 15726850:  693:	return ret;
+        -:  694:}

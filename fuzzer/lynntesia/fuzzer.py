@@ -7,6 +7,9 @@ import filecmp
 import decimal
 from random import randrange
 
+# worked with Todd Johnson on tests & makefile
+# code coverage = 53.13%
+
 def fuzz_it(value):
 	file = open("test-printf.c", "w")
 	file.write("#include <stdio.h>\n")
@@ -33,6 +36,7 @@ def fuzz_it_type(value, typeof):
 	file.write("printf(\"%s\", buf);")
 	file.write("return 0;\n}")
 	file.close()
+
 
 def string_fuzz():
 	n = 100000
@@ -121,6 +125,28 @@ def byte_2048():
 	st = " \" " + st + " \\n \" "
 	fuzz_it(st)		
 
+def many_fuzz():
+	typ = "c %d %f %e %s %d"
+	c = "'" + random.choice(string.letters) + "'"
+	d = random_int(8)
+	f = random.uniform(1.0, 1000.1)
+	e = 12345678.
+	s = '"'+large_string(10)+'"'
+	d = random_int(4)
+	
+	file = open("test-printf.c", "w")
+	file.write("#include <stdio.h>\n")
+	file.write("#include <stdarg.h>\n")
+	file.write("#include \"musl.h\"\n")
+	file.write("#define LEN 10000\n")
+	file.write("char buf[LEN];\n")
+	file.write("int main(int argc, const char *argv[]) {\n")
+	file.write("musl_snprintf(buf, LEN, \"%" +  typ +  "\" , " + str(c) + "," + str(d) + "," +str(f) + "," +str(e) + "," +str(s) + "," +str(d) + ");\n")
+	file.write("printf(\"%s\", buf);")
+	file.write("return 0;\n}")
+	file.close()
+	
+	
 
 def main():
 	'''
@@ -152,6 +178,7 @@ def main():
 	bit_16()
 	bit_32()
 	bit_64()
+	many_fuzz()
 	
 	
 	
