@@ -44,7 +44,7 @@ class TestPrintf
   # Makes a musl test file
   def mk_muslf
     includes = "#include <stdio.h>\n#include <stdarg.h>\n#include <wchar.h>\n#include \"musl.h\"\n"\
-    "#define BUFF_SIZE 100\n\n"
+    "#define BUFF_SIZE 100000\n\n"
     main_code = " char buff[BUFF_SIZE];\n  #{@test_musl}\n  fputs(buff, stdout);\n  return 0;"
     main = "\nint main(){\n\n #{main_code}\n}\n"
     file = File.open("test-musl.c", 'w') 
@@ -55,7 +55,7 @@ class TestPrintf
 
   # Makes a gcc test file (for differential testing)
   def mk_gccf
-    includes = "#include <stdio.h>\n#include <stdarg.h>\n#include <wchar.h>\n#define BUFF_SIZE 100\n"
+    includes = "#include <stdio.h>\n#include <stdarg.h>\n#include <wchar.h>\n#define BUFF_SIZE 100000\n"
     main_code = " char buff[BUFF_SIZE];\n"\
                  "  #{@test_gcc}\n  fputs(buff, stdout);\n  return 0;"
     main = "\nint main(){\n\n #{main_code}\n}\n"
