@@ -76,6 +76,7 @@
 
 (provide 
  fmt fmt? fmt-flags fmt-width fmt-precision fmt-length fmt-conversion
+ takes-arg?
  fmt-precision->integer
  fmt-flags->string fmt-width->string fmt-precision->string fmt-length->string
  fmt-conversion->string
@@ -83,6 +84,9 @@
 
 (struct fmt 
  (flags width precision length conversion) #:transparent)
+
+(define (takes-arg? fmt)
+ (not (eq? (fmt-conversion fmt) 'm)))
 
 (define (fmt-flags->string fmt)
  (if [null? (fmt-flags fmt)] ""
@@ -162,7 +166,9 @@
  (let ([conv (type->conv-specifier type)])
   (if (in? conv *length-only*)
    (fmt null null null 
-    (if (eq? conv 'm) null (type->length-specifier type)) conv)
+    ; M doesn't convert, so omit any applicable length spec.
+    (if (eq? conv 'm) null 
+     (type->length-specifier type)) conv)
    (fmt
     (if [and (not (eq? conv 's))
              (chance? 'format-flags)]
