@@ -2,16 +2,22 @@ import os
 import subprocess
 import filecmp
 import sys
+import string
 import random
 
-# The format strings being fuzzed, how to convert a string into them, and functions to generate a random one.
-formatStrings = ["%d", "%lld", "%f", "%x", "%a"]
-conversions = ["atoi", "atoll", "atof", "atol", "atof"]
+# The format strings being fuzzed and functions to generate a random one.
+formatStrings = ["%d", "%i", "%u", "%lld", "%f", "%F", "%x", "%X", "%a", "%A", "%c"]
 randoms = [lambda: random.randint(-2**31, (2**31)-1), \
+           lambda: random.randint(-2**31, (2**31)-1), \
+           lambda: random.randint(0, (2**32)), \
            lambda: random.randint(-2**63, (2**63)-1), \
            lambda: random.uniform(-2**63, (2**63)-1), \
+           lambda: random.uniform(-2**63, (2**63)-1), \
            lambda: random.randint(-2**31, (2**31)-1), \
-           lambda: random.uniform(-2**63, (2**63)-1)]
+           lambda: random.randint(-2**31, (2**31)-1), \
+           lambda: random.uniform(-2**63, (2**63)-1), \
+           lambda: random.uniform(-2**63, (2**63)-1), \
+           lambda: "'" + str(random.choice(string.ascii_letters)) + "'"]
 
 # Generates and returns a fuzzed C file
 def generateCFile(isMusl):
@@ -59,16 +65,33 @@ def clean():
   os.remove('musl-printf')
   os.remove('gcc-printf')
 
-# Returns 1000 random printf commands for each format string
+# Returns a random format string and list of parameters
+def formatAndArgs():
+  index = random.randint(0, len(formatStrings)-1)
+  formatString = formatStrings[index]
+  args = str(randoms[index]())
+  for i in range(0, random.randint(1, 15)):
+    padding = ""
+    for j in range(0, random.randint(1, 15)):
+      choice = str(random.choice(string.ascii_letters))
+      if(choice != "%"):
+        padding += str(choice)
+    index = random.randint(0, len(formatStrings)-1)
+    formatString += padding + formatStrings[index]
+    args += ", " + str(randoms[index]())
+  return {'format':formatString, 'args':args}
+
+# Returns 1000 random printf commands
 def fuzz(isMusl):
   fuzzed = ""
-  for i in range(0, len(formatStrings)):
-    for count in range(0, 1000):
-      testing = randoms[i]()
-      if(isMusl):
-        fuzzed += '\tmusl_snprintf(buf, LEN, "' + formatStrings[i]  + '\\n", ' + str(testing) + ');\n\tprintf("%s", buf);\n'   
-      else:
-        fuzzed += '\tprintf("' + formatStrings[i] + '\\n", ' + str(testing) + ');\n'
+  for count in range(0, 1000):
+    fAndA = formatAndArgs()
+    formatString = fAndA.get('format')
+    args = fAndA.get('args')
+    if(isMusl):
+      fuzzed += '\tmusl_snprintf(buf, LEN, "' + formatString  + '\\n", ' + args + ');\n\tprintf("%s", buf);\n'   
+    else:
+      fuzzed += '\tprintf("' + formatString + '\\n", ' + args + ');\n'
   return fuzzed
 
 # Entry point for the program

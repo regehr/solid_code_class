@@ -1,23 +1,37 @@
 import random
 import subprocess
+import string	
+
 def fuzzInts():
-	f = open("int_fuzz.c", "w")
-	f.write("#include<stdio>\n")
+	f = open("test_printf.c", "w")
+	f.write("#include <stdio.h>\n")
+	f.write("#include \"musl.h\"\n")
+	f.write("#define LEN 10000\n")
 	f.write("int main() {\r")
+	f.write("char buf[LEN];\n")
 	
 	for i in range(1, 10000):
-		d = str(random.seed(i))
-		f.write("\tprintf(%d," + d + ");\n")
+		d = random.randint(1,10000)
+		f.write("\tmusl_snprintf (buf, LEN, \"%d"  "\", " + str(d) + ");\n")
 	
 	f.write("return 0;\r}")
 	f.close
-	subprocess.call("./musl-gcc -static ../../solid_code_class/fuzzer/jguckert313/int_fuzz.c -o muslintfuzz")
-	subprocess.call("gcc ../../solid_code_class/fuzzer/jguckert313/int_fuzz.c -o gccintfuzz")
-	subprocess.call("./muslintfuzz > muslintfuzz.txt")
-	subprocess.call("./gccintfuzz > gccintfuzz.txt")
-	subprocess.call("diff gccintfuzz.txt muslintfuzz.txt")
+
+#def fuzzChars():
+#	f = open("test_printf.c", "w")
+#	f.write("#include <stdio.h>\n")
+#	f.write("#include \"musl.h\"\n")
+#	f.write("int main() {\r")
+	
+#	for i in range(1, 10000):
+#		char = random.choice(string.ascii_lowercase)
+#		f.write("musl_snprintf (\"%c"  "\", " + char + ");\n")f
+	
+#	f.write("return 0;\r}")
+#	f.close
 
 def main():
 	fuzzInts()
+	#fuzzChars()
 
 main()
