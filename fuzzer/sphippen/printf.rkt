@@ -1,7 +1,7 @@
 (module printf racket
 
   (require (only-in math/base random-integer))
-  (require "generate.rkt")
+  (require "generate.rkt" srfi/1)
 
   (provide generate-printf (struct-out pf-spec))
 
@@ -16,18 +16,102 @@
   (define char-max 10)
   (define conv-max 10)
 
+  (define (interleave l1 l2)
+    (define (work l1 l2 accum)
+      (cond
+        [(null? l1) (append (reverse accum) l2)]
+        [(null? l2) (append (reverse accum) l1)]
+        [(= 0 (random-integer 0 2))
+         (work (cdr l1) l2 (cons (car l1) accum))]
+        [else (work l1 (cdr l2) (cons (car l2) accum))]))
+    (work l1 l2 '()))
+
   (define (generate-printf)
     (let* ([n-char (random-integer 0 (+ char-max 1))]
            [chars (generate-chars n-char)]
            [n-conv (random-integer 0 (+ conv-max 1))]
            [convs (generate-convs n-conv)])
-      (shuffle (append chars convs))))
+      (interleave chars convs)))
 
   (define (generate-chars n)
     (build-list n (lambda (n) (generate-sl-char))))
   
+  (define (star-replace str ords)
+    (define (work str ords acc)
+      (cond
+        [(= (string-length str) 0)
+         (values acc ords)]
+        [(equal? #\* (string-ref str 0))
+         (work (substring str 1)
+               (cdr ords)
+               (string-append acc "*" (number->string (+ 1 (car ords))) "$"))]
+        [else (work (substring str 1)
+                    ords
+                    (string-append acc (substring str 0 1)))]))
+    (work str ords ""))
+
+  (define (reref spec off ord)
+    (define spec-len (length (pf-spec-value-lst spec)))
+    (define old-refs (map (lambda (n) (+ n off)) (range spec-len)))
+    (define new-refs (map (lambda (n) (list-index (lambda (m) (= n m)) ord))
+                          old-refs))
+
+    (define new-conv
+      (let-values ([(starred leftover)
+                  (star-replace (pf-spec-conv spec) new-refs)])
+      (if (null? leftover)
+        starred
+        (let ()
+          (unless (null? (cdr leftover))
+            (error "more than one leftover!"))
+          (string-append (number->string (+ (car leftover) 1)) "$" starred)))))
+
+    (define new-spec (struct-copy pf-spec spec [conv new-conv]))
+    (values new-spec (+ off spec-len)))
+
+  (define (swap-in spec ord args)
+    (define (work vals ord acc)
+      (if (null? vals)
+        (values (reverse acc) ord)
+        (let* ([next-val (list-ref args (car ord))])
+          (work (cdr vals) (cdr ord) (cons next-val acc)))))
+    (let-values ([(new-vals new-ord)
+                  (work (pf-spec-value-lst spec) ord '())])
+      (define vals-spec (struct-copy pf-spec spec [value-lst new-vals]))
+      (values vals-spec new-ord)))
+
+  (define (move-args raw ord args)
+    (define (conv-args raw ord acc)
+      (if (null? raw)
+        (reverse acc)
+        (let ([spec (car raw)])
+          (let-values ([(new-spec new-ord)
+                        (swap-in spec ord args)])
+            (conv-args (cdr raw) new-ord (cons new-spec acc))))))
+
+    (define (conv-refs raw off acc)
+      (if (null? raw)
+        (reverse acc)
+        (let ([spec (car raw)])
+          (let-values ([(new-spec new-off)
+                        (reref spec off ord)])
+            (conv-refs (cdr raw) new-off (cons new-spec acc))))))
+
+    (conv-refs (conv-args raw ord '()) 0 '()))
+
   (define (generate-convs n)
-    (build-list n (lambda (n) (generate-conv))))
+    (define raw (build-list n (lambda (n) (generate-conv))))
+    
+    ; Positional args
+    (define args (for/fold ([lst '()])
+                   ([conv raw])
+                   (append lst (pf-spec-value-lst conv))))
+
+    (if (> (length args) 9) ; There can only be 9 positional arguments
+      raw
+      (let ()
+        (define ord (shuffle (range (length args))))
+        (move-args raw ord args))))
 
   (struct conv
     (char-lst    ; list of bare conversion characters

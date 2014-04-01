@@ -30,7 +30,9 @@
     (compile "fuzz"
              '("fuzz.o" "fwrite.o" "snprintf.o" "vfprintf.o" "vsnprintf.o")
              coverage-flags)
-    (system* "fuzz")
+    (if (not (= (system*/exit-code "fuzz") 0))
+      (printf "ERROR: Non-zero exit code from generated executable...~%")
+      (void))
 
     ; Run the diff
     ; I don't know of a better way to scrap the error and output data than this
