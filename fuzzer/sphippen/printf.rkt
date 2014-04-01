@@ -3,7 +3,13 @@
   (require (only-in math/base random-integer))
   (require "generate.rkt")
 
-  (provide generate-printf)
+  (provide generate-printf (struct-out pf-spec))
+
+  (struct pf-spec
+    (conv        ; string containing conversion specifier
+     value-lst   ; list of values (may be multiple for width/precision)
+     prologue    ; code to go before call (only once, even if multiple calls are made)
+     epilogue))  ; printf call to go after call (for each call), i.e. a list of pf-specs or void if not applicable
 
   (define char-max 10)
   (define conv-max 10)
@@ -22,10 +28,10 @@
     (build-list n (lambda (n) (generate-conv))))
 
   (struct conv
-    (char-lst   ; list of bare conversion characters
-     length-lst ; list of applicable length modifiers paired with generation functions
-     precision  ; #t if precision flag is applicable, #f otherwise
-     flags-lst))    ; list of valid flags
+    (char-lst    ; list of bare conversion characters
+     length-lst  ; list of applicable length modifiers paired with generation functions
+     precision   ; #t if precision flag is applicable, #f otherwise
+     flags-lst)) ; list of valid flags
 
   (define int-length-lst '(hh h l ll j))
 
@@ -117,25 +123,20 @@
         (generate-w/p)
         (void)))
 
-    (define final-value
-      (cond
-        [(and (void? width-value)
-              (void? precision-value))
-         value]
-        [(void? width-value)
-         (string-append precision-value ", " value)]
-        [(void? precision-value)
-         (string-append width-value ", " value)]
-        [else (string-append width-value ", " precision-value ", " value)]))
-               
+    (define value-lst '())
+
+    (for ([i `(,value ,precision-value ,width-value)])
+      (if (not (void? i))
+        (set! value-lst (cons i value-lst))
+        (void)))
+
     ; go from symbols to strings for output
     (define conv-str (string-append (apply string-append (map symbol->string flags-list))
                                     width
                                     precision
                                     (symbol->string lenmod)
                                     (symbol->string char)))
-    (if (void? final-value)
-      (list conv-str)
-      (list conv-str final-value)))
+
+    (pf-spec conv-str value-lst "" (void)))
 
 )
