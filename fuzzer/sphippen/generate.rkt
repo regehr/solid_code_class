@@ -58,6 +58,9 @@
       ['p
        (gen-in 0 18446744073709551615 "ULL" #:cast "void*")] ; need 64-bit for this to work
 
+      ['m
+       (symbol->string (pick-from '(EALREADY EINPROGRESS EPERM ENETDOWN)))] ; great list, I know
+
       ['% (void)]
       ['n (void)])) ; special cased down below
 

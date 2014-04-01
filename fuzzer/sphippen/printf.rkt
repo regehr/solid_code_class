@@ -71,7 +71,12 @@
       ,(conv '(p)
              '()
              #f
-             '(- | | +))
+             '(-))
+
+      ,(conv '(m)
+             '()
+             #f
+             '())
 
       ,(conv '(n)
              int-length-lst
