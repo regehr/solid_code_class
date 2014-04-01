@@ -13,11 +13,12 @@ all:
 
 
 run:
-	python27 f.py
+	python27 fuzzer.py
 
 cov: 
 	$(GCOV) vfprintf.c
 
 clean:
 	rm -f *.o *.gcov *.gcno *.gcda *.a fuzzer
+	rm test-printf.c
 
