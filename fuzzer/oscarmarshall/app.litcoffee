@@ -12,6 +12,7 @@ The main script for "musl-printf-fuzzer".
 ## Configuration
 
     cc = 'gcc'
+    cflags = '-coverage'
     times = 1024
     callsPerFile = 1024
     bufferSize = 1024
@@ -126,7 +127,10 @@ Returns a random element from `array`.
 
     pad = (n, width) ->
       n = String n
-      n.length >= width ? n : new Array(width - n.length + 1).join('0') + n
+      if n.length >= width
+        n
+      else
+        new Array(width - n.length + 1).join('0') + n
 
 ## Main Script
 
@@ -252,7 +256,7 @@ and how many tries have resulted in errors.
 
             compile: ['writeFooter', 'outFile', (callback, results) ->
               exec(
-                "#{cc} -o #{results.outFile} #{results.cTmpFile}
+                "#{cc} #{cflags} -o #{results.outFile} #{results.cTmpFile}
                   ../musl-printf-standalone/fwrite.o
                   ../musl-printf-standalone/snprintf.o
                   ../musl-printf-standalone/vfprintf.o
