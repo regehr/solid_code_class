@@ -46,7 +46,7 @@
              '(|#| |0| -))
 
       ,(conv '(a A e E f F g G)
-             '() ; TODO: (?) investigate '(L) weirdness in gcc
+             '(L) ; TODO: (?) investigate '(L) weirdness in gcc
              #t
              '(|#| |0| - | | +))
 
@@ -60,11 +60,16 @@
              #t
              '())
 
+      ,(conv '(p)
+             '()
+             #f
+             '(- | | +))
+
       ,(conv '(%)
              '()
              #f
              '())))
-; TODO: add n flag for writing out "chars printed so far", p for void* as hex
+; TODO: add n flag for writing out "chars printed so far"
 
   (define (generate-conv)
     (define conv (pick-from conversions))

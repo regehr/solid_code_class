@@ -52,6 +52,9 @@
        (match lenmod
          ['|| (gen-str)]
          ['l  (string-append "L" (gen-str))])]
+      
+      ['p
+       (gen-in 0 18446744073709551615 "ULL" #:cast "void*")] ; need 64-bit for this to work
 
       ['% (void)]))
 
