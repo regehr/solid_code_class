@@ -32,7 +32,7 @@
 ; These format specifiers can never have anything more then length modifiers
 (define *length-only* '(m n p))
 
-(define *field-width-range* '(-5 60))
+(define *field-width-range* '(-5 275))
 (define *precision-range* '(0 60))
 
 (provide 
