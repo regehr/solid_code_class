@@ -2,397 +2,42 @@
 #lang racket
 
 (require "term-colors.rkt")
-(require "framework.rkt")
-(require "weighted-random.rkt")
+(require "common.rkt")
+(require "proc.rkt")
+(require "printf.rkt")
 
-; **** Helpers ****
+; **** Printers ****
 
-; Evaluates to #t if value 'v' is in list 'lst'. Evaluates to #f otherwise.
-(define (in? v lst)
- (not (false? (member v lst)))
+(define printf-fail 
+ (make-printfs (make-color 'red)))
+
+(define printf-succ
+ (make-printfs (make-color 'green)))
+
+; Returns an iterator that can be supplied to build for the given 
+; proc's stdout.
+(define (in-stdout proc)
+ (list (hash-ref proc 'stdout))
 )
 
-(define (string-empty? str)
- (string=? "" str)
-)
+(define (fuzz trial-count [iter-count 0])
+ (build "test.c" (printf-stream trial-count #t))
+ (when (not (= 0 (system/exit-code "make -j2 --quiet 2> /dev/null")))
+  (printf-fail "Failed to compile a test binary.\n")
+  (exit 1))
+ (build "musl.out" (in-stdout (run "./test-musl")))
+ (build "local.out" (in-stdout (run "./test-local")))
 
-; **** Definitions ****
-
-(define *pointer-bit-depth* 32)
-(define *pointer-const-tail* "")
-
-; 32-bit numeric-type bit-depths
-(define *numeric-bit-depths* '(
- ("char" 8)
- ("short" 16)
- ("int" 32)
- ("long int" 32)
- ("long long int" 64)
- ("float" 32)
- ("double" 64)
- ("long double" 96)
-))
-
-(define (char-range start end)
- (map integer->char (range start (add1 end)))
-)
-
-; Vector of non-whitespace (except SPACE) characters not including
-; ('), (") and (\).
-(define *valid-characters* (list->vector
- (append (char-range 32 33) 
-         (char-range 35 38) 
-         (char-range 40 91)
-         (char-range 93 126)))
-)
-
-; Non-Standard specifiers (as far as I can tell) : a A I
-
-(define *signed-decimal*
- (uniformly-weighted '("d" "i")))
-(define *unsigned-decimal*  
- (uniformly-weighted '("o" "u" "x" "X")))
-(define *floating-point* 
- (uniformly-weighted '("e" "E" "f" "g" "G")))
-(define *character* 
- (uniformly-weighted '("c")))
-(define *c-string*
- (uniformly-weighted '("s")))
-(define *pointer* 
- (uniformly-weighted (cons "p" (map cadr *unsigned-decimal*)))
-)
-
-(define *integer-types* '("char" "short" "int" "long int" "long long int"))
-(define *float-types*   '("float" "double" "long double"))
-(define *string-types*  '("char *"))
-
-(define *datatype-signs*
- (uniformly-weighted '(
-  "unsigned"
-  "" ; signed
- ))
-)
-
-(define *datatype-sizes*
- (uniformly-weighted 
-  (append *integer-types* *float-types* *string-types*))
-)
-
-; **** Datatypes ****
-
-(struct datatype 
- (sign size pointer) #:transparent)
-
-(struct variable
- (datatype value writer) #:transparent)
-
-(define (datatype-signed? datatype)
- (string-empty? (datatype-sign datatype))
-)
-
-(define (datatype-pointer? datatype)
- (not (string-empty? (datatype-pointer datatype)))
-)
-
-(define (datatype-inclass? datatype class)
- (in? (datatype-size datatype) class)
-)
-
-(define (datatype-string datatype)
- (string-join
-  (filter (negate string-empty?)
-   (list (datatype-sign datatype)
-         (datatype-size datatype)
-         (datatype-pointer datatype)
-   )
-  )
+ (printf "[I: ~a] " iter-count)
+ (if (not (eq? (system/exit-code "diff musl.out local.out > /dev/null") 0))
+  (begin
+   (printf-fail "Output Differs.\n")
+   (copy-file "test.c" (format "test-~a.c" iter-count)))
+  (printf-succ "OK.\n")
  )
-)
-; **** Variable Writers ****
+ (fuzz trial-count (add1 iter-count)))
 
-(define (integer-writer variable)
- (let ([type (variable-datatype variable)])
-  (string-append
-   (format "~a" (variable-value variable))
-   ; Add a U specifier for unsigned types.
-   (if (datatype-signed? type) "" "U")
-   ; If the bit depth is larger than an int, then we need trainling LLs
-   ; when we do the constant assignment.
-   (if (> (datatype-bit-depth type) 
-          (datatype-bit-depth (datatype "" "int" "")))
-    (string-upcase (datatype-length-spec type))
-    ""
-   )
-  )
- )
-)
-
-(define (pointer-writer variable)
- (string-append "0x"
-  (number->string (variable-value variable) 16)
-  *pointer-const-tail*
- )
-)
-
-(define (float-writer variable)
- (let ([value (variable-value variable)]
-       [size (datatype-size (variable-datatype variable))])
-  (cond 
-   ([nan? value]
-    (string-append "(" size ") "
-     (if (or (eqv? +nan.0 value)
-             (eqv? +nan.f value)) "NAN" "-NAN")))
-   ([infinite? value]
-    (string-append "(" size ") "
-     (if (or (eqv? +inf.0 value)
-             (eqv? +inf.f value)) "INFINITY" "-INFINITY")))
-   (else
-    (string-append (format "~a" value)
-     (cond
-      ; Constant floats need 'f' after them to be interpreted as floats.
-      ([string=? "float" size] "f")
-      ; Long double constant floats need 'L' after them to be interpreted
-      ; as long-doubles.
-      ([string=? "long double" size] "L")
-      ; Otherwise, there's no suffix.
-      (else "")
-     )
-    )
-   )
-  )
- )
-)
-
-(define (string-writer variable)
- (string-append "\"" (apply string (variable-value variable)) "\"")
-)
-
-; **** Generation Helpers ****
-
-(define (datatype-length-spec datatype)
- (cond
-  ([string=? "char" (datatype-size datatype)] "hh")
-  ([string=? "short" (datatype-size datatype)] "h")
-  (else 
-   (make-string 
-    (length (regexp-match* #rx"long" (datatype-size datatype))) #\l)
-  )
- )
-)
-
-(define (datatype-bit-depth datatype)
- (cadr (assoc (datatype-size datatype) *numeric-bit-depths*))
-)
-
-; **** Generators ****
-
-(define (generate-datatype [pointer-prob 0.1] [pointer-max-depth 3])
- (let ([sign (weighted-choice *datatype-signs*)]
-       [size (weighted-choice *datatype-sizes*)]
-       [pointer (if (< (random) pointer-prob)
-                 (make-string (random-int-between 1 pointer-max-depth) #\*) "")])
-  ; Float types can't be unsigned, so make sure we only set the sign-value
-  ; for integer types.
-  (cond
-   ([in? size *float-types*] 
-    (datatype "" size pointer))
-   ([in? size *string-types*]
-    (datatype "" size ""))
-   (else (datatype sign size pointer))
-  )
- )
-)
-
-; Evaluates to a valid printf conversion-specifier for the supplied datatype.
-(define (generate-conversion-specifier datatype [char-prob 0.5])
- (cond
-  ([datatype-pointer? datatype] (weighted-choice *unsigned-decimal*))
-  ; String type
-  ([datatype-inclass? datatype *string-types*] "s")
-  ; Make an actual char specifier if this is a char type and we're lucky
-  ([and (string=? "char" (datatype-size datatype))
-        (< (random) char-prob)] "c")
-  ; Non-pointer decimal number
-  ([datatype-inclass? datatype *integer-types*]
-   (string-append (datatype-length-spec datatype) 
-    (weighted-choice 
-     (if (datatype-signed? datatype) *signed-decimal* *unsigned-decimal*)
-    )
-   )
-  )
-  ; Non-pointer floating-point number
-  ([datatype-inclass? datatype *float-types*]
-   (string-append 
-    (if (regexp-match? #rx"long" (datatype-size datatype)) "L" "")
-    (weighted-choice *floating-point*)
-   )
-  )
- )
-)
-
-(define (random-bounded-integer bit-depth signed?)
- (if signed?
-  ; For signed
-  (random-int-between 
-   (* -1 (expt 2 (- bit-depth 1))) ; -2^(w -1)
-   (- (expt 2 (- bit-depth 1)) 1)  ; 2^(w-1) - 1
-  )
-  ; For unsigned 
-  (random-int-between 0 (- (expt 2 bit-depth) 1)) ; 2^w - 1
- )
-)
-
-(define (generate-integer datatype)
- (random-bounded-integer 
-  (datatype-bit-depth datatype) 
-  (datatype-signed? datatype)
- )
-)
-
-(define (generate-pointer)
- (random-bounded-integer *pointer-bit-depth* #f)
-)
-
-(define (random-bytes byte-count)
- (if (= byte-count 0) #""
-  (bytes-append 
-   (bytes (random-int-between 0 255)) 
-   (random-bytes (sub1 byte-count))
-  )
- )
-)
-
-(define (generate-string len)
- (if (= len 0) '()
-  (cons (vector-ref *valid-characters* 
-         (random-int-between 0 (vector-length *valid-characters*)))
-   (generate-string (sub1 len))
-  )
- )
-)
-
-; Generate a random real floating-point number.
-(define (generate-float datatype)
- (let ([bytes (/ (datatype-bit-depth datatype) 8)])
-  (floating-point-bytes->real
-   (if (< bytes 8) (random-bytes 4) (random-bytes 8))
-  )
- )
-)
-
-; Generate a new variable structure using the given datatype structure
-(define (generate-variable datatype)
- (cond
-  ([datatype-pointer? datatype]
-   (variable datatype (generate-pointer) pointer-writer)
-  )
-  ([datatype-inclass? datatype *integer-types*]
-   (variable datatype (generate-integer datatype) integer-writer)
-  )
-  ([datatype-inclass? datatype *float-types*]
-   (variable datatype (generate-float datatype) float-writer) 
-  )
-  ([datatype-inclass? datatype *string-types*]
-   (variable datatype (generate-string (random-int-between 1 500)) string-writer)
-  )
- )
-)
-
-(define (generate-variables count)
- (if (= count 0) '()
-  (cons
-   (generate-variable (generate-datatype))
-   (generate-variables (sub1 count))
-  )
- )
-)
-
-; Generate a string printf statement with 'spec-count' variables printed.
-(define (generate-printf spec-count)
- (let ([variables (generate-variables spec-count)]
-       [variable-string-value (lambda (v) ((variable-writer v) v))]
-       [variable-conversion-spec (lambda (v)
-                                  (string-append "%" 
-                                   (generate-conversion-specifier
-                                    (variable-datatype v))))])
-  (string-append
-   "printf(\"" 
-   (string-append*
-    (map variable-conversion-spec variables))
-   "\\n\", " ; Make sure that all format strings end with '\n' for easier
-            ; debugging.
-   (string-join (map variable-string-value variables) ", ")
-   ");"
-  )
- )
-)
-
-
-(define *printf-prelude* (bytes-append
- #"#include <stdio.h>\n"
- #"#include <math.h>\n"
- #"\n"
- #"int main() {\n"))
-(define *printf-epilogue*
- #"    return 0;\n}")
-
-(struct printf-stream
- (printf-count print-prelude?)
- #:methods gen:stream
- [(define (stream-empty? stream)
-   (<= (printf-stream-printf-count stream) 0))
-  (define (stream-first stream)
-   (bytes-append
-    (if (printf-stream-print-prelude? stream) *printf-prelude* #"")
-    #"    " ; Formatting counts
-    (string->bytes/utf-8 (generate-printf (random-int-between 1 5)))
-    #"\n"
-    (if (= (printf-stream-printf-count stream) 1) *printf-epilogue* #"")
-   )
-  )
-  (define (stream-rest stream)
-   (printf-stream
-    (sub1 (printf-stream-printf-count stream)) #f)
-  )]
-)
-
-(define (compile-binary source binary #:compiler [cc "cc"] . flags)
- (thunk
-  (let ([fflags (append flags (list "-o" binary source))])
-   (when (not (system (string-join (cons cc fflags) " ")))
-    (printf "Compilation Failed.")
-    (exit 1)
-   )
-  )
-  ; Delete the binary on cleanup.
-  (list (list 'on-finally 
-         (thunk* (delete-file binary))))
- )
-)
-
-(define (command-stdout binary . flags)
- (let ([output ((apply run-binary (cons binary flags)))])
-  (list (car (hash-ref output 'stdout)))
- )
-)
-
-(define (fuzz printfs-per-trial)
- (test "1000-printfs"
-  (list 
-   (build-file (printf-stream printfs-per-trial #t) "test.c")
-   (compile-binary "test.c" "test-musl" "-static -w" 
-                   #:compiler "musl/bin/musl-gcc")
-   (compile-binary "test.c" "test-local" "-w"
-                   #:compiler "gcc")
-   (build-file (command-stdout "./test-musl") "musl.out")
-   (build-file (command-stdout "./test-local") "local.out")
-  )
-  (run-binary "/usr/bin/env" "diff" "musl.out" "local.out")
-  (list (expect-code 0) print-info)
- )
- (fuzz printfs-per-trial)
-)
-
-(fuzz 1000)
+;(sequence-for-each display (printf-stream 100 #t))
+(with-handlers ([exn:break? (thunk* (display "\n"))]) (fuzz 1000))
 
 ; vim: set syn=scheme:

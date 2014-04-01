@@ -1,0 +1,9 @@
+fuzz.c
+# executables
+*-fuzz
+# output from printfs
+*.bin
+# gcov stuff
+*.gcov
+*.gcda
+*.gcno

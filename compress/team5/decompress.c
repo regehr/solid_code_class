@@ -145,6 +145,10 @@ void write_out_decompress (FILE *input, FILE *output, huff_tree *root,
                 current = current->zero_tree;
             }
 
+            if (bytes_written > length) {
+                printf("%i", bit);
+            }
+
             if (current->character != -1) {
                 out_c = current->character;
 
@@ -152,15 +156,14 @@ void write_out_decompress (FILE *input, FILE *output, huff_tree *root,
 
                 current = root;
                 bytes_written++;
+                if (bytes_written == length) break;
             }
-
-            if (bytes_written == length) break;
         }
-        if (bytes_written == length) break;
     }
 
-    if (bytes_written < length) {
-        printf("Bytes decompressed vs. length encoded do not match.\n");
+    if (bytes_written != length) {
+        printf("Decompression failed.  Wrote out: %i, expected %lu\n", 
+            bytes_written, length);
         exit(255);
     }
 }
@@ -175,7 +178,7 @@ uint64_t get_huff_size (FILE *input)
     return size;
 }
 
-void decompress (FILE *input, char *filename) 
+void decompress (FILE *input, FILE *output) 
 {
     huff_tree *tree;
     uint64_t size;
@@ -188,16 +191,10 @@ void decompress (FILE *input, char *filename)
     // Build a tree from the encodings
     tree = build_huff_tree_from_table(input);
 
-    // Name the file, and get a pointer
-    char *new_name = "interFileD";
-    FILE *output = fopen(new_name, "w");
-
     if(output == NULL)
         fprintf(stderr , "panic!");
 
     // Write out the decompressed bits!
     write_out_decompress(input, output, tree, size);
-
-    fclose(output);
     free_huff_tree(tree);
 }

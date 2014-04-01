@@ -2,7 +2,7 @@
 #define HUFF_TABLE_H
 
 extern int CHECK_REP;
-#define CHAR_RANGE 257
+#define CHAR_RANGE 256
 
 /* struct used to represent a node in the huffman tree. */
 typedef struct huff_tree {
@@ -10,6 +10,7 @@ typedef struct huff_tree {
 	struct huff_tree *one_tree;
 	int frequency;
 	int character;
+	int lowest;
 } huff_tree;
 
 /* prints out huff table for a given input file. */

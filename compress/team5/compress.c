@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "huff_table.h"
 
-#define CHAR_RANGE 257
+#define CHAR_RANGE 256
 
 /* Write the header information for huffman encoding to the file. */
 void write_header (FILE *output, char **huff_table, uint64_t length)
@@ -28,7 +28,7 @@ void write_header (FILE *output, char **huff_table, uint64_t length)
 	// Write table to the output
 	for (i = 0; i < CHAR_RANGE; i++) {
 		write_status = fprintf(output, "%s\n", huff_table[i]);
-
+		
 		if (write_status < 0) {
 			printf("Failed to write encoding table.\n");
 			exit(255);
@@ -61,10 +61,12 @@ void compress_contents (FILE *input, FILE *output, char **huff_table)
 	}
 
 	// Pad last bit
-	for (; bitc < 8; bitc++) {
-		current = (current & ~(1 << bitc)) | 0 << bitc;
+	if (bitc != 0) {
+		for (; bitc < 8; bitc++) {
+			current = (current & ~(1 << bitc)) | 0 << bitc;
+		}
+		fwrite(&current, 1, 1, output);
 	}
-	fwrite(&current, 1, 1, output);
 }
 
 /* Remove the extension from the file that we are compressing. */

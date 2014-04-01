@@ -88,6 +88,5 @@ void decode(FILE *readFilePointer , char *writeFileName)
 	decodeFile(readFilePointer , writeFilePointer);
 	
 	// finally, close our two files
-	fclose(readFilePointer);
 	fclose(writeFilePointer);
 }

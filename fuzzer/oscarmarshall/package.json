@@ -1,0 +1,13 @@
+{
+  "name": "musl-printf-fuzzer",
+  "version": "0.0.0",
+  "author": "Oscar Marshall <oscar.lim.marshall@gmail.com>",
+  "description": "generates random, valid printf statements and checks musl output against gnu",
+  "bin": {
+    "musl-printf-fuzzer": "./app.js"
+  },
+  "dependencies": {
+    "async": "0.2.x",
+    "tmp": "0.0.x"
+  }
+}

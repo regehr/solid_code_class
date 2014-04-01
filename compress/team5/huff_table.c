@@ -82,14 +82,14 @@ void free_huff_table (char *huff_table[])
 /* Used to add a new character to the existing characters in a huff_tree_node. */
 char *concat_characters (char *prefix, char new_char)
 {
-  assert(prefix != NULL);
+    assert(prefix != NULL);
 
-	char *new_prefix = (char *)malloc(strlen(prefix) + 2);
-	if (sprintf(new_prefix, "%s%c", prefix, new_char) < 0) {
-    printf("Failed to sprintf the new prefix.\n");
-    exit(255);
-  }
-	return new_prefix;
+    char *new_prefix = (char *)malloc(strlen(prefix) + 2);
+    if (sprintf(new_prefix, "%s%c", prefix, new_char) < 0) {
+        printf("Failed to sprintf the new prefix.\n");
+        exit(255);
+    }
+    return new_prefix;
 }
 
 /* Compares 2 huff_nodes. */
@@ -98,8 +98,11 @@ int compare_huff_trees (const void *a, const void *b)
 	const huff_tree **t1 = (const huff_tree **) a;
 	const huff_tree **t2 = (const huff_tree **) b;
 
-	if((*t1)->frequency == (*t2)->frequency){
-		return 0;	
+    if (NULL == *t1) return -1;
+    if (NULL == *t2) return 1;
+
+	if((*t1)->frequency == (*t2)->frequency) {
+        return ((*t2)->lowest - (*t1)->lowest);
 	} else {
 		return ((*t1)->frequency < (*t2)->frequency) ? 1 : -1;
 	}
@@ -112,23 +115,39 @@ huff_tree *build_huff_tree (int frequencies[])
 
 	// Create a huff_tree_node for each character in the frequency table
 	for(i = 0; i < CHAR_RANGE; i++) {
+        huff_tree *htree = (huff_tree *)calloc(1, sizeof(huff_tree));
+        htree->character = i;
+        htree->lowest = i;
 		if(frequencies[i]) {
-			huff_tree *htree = (huff_tree *)calloc(1, sizeof(huff_tree));
-			htree->character = i;
 			htree->frequency = frequencies[i];
-			q[length++] = htree;
-		}
+		} else {
+            htree->frequency = 0;
+        }
+        q[length++] = htree;
 	}
 
-	// Compare and combine huff_trees
-	while(length > 1) {
-		huff_tree *htree = (huff_tree *)malloc(sizeof(huff_tree));
-		qsort(q, length, sizeof(huff_tree *), compare_huff_trees);
-		htree->zero_tree = q[--length];
-		htree->one_tree = q[--length];
-		htree->frequency = htree->zero_tree->frequency + htree->one_tree->frequency;
-		q[length++] = htree;
-	}
+    int zt_l, ot_l; // Zero tree lowest, one tree lowest
+    i = (CHAR_RANGE - 1);
+    for (; i > 0; i--) {
+        // Sort so the lowest valued nodes are in last of index
+        qsort(q, (i + 1), sizeof(huff_tree *), compare_huff_trees);
+
+        // Combine the smallest two into a new node
+        huff_tree *node = (huff_tree*)malloc(sizeof(huff_tree));
+        *node = (huff_tree){ 0 };
+
+        node->character = -1;
+        node->zero_tree = q[i];
+        node->one_tree = q[i - 1];
+
+        node->frequency = node->zero_tree->frequency + node->one_tree->frequency;
+
+        zt_l = node->zero_tree->lowest;
+        ot_l = node->one_tree->lowest;
+
+        node->lowest = (zt_l > ot_l) ? ot_l : zt_l;
+        q[i - 1] = node;
+    }
 
     if (q[0] == NULL) {
         q[0] = (huff_tree *)malloc(sizeof(huff_tree));
@@ -145,13 +164,21 @@ void traverse_huff_tree (huff_tree *tree, char **table, char *prefix)
     if(!tree->zero_tree && !tree->one_tree) {
     	table[tree->character] = prefix;	
     } else {
+        char *one_prefix = (char *)malloc(strlen(prefix) + 1);
+        char *zero_prefix = (char *)malloc(strlen(prefix) + 1);
+
+        strcpy(one_prefix, prefix);
+        strcpy(zero_prefix, prefix);
+        free(prefix);
+
         if(tree->zero_tree) {
-        	traverse_huff_tree(tree->zero_tree, table, concat_characters(prefix, '0'));	
+        	traverse_huff_tree(tree->zero_tree, table, concat_characters(zero_prefix, '0'));	
         } 
         if(tree->one_tree) {
-        	traverse_huff_tree(tree->one_tree, table, concat_characters(prefix, '1'));	
+        	traverse_huff_tree(tree->one_tree, table, concat_characters(one_prefix, '1'));	
         } 
-        free(prefix);
+        free(one_prefix);
+        free(zero_prefix);
     }
 }
 
@@ -160,7 +187,7 @@ char **build_huff_table (int frequencies[])
 {
     static char *huff_table[CHAR_RANGE];
     char *prefix = (char *)calloc(1, sizeof(char *));
-    *prefix = 0;
+    *prefix = '\0';
     huff_tree *tree = build_huff_tree(frequencies);
     traverse_huff_tree(tree, huff_table, prefix);
 
@@ -187,8 +214,6 @@ void print_huff_table (FILE *input)
 
 	// Prints out each line of huff table.
 	for(i = 0; i < CHAR_RANGE; i++) {
-	    printf("%d - %c - ", i, (char)i);
-
 	    if(huff_table[i] == NULL)
             printf("\n");
 	    else
