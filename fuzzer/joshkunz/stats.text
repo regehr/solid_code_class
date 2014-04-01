@@ -1,0 +1,7 @@
+$ gcov -b musl/vfprintf
+File '../musl-printf-standalone/vfprintf.c'
+Lines executed:96.71% of 365
+Branches executed:99.51% of 408
+Taken at least once:92.40% of 408
+Calls executed:95.31% of 64
+Creating 'vfprintf.c.gcov'
