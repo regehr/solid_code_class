@@ -6,7 +6,9 @@ MUSL_LOCAL = musl
 
 coverage = vfprintf
 
-CC = gcc 
+CC = gcc-4.6
+GCOV = gcov-4.6
+
 CFLAGS = -O0 -Wall -Wno-trigraphs -Wno-unused -w
 MUSL_CFLAGS = -I$(MUSL_BASE)/ -fprofile-arcs -ftest-coverage
 LDLIBS = -lm
@@ -22,7 +24,7 @@ both: $(prefix)-musl $(prefix)-local
 both-files: musl.out local.out
 
 cov: $(MUSL_LOCAL)/$(coverage).g*
-	gcov -b $(MUSL_LOCAL)/$(coverage)
+	$(GCOV) -o $(MUSL_LOCAL) -b $(MUSL_LOCAL)/$(coverage)
 
 $(MUSL_LOCAL):
 	mkdir $(MUSL_LOCAL)
