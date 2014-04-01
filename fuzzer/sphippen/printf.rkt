@@ -162,6 +162,16 @@
              #f
              '())
 
+      ,(conv '(S)
+             '()
+             #t
+             '())
+
+      ,(conv '(C)
+             '()
+             #f
+             '())
+
       ,(conv '(n)
              int-length-lst
              #f

@@ -55,6 +55,12 @@
          ['|| (gen-str)]
          ['l  (string-append "L" (gen-str))])]
       
+      ['C
+       (gen-in 33 126 #:cast "wint_t")]
+
+      ['S
+       (string-append "L" (gen-str))]
+       
       ['p
        (gen-in 0 18446744073709551615 "ULL" #:cast "void*")] ; need 64-bit for this to work
 
