@@ -5,5 +5,5 @@
 char buf[LEN];
 int main(int argc, const char *argv[]) {
 musl_snprintf(buf, LEN, "%s" ,  " Hello world \n " );
-)printf("%s", buf);return 0;
+printf("%s", buf);return 0;
 }
