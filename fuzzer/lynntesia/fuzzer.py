@@ -46,13 +46,19 @@ def large_string(n):
 	return ret
 
 def int_fuzz():
-	n = 60
-	test_ints = random_little_int(n)
+	n = 63
+	test_ints = random_int(n)
+	return test_ints
+
+def bigint_fuzz():
+	n = 31
+	test_ints = random_int(n)
 	return test_ints
 	
 
-def random_little_int(n):
+def random_int(n):
 	return random.getrandbits(n)
+
 
 def main():
 	hello_test = " \" Hello fuzzer \\n \" "
@@ -60,7 +66,9 @@ def main():
 	string_test = string_fuzz()
 	fuzz_it(string_test)
 	int_test = int_fuzz()
-	fuzz_it_type(int_test, 'i')
+	fuzz_it_type(int_test, "i")
+	uint_test = bigint_fuzz()
+	fuzz_it_type(uint_test, "lu")
 	
 	
 	print os.system("gcov vfprintf.c")
