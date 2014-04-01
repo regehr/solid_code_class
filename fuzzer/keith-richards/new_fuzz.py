@@ -46,7 +46,7 @@ def generate_printfs_for_c_file(printf):
 
 def run_against_libc(c_file):
     try:
-        _ = subprocess.check_output(['gcc', c_file,'-o', O_BIN])
+        _ = subprocess.check_output(['gcc', '-w', c_file,'-o', O_BIN])
         output = subprocess.check_output([O_BIN])
         return output.splitlines()
     except OSError:
@@ -55,7 +55,7 @@ def run_against_libc(c_file):
 
 def run_against_musl(c_file):
     try:
-        _ = subprocess.check_output(['gcc', 'fwrite.c', 'snprintf.c', 'vfprintf.c', 'vsnprintf.c', c_file,'-o', T_BIN])
+        _ = subprocess.check_output(['gcc', '-w', 'fwrite.c', 'snprintf.c', 'vfprintf.c', 'vsnprintf.c', c_file,'-o', T_BIN])
         output = subprocess.check_output([T_BIN])
         return output.splitlines()
     except OSError:
