@@ -7,10 +7,17 @@
 
 (define *signed-decimal*
  (uniformly-weighted '(d i n)))
+
 (define *unsigned-decimal*
  (uniformly-weighted '(o u x X)))
+;(define *unsigned-decimal*
+; (uniformly-weighted '(u x X)))
+
 (define *floating-point*
  (uniformly-weighted '(e E f F g G a A)))
+;(define *floating-point*
+; (uniformly-weighted '(e E f F g G)))
+
 (define *string*
  (uniformly-weighted '(s m)))
 ; Specified below: c p
@@ -133,9 +140,11 @@
   (if [chance? 'left-flag] "-" "")
   (if [and (signed? type) 
            (not (eq? conv 'c))
+           ;(not (in? conv (no-weights *floating-point*)))
            (chance? 'space-flag)] " " "")
   (if [and (signed? type)
            (not (eq? conv 'c))
+           ;(not (in? conv (no-weights *floating-point*)))
            (chance? 'sign-flag)] "+" "")
  )
 )
@@ -143,9 +152,11 @@
 (define (gen-width)
  (apply random-integer *field-width-range*))
 
-(define (gen-precision)
+(define (gen-precision type)
  (if (chance? 'precision-dotonly) 'empty
-  (apply random-integer *precision-range*)))
+  (apply random-integer
+   *precision-range*)))
+   ;(if (oftype? type *float-type*) '(0 5) *precision-range*))))
 
 (define (gen-fmt type)
  (let ([conv (type->conv-specifier type)])
@@ -161,7 +172,7 @@
     ; Precision is not valid for character conversions
     (if [and (not (eq? conv 'c)) 
              (chance? 'format-precision)]
-     (gen-precision) null)
+     (gen-precision type) null)
     ; Chars have a length specifier, but if we want print a char
     ; as an actual character we shouldn't include it.
     (if [and (eq? 'c conv) 

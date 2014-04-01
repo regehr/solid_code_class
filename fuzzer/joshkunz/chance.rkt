@@ -35,7 +35,9 @@
 
  ; Various flag probabilities
  (hash-flag  0.3)
+ ;(hash-flag  0.0)
  (zero-flag  0.3)
+ ;(zero-flag  0.0)
  (left-flag  0.3)
  (space-flag 0.3)
  (sign-flag  0.3)
