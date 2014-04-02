@@ -172,6 +172,26 @@ def many_fuzz():
 	file.close()
 
 
+def string_type_fuzz():
+	word = string_fuzz()
+	num1 = str(randrange(0, 1024))
+	num2 = str(randrange(0, 1024))
+	typ = "s %"+num1+"s %."+num2+"s %-"+num1+"s %-"+num1+"s %."+num1+"s %"+num1+"."+num2+"s %-"+num1+"."+num2+"s"
+	file = open("test-printf.c", "w")
+	file.write("#include <stdio.h>\n")
+	file.write("#include <stdarg.h>\n")
+	file.write("#include \"musl.h\"\n")
+	file.write("#define LEN 10000\n")
+	file.write("char buf[LEN];\n")
+	file.write("int main(int argc, const char *argv[]) {\n")
+	file.write("musl_snprintf(buf, LEN, \"%" +  typ +  "\" , " + 
+		str(word) + "," + str(word) + "," +str(word) + "," +str(word) + "," +str(word) + "," +
+		str(word) + str(word) + "," + str(word) + ");\n")
+	file.write("printf(\"%s\", buf);")
+	file.write("return 0;\n}")
+	file.close()
+	
+
 	
 
 def main():
@@ -205,7 +225,7 @@ def main():
 	bit_32()
 	bit_64()
 	many_fuzz()
-
+	
 	
 	
 		
@@ -217,4 +237,5 @@ if __name__ == "__main__":
 	main()
 	
 	
+
 

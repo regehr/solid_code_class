@@ -321,20 +321,20 @@
     #####:  316:		if (carry) *--a = carry;
     #####:  317:		e2-=sh;
         -:  318:	}
-       29:  319:	while (e2<0) {
-       17:  320:		uint32_t carry=0, *b;
-       17:  321:		int sh=MIN(9,-e2), need=1+(p+LDBL_MANT_DIG/3+8)/9;
-       84:  322:		for (d=a; d<z; d++) {
-       67:  323:			uint32_t rm = *d & (1<<sh)-1;
-       67:  324:			*d = (*d>>sh) + carry;
-       67:  325:			carry = (1000000000>>sh) * rm;
+       28:  319:	while (e2<0) {
+       16:  320:		uint32_t carry=0, *b;
+       16:  321:		int sh=MIN(9,-e2), need=1+(p+LDBL_MANT_DIG/3+8)/9;
+       79:  322:		for (d=a; d<z; d++) {
+       63:  323:			uint32_t rm = *d & (1<<sh)-1;
+       63:  324:			*d = (*d>>sh) + carry;
+       63:  325:			carry = (1000000000>>sh) * rm;
         -:  326:		}
-       17:  327:		if (!*a) a++;
-       17:  328:		if (carry) *z++ = carry;
+       16:  327:		if (!*a) a++;
+       16:  328:		if (carry) *z++ = carry;
         -:  329:		/* Avoid (slow!) computation past requested precision */
-       17:  330:		b = (t|32)=='f' ? r : a;
-       17:  331:		if (z-b > need) z = b+need;
-       17:  332:		e2+=sh;
+       16:  330:		b = (t|32)=='f' ? r : a;
+       16:  331:		if (z-b > need) z = b+need;
+       16:  332:		e2+=sh;
         -:  333:	}
         -:  334:
         6:  335:	if (a<z) for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
@@ -356,19 +356,19 @@
         -:  351:			long double small;
         6:  352:			if (*d/i & 1) round += 2;
         6:  353:			if (x<i/2) small=0x0.8p0;
-        3:  354:			else if (x==i/2 && d+1==z) small=0x1.0p0;
-        3:  355:			else small=0x1.8p0;
+        4:  354:			else if (x==i/2 && d+1==z) small=0x1.0p0;
+        4:  355:			else small=0x1.8p0;
         6:  356:			if (pl && *prefix=='-') round*=-1, small*=-1;
         6:  357:			*d -= x;
         -:  358:			/* Decide whether to round by probing round+small */
         6:  359:			if (round+small != round) {
-        3:  360:				*d = *d + i;
-        7:  361:				while (*d > 999999999) {
+        4:  360:				*d = *d + i;
+        9:  361:				while (*d > 999999999) {
         1:  362:					*d--=0;
         1:  363:					(*d)++;
         -:  364:				}
-        3:  365:				if (d<a) a=d;
-        3:  366:				for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
+        4:  365:				if (d<a) a=d;
+        4:  366:				for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
         -:  367:			}
         -:  368:		}
         6:  369:		if (z>d+1) z=d+1;
