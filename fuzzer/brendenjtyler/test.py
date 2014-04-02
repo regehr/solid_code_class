@@ -12,7 +12,8 @@ optionsPerPrint = 4
 writeTo = open('test-printf.c', 'w')
 
 #write the beginning of the C file
-writeTo.write('#include <math.h>\n#include <stdio.h>\n#include <stdarg.h>\n#include "musl.h"\n\n#define LEN 10000\nchar buf[LEN];\n\nint main (void)\n{\n')
+writeTo.write('#include <math.h>\n#include <limits.h>\n#include <stdio.h>\n#include <stdarg.h>\n#include "musl.h"\n\n#define LEN 10000\nchar buf[LEN];\n\nint main (void)\n{\n')
+writeTo.write('\t')
 
 #set up the structures the fuzzer uses
 options = ['%d', '%o', '%x', '%ld', '%u', '%lu', '%c', '%s', '%f', '%g', '%e', '%lf', '%lg', '%le']
