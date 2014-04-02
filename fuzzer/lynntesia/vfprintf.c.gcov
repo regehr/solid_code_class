@@ -356,19 +356,19 @@
         -:  351:			long double small;
         2:  352:			if (*d/i & 1) round += 2;
         2:  353:			if (x<i/2) small=0x0.8p0;
-        1:  354:			else if (x==i/2 && d+1==z) small=0x1.0p0;
-        1:  355:			else small=0x1.8p0;
+        2:  354:			else if (x==i/2 && d+1==z) small=0x1.0p0;
+        2:  355:			else small=0x1.8p0;
         2:  356:			if (pl && *prefix=='-') round*=-1, small*=-1;
         2:  357:			*d -= x;
         -:  358:			/* Decide whether to round by probing round+small */
         2:  359:			if (round+small != round) {
-        1:  360:				*d = *d + i;
-        2:  361:				while (*d > 999999999) {
+        2:  360:				*d = *d + i;
+        4:  361:				while (*d > 999999999) {
     #####:  362:					*d--=0;
     #####:  363:					(*d)++;
         -:  364:				}
-        1:  365:				if (d<a) a=d;
-        1:  366:				for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
+        2:  365:				if (d<a) a=d;
+        2:  366:				for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
         -:  367:			}
         -:  368:		}
         2:  369:		if (z>d+1) z=d+1;
