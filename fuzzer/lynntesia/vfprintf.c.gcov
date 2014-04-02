@@ -167,20 +167,20 @@
         -:  162:	}
         -:  163:}
         -:  164:
-       83:  165:static void out(MUSL_FILE *f, const char *s, size_t l)
+       82:  165:static void out(MUSL_FILE *f, const char *s, size_t l)
         -:  166:{
-       83:  167:	__fwritex((void *)s, l, f);
-       83:  168:}
+       82:  167:	__fwritex((void *)s, l, f);
+       82:  168:}
         -:  169:
        70:  170:static void pad(MUSL_FILE *f, char c, int w, int l, int fl)
         -:  171:{
         -:  172:	char pad[256];
        70:  173:	if (fl & (LEFT_ADJ | ZERO_PAD) || l >= w) return;
-        1:  174:	l = w - l;
-        1:  175:	memset(pad, c, l>sizeof pad ? sizeof pad : l);
-        1:  176:	for (; l >= sizeof pad; l -= sizeof pad)
+    #####:  174:	l = w - l;
+    #####:  175:	memset(pad, c, l>sizeof pad ? sizeof pad : l);
+    #####:  176:	for (; l >= sizeof pad; l -= sizeof pad)
     #####:  177:		out(f, pad, sizeof pad);
-        1:  178:	out(f, pad, l);
+    #####:  178:	out(f, pad, l);
         -:  179:}
         -:  180:
         -:  181:static const char xdigits[16] = {
@@ -321,20 +321,20 @@
     #####:  316:		if (carry) *--a = carry;
     #####:  317:		e2-=sh;
         -:  318:	}
-       28:  319:	while (e2<0) {
-       16:  320:		uint32_t carry=0, *b;
-       16:  321:		int sh=MIN(9,-e2), need=1+(p+LDBL_MANT_DIG/3+8)/9;
-       79:  322:		for (d=a; d<z; d++) {
-       63:  323:			uint32_t rm = *d & (1<<sh)-1;
-       63:  324:			*d = (*d>>sh) + carry;
-       63:  325:			carry = (1000000000>>sh) * rm;
+       29:  319:	while (e2<0) {
+       17:  320:		uint32_t carry=0, *b;
+       17:  321:		int sh=MIN(9,-e2), need=1+(p+LDBL_MANT_DIG/3+8)/9;
+       85:  322:		for (d=a; d<z; d++) {
+       68:  323:			uint32_t rm = *d & (1<<sh)-1;
+       68:  324:			*d = (*d>>sh) + carry;
+       68:  325:			carry = (1000000000>>sh) * rm;
         -:  326:		}
-       16:  327:		if (!*a) a++;
-       16:  328:		if (carry) *z++ = carry;
+       17:  327:		if (!*a) a++;
+       17:  328:		if (carry) *z++ = carry;
         -:  329:		/* Avoid (slow!) computation past requested precision */
-       16:  330:		b = (t|32)=='f' ? r : a;
-       16:  331:		if (z-b > need) z = b+need;
-       16:  332:		e2+=sh;
+       17:  330:		b = (t|32)=='f' ? r : a;
+       17:  331:		if (z-b > need) z = b+need;
+       17:  332:		e2+=sh;
         -:  333:	}
         -:  334:
         6:  335:	if (a<z) for (i=10, e=9*(r-a); *a>=i; i*=10, e++);

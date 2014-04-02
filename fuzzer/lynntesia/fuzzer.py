@@ -126,7 +126,7 @@ def byte_2048():
 	fuzz_it(st)		
 
 def many_fuzz():
-	typ = "c %d %f %e %s %d %u %o %x %g %llu %hu %hhx %lc %+d %.0f %#.0f %.9g %ls %10d %02d %a %1$s"
+	typ = "c %d %f %e %s %d %u %o %x %g %llu %hu %hhx %lc %+d %.0f %#.0f %.9g %ls %10d %02d %a %1$s %ul"
 	c = "'" + random.choice(string.letters) + "'"
 	d = random_int(8)
 	f = random.uniform(1.0, 1000.1)
@@ -152,6 +152,7 @@ def many_fuzz():
 	dfill = 123456789000
 	a = random_int(2)
 	s_dolla = '"'+ "weekday" + '"'
+	ul = u
 
 	file = open("test-printf.c", "w")
 	file.write("#include <stdio.h>\n")
@@ -166,7 +167,7 @@ def many_fuzz():
 		str(llu) + "," + str(hu) + "," + str(hhx) + "," + str(lc) + "," + 
 		str(plusd) + "," + str(dotf) + "," + str(hashdotf) + "," + str(dotg) + "," + 
 		str(ls) + "," + str(dspace) + "," + str(dfill) + "," + str(a) + "," + 
-		str(s_dolla) + ");\n")
+		str(s_dolla) + "," + str(ul) + ");\n")
 	file.write("printf(\"%s\", buf);")
 	file.write("return 0;\n}")
 	file.close()
