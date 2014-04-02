@@ -126,14 +126,33 @@ def byte_2048():
 	fuzz_it(st)		
 
 def many_fuzz():
-	typ = "c %d %f %e %s %d"
+	typ = "c %d %f %e %s %d %u %o %x %g %llu %hu %hhx %lc %+d %.0f %#.0f %.9g %ls %10d %02d %a %1$s"
 	c = "'" + random.choice(string.letters) + "'"
 	d = random_int(8)
 	f = random.uniform(1.0, 1000.1)
 	e = 12345678.
 	s = '"'+large_string(10)+'"'
 	d = random_int(4)
-	
+	i = random_int(16)
+	u = random_int(32)
+	o = random_int(31)
+	x = str(random_int(31))
+	g = random.uniform(1.0, 1000.1)
+	llu = str(randrange(0, 4294967296))
+	hex_range = ['a', 'b', 'c', 'd', 'e', 'f']
+	hu = 0x1ffffff	
+	hhx = 0xFFFFFFF
+	lc = "'" + random.choice(string.ascii_lowercase) + "'"
+	plusd = randrange(0, 31)
+	dotf = random.uniform(0.1, 10.0)
+	hashdotf = random.uniform(0.1, 50.0)
+	dotg = random.uniform(0.1, 10.0)
+	ls = '"'+large_string(10)+'"'
+	dspace = -123546789000
+	dfill = 123456789000
+	a = random_int(2)
+	s_dolla = '"'+ "weekday" + '"'
+
 	file = open("test-printf.c", "w")
 	file.write("#include <stdio.h>\n")
 	file.write("#include <stdarg.h>\n")
@@ -141,11 +160,18 @@ def many_fuzz():
 	file.write("#define LEN 10000\n")
 	file.write("char buf[LEN];\n")
 	file.write("int main(int argc, const char *argv[]) {\n")
-	file.write("musl_snprintf(buf, LEN, \"%" +  typ +  "\" , " + str(c) + "," + str(d) + "," +str(f) + "," +str(e) + "," +str(s) + "," +str(d) + ");\n")
+	file.write("musl_snprintf(buf, LEN, \"%" +  typ +  "\" , " + 
+		str(c) + "," + str(d) + "," +str(f) + "," +str(e) + "," +str(s) + "," +
+		str(d) + str(i) + "," + str(u) + "," +str(o) + "," +str(x) + "," + str(g) + "," +
+		str(llu) + "," + str(hu) + "," + str(hhx) + "," + str(lc) + "," + 
+		str(plusd) + "," + str(dotf) + "," + str(hashdotf) + "," + str(dotg) + "," + 
+		str(ls) + "," + str(dspace) + "," + str(dfill) + "," + str(a) + "," + 
+		str(s_dolla) + ");\n")
 	file.write("printf(\"%s\", buf);")
 	file.write("return 0;\n}")
 	file.close()
-	
+
+
 	
 
 def main():
@@ -179,7 +205,7 @@ def main():
 	bit_32()
 	bit_64()
 	many_fuzz()
-	
+
 	
 	
 		
