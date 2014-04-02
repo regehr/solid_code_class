@@ -9,7 +9,7 @@ coverage = vfprintf
 CC = gcc-4.6
 GCOV = gcov-4.6
 
-CFLAGS = -O0 -Wall -Wno-trigraphs -Wno-unused -w
+CFLAGS = -O0 -g -Wall # -Wno-trigraphs -Wno-unused -w
 MUSL_CFLAGS = -I$(MUSL_BASE)/ -fprofile-arcs -ftest-coverage
 LDLIBS = -lm
 
