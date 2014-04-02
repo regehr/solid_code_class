@@ -1,0 +1,88 @@
+\documentclass[12pt]{article}
+\usepackage{listings}
+\usepackage{fullpage}
+
+\lstset{language=C,numbers=left,xleftmargin=3em}
+
+\begin{document}
+\begin{flushright}
+    Josh Kunz \\
+    \today
+\end{flushright}
+\begin{center}
+    \Large Musl \texttt{snprintf} Code Coverage
+\end{center}
+
+\section{\texttt{gcov} Coverage}
+\begin{verbatim}
+File '../musl-printf-standalone/vfprintf.c'
+Lines executed:96.99% of 365
+Branches executed:99.51% of 408
+Taken at least once:92.65% of 408
+Calls executed:96.77% of 62
+../musl-printf-standalone/vfprintf.c:creating 'vfprintf.c.gcov'
+\end{verbatim}
+
+\section{Un-coverable Sections}
+This section details the parts of the code under test that could not be
+tested. As detailed below, we failed to reach these parts of the code
+due to the limitations of the test system, toolchain, and test interface.
+
+\subsection{Character Count Overflow}
+\begin{lstlisting}[firstnumber=470]
+if (l > INT_MAX - cnt) {
+    errno = EOVERFLOW;
+    cnt = -1;
+} else cnt += l;
+\end{lstlisting}
+
+In the code snippet above, the variable \verb|l| contains the number of
+characters that were written in the last conversion, 
+and \verb|cnt| contains the total
+number of characters written so far (not including the characters in \verb|l|).
+The check above is basically ensuring that a single call never generates more
+than \verb|INT_MAX| characters.
+
+This section is un-coverable because we are limited by the amount of available 
+memory
+on the system and the build toolchain. To fall into this branch, we would have
+to supply \verb|snprintf| with a buffer that is larger than \verb|INT_MAX|. 
+The system used for testing does not have that much available memory.
+In addition to this, when attempting to make a global storage buffer of
+\verb|INT_MAX| or near \verb|INT_MAX| size, the linker failed to correctly 
+link the test script on the test system.
+
+If we were not limited to testing via the \verb|snprintf| function, and had
+an actual I/O backed \verb|printf| function to test, this functionality could be
+trivially invoked. To invoke this behaviour we would supply a conversion
+string to \verb|printf| the first conversion specification has a 
+field width of \verb|INT_MAX|
+and the second conversion specification has a field width that is non-zero.
+
+\subsection{Automatic Internal Buffer Creation}
+\begin{lstlisting}[firstnumber=677]
+if (!f->buf_size) {
+    saved_buf = f->buf;
+    f->wpos = f->wbase = f->buf = internal_buf;
+    f->buf_size = sizeof internal_buf;
+    f->wend = internal_buf + sizeof internal_buf;
+}
+ret = printf_core(f, fmt, &ap2, nl_arg, nl_type);
+if (saved_buf) {
+    f->write(f, 0, 0);
+    if (!f->wpos) ret = -1;
+    f->buf = saved_buf;
+    f->buf_size = 0;
+    f->wpos = f->wbase = f->wend = 0;
+}
+\end{lstlisting}
+
+We were unable to test lines 677-682, and lines 684-690 of the lines above
+due to the test interface used. The first \verb|if| clause in the snippet above
+tests for the existence of a temporary buffer and creates one if it does not
+exist. The second \verb|if| clause cleans up this buffer if it is created in
+the first \verb|if| clause. Since we're using \verb|snprintf|, and the buffer used
+to hold the outputted string is provided in advance (due to the semantics of the 
+\verb|snprintf| function), this code is never invoked. 
+
+\end{document}
