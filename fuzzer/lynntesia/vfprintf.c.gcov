@@ -321,20 +321,20 @@
     #####:  316:		if (carry) *--a = carry;
     #####:  317:		e2-=sh;
         -:  318:	}
-       29:  319:	while (e2<0) {
-       17:  320:		uint32_t carry=0, *b;
-       17:  321:		int sh=MIN(9,-e2), need=1+(p+LDBL_MANT_DIG/3+8)/9;
-       85:  322:		for (d=a; d<z; d++) {
-       68:  323:			uint32_t rm = *d & (1<<sh)-1;
-       68:  324:			*d = (*d>>sh) + carry;
-       68:  325:			carry = (1000000000>>sh) * rm;
+       28:  319:	while (e2<0) {
+       16:  320:		uint32_t carry=0, *b;
+       16:  321:		int sh=MIN(9,-e2), need=1+(p+LDBL_MANT_DIG/3+8)/9;
+       79:  322:		for (d=a; d<z; d++) {
+       63:  323:			uint32_t rm = *d & (1<<sh)-1;
+       63:  324:			*d = (*d>>sh) + carry;
+       63:  325:			carry = (1000000000>>sh) * rm;
         -:  326:		}
-       17:  327:		if (!*a) a++;
-       17:  328:		if (carry) *z++ = carry;
+       16:  327:		if (!*a) a++;
+       16:  328:		if (carry) *z++ = carry;
         -:  329:		/* Avoid (slow!) computation past requested precision */
-       17:  330:		b = (t|32)=='f' ? r : a;
-       17:  331:		if (z-b > need) z = b+need;
-       17:  332:		e2+=sh;
+       16:  330:		b = (t|32)=='f' ? r : a;
+       16:  331:		if (z-b > need) z = b+need;
+       16:  332:		e2+=sh;
         -:  333:	}
         -:  334:
         6:  335:	if (a<z) for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
