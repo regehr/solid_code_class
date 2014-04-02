@@ -363,9 +363,9 @@
         -:  358:			/* Decide whether to round by probing round+small */
         6:  359:			if (round+small != round) {
         4:  360:				*d = *d + i;
-        9:  361:				while (*d > 999999999) {
-        1:  362:					*d--=0;
-        1:  363:					(*d)++;
+       10:  361:				while (*d > 999999999) {
+        2:  362:					*d--=0;
+        2:  363:					(*d)++;
         -:  364:				}
         4:  365:				if (d<a) a=d;
         4:  366:				for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
