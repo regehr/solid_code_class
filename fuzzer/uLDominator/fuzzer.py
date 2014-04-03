@@ -4,14 +4,74 @@ import random
 import decimal
 import os
 import filecmp
+import string
 
 #These lists taken from dsetser since his fuzzer.py looked cleaner than mine
-formats = ["%d", "%lld", "%f", "%x", "%a"]
-ranges = [lambda: random.randint(-2**31, (2**31)-1), \
-           lambda: random.randint(-2**63, (2**63)-1), \
-           lambda: random.uniform(-2**63, (2**63)-1), \
-           lambda: random.randint(-2**31, (2**31)-1), \
-           lambda: random.uniform(-2**63, (2**63)-1)]
+formats = ["d", "i", "u", "lld", "f", "F", "o", "x", "X", "a", "A", "e", "E", "g", "G", "s", "c", "lu", "hu"]
+ranges = [lambda: random.randint(-2147483647, 2147483647), \
+           lambda: random.randint(-2147483647, 2147483647), \
+           lambda: random.randint(0, 2147483647), \
+           lambda: random.randint(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.randint(-32767, 32767), \
+           lambda: random.randint(-32767, 32767), \
+           lambda: random.randint(-32767, 32767), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: '"' + createString() + '"', \
+           lambda: "'" + str(random.choice(string.ascii_letters)) + "'", \
+           lambda: random.randint(0, 4294967295), \
+           lambda: random.randint(0, 65535)]
+           
+def createString():
+	createString = ""
+	for i in range(0, random.randint(0, 100)):
+		char = str(random.choice(string.ascii_letters + string.digits))
+		if char != "%":
+			createString += char
+	return createString
+	
+def createFormat():
+	index = random.randint(0, len(formats)-1)
+	formatString = "%" + formats[index]
+	args = str(ranges[index]())
+	for i in range(0, random.randint(1, 15)):
+		padding = createString()
+		index = random.randint(0, len(formats)-1)
+		formatString += padding + "%" + prefix(formats[index]) + formats[index]
+		args += ", " + str(ranges[index]())
+	return {'format':formatString, 'args':args}
+	
+def prefix(formatString):
+	prefixesAllowed = ["d", "i", "o", "x", "X", "a", "A", "f", "F"]
+	prefix = ""
+	rand = random.randint(0, 10)
+	if(rand < 5 or formatString not in prefixesAllowed):
+		return ""
+	# Flag
+	rand = random.randint(0, 10)
+	if rand == 1:
+		prefix += "-"
+	if rand == 2:
+		prefix += "+"
+	if rand == 3:
+		prefix += " "
+	if rand == 4:
+		prefix += "0"
+	# Width
+	rand = random.randint(0, 5)
+	if rand == 1:
+		prefix += str(random.randint(1, 20))
+	# Precision
+	rand = random.randint(0, 5)
+	if rand == 1:
+		prefix += str(random.randint(1, 20))
+	return prefix
 
 #Copy files from standalone to current directory.
 def cloneFiles():
@@ -50,19 +110,19 @@ def generateCFile(useMusl):
 	cFile += 'return 0;\n}'
 	return cFile
 
-#Generate 1000 print statements for each format.
+#Generate 5000 print statements.
 #Uses musl-snprintf when parameter is true.
 def fuzzer(useMusl):
 	fuzz = ""
-	for i in range(0, len(formats)):
-		for c in range(0, 1000):
-			test = ranges[i]()
-			if(useMusl):
-				fuzz += 'musl_snprintf(buf, LEN, "'+formats[i]+'\\n", '+str(test)+');\n'
-				fuzz += 'printf("%s", buf);\n'
-			else:
-				fuzz += 'printf("'+formats[i]+'\\n", '+str(test)+');\n'
-				
+	for i in range(0, 5000):
+		form = createFormat()
+		string = form.get('format')
+		value = form.get('args')
+		if(useMusl):
+			fuzz += 'musl_snprintf(buf, LEN, "'+string+'\\n", '+value+');\n'
+			fuzz += 'printf("%s", buf);\n'
+		else:
+			fuzz += 'printf("'+string+'\\n", '+value+');\n'				
 	return fuzz
 	
 #Runs both compiled files, tests the outputs for equality.
