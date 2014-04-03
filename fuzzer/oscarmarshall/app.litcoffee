@@ -272,14 +272,14 @@ and how many tries have resulted in errors.
                 int main() {
                   char musl[#{bufferSize}];
                   char gnu[#{bufferSize}];
-
+                  int var0 = 0;
                 """
                 callback
               )
             ]
 
             printfCalls: (callback) ->
-              vars = 0
+              vars = 1
               callback null, (for i in [0...callsPerFile]
                 declarations = []
                 args = []
@@ -289,17 +289,11 @@ and how many tries have resulted in errors.
                 post[0] = 'strcmp(musl, gnu) != 0'
                 loop
                   addDeclaration = (type, value) ->
-                    if type is 'double' or type is 'long double'
-                      declarations.push "  long long var#{vars} = #{value};"
-                      vars += 1
-                      declarations.push "  #{type} var#{vars} =
-                        *(#{type}*) &var#{vars - 1};"
-                    else
-                      declarations.push "  #{type} var#{vars}" +
-                        if value?
-                          " = #{value};"
-                        else
-                          ';'
+                    declarations.push "  #{type} var#{vars}" +
+                      if value?
+                        " = #{value};"
+                      else
+                        ';'
                     args.push "#{unless value? then '&' else ''}var#{vars}"
                     vars += 1
                     unless value?
