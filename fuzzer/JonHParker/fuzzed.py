@@ -15,7 +15,7 @@ from subprocess import CalledProcessError
 
 def main():
 
-    random.seed(11);
+    random.seed(10);
     
     # Specifiers
     d = "d"  # Signed decimal integer
@@ -66,10 +66,12 @@ def main():
     minus = "-"	#Left-justify within the given field width; Right justification is the default (see width sub-specifier).
     plus = "+"	#Forces to preceed the result with a plus or minus sign (+ or -) even for positive numbers. By default, only negative numbers are preceded with a - sign.
     space	= " " #If no sign is going to be written, a blank space is inserted before the value.
-    pount = "#"	#Used with o, x or X specifiers the value is preceeded with 0, 0x or 0X respectively for values different than zero.
+    pound = "#"	#Used with o, x or X specifiers the value is preceeded with 0, 0x or 0X respectively for values different than zero.
                         #Used with a, A, e, E, f, F, g or G it forces the written output to contain a decimal point even if no more digits follow.
                         #By default, if no digits follow, no decimal point is written.
     zero = "0"	#Left-pads the number with zeroes (0) instead of spaces when padding is specified (see width sub-specifier).
+    
+    flags = [ minus, plus, space, pound, zero, ""]
     
     #Trigraphs - Shouldn't be relevant here, but always an edge case for compilers, so what the hell.
     t1 = "??="
@@ -170,28 +172,107 @@ def main():
 char buf[LEN];
 
 int main (void)
-{""")
-            for lines in range(0, 1000):                         
+{
+    long long int x;
+    long long int* pointer = &x;
+""")
+            for lines in range(0, 2000):                         
                     fuzzball.write(r"""
     musl_snprintf (buf, LEN, """ + "\"")
-                    values = [0]*random.randint(1,10)
-                    for specifier in range(0, len(values)):
+                    valuesLength = random.randint(1,10)
+                    values = [0]*valuesLength*3
+                    valueCount = 0;
+                    for specifier in range(0, valuesLength-1):
                         token = specifiers[random.randint(0, len(specifiers)-1)]
-                        values[specifier] = 0;
-                        if ranges[token][0] == sys.float_info.min:
-                            continue#values[specifier] = random.uniform(sys.float_info.min, sys.float_info.max)
-                        elif ranges[token][0] != "bad":
-                            values[specifier] = random.randint(ranges[token][0], ranges[token][1]);
-                        else:
-                            continue
+                        values[valueCount] = 0;
+                        length = compatabilities[token][random.randint(0, len(compatabilities[token]) - 1)]
+                        flag = flags[random.randint(0, len(flags) -1)]
+                                           
                         
-                        token = "%" + compatabilities[token][random.randint(0, len(compatabilities[token]) - 1)] + token                         
-                        fuzzball.write(token)
+                        if (token != n and token != percent):
+                            width = str(random.randint(-255, 255))
+                            if random.randint(0, 7) == 7:
+                                width = ""
+                            if random.randint(0, 7) == 7:
+                                width = str(random.randint(-sys.maxsize - 1, sys.maxsize))
+                            if random.randint(0, 7) == 7:
+                                width = "*"
+                                values[valueCount] = str(random.randint(-255, 255))
+                                valueCount = valueCount + 1
+                            #if random.randint(0, 7) == 7:
+                            #    width = "*"
+                            #    values[valueCount] = str(random.randint(-sys.maxsize - 1, sys.maxsize))
+                            #    valueCount = valueCount + 1
+                            
+                            precision = "." + str(random.randint(-255, 255))
+                            if random.randint(0, 7) == 7:
+                                precision = ""
+                            if random.randint(0, 7) == 7:
+                                precision = str(random.randint(-sys.maxsize - 1, sys.maxsize))
+                            if random.randint(0, 7) == 7:
+                                precision = ".*"
+                                values[valueCount] = str(random.randint(-255, 255))
+                                valueCount = valueCount + 1
+                            #if random.randint(0, 7) == 7:
+                            #    precision = ".*"
+                            #    values[valueCount] = str(random.randint(-sys.maxsize - 1, sys.maxsize))
+                            #    valueCount = valueCount + 1
+                        else:
+                            width = ""
+                            precision = ""
+                            
+                        if length == "L":
+                            randomNumber = random.randint(0, 4)
+                            floatValue = "0.0"
+                            if randomNumber == 0:
+                                floatValue = "(long double) %f" %random.uniform(sys.float_info.min, sys.float_info.max)
+                            elif randomNumber == 1:
+                                floatValue = "(long double) (1.0/0.0)"
+                            elif randomNumber == 2:
+                                floatValue = "(long double) (-1.0/0.0)"
+                            elif randomNumber == 3:
+                                floatValue = "(long double) -0.0"
+                            elif randomNumber == 4:
+                                floatValue = "(long double) (0.0/0.0)"
+                            values[valueCount] = floatValue
+                            valueCount = valueCount + 1
+                        elif ranges[token][0] == sys.float_info.min:
+                            randomNumber = random.randint(0, 4)
+                            floatValue = "0.0"
+                            if randomNumber == 0:
+                                floatValue = "%f" %random.uniform(sys.float_info.min, sys.float_info.max)
+                            elif randomNumber == 1:
+                                floatValue = "1.0/0.0"
+                            elif randomNumber == 2:
+                                floatValue = "-1.0/0.0"
+                            elif randomNumber == 3:
+                                floatValue = "-0.0"
+                            elif randomNumber == 4:
+                                floatValue = "0.0/0.0"
+                            values[valueCount] = floatValue
+                            valueCount = valueCount + 1
+                        elif ranges[token][0] != "bad":
+                            values[valueCount] = random.randint(ranges[token][0], ranges[token][1]);
+                            valueCount = valueCount + 1
+                        elif token == s:
+                            values[valueCount] = "\"ick\""
+                            valueCount = valueCount + 1
+                        elif token == n:
+                            values[valueCount] = "pointer"
+                            valueCount = valueCount + 1
+                        elif token == percent:
+                            pass
+                        else:
+                            pass         
+                        
+                        fuzzball.write("%" + flag + width + precision + length + token)
                     fuzzball.write("\"")
-                    for valueIndex in range(0, len(values)):
+                    for valueIndex in range(0, valueCount):
                         fuzzball.write(", " + str(values[valueIndex]))
+#                    fuzzball.write(""");
+#      printf ("%s", buf);""")
                     fuzzball.write(""");
-      printf ("%s", buf);""")
+        printf("%1$*2$.*3$i",2,2,2);""")
   
             fuzzball.write(r"""  
   return 0;
