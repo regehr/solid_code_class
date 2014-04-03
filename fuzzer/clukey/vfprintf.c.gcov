@@ -137,23 +137,23 @@
         -:  132:	void *p;
         -:  133:};
         -:  134:
-     1000:  135:static void pop_arg(union arg *arg, int type, va_list *ap)
+    16630:  135:static void pop_arg(union arg *arg, int type, va_list *ap)
         -:  136:{
         -:  137:	/* Give the compiler a hint for optimizing the switch. */
-     1000:  138:	if ((unsigned)type > MAXSTATE) return;
-     1000:  139:	switch (type) {
-    #####:  140:	       case PTR:	arg->p = va_arg(*ap, void *);
-    #####:  141:	break; case INT:	arg->i = va_arg(*ap, int);
-     1000:  142:	break; case UINT:	arg->i = va_arg(*ap, unsigned int);
+    16630:  138:	if ((unsigned)type > MAXSTATE) return;
+    16630:  139:	switch (type) {
+     5585:  140:	       case PTR:	arg->p = va_arg(*ap, void *);
+     5585:  141:	break; case INT:	arg->i = va_arg(*ap, int);
+      829:  142:	break; case UINT:	arg->i = va_arg(*ap, unsigned int);
         -:  143:#ifndef LONG_IS_INT
-    #####:  144:	break; case LONG:	arg->i = va_arg(*ap, long);
-    #####:  145:	break; case ULONG:	arg->i = va_arg(*ap, unsigned long);
+      852:  144:	break; case LONG:	arg->i = va_arg(*ap, long);
+      821:  145:	break; case ULONG:	arg->i = va_arg(*ap, unsigned long);
         -:  146:#endif
-    #####:  147:	break; case ULLONG:	arg->i = va_arg(*ap, unsigned long long);
-    #####:  148:	break; case SHORT:	arg->i = (short)va_arg(*ap, int);
-    #####:  149:	break; case USHORT:	arg->i = (unsigned short)va_arg(*ap, int);
-    #####:  150:	break; case CHAR:	arg->i = (signed char)va_arg(*ap, int);
-    #####:  151:	break; case UCHAR:	arg->i = (unsigned char)va_arg(*ap, int);
+     3547:  147:	break; case ULLONG:	arg->i = va_arg(*ap, unsigned long long);
+     1115:  148:	break; case SHORT:	arg->i = (short)va_arg(*ap, int);
+      275:  149:	break; case USHORT:	arg->i = (unsigned short)va_arg(*ap, int);
+      270:  150:	break; case CHAR:	arg->i = (signed char)va_arg(*ap, int);
+     3077:  151:	break; case UCHAR:	arg->i = (unsigned char)va_arg(*ap, int);
         -:  152:#ifdef ODD_TYPES
         -:  153:	break; case LLONG:	arg->i = va_arg(*ap, long long);
         -:  154:	break; case SIZET:	arg->i = va_arg(*ap, size_t);
@@ -162,49 +162,49 @@
         -:  157:	break; case PDIFF:	arg->i = va_arg(*ap, ptrdiff_t);
         -:  158:	break; case UIPTR:	arg->i = (uintptr_t)va_arg(*ap, void *);
         -:  159:#endif
-    #####:  160:	break; case DBL:	arg->f = va_arg(*ap, double);
+      259:  160:	break; case DBL:	arg->f = va_arg(*ap, double);
     #####:  161:	break; case LDBL:	arg->f = va_arg(*ap, long double);
         -:  162:	}
         -:  163:}
         -:  164:
-     3040:  165:static void out(MUSL_FILE *f, const char *s, size_t l)
+    49610:  165:static void out(MUSL_FILE *f, const char *s, size_t l)
         -:  166:{
-     3040:  167:	__fwritex((void *)s, l, f);
-     3040:  168:}
+    49610:  167:	__fwritex((void *)s, l, f);
+    49610:  168:}
         -:  169:
-     4000:  170:static void pad(MUSL_FILE *f, char c, int w, int l, int fl)
+    55204:  170:static void pad(MUSL_FILE *f, char c, int w, int l, int fl)
         -:  171:{
         -:  172:	char pad[256];
-     4000:  173:	if (fl & (LEFT_ADJ | ZERO_PAD) || l >= w) return;
-       40:  174:	l = w - l;
-       40:  175:	memset(pad, c, l>sizeof pad ? sizeof pad : l);
-       40:  176:	for (; l >= sizeof pad; l -= sizeof pad)
+    55204:  173:	if (fl & (LEFT_ADJ | ZERO_PAD) || l >= w) return;
+     1346:  174:	l = w - l;
+     1346:  175:	memset(pad, c, l>sizeof pad ? sizeof pad : l);
+     1346:  176:	for (; l >= sizeof pad; l -= sizeof pad)
     #####:  177:		out(f, pad, sizeof pad);
-       40:  178:	out(f, pad, l);
+     1346:  178:	out(f, pad, l);
         -:  179:}
         -:  180:
         -:  181:static const char xdigits[16] = {
         -:  182:	"0123456789ABCDEF"
         -:  183:};
         -:  184:
-    #####:  185:static char *fmt_x(uintmax_t x, char *s, int lower)
+     4065:  185:static char *fmt_x(uintmax_t x, char *s, int lower)
         -:  186:{
-    #####:  187:	for (; x; x>>=4) *--s = xdigits[(x&15)]|lower;
-    #####:  188:	return s;
+     4065:  187:	for (; x; x>>=4) *--s = xdigits[(x&15)]|lower;
+     4065:  188:	return s;
         -:  189:}
         -:  190:
-    #####:  191:static char *fmt_o(uintmax_t x, char *s)
+      703:  191:static char *fmt_o(uintmax_t x, char *s)
         -:  192:{
-    #####:  193:	for (; x; x>>=3) *--s = '0' + (x&7);
-    #####:  194:	return s;
+      703:  193:	for (; x; x>>=3) *--s = '0' + (x&7);
+      703:  194:	return s;
         -:  195:}
         -:  196:
-     1000:  197:static char *fmt_u(uintmax_t x, char *s)
+     3469:  197:static char *fmt_u(uintmax_t x, char *s)
         -:  198:{
         -:  199:	unsigned long y;
         -:  200:	for (   ; x>ULONG_MAX; x/=10) *--s = '0' + x%10;
-     1000:  201:	for (y=x;           y; y/=10) *--s = '0' + y%10;
-     1000:  202:	return s;
+     3469:  201:	for (y=x;           y; y/=10) *--s = '0' + y%10;
+     3469:  202:	return s;
         -:  203:}
         -:  204:
         -:  205:/* Do not override this check. The floating point printing code below
@@ -446,22 +446,22 @@
     #####:  441:	return MAX(w, pl+l);
         -:  442:}
         -:  443:
-     2038:  444:static int getint(char **s) {
+    18597:  444:static int getint(char **s) {
         -:  445:	int i;
-     2942:  446:	for (i=0; isdigit(**s); (*s)++)
-      904:  447:		i = 10*i + (**s-'0');
-     2038:  448:	return i;
+    23117:  446:	for (i=0; isdigit(**s); (*s)++)
+     4520:  447:		i = 10*i + (**s-'0');
+    18597:  448:	return i;
         -:  449:}
         -:  450:
-     2000:  451:static int printf_core(MUSL_FILE *f, const char *fmt, va_list *ap, union arg *nl_arg, int *nl_type)
+     4000:  451:static int printf_core(MUSL_FILE *f, const char *fmt, va_list *ap, union arg *nl_arg, int *nl_type)
         -:  452:{
-     2000:  453:	char *a, *z, *s=(char *)fmt;
-     2000:  454:	unsigned l10n=0, fl;
+     4000:  453:	char *a, *z, *s=(char *)fmt;
+     4000:  454:	unsigned l10n=0, fl;
         -:  455:	int w, p;
         -:  456:	union arg arg;
         -:  457:	int argpos;
         -:  458:	unsigned st, ps;
-     2000:  459:	int cnt=0, l=0;
+     4000:  459:	int cnt=0, l=0;
         -:  460:	int i;
         -:  461:	char buf[sizeof(uintmax_t)*3+3+LDBL_MANT_DIG/4];
         -:  462:	const char *prefix;
@@ -471,98 +471,98 @@
         -:  466:
         -:  467:	for (;;) {
         -:  468:		/* Update output count, end loop when fmt is exhausted */
-     3000:  469:		if (cnt >= 0) {
-     3000:  470:			if (l > INT_MAX - cnt) {
+    25038:  469:		if (cnt >= 0) {
+    25038:  470:			if (l > INT_MAX - cnt) {
     #####:  471:				errno = EOVERFLOW;
     #####:  472:				cnt = -1;
-     3000:  473:			} else cnt += l;
+    25038:  473:			} else cnt += l;
         -:  474:		}
-     3000:  475:		if (!*s) break;
+    25038:  475:		if (!*s) break;
         -:  476:
         -:  477:		/* Handle literal text and %% format specifiers */
-     2000:  478:		for (a=s; *s && *s!='%'; s++);
-     2000:  479:		for (z=s; s[0]=='%' && s[1]=='%'; z++, s+=2);
-     2000:  480:		l = z-a;
-     2000:  481:		if (f) out(f, a, l);
-     2000:  482:		if (l) continue;
+    22924:  478:		for (a=s; *s && *s!='%'; s++);
+    22924:  479:		for (z=s; s[0]=='%' && s[1]=='%'; z++, s+=2);
+    22924:  480:		l = z-a;
+    22924:  481:		if (f) out(f, a, l);
+    22924:  482:		if (l) continue;
         -:  483:
-     2000:  484:		if (isdigit(s[1]) && s[2]=='$') {
+    18516:  484:		if (isdigit(s[1]) && s[2]=='$') {
     #####:  485:			l10n=1;
     #####:  486:			argpos = s[1]-'0';
     #####:  487:			s+=3;
         -:  488:		} else {
-     2000:  489:			argpos = -1;
-     2000:  490:			s++;
+    18516:  489:			argpos = -1;
+    18516:  490:			s++;
         -:  491:		}
         -:  492:
         -:  493:		/* Read modifier flags */
-     3128:  494:		for (fl=0; (unsigned)*s-' '<32 && (FLAGMASK&(1U<<*s-' ')); s++)
-     1128:  495:			fl |= 1U<<*s-' ';
+    25176:  494:		for (fl=0; (unsigned)*s-' '<32 && (FLAGMASK&(1U<<*s-' ')); s++)
+     6660:  495:			fl |= 1U<<*s-' ';
         -:  496:
         -:  497:		/* Read field width */
-     2000:  498:		if (*s=='*') {
-      380:  499:			if (isdigit(s[1]) && s[2]=='$') {
+    18516:  498:		if (*s=='*') {
+     1810:  499:			if (isdigit(s[1]) && s[2]=='$') {
     #####:  500:				l10n=1;
     #####:  501:				nl_type[s[1]-'0'] = INT;
     #####:  502:				w = nl_arg[s[1]-'0'].i;
     #####:  503:				s+=3;
-      380:  504:			} else if (!l10n) {
-      380:  505:				w = f ? va_arg(*ap, int) : 0;
-      380:  506:				s++;
+     1810:  504:			} else if (!l10n) {
+     1810:  505:				w = f ? va_arg(*ap, int) : 0;
+     1810:  506:				s++;
     #####:  507:			} else return -1;
-      380:  508:			if (w<0) fl|=LEFT_ADJ, w=-w;
-     1620:  509:		} else if ((w=getint(&s))<0) return -1;
+     1810:  508:			if (w<0) fl|=LEFT_ADJ, w=-w;
+    16706:  509:		} else if ((w=getint(&s))<0) return -1;
         -:  510:
         -:  511:		/* Read precision */
-     2000:  512:		if (*s=='.' && s[1]=='*') {
-      410:  513:			if (isdigit(s[2]) && s[3]=='$') {
+    18516:  512:		if (*s=='.' && s[1]=='*') {
+     1800:  513:			if (isdigit(s[2]) && s[3]=='$') {
     #####:  514:				nl_type[s[2]-'0'] = INT;
     #####:  515:				p = nl_arg[s[2]-'0'].i;
     #####:  516:				s+=4;
-      410:  517:			} else if (!l10n) {
-      410:  518:				p = f ? va_arg(*ap, int) : 0;
-      410:  519:				s+=2;
+     1800:  517:			} else if (!l10n) {
+     1800:  518:				p = f ? va_arg(*ap, int) : 0;
+     1800:  519:				s+=2;
     #####:  520:			} else return -1;
-     1590:  521:		} else if (*s=='.') {
-      418:  522:			s++;
-      418:  523:			p = getint(&s);
-     1172:  524:		} else p = -1;
+    16716:  521:		} else if (*s=='.') {
+     1891:  522:			s++;
+     1891:  523:			p = getint(&s);
+    14825:  524:		} else p = -1;
         -:  525:
         -:  526:		/* Format specifier state machine */
-     2000:  527:		st=0;
+    18516:  527:		st=0;
         -:  528:		do {
-     2000:  529:			if (OOB(*s)) return -1;
-     2000:  530:			ps=st;
-     2000:  531:			st=states[st]S(*s++);
-     2000:  532:		} while (st-1<STOP);
-     2000:  533:		if (!st) return -1;
+    24048:  529:			if (OOB(*s)) return -1;
+    24048:  530:			ps=st;
+    24048:  531:			st=states[st]S(*s++);
+    24048:  532:		} while (st-1<STOP);
+    18516:  533:		if (!st) return -1;
         -:  534:
         -:  535:		/* Check validity of argument type (nl/normal) */
-     2000:  536:		if (st==NOARG) {
+    18516:  536:		if (st==NOARG) {
     #####:  537:			if (argpos>=0) return -1;
         -:  538:		} else {
-     2000:  539:			if (argpos>=0) nl_type[argpos]=st, arg=nl_arg[argpos];
-     2000:  540:			else if (f) pop_arg(&arg, st, ap);
-     1000:  541:			else return 0;
+    18516:  539:			if (argpos>=0) nl_type[argpos]=st, arg=nl_arg[argpos];
+    18516:  540:			else if (f) pop_arg(&arg, st, ap);
+     1886:  541:			else return 0;
         -:  542:		}
         -:  543:
-     1000:  544:		if (!f) continue;
+    16630:  544:		if (!f) continue;
         -:  545:
-     1000:  546:		z = buf + sizeof(buf);
-     1000:  547:		prefix = "-+   0X0x";
-     1000:  548:		pl = 0;
-     1000:  549:		t = s[-1];
+    16630:  546:		z = buf + sizeof(buf);
+    16630:  547:		prefix = "-+   0X0x";
+    16630:  548:		pl = 0;
+    16630:  549:		t = s[-1];
         -:  550:
         -:  551:		/* Transform ls,lc -> S,C */
-     1000:  552:		if (ps && (t&15)==3) t&=~32;
+    16630:  552:		if (ps && (t&15)==3) t&=~32;
         -:  553:
         -:  554:		/* - and 0 flags are mutually exclusive */
-     1000:  555:		if (fl & LEFT_ADJ) fl &= ~ZERO_PAD;
+    16630:  555:		if (fl & LEFT_ADJ) fl &= ~ZERO_PAD;
         -:  556:
-     1000:  557:		switch(t) {
+    16630:  557:		switch(t) {
         -:  558:		case 'n':
-    #####:  559:			switch(ps) {
-    #####:  560:			case BARE: *(int *)arg.p = cnt; break;
+     2829:  559:			switch(ps) {
+     2829:  560:			case BARE: *(int *)arg.p = cnt; break;
     #####:  561:			case LPRE: *(long *)arg.p = cnt; break;
     #####:  562:			case LLPRE: *(long long *)arg.p = cnt; break;
     #####:  563:			case HPRE: *(unsigned short *)arg.p = cnt; break;
@@ -570,53 +570,53 @@
     #####:  565:			case ZTPRE: *(size_t *)arg.p = cnt; break;
     #####:  566:			case JPRE: *(uintmax_t *)arg.p = cnt; break;
         -:  567:			}
-    #####:  568:			continue;
+     2829:  568:			continue;
         -:  569:		case 'p':
-    #####:  570:			p = MAX(p, 2*sizeof(void*));
-    #####:  571:			t = 'x';
-    #####:  572:			fl |= ALT_FORM;
+     2714:  570:			p = MAX(p, 2*sizeof(void*));
+     2714:  571:			t = 'x';
+     2714:  572:			fl |= ALT_FORM;
         -:  573:		case 'x': case 'X':
-    #####:  574:			a = fmt_x(arg.i, z, t&32);
-    #####:  575:			if (arg.i && (fl & ALT_FORM)) prefix+=(t>>4), pl=2;
+     4065:  574:			a = fmt_x(arg.i, z, t&32);
+     4065:  575:			if (arg.i && (fl & ALT_FORM)) prefix+=(t>>4), pl=2;
         -:  576:			if (0) {
         -:  577:		case 'o':
-    #####:  578:			a = fmt_o(arg.i, z);
-    #####:  579:			if ((fl&ALT_FORM) && arg.i) prefix+=5, pl=1;
+      703:  578:			a = fmt_o(arg.i, z);
+      703:  579:			if ((fl&ALT_FORM) && arg.i) prefix+=5, pl=1;
         -:  580:			} if (0) {
         -:  581:		case 'd': case 'i':
-     1000:  582:			pl=1;
-     1000:  583:			if (arg.i>INTMAX_MAX) {
-      483:  584:				arg.i=-arg.i;
-      517:  585:			} else if (fl & MARK_POS) {
-       70:  586:				prefix++;
-      447:  587:			} else if (fl & PAD_POS) {
-       79:  588:				prefix+=2;
-      368:  589:			} else pl=0;
+     2748:  582:			pl=1;
+     2748:  583:			if (arg.i>INTMAX_MAX) {
+     1151:  584:				arg.i=-arg.i;
+     1597:  585:			} else if (fl & MARK_POS) {
+      220:  586:				prefix++;
+     1377:  587:			} else if (fl & PAD_POS) {
+      224:  588:				prefix+=2;
+     1153:  589:			} else pl=0;
         -:  590:		case 'u':
-     1000:  591:			a = fmt_u(arg.i, z);
+     3469:  591:			a = fmt_u(arg.i, z);
         -:  592:			}
-     1000:  593:			if (p>=0) fl &= ~ZERO_PAD;
-     1000:  594:			if (!arg.i && !p) {
+     8237:  593:			if (p>=0) fl &= ~ZERO_PAD;
+     8237:  594:			if (!arg.i && !p) {
     #####:  595:				a=z;
     #####:  596:				break;
         -:  597:			}
-     1000:  598:			p = MAX(p, z-a + !arg.i);
-     1000:  599:			break;
+     8237:  598:			p = MAX(p, z-a + !arg.i);
+     8237:  599:			break;
         -:  600:		case 'c':
-    #####:  601:			*(a=z-(p=1))=arg.i;
-    #####:  602:			fl &= ~ZERO_PAD;
-    #####:  603:			break;
+     2808:  601:			*(a=z-(p=1))=arg.i;
+     2808:  602:			fl &= ~ZERO_PAD;
+     2808:  603:			break;
         -:  604:		case 'm':
     #####:  605:			if (1) a = strerror(errno); else
         -:  606:		case 's':
-    #####:  607:			a = arg.p ? arg.p : "(null)";
+     2756:  607:			a = arg.p ? arg.p : "(null)";
         -:  608:			// z = memchr(a, 0, p);
         -:  609:			// fix from spencer:
-    #####:  610:			z = (p >= 0 ? memchr(a, 0, p) : memchr(a, 0, 1000000000000));
-    #####:  611:			if (!z) z=a+p;
-    #####:  612:			else p=z-a;
-    #####:  613:			fl &= ~ZERO_PAD;
-    #####:  614:			break;
+     2756:  610:			z = (p >= 0 ? memchr(a, 0, p) : memchr(a, 0, 1000000000000));
+     2756:  611:			if (!z) z=a+p;
+     2344:  612:			else p=z-a;
+     2756:  613:			fl &= ~ZERO_PAD;
+     2756:  614:			break;
         -:  615:		case 'C':
     #####:  616:			wc[0] = arg.i;
     #####:  617:			wc[1] = 0;
@@ -640,21 +640,21 @@
     #####:  635:			continue;
         -:  636:		}
         -:  637:
-     1000:  638:		if (p < z-a) p = z-a;
-     1000:  639:		if (w < pl+p) w = pl+p;
+    13801:  638:		if (p < z-a) p = z-a;
+    13801:  639:		if (w < pl+p) w = pl+p;
         -:  640:
-     1000:  641:		pad(f, ' ', w, pl+p, fl);
-     1000:  642:		out(f, prefix, pl);
-     1000:  643:		pad(f, '0', w, pl+p, fl^ZERO_PAD);
-     1000:  644:		pad(f, '0', p, z-a, 0);
-     1000:  645:		out(f, a, z-a);
-     1000:  646:		pad(f, ' ', w, pl+p, fl^LEFT_ADJ);
+    13801:  641:		pad(f, ' ', w, pl+p, fl);
+    13801:  642:		out(f, prefix, pl);
+    13801:  643:		pad(f, '0', w, pl+p, fl^ZERO_PAD);
+    13801:  644:		pad(f, '0', p, z-a, 0);
+    13801:  645:		out(f, a, z-a);
+    13801:  646:		pad(f, ' ', w, pl+p, fl^LEFT_ADJ);
         -:  647:
-     1000:  648:		l = w;
+    13801:  648:		l = w;
         -:  649:	}
         -:  650:
-     1000:  651:	if (f) return cnt;
-    #####:  652:	if (!l10n) return 0;
+     2114:  651:	if (f) return cnt;
+      114:  652:	if (!l10n) return 0;
         -:  653:
     #####:  654:	for (i=1; i<=NL_ARGMAX && nl_type[i]; i++)
     #####:  655:		pop_arg(nl_arg+i, nl_type[i], ap);
@@ -663,30 +663,30 @@
     #####:  658:	return 1;
         -:  659:}
         -:  660:
-     1000:  661:int musl_vfprintf(MUSL_FILE *restrict f, const char *restrict fmt, va_list ap)
+     2000:  661:int musl_vfprintf(MUSL_FILE *restrict f, const char *restrict fmt, va_list ap)
         -:  662:{
         -:  663:	va_list ap2;
-     1000:  664:	int nl_type[NL_ARGMAX+1] = {0};
+     2000:  664:	int nl_type[NL_ARGMAX+1] = {0};
         -:  665:	union arg nl_arg[NL_ARGMAX+1];
-     1000:  666:	unsigned char internal_buf[80], *saved_buf = 0;
+     2000:  666:	unsigned char internal_buf[80], *saved_buf = 0;
         -:  667:	int ret;
         -:  668:
         -:  669:	/* the copy allows passing va_list* even if va_list is an array */
-     1000:  670:	va_copy(ap2, ap);
-     1000:  671:	if (printf_core(0, fmt, &ap2, nl_arg, nl_type) < 0) {
+     2000:  670:	va_copy(ap2, ap);
+     2000:  671:	if (printf_core(0, fmt, &ap2, nl_arg, nl_type) < 0) {
     #####:  672:		va_end(ap2);
     #####:  673:		return -1;
         -:  674:	}
         -:  675:
         -:  676:	// FLOCK(f);
-     1000:  677:	if (!f->buf_size) {
+     2000:  677:	if (!f->buf_size) {
     #####:  678:		saved_buf = f->buf;
     #####:  679:		f->wpos = f->wbase = f->buf = internal_buf;
     #####:  680:		f->buf_size = sizeof internal_buf;
     #####:  681:		f->wend = internal_buf + sizeof internal_buf;
         -:  682:	}
-     1000:  683:	ret = printf_core(f, fmt, &ap2, nl_arg, nl_type);
-     1000:  684:	if (saved_buf) {
+     2000:  683:	ret = printf_core(f, fmt, &ap2, nl_arg, nl_type);
+     2000:  684:	if (saved_buf) {
     #####:  685:		f->write(f, 0, 0);
     #####:  686:		if (!f->wpos) ret = -1;
     #####:  687:		f->buf = saved_buf;
@@ -694,6 +694,6 @@
     #####:  689:		f->wpos = f->wbase = f->wend = 0;
         -:  690:	}
         -:  691:	// FUNLOCK(f);
-     1000:  692:	va_end(ap2);
-     1000:  693:	return ret;
+     2000:  692:	va_end(ap2);
+     2000:  693:	return ret;
         -:  694:}
