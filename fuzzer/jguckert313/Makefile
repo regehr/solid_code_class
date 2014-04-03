@@ -10,12 +10,13 @@ all:
 	$(CC) $(CFLAGSPRINT) -c vsnprintf.c -o vsnprintf.o
 	$(CC) $(CFLAGSPRINT) -c fwrite.c -o fwrite.o
 	$(CC) $(CFLAGSPRINT) fwrite.o vsnprintf.o snprintf.o vfprintf.o test_printf.c -o fuzzer
+	./fuzzer
 
 
-run:
+py:
 	python27 fuzzer.py
 
-cov: 
+cover: 
 	$(GCOV) vfprintf.c
 
 clean:

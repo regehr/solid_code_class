@@ -6,18 +6,33 @@ import string
 import random
 
 # The format strings being fuzzed and functions to generate a random one.
-formatStrings = ["%d", "%i", "%u", "%lld", "%f", "%F", "%x", "%X", "%a", "%A", "%c"]
-randoms = [lambda: random.randint(-2**31, (2**31)-1), \
-           lambda: random.randint(-2**31, (2**31)-1), \
-           lambda: random.randint(0, (2**32)), \
-           lambda: random.randint(-2**63, (2**63)-1), \
-           lambda: random.uniform(-2**63, (2**63)-1), \
-           lambda: random.uniform(-2**63, (2**63)-1), \
-           lambda: random.randint(-2**31, (2**31)-1), \
-           lambda: random.randint(-2**31, (2**31)-1), \
-           lambda: random.uniform(-2**63, (2**63)-1), \
-           lambda: random.uniform(-2**63, (2**63)-1), \
+formatStrings = ["d", "i", "u", "lld", "f", "F", "o", "x", "X", "a", "A", "e", "E", "g", "G", "s", "c"]
+randoms = [lambda: random.randint(-2147483647, 2147483647), \
+           lambda: random.randint(-2147483647, 2147483647), \
+           lambda: random.randint(0, 2147483647), \
+           lambda: random.randint(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.randint(-32767, 32767), \
+           lambda: random.randint(-32767, 32767), \
+           lambda: random.randint(-32767, 32767), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: random.uniform(-9223372036854775807, 9223372036854775807), \
+           lambda: '"' + randomString() + '"', \
            lambda: "'" + str(random.choice(string.ascii_letters)) + "'"]
+
+# Generates a random string that has no % in it
+def randomString():
+  randString = ""
+  for i in range(0, random.randint(0, 20)):
+    choice = str(random.choice(string.ascii_letters))
+    if choice != "%":
+      randString += choice
+  return randString
 
 # Generates and returns a fuzzed C file
 def generateCFile(isMusl):
@@ -65,19 +80,46 @@ def clean():
   os.remove('musl-printf')
   os.remove('gcc-printf')
 
+# Returns a random prefix
+def prefix(formatString):
+  prefixesAllowed = ["d", "i", "o", "x", "X", "a", "A", "f", "F"]
+  prefix = ""
+  rand = random.randint(0, 10)
+  if(rand < 5 or formatString not in prefixesAllowed):
+    return ""
+  # Flag
+  rand = random.randint(0, 10)
+  if rand == 1:
+    prefix += "-"
+  if rand == 2:
+    prefix += "+"
+  if rand == 3:
+    prefix += " "
+  if rand == 4:
+    prefix += "0"
+  # Width
+  rand = random.randint(0, 5)
+  if rand == 1:
+    prefix += str(random.randint(1, 20))
+  # Precision
+  rand = random.randint(0, 5)
+  if rand == 1:
+    prefix += str(random.randint(1, 20))
+  return prefix
+
+# Returns a random suffix
+def suffix(formatString):
+  return ""
+
 # Returns a random format string and list of parameters
 def formatAndArgs():
   index = random.randint(0, len(formatStrings)-1)
-  formatString = formatStrings[index]
+  formatString = "%" + formatStrings[index]
   args = str(randoms[index]())
   for i in range(0, random.randint(1, 15)):
-    padding = ""
-    for j in range(0, random.randint(1, 15)):
-      choice = str(random.choice(string.ascii_letters))
-      if(choice != "%"):
-        padding += str(choice)
+    padding = randomString()
     index = random.randint(0, len(formatStrings)-1)
-    formatString += padding + formatStrings[index]
+    formatString += padding + "%" + prefix(formatStrings[index]) + formatStrings[index] + suffix(formatStrings[index])
     args += ", " + str(randoms[index]())
   return {'format':formatString, 'args':args}
 

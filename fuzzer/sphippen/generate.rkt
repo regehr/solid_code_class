@@ -97,8 +97,11 @@
 
   (define (gen-number-double)
     (let ([expo (random-integer -300 301)]
-          [mant (random)])
-      (number->string (* mant (expt 10 expo)))))
+          [mant (random)]
+          [neg  (if (= (random-integer 0 2) 0)
+                  -1
+                  1)])
+      (number->string (* neg mant (expt 10 expo)))))
 
   (define (generate-n-values var lenmod)
     (let ([type (match lenmod
