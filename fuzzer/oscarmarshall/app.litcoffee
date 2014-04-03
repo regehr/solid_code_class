@@ -12,11 +12,11 @@ The main script for "musl-printf-fuzzer".
 ## Configuration
 
     cc = 'gcc'
-    cflags = '-coverage'
+    cflags = '-fprofile-arcs -w'
     times = 1024
     callsPerFile = 1024
     bufferSize = 1024
-    maxPadding = 64
+    maxPadding = 512
 
 ### Probabilities
 
@@ -62,9 +62,27 @@ The chance that an `*` will be used instead of a number for width and precision.
       'long long int':
         min: -(2 ** 63)
         max: 2 ** 63 - 1
-      'intmax_t':
-        min: -(2 ** 31)
-        max: 2 ** 31 - 1
+      'unsigned int':
+        min: 0
+        max: 2 ** 32 - 1
+      'unsigned char':
+        min: 0
+        max: 2 ** 8 - 1
+      'unsigned short int':
+        min: 0
+        max: 2 ** 16 - 1
+      'unsigned long int':
+        min: 0
+        max: 2 ** 32 - 1
+      'unsigned long long int':
+        min: 0
+        max: 2 ** 64 - 1
+      'double':
+        min: 0
+        max: 2 ** 64 - 1
+      'long double':
+        min: 0
+        max: 2 ** 64 - 1
 
 ### Displayable Characters
 
@@ -84,7 +102,7 @@ An array of escaped, single-character, string literals.
 
 ### Format Specifiers
 
-    formatSpecifiers = [
+    cases = [
       {
         specifiers: ['d', 'i']
         flags: ['-', '+', ' ', '0']
@@ -97,6 +115,93 @@ An array of escaped, single-character, string literals.
           {string: 'l', type: 'long int'}
           {string: 'll', type: 'long long int'}
     #      {string: 'j', type: 'intmax_t'}
+    #      {string: 'z', type: 'size_t'}
+    #      {string: 't', type: 'ptrdiff_t'}
+        ]
+      }
+      {
+        specifiers: ['u']
+        flags: ['-', '+', ' ', '0']
+        width: true
+        precision: true
+        lengths: [
+          {string: '', type: 'unsigned int'}
+          {string: 'hh', type: 'unsigned char'}
+          {string: 'h', type: 'unsigned short int'}
+          {string: 'l', type: 'unsigned long int'}
+          {string: 'll', type: 'unsigned long long int'}
+    #      {string: 'j', type: 'uintmax_t'}
+    #      {string: 'z', type: 'size_t'}
+    #      {string: 't', type: 'ptrdiff_t'}
+        ]
+      }
+      {
+        specifiers: ['o', 'x', 'X']
+        flags: ['-', '+', ' ', '#', '0']
+        width: true
+        precision: true
+        lengths: [
+          {string: '', type: 'unsigned int'}
+          {string: 'hh', type: 'unsigned char'}
+          {string: 'h', type: 'unsigned short int'}
+          {string: 'l', type: 'unsigned long int'}
+          {string: 'll', type: 'unsigned long long int'}
+    #      {string: 'j', type: 'uintmax_t'}
+    #      {string: 'z', type: 'size_t'}
+    #      {string: 't', type: 'ptrdiff_t'}
+        ]
+      }
+      {
+        specifiers: ['f', 'F', 'e', 'E', 'g', 'G', 'a', 'A']
+        flags: ['-', '+', ' ', '#', '0']
+        width: true
+        precision: true
+        lengths: [
+          {string: '', type: 'double'}
+          {string: 'L', type: 'long double'}
+        ]
+      }
+      {
+        specifiers: ['c']
+        flags: []
+        width: false
+        precision: false
+        lengths: [
+          {string: '', type: 'signed char'}
+          {string: 'l', type: 'int'}
+        ]
+      }
+      {
+        specifiers: ['s']
+        flags: []
+        width: false
+        precision: false
+        lengths: [
+          {string: '', type: 'char*'}
+    #      {string: 'l', type: 'wchar_t*'}
+        ]
+      }
+      {
+        specifiers: ['p']
+        flags: []
+        width: false
+        precision: false
+        lengths: [
+          {string: '', type: 'void*'}
+        ]
+      }
+      {
+        specifiers: ['n']
+        flags: []
+        width: false
+        precision: false
+        lengths: [
+          {string: '', type: 'int'}
+          {string: 'hh', type: 'signed char'}
+          {string: 'h', type: 'short int'}
+          {string: 'l', type: 'long int'}
+          {string: 'll', type: 'long long int'}
+    #      {string: 'j', type: 'uintmax_t'}
     #      {string: 'z', type: 'size_t'}
     #      {string: 't', type: 'ptrdiff_t'}
         ]
@@ -178,12 +283,30 @@ and how many tries have resulted in errors.
               callback null, (for i in [0...callsPerFile]
                 declarations = []
                 args = []
+                peri = []
+                post = []
                 args[0] = []
+                post[0] = 'strcmp(musl, gnu) != 0'
                 loop
                   addDeclaration = (type, value) ->
-                    declarations.push "  #{type} var#{vars} = #{value};"
-                    args.push "var#{vars}"
+                    if type is 'double' or type is 'long double'
+                      declarations.push "  long long var#{vars} = #{value};"
+                      vars += 1
+                      declarations.push "  #{type} var#{vars} =
+                        *(#{type}*) &var#{vars - 1};"
+                    else
+                      declarations.push "  #{type} var#{vars}" +
+                        if value?
+                          " = #{value};"
+                        else
+                          ';'
+                    args.push "#{unless value? then '&' else ''}var#{vars}"
                     vars += 1
+                    unless value?
+                      declarations.push "  #{type} var#{vars};"
+                      peri.push "  var#{vars} = var#{vars - 1};"
+                      post.push "var#{vars} != var#{vars - 1}"
+                      vars += 1
 
                   numberOrStar = ->
                     if Math.random() < starChance
@@ -199,7 +322,7 @@ and how many tries have resulted in errors.
                     continue
 
                   args[0].push '%'
-                  formatSpecifier = randomElement formatSpecifiers
+                  formatSpecifier = randomElement cases
 
                   for flag in formatSpecifier.flags
                     if Math.random() < flagChance
@@ -216,8 +339,18 @@ and how many tries have resulted in errors.
 
                   length = randomElement formatSpecifier.lengths
                   args[0].push length.string
-                  addDeclaration length.type,
-                    randomInRange types[length.type].min, types[length.type].max
+                  if formatSpecifier.specifiers[0] is 'n'
+                    addDeclaration length.type
+                  else if formatSpecifier.specifiers[0] is 'p'
+                    args.push "(void*) &var#{randomInRange 0, vars}"
+                  else
+                    addDeclaration length.type,
+                      switch length.type
+                        when 'char*', 'wchar_t*'
+                          "\"#{randomElement displayable}\""
+                        else
+                          randomInRange types[length.type].min,
+                            types[length.type].max + 1
 
                   args[0].push randomElement(formatSpecifier.specifiers)
 
@@ -226,8 +359,9 @@ and how many tries have resulted in errors.
                   // #{i}
                 #{declarations.join '\n'}
                   musl_snprintf(musl, #{bufferSize}, #{args.join ', '});
+                #{peri.join '\n'}
                   snprintf(gnu, #{bufferSize}, #{args.join ', '});
-                  if (strcmp(musl, gnu) != 0) printf("Call #{i} failed!");
+                  if (#{post.join ' || '}) printf("Call #{i} failed!\\n");
 
                 """
               )
