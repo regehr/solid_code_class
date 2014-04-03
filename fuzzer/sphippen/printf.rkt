@@ -107,7 +107,7 @@
                    ([conv raw])
                    (append lst (pf-spec-value-lst conv))))
 
-    (if (> (length args) 9) ; There can only be 9 positional arguments
+    (if (> (length args) 10) ; There can only be 9 positional arguments, but we will test with 10 as well for coverage
       raw
       (let ()
         (define ord (shuffle (range (length args))))
