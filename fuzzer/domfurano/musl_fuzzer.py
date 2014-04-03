@@ -13,7 +13,7 @@ max_flag_length = 3
 maxwidth = 10
 maxprecision = 10
 maxstringlength = 10
-spec_count_in_file = 1000
+spec_count_in_file = 100
 specifier_flags = {'d': ['-', '+', ' ', '0'],
                    'i': ['-', '+', ' ', '0'],
                    'u': ['-', '0'],
@@ -106,7 +106,7 @@ def gen_rand_flags(components):
 
 def gen_rand_format_data(components):
     components['specifier'] = random.choice(specifier_flags.keys())
-    components['length'] = random.choice(length_specifiers[components['specifier']])
+    components['length'] = random.choice(length_specifiers[components['specifier']]) #This data needs to influence values.
     if components['specifier'] == 'd' or components['specifier'] == 'i':
         gen_rand_flags(components)
         gen_rand_width(components)
@@ -125,7 +125,7 @@ def gen_rand_format_data(components):
         gen_rand_flags(components)
         gen_rand_width(components)
         gen_rand_precision(components)
-        components['values'] = random.choice(['0.0', 'NAN', 'INFINITY', str(random.uniform(-1000, 1000))]) # Need to fix this.
+        components['values'] = random.choice(['0.0', 'NAN', 'INFINITY', str(random.uniform(-999999999, 999999999))]) # Need to fix this.
     elif components['specifier'] == 'c':
         gen_rand_flags(components)
         gen_rand_width(components)
@@ -165,7 +165,7 @@ def gen_rand_format_data(components):
 def gen_rand_snprintf():
     components = {}
     gen_rand_format_data(components)
-    snprintf = '    snprintf(buf, LEN, "%' + \
+    snprintf = '    snprintf(buf, LEN, "%' + (random.choice(['1$', '']) if (components['precision'][0]  != '.*' and components['width'][0] != '*') else '')   + \
     components['flags'] + \
     components['width'][0] + \
     components['precision'][0] + \
