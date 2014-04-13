@@ -1,0 +1,32 @@
+Below is the overt specification. Remember that the covert
+specification is to insert a bug in your code that is hard to find via
+code inspection!
+
+call your function xprintf
+
+implement a subset of this specification:
+http://pubs.opengroup.org/onlinepubs/009695399/functions/fprintf.html
+
+the return value should be the number of bytes printed
+
+this is the subset:
+
+support the following flag:
+0
+
+also, Josh wants this discussed separately:
+field width digit string
+
+support the following format specifications:
+d
+s
+u
+c
+x
+n
+%
+
+steal this code if you want:
+http://www.eskimo.com/~scs/cclass/int/sx11b.html
+
+
