@@ -87,7 +87,7 @@ char *itoa(int in, char *out){
 
   int num = count(in);  
   out = (char*) Calloc(num+1, sizeof(char)); // +1 for null
-  sprintf(out, "%d", (int)in);
+  sprintf(out, "%d", in);
   return out;
 }
 
