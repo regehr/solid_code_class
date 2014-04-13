@@ -2,19 +2,24 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-char *itoa(long, char *);
-int printf(const char *format, ...);
+
+char *itoa(int, char *);
+int beg_xprintf(const char *format, ...);
 int xprintf(const char *fmt, va_list argp);
 void *Calloc(size_t nmemb, size_t size);
 static void unix_error(char *msg); /* unix-style error */
 
 int main(){
+
+  beg_xprintf("%d", 2);
+
 }
 
 
 
-int printf(const char *fmt, ...){
+int beg_xprintf(const char *fmt, ...){
 	int ret;
 	va_list ap;
 	va_start(ap, fmt);
@@ -47,7 +52,7 @@ const char *p;
 
        case 'd':
 	 i = va_arg(argp, int);
-	 s = itoa((long)i, fmtbuf);
+	 s = itoa(i, fmtbuf);
 	 fputs(s, stdout);
 	 break;
 
@@ -58,8 +63,14 @@ const char *p;
 
        case 'x':
 	 i = va_arg(argp, int);
-	 s = itoa((long)i, fmtbuf);
+	 s = itoa(i, fmtbuf);
 	 fputs(s, stdout);
+	 break;
+
+       case 'u':
+	 break;
+
+       case 'n':
 	 break;
 
        case '%':
@@ -72,13 +83,12 @@ const char *p;
 
 
 //convert int in to string
-char *itoa(long in, char *out){
+char *itoa(int in, char *out){
 
   int num = count(in);  
-  out = (char*) Calloc(sizeof(char), num+1); // +1 for null
-  snprintf(out, num, "%ld", in);
+  out = (char*) Calloc(num+1, sizeof(char)); // +1 for null
+  sprintf(out, "%d", (int)in);
   return out;
-
 }
 
 
