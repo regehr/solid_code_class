@@ -1,6 +1,5 @@
 all:
-	gcc -c xprintf.c -o xprintf.o
-	gcc test.c xprintf.o -o test
+	gcc xprintf.c test.c -o test
 	
 test: all
 	./test
