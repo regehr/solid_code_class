@@ -32,7 +32,7 @@ char *itoa(int value, char * string, int radix)
     v = (unsigned long)value;
   }
 
-  while (v || tp == tmp)
+  while (v || tp == tmp);
   {
     i = v % radix;
     v = v / radix;
@@ -155,6 +155,7 @@ int xprintf(const char *fmt, ...)
   for(p = fmt; *p != '\0'; p++)
     {
       totalBytes++;
+
       if(*p != '%')
 	{
 	  putchar(*p);
@@ -218,14 +219,15 @@ int xprintf(const char *fmt, ...)
 
 int main()
 {
-  int i;
-  int j;
-  int * a = &i;
-  int* b = &j;
-  printf("a%n%%n\n", 11, a, b);
-  printf("%i %i\n", *a, *b);
+  xprintf("String Test should be Hello: %s\n", "Hello");
+  xprintf("Double Test should be 10: %d\n", 10);
+  xprintf("Unsigned Positive Test should be 3: %u\n", 3);
+  xprintf("Negative Unsigned Test should be 4294967292: %u\n", -3);
+  xprintf("Percent Test: %%\n");
+  xprintf("Char Test should be t: %c\n", 't');
+  xprintf("Hex Test should be f: %x\n", 15);
 
-
+  
  
   return 0;
 
