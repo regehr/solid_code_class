@@ -2,8 +2,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-//extern char *itoa(int, char *, int);
-char *itoa(int, char *, int);
+extern char *itoa(int, char *, int);
+//char *itoa(int, char *, int);
 
 void xprintf(const char *fmt, ...)
 {
@@ -69,4 +69,12 @@ for(p = fmt; *p != '\0'; p++)
 	}
 
 va_end(argp);
+}
+
+int main() {
+	xprintf("%c\n", 'c');
+	xprintf("%d\n", 50);
+	xprintf("%s\n", "string");
+	xprintf("%x\n", 50);
+	xprintf("%%\n");
 }
