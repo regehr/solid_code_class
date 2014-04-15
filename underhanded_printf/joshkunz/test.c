@@ -1,12 +1,18 @@
 #include "xprintf.h"
 #include <stdio.h>
+#include <limits.h>
 
 int main() {
-    printf("%d\n", -13 % 10);
-    xprintf("Should print '%%': %%\n"
+    int x = -1;
+    xprintf("abc%n"
+            "Should print '%%': %%\n"
             "Should print  'b': %c\n"
             "Should print 'Hello': %s\n"
             "Should print '13': %d\n"
-            "Should print '-13': %d\n", 'b', "Hello", 13, -13);
+            "Should print '-13': %d\n"
+            "Should print '-2147483648': %d\n"
+            "Should print '3242342142': %u\n",
+            &x, 'b', "Hello", 13, -13, INT_MIN, 3242342142U);
+    printf("Should print '3': %d\n", x);
     return 0;
 }
