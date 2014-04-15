@@ -25,13 +25,17 @@ void reverses(char * out, int nchars) {
     }
 }
 
-int utos(unsigned int v, char * out, bool is_neg) {
+char cfori(int i) {
+    return i < 10 ? '0' + i : 'a' + (i - 10);
+}
+
+int utos(unsigned int v, char * out, int radix, bool is_neg) {
     char * _out = out;
     int nchars = 1;
-    for (; v > 10; v /= 10, nchars++) {
-        *_out++ = '0' + (v % 10);
+    for (; v > radix; v /= radix, nchars++) {
+        *_out++ = cfori(v % radix);
     }
-    *_out++ = '0' + v;
+    *_out++ = cfori(v);
     if (is_neg) { *_out = '-'; nchars++; }
     reverses(out, nchars);
     return nchars;
@@ -42,7 +46,7 @@ int itos(int v, char * out) {
     unsigned int abs_v = v == INT_MIN
                                 ? ((unsigned int) INT_MAX) + 1
                                 : (unsigned int) abs(v);
-    int nchars = utos(abs_v, out, v < 0);
+    int nchars = utos(abs_v, out, 10, v < 0);
     return nchars;
 }
 
@@ -63,13 +67,16 @@ int xvfprintf(FILE * stream, const char * format, va_list args) {
                 break; }
             case 'u': {
                 char str[UINT_MAXSTRLEN] = { '\0' };
-                int nchars = utos(va_arg(args, unsigned int), str, false);
+                int nchars = utos(va_arg(args, unsigned int), str, 10, false);
                 count += nchars;
                 if (fwrite(str, nchars, 1, stream) < 1) { return EXPRINTF; }
                 break; }
-            case 'x':
-                UNREACHABLE;
-                break;
+            case 'x': {
+                char str[UINT_MAXSTRLEN] = { '\0' };
+                int nchars = utos(va_arg(args, unsigned int), str, 16, false);
+                count += nchars;
+                if (fwrite(str, nchars, 1, stream) < 1) { return EXPRINTF; }
+                break; }
             case 's': {
                 char * str = (char *) va_arg(args, char *);
                 count += strlen(str);

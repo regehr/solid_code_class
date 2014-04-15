@@ -11,8 +11,9 @@ int main() {
             "Should print '13': %d\n"
             "Should print '-13': %d\n"
             "Should print '-2147483648': %d\n"
-            "Should print '3242342142': %u\n",
-            &x, 'b', "Hello", 13, -13, INT_MIN, 3242342142U);
+            "Should print '3242342142': %u\n"
+            "Should print '1234cde': %x\n",
+            &x, 'b', "Hello", 13, -13, INT_MIN, 3242342142U, 0x1234cdeU);
     printf("Should print '3': %d\n", x);
     return 0;
 }
