@@ -4,16 +4,18 @@
 #include <stdbool.h>
 #include <math.h>
 
+void xprintf(const char *, ...);
+char * printSpecialCase(va_list, char *, const char *);
+int getArgs(int *, char *);
+void pad(bool *, int *);
 char *utoa(unsigned int, char*);
 char *itoa(int, char *, int);
-void xprintf(const char *, ...);
-void getArgs(int *, const char *);
 
 int main (int argc, char** argv)
 {
   int *chars;
   unsigned int testInt = 3294967295;
-  printf("this%n is a test string, %10d, %u\n", chars, 5, testInt);
+  printf("this%n is a test string, %010d, %u\n", chars, 5, testInt);
   printf("%d\n", *chars);
   xprintf("this%n is a test string, %010d, %u\n", chars, 5, testInt);
   xprintf("%d\n", *chars);
@@ -26,17 +28,10 @@ void xprintf(const char *fmt, ...)
 {
   
   //stores each character in the string
-  const char *p;
+  char *p;
 
-  //list of stuff to put in format places
+  //holds the list of extra args
   va_list argp;
-  int i;
-  unsigned int u;
-  int *soFar;
-  char *s;
-  char fmtbuf[256];
-  bool padWithZeros = false;
-  int width = 0;
 
   //start the va_arg stuff
   va_start(argp, fmt);
@@ -51,83 +46,127 @@ void xprintf(const char *fmt, ...)
 	  putchar(*p);
 	  continue;
 	}
+      p = printSpecialCase(argp, p, fmt);
+    }
+  va_end(argp);
+}
+
+char * printSpecialCase(va_list argp, char *p, const char *fmt)
+{
+  //list of stuff to put in format places
+  
+  int i;
+  unsigned int u;
+  int *soFar;
+  char *s;
+  char fmtbuf[256];
+  bool padWithZeros = false;
+  int width = 0;
+  
+  while(true)
+    {
       switch(*++p)
 	{
 	  //print the character
 	case 'c':
 	  i = va_arg(argp, int);
 	  putchar(i);
-	  break;
+	  return p;
 	  
 	  //print a number
 	case 'd':
 	  i = va_arg(argp, int);
 	  s = itoa(i, fmtbuf, 10);
+	  pad(&padWithZeros, &width);
 	  fputs(s, stdout);
-	  break;
+	  return p;
 	  
-	  //print the number of characters printed so far
+	  //stash the number of characters printed so far
 	case 'n':
 	  soFar = va_arg(argp, int*);
 	  *soFar = p-fmt-1;  //minus one because we don't count this character
-	  break;
-
+	  return p;
+	  
 	  //print a string
 	case 's':
 	  s = va_arg(argp, char *);
 	  fputs(s, stdout);
-	  break;
+	  return p;
 	  
 	  //print an unsigned int
 	case 'u':
 	  u = va_arg(argp, unsigned int);
 	  s = utoa(u, fmtbuf);
+	  pad(&padWithZeros, &width);
 	  fputs(s, stdout);
-	  break;
-
+	  return p;
+	  
 	  //print the int in hex
 	case 'x':
 	  i = va_arg(argp, int);
 	  s = itoa(i, fmtbuf, 16);
+	  pad(&padWithZeros, &width);
 	  fputs(s, stdout);
-	  break;
+	  return p;
 	  
 	  //print a percent sign
 	case '%':
 	  putchar('%');
-	  break;
-
-	  //
+	  return p;
+	  
+	  //get the special cases
 	default:
-
+	  
 	  //check to see if we want to pad with zeros
 	  if(*p == '0')
 	    {
 	      padWithZeros = true;
 	      p++;
 	    }
-
+	  
 	  //process all of the extra args
-	  getArgs(&width, p);
+	  p += getArgs(&width, p);
 	  break;
-	}
+	}  
     }
-  va_end(argp);
 }
 
-void getArgs(int * width, const char *p)
+int getArgs(int * width, char *p)
 {      
   //see how many extra things to print out
   *width += atoi(p);
   
   if(*width == 0)
     {
-      return;
+      return 0;
     }
   else
     {
-      p += (int)(floor (log10 (abs (*width))));
+      return (int) floor(log10(abs(*width)));
     }
+}
+
+void pad(bool *padWithZeros, int *width)
+{
+  int padding;
+  if(*padWithZeros)
+    {
+      for(padding = 1; padding < *width; padding++)
+	{
+	  putchar('0');
+	}
+    }
+  else
+    {
+      for(padding = 1; padding < *width; padding++)
+	{
+	  putchar(' ');
+	}
+    }
+
+  *padWithZeros = false;
+  *width = 0;
+
 }
 
 /* converts an unsigned int into a string */
