@@ -106,7 +106,7 @@ int xprintf(const char *fmt, ...)
   const char *p;
   int i, j, *n;
   unsigned int u;
-  int ret_val = 0;
+  int char_count = 0;
   char fmtbuf[256];
   char padbuf[256];
   for(p = fmt; *p != '\0'; p++)
@@ -119,7 +119,7 @@ int xprintf(const char *fmt, ...)
       if(*p != '%')
 	{
 	  putchar(*p);
-	  ret_val++;
+	  char_count++;
 	  continue;
 	}
       if (*(p+1) == '0') 
@@ -143,48 +143,48 @@ int xprintf(const char *fmt, ...)
 	  for (; width > 1; width--)
 	    {
 	      putchar(pad);
-	      ret_val++;
+	      char_count++;
 	    }
 	  putchar(i);
-	  ret_val++;
+	  char_count++;
 	  break;
 	case 'd':
 	  i = va_arg (ap, int);
 	  s = itoa(i, fmtbuf);
 	  s = pad_string(padbuf, s, width, pad, 'd');
 	  fputs(s, stdout);
-	  ret_val += strlen(s);
+	  char_count += strlen(s);
 	  break;
 	case 's':
 	  s = va_arg(ap, char *);
 	  s = pad_string(padbuf, s, width, pad, 's');
 	  fputs(s, stdout);
-	  ret_val += strlen(s);
+	  char_count += strlen(s);
 	  break;
 	case 'x':
 	  u = va_arg(ap, unsigned int);
 	  s = utoa(u, fmtbuf, 16);
 	  s = pad_string(padbuf, s, width, pad, 'x');
 	  fputs(s, stdout);
-	  ret_val += strlen(s);
+	  char_count += strlen(s);
 	  break;
 	case 'u':
 	  u = va_arg(ap, unsigned int);
 	  s = utoa(u, fmtbuf, 10);
 	  s = pad_string(padbuf, s, width, pad, 'u');
 	  fputs(s, stdout);
-	  ret_val += strlen(s);
+	  char_count += strlen(s);
 	  break;
 	case 'n':
 	  n = va_arg(ap, int *);
-	  *n = ret_val;
+	  *n = char_count;
 	  break;
 	case '%':
 	  putchar('%');
-	  ret_val++;
+	  char_count++;
 	  break;
 	}
     }
   va_end(ap);
-  return ret_val;
+  return char_count;
 }
