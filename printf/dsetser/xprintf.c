@@ -52,7 +52,7 @@ int handle_flag(char** current_char, va_list args, int chars_printed)
       (*current_char)++;
       padding = '0';
     }
-    char dig[10] = {0};
+    char dig[10];
     int i = 0;
     if(!is_flag(**current_char)) /* Handle width */
     {
