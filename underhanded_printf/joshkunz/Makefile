@@ -6,6 +6,9 @@ LDLIBS = -lm
 objects = xprintf.o test.o
 bin = test
 
+run-tests: $(bin)
+	./test
+
 $(bin): $(objects)
 
 xprintf.o: xprintf.h

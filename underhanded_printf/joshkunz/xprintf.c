@@ -19,7 +19,7 @@ void swap(int what, int with, char * out) {
     out[with] = tmp;
 }
 
-void reverses(char * out, int nchars) {
+void reverse(char * out, int nchars) {
     assert(nchars >= 0);
     for (int i = 0; i < (nchars / 2); i++) {
         swap(i, (nchars - 1) - i, out);
@@ -31,16 +31,14 @@ char cfori(int i) {
     return i < 10 ? '0' + i : 'a' + (i - 10);
 }
 
-int utos(unsigned int v, char * out, unsigned int radix, bool is_neg) {
+int utos(unsigned int v, char * out, unsigned int radix) {
     assert(radix >= 0 && radix <= 32);
-    char * _out = out;
-    int nchars = 1;
+    int nchars = 0;
     for (; v > radix; v /= radix, nchars++) {
-        *_out++ = cfori(v % radix);
+        out[nchars] = cfori(v % radix);
     }
-    *_out++ = cfori(v);
-    if (is_neg) { *_out = '-'; nchars++; }
-    reverses(out, nchars);
+    out[nchars++] = cfori(v);
+    reverse(out, nchars);
     out[nchars] = '\0';
     return nchars;
 }
@@ -53,14 +51,19 @@ unsigned int xabs(int i) {
 }
 
 int itos(int v, char * out) {
-    int nchars = utos(xabs(v), out, 10, v < 0);
+    int nchars = utos(xabs(v), out, 10);
+    if (v < 0) {
+        memmove(out + 1, out, nchars++);
+        out[0] = '-';
+    }
     return nchars;
 }
 
 int field_width(const char ** fmt) {
     const char * format = *fmt;
     int fw = 0;
-    for (; *format && isdigit(*format) && *format != '0'; format++) {
+    if (*format && *format == '0') { return fw; }
+    for (; *format && isdigit(*format); format++) {
         fw *= 10;
         fw += *format - '0';
     }
@@ -112,16 +115,15 @@ int xvfprintf(FILE * stream, const char * format, va_list args) {
                     swap(0, fw - strlen(str), str_out);
                 break;
             case 'u':
-                (void) utos(va_arg(args, unsigned int), str, 10, false);
+                (void) utos(va_arg(args, unsigned int), str, 10);
                 str_out = pad(padc, fw, fwb, str);
                 break;
             case 'x': 
-                (void) utos(va_arg(args, unsigned int), str, 16, false);
+                (void) utos(va_arg(args, unsigned int), str, 16);
                 str_out = pad(padc, fw, fwb, str);
                 break;
             case 's': 
-                str_out = (char *) va_arg(args, char *);
-                str_out = pad(' ', fw, fwb, str_out);
+                str_out = pad(' ', fw, fwb, va_arg(args, char *));
                 break;
             case 'c':
                 str[0] = (char) va_arg(args, int);
