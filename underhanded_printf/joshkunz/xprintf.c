@@ -27,7 +27,8 @@ char cfori(int i) {
     return i < 10 ? '0' + i : 'a' + (i - 10);
 }
 
-int utos(unsigned int v, char * out, int radix, bool is_neg) {
+int utos(unsigned int v, char * out, unsigned int radix, bool is_neg) {
+    assert(radix >= 0 && radix <= 32);
     char * _out = out;
     int nchars = 1;
     for (; v > radix; v /= radix, nchars++) {
@@ -63,7 +64,8 @@ int field_width(const char ** fmt) {
     return fw;
 }
 
-char * pad(int c, int fw, int len, char * fwb, char * str) {
+char * pad(int c, int fw, char * fwb, char * str) {
+    int len = strlen(str);
     memset(fwb, c, fw);
     fwb[fw] = '\0';
     if (fw > len) {
@@ -77,11 +79,11 @@ char * pad(int c, int fw, int len, char * fwb, char * str) {
 int xvfprintf(FILE * stream, const char * format, va_list args) {
     int count = 0;
     char str[MAXSTRLEN];
-    memset(str, '\0', MAXSTRLEN);
     char * str_out = NULL;
-    int nchars = -1;
 
     for (; *format; format++) {
+        memset(str, '\0', MAXSTRLEN);
+
         if (*format != '%') { 
             count++;
             if (fputc(*format, stream) != *format) { return EXPRINTF; }
@@ -95,43 +97,39 @@ int xvfprintf(FILE * stream, const char * format, va_list args) {
 
         switch (*format) {
             case 'd':
-                nchars = itos(va_arg(args, int), str);
-                str_out = pad(' ', fw, nchars, fwb, str);
+                (void) itos(va_arg(args, int), str);
+                str_out = pad(' ', fw, fwb, str);
                 break;
             case 'u':
-                nchars = utos(va_arg(args, unsigned int), str, 10, false);
-                str_out = pad(' ', fw, nchars, fwb, str);
+                (void) utos(va_arg(args, unsigned int), str, 10, false);
+                str_out = pad(' ', fw, fwb, str);
                 break;
             case 'x': 
-                nchars = utos(va_arg(args, unsigned int), str, 16, false);
-                str_out = pad(' ', fw, nchars, fwb, str);
+                (void) utos(va_arg(args, unsigned int), str, 16, false);
+                str_out = pad(' ', fw, fwb, str);
                 break;
             case 's': 
                 str_out = (char *) va_arg(args, char *);
-                str_out = pad(' ', fw, strlen(str_out), fwb, str_out);
+                str_out = pad(' ', fw, fwb, str_out);
                 break;
             case 'c':
                 str[0] = (char) va_arg(args, int);
-                str_out = pad(' ', fw, 1, fwb, str);
+                str_out = pad(' ', fw, fwb, str);
                 break;
             case 'n':
                 *(va_arg(args, int *)) = count;
-                break;
+                continue;
             case '%':
                 str[0] = '%';
-                str_out = pad(' ', fw, 1, fwb, str);
+                str_out = pad(' ', fw, fwb, str);
                 break;
         }
-        if (str_out == NULL) { str_out = str; }
 
         count += strlen(str_out);
         if (strlen(str_out) > 0 && 
                 fwrite(str_out, strlen(str_out), 1, stream) < 1) { 
             return EXPRINTF; 
         }
-
-        memset(str, '\0', MAXSTRLEN);
-        str_out = NULL;
     }
     return count;
 }
