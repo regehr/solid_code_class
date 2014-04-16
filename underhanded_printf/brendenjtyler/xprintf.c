@@ -7,18 +7,23 @@
 void xprintf(const char *, ...);
 char * printSpecialCase(va_list, char *, const char *);
 int getArgs(int *, char *);
-void pad(bool *, int *);
+char * pad(bool *, int *, char *);
 char *utoa(unsigned int, char*);
 char *itoa(int, char *, int);
 
 int main (int argc, char** argv)
 {
-  int *chars;
-  unsigned int testInt = 3294967295;
-  printf("this%n is a test string, %010d, %u\n", chars, 5, testInt);
-  printf("%d\n", *chars);
-  xprintf("this%n is a test string, %010d, %u\n", chars, 5, testInt);
+  int *chars = malloc(sizeof(int));
+  xprintf("this%n\n", chars);
   xprintf("%d\n", *chars);
+  xprintf("%c\n", 'b');
+  xprintf("%d\n", 5);
+  xprintf("%d\n", *chars);
+  xprintf("%s\n", "string test");
+  xprintf("%u\n", (unsigned int)3000000000);
+  xprintf("%x\n", 10);
+
+  free(chars);
 
   return 0;
 }
@@ -77,7 +82,7 @@ char * printSpecialCase(va_list argp, char *p, const char *fmt)
 	case 'd':
 	  i = va_arg(argp, int);
 	  s = itoa(i, fmtbuf, 10);
-	  pad(&padWithZeros, &width);
+	  s = pad(&padWithZeros, &width, s);
 	  fputs(s, stdout);
 	  return p;
 	  
@@ -97,7 +102,7 @@ char * printSpecialCase(va_list argp, char *p, const char *fmt)
 	case 'u':
 	  u = va_arg(argp, unsigned int);
 	  s = utoa(u, fmtbuf);
-	  pad(&padWithZeros, &width);
+	  s = pad(&padWithZeros, &width, s);
 	  fputs(s, stdout);
 	  return p;
 	  
@@ -105,7 +110,7 @@ char * printSpecialCase(va_list argp, char *p, const char *fmt)
 	case 'x':
 	  i = va_arg(argp, int);
 	  s = itoa(i, fmtbuf, 16);
-	  pad(&padWithZeros, &width);
+	  s = pad(&padWithZeros, &width, s);
 	  fputs(s, stdout);
 	  return p;
 	  
@@ -137,36 +142,43 @@ int getArgs(int * width, char *p)
   *width += atoi(p);
   
   if(*width == 0)
-    {
-      return 0;
-    }
+    return 0;
   else
-    {
-      return (int) floor(log10(abs(*width)));
-    }
+    return (int) floor(log10(abs(*width)));
 }
 
-void pad(bool *padWithZeros, int *width)
+char * pad(bool *padWithZeros, int *width, char *s)
 {
-  int padding;
+  //check to see if the number is negative
+  if(*s == '-')
+    {
+      putchar(*s);
+      s++;
+      *width -= 1;
+    }
+  
+  int padding;  //loop index
+  //if we're padding with zeros
   if(*padWithZeros)
     {
+      //print out the appropriate number of zeros
       for(padding = 1; padding < *width; padding++)
-	{
 	  putchar('0');
-	}
     }
+  //if we're padding with spaces
   else
     {
+      //print out the appropriate number of spaces
       for(padding = 1; padding < *width; padding++)
-	{
-	  putchar(' ');
-	}
+	putchar(' ');
     }
 
+  //reset the stuff
   *padWithZeros = false;
   *width = 0;
 
+  //return the updated version (no - sign)
+  return s;
 }
 
 /* converts an unsigned int into a string */
@@ -177,6 +189,7 @@ char *utoa(unsigned int toConvert, char* buf)
 }
 
 /* A utility function to reverse a string  */
+/* Grabbed this from http://www.geeksforgeeks.org/implement-itoa/ */
 void reverse(char str[], int length)
 {
   int start = 0;
@@ -197,6 +210,7 @@ void reverse(char str[], int length)
 }
 
 // Implementation of itoa()
+/* Grabbed this from http://www.geeksforgeeks.org/implement-itoa/ */
 char* itoa(int num, char* str, int base)
 {
   int i = 0;
@@ -227,10 +241,8 @@ char* itoa(int num, char* str, int base)
     }
   
   // If number is negative, append '-'
-  if (isNegative)
-    {
+  if (isNegative);
       str[i++] = '-';
-    }
   
   str[i] = '\0'; // Append string terminator
   
