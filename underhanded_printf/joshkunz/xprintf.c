@@ -13,12 +13,16 @@
 
 #define MAXSTRLEN (((int) ceil(log10((double) UINT_MAX))) + 1)
 
+void swap(int what, int with, char * out) {
+    char tmp = out[what];
+    out[what] = out[with];
+    out[with] = tmp;
+}
+
 void reverses(char * out, int nchars) {
     assert(nchars >= 0);
     for (int i = 0; i < (nchars / 2); i++) {
-        char tmp = out[i];
-        out[i] = out[(nchars - 1) - i];
-        out[(nchars - 1) - i] = tmp;
+        swap(i, (nchars - 1) - i, out);
     }
 }
 
@@ -41,6 +45,7 @@ int utos(unsigned int v, char * out, unsigned int radix, bool is_neg) {
     return nchars;
 }
 
+/* abs function that actually handles the INT_MIN case. */
 unsigned int xabs(int i) {
     return i == INT_MIN
         ? ((unsigned int) INT_MAX) + 1
@@ -48,7 +53,6 @@ unsigned int xabs(int i) {
 }
 
 int itos(int v, char * out) {
-    /* Note handle INT_MIN case. */
     int nchars = utos(xabs(v), out, 10, v < 0);
     return nchars;
 }
@@ -56,7 +60,7 @@ int itos(int v, char * out) {
 int field_width(const char ** fmt) {
     const char * format = *fmt;
     int fw = 0;
-    for (; *format && isdigit(*format); format++) {
+    for (; *format && isdigit(*format) && *format != '0'; format++) {
         fw *= 10;
         fw += *format - '0';
     }
@@ -82,7 +86,7 @@ int xvfprintf(FILE * stream, const char * format, va_list args) {
     char * str_out = NULL;
 
     for (; *format; format++) {
-        memset(str, '\0', MAXSTRLEN);
+        str[1] = '\0';
 
         if (*format != '%') { 
             count++;
@@ -90,23 +94,30 @@ int xvfprintf(FILE * stream, const char * format, va_list args) {
             continue; 
         }
 
-        format++;
+        if (!*++format) { return EXPRINTF; }
+        int padc = ' ';
+        if (*format == '0') {
+            padc = '0';
+            if (!*++format) { return EXPRINTF; };
+        }
+
         int fw = field_width(&format);
         char fwb[fw + 1];
-        //printf("Got fw: %d\n",  fw);
 
         switch (*format) {
             case 'd':
                 (void) itos(va_arg(args, int), str);
-                str_out = pad(' ', fw, fwb, str);
+                str_out = pad(padc, fw, fwb, str);
+                if (padc == '0' && str[0] == '-' && str_out == fwb)
+                    swap(0, fw - strlen(str), str_out);
                 break;
             case 'u':
                 (void) utos(va_arg(args, unsigned int), str, 10, false);
-                str_out = pad(' ', fw, fwb, str);
+                str_out = pad(padc, fw, fwb, str);
                 break;
             case 'x': 
                 (void) utos(va_arg(args, unsigned int), str, 16, false);
-                str_out = pad(' ', fw, fwb, str);
+                str_out = pad(padc, fw, fwb, str);
                 break;
             case 's': 
                 str_out = (char *) va_arg(args, char *);
