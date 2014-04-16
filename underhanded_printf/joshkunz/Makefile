@@ -1,6 +1,7 @@
 .PHONY: clean
 CC = clang
-CFLAGS = -O0 -g
+CFLAGS = -O0 -g -Wall -Wextra -pedantic
+LDLIBS = -lm
 
 objects = xprintf.o test.o
 bin = test
