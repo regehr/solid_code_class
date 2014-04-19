@@ -3,7 +3,9 @@
  *
  * Jonathon McDonald - <jmcdonald.ut@gmail.com>
  */
+#include <limits.h>
 #include <stdlib.h>
+
 #include "utils.h"
 
 /* Converts integer to appropriate base and outputs to buff */
@@ -13,6 +15,11 @@ char * itoa (int input, char *buff, int radix)
 	char hex[] = { 'a', 'b', 'c', 'd', 'e', 'f' }, tmp[16] = { 0 };
 	char *str = xmalloc(16);
 	(*str) = 0;
+
+	if (INT_MIN == input) {
+		input = MIN_FIX;
+		radix = radix < 16 ? 16 : radix;
+	}
 
 	is_signed = input < 0 && radix == 10;
 	div = (input < 0) ? -input : input;
