@@ -69,6 +69,7 @@ for(p = fmt; *p != '\0'; p++)
 	}
 
 va_end(argp);
+return 0;
 }
 
 int main() {
