@@ -22,9 +22,12 @@ int randint(int a, int b) {
 
 int main() {
     srand(TRIALS);
-    TP("%015d", INT_MIN);
-    TP("%0300d | %070d", INT_MIN, 1346231289);
     TP0("%%");
+    TP("%015d", -5);
+    TP("%15d", -77);
+    TP("%015d", -934693128);
+    TP("%15d", -900823482);
+    TP("%0300d | %070d", -134623128, 134623128);
     TP("%3c", 'b');
     TP("%04d", 13);
     TP("%s %20s.", "Hello", "World");
