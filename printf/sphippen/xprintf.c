@@ -179,7 +179,78 @@ int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
       switch (*fmt) {
         case 'd': {
           int val = va_arg(ap, int);
-          /* TODO: impl */
+          size_t val_len;
+          const char *val_str = itostr(val, 10, &val_len);
+
+          if (width > val_len) {
+            if (val_str[0] == '-') {
+              if (use_zero) {
+                int res = fputc((int)val_str[0], stream);
+                if (res < 0) {
+                  this_char_count = -1;
+                  break;
+                } else {
+                  this_char_count += 1;
+                }
+
+                res = print_pad(stream, width - val_len, true);
+                if (res < 0) {
+                  this_char_count = -1;
+                  break;
+                } else {
+                  this_char_count += res;
+                }
+
+                res = fputs(val_str+1, stream);
+                if (res < 0) {
+                  this_char_count = -1;
+                  break;
+                } else {
+                  this_char_count += val_len - 1;
+                }
+              } else {
+                int res = print_pad(stream, width - val_len, false);
+                if (res < 0) {
+                  this_char_count = -1;
+                  break;
+                } else {
+                  this_char_count += res;
+                }
+
+                res = fputs(val_str, stream);
+                if (res < 0) {
+                  this_char_count = -1;
+                  break;
+                } else {
+                  this_char_count += val_len;
+                }
+              }
+            } else {
+              int res = print_pad(stream, width - val_len, use_zero);
+              if (res < 0) {
+                this_char_count = -1;
+                break;
+              } else {
+                this_char_count += res;
+              }
+
+              res = fputs(val_str, stream);
+              if (res < 0) {
+                this_char_count = -1;
+                break;
+              } else {
+                this_char_count += val_len;
+              }
+            }
+          } else {
+            int res = fputs(val_str, stream);
+            if (res < 0) {
+              this_char_count = -1;
+              break;
+            } else {
+              this_char_count += val_len;
+            }
+          }
           break;
         }
         case 's': {
@@ -266,7 +337,7 @@ int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
           if (result == EOF)
             this_char_count = -1;
           else
-            this_char_count = 1;
+            this_char_count += 1;
           break;
         }
         default: {
@@ -280,7 +351,7 @@ int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
       if (result == EOF)
         this_char_count = -1;
       else
-        this_char_count = 1;
+        this_char_count += 1;
     }
     
     fmt++;
