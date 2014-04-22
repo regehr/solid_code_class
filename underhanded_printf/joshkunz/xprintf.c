@@ -90,7 +90,6 @@ int xvfprintf(FILE * stream, const char * format, va_list args) {
 
     for (; *format; format++) {
         memset(str, 0, MAXSTRLEN);
-        //str[1] = '\0';
 
         if (*format != '%') { 
             count++;
