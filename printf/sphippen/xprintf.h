@@ -2,6 +2,7 @@
 #define SPH_XPRINTF_H_
 
 #include <stdarg.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {

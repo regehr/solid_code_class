@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <ctype.h>
+#include <limits.h>
+#include <string.h>
 
 /* The first few are just wrappers around xvfprintf */
 
@@ -49,7 +52,7 @@ static bool parse_int(const char *fmt, int *value, const char **new_fmt) {
 
   do {
     int digit = (next - '0');
-    /* TODO: check these int operations */
+    /* TODO: check these int operations for safety */
     acc *= 10;
     acc += digit;
     cur_fmt++;
@@ -61,30 +64,19 @@ static bool parse_int(const char *fmt, int *value, const char **new_fmt) {
   return true;
 }
 
-
-static int print_fmt(const char *fmt, va_list ap, const char **new_fmt) {
-  assert(fmt != NULL && "Can't print from NULL format string");
-  assert(*fmt == '%' && "Can't print format from non-format-specifier string");
-  assert(new_fmt != NULL && "Invalid new_fmt pointer argument");
-
-  const char *cur_fmt = fmt;
-  cur_fmt++; /* Skip over the '%' */
-
-  /* Check for '0' flag */
-  bool use_zero = (*cur_fmt == '0');
-  if (use_zero)
-    cur_fmt++;
-
-  /* Parse out field width */
-  int width = -1;
-  const char *new_cur_fmt;
-  bool has_width = parse_int(cur_fmt, &width, &new_cur_fmt);
-  if (has_width)
-    cur_fmt = new_cur_fmt;
-
-  /* Check conversion char and print appropriate characters */
-  /* TODO: impl here */
-  return 0;
+static int print_pad(FILE *stream, int count, bool zero) {
+  int total = 0;
+  char c = zero ? '0' : ' ';
+  for (int i = 0; i < count; i++) {
+    int ret = fputc(c, stream);
+    if (ret < 0) {
+      total = -1;
+      break;
+    } else {
+      total++;
+    }
+  }
+  return total;
 }
 
 int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
@@ -93,21 +85,96 @@ int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
 
   int char_count = 0;
   int this_char_count = 0;
-  const char *new_fmt;
 
   while (*fmt != '\0') {
     if (*fmt == '%') {
-      this_char_count = print_fmt(fmt, ap, &new_fmt);
-      fmt = new_fmt;
+      fmt++;
+      /* Check for '0' flag */
+      bool use_zero = (*fmt == '0');
+      if (use_zero)
+        fmt++;
+
+      /* Parse out field width */
+      int width = -1;
+      const char *new_fmt;
+      bool has_width = parse_int(fmt, &width, &new_fmt);
+      if (has_width)
+        fmt = new_fmt;
+
+      switch (*fmt) {
+        case 'd': {
+          int val = va_arg(ap, int);
+          /* TODO: impl */
+          break;
+        }
+        case 's': {
+          const char *val = va_arg(ap, const char *);
+          size_t val_len = strlen(val);
+
+          if (width > val_len) {
+            int res = print_pad(stream, width - val_len, use_zero);
+            if (res < 0) {
+              this_char_count = -1;
+              break;
+            } else {
+              this_char_count += res;
+            }
+          }
+
+          int res = fputs(val, stream);
+          if (res < 0)
+            this_char_count = -1;
+          else
+            this_char_count += (int)val_len;
+          break;
+        }
+        case 'u': {
+          unsigned val = va_arg(ap, unsigned);
+          /* TODO: impl */
+          break;
+        }
+        case 'c': {
+          int val = va_arg(ap, int);
+          int res = fputc(val, stream);
+          if (res < 0)
+            this_char_count = -1;
+          else
+            this_char_count += 1;
+          break;
+        }
+        case 'x': {
+          unsigned val = va_arg(ap, unsigned);
+          /* TODO: impl */
+          break;
+        }
+        case 'n': {
+          int *val = va_arg(ap, int *);
+          *val = char_count;
+          break;
+        }
+        case '%': {
+          int result = fputc((int)'%', stream);
+          if (result == EOF)
+            this_char_count = -1;
+          else
+            this_char_count = 1;
+          break;
+        }
+        default: {
+          this_char_count = -1;
+          break;
+        }
+      }
+
     } else {
       int result = fputc((int)*fmt, stream);
-      fmt++;
       if (result == EOF)
         this_char_count = -1;
       else
         this_char_count = 1;
     }
     
+    fmt++;
     /* If there was an output failure */
     if (this_char_count < 0)
       return -1;
@@ -117,8 +184,9 @@ int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
       return -1;
 
     char_count += this_char_count;
+    this_char_count = 0;
   }
 
-  return nChars;
+  return char_count;
 }
 
