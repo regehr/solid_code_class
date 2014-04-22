@@ -1,8 +1,7 @@
 #include "xprintf.h"
 
 int main(int argc, char* argv[]) {
-  int n = 0;
-  int res = xprintf("Hello, %s!%n\n", "world", &n);
-  printf("%d, %d\n", res, n);
+  int res = xprintf("%10x\n", 123U);
+  printf("%d\n", res);
   return 0;
 }

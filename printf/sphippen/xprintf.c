@@ -79,6 +79,81 @@ static int print_pad(FILE *stream, int count, bool zero) {
   return total;
 }
 
+void reverse_inplace(char *buf, size_t len) {
+  size_t half = len / 2;
+  for (int i = 0; i < half; i++) {
+    char tmp = buf[i];
+    buf[i] = buf[len-i-1];
+    buf[len-i-1] = tmp;
+  }
+}
+
+const static char dig_lookup[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+/* Return value only valid before next call to function. */
+const char* itostr(int val, int base, size_t *len) {
+  assert(base >= 2 && base <= 16 && "Only accepted bases are binary up to hex");
+
+  static char buf[255]; /* should be enough */
+
+  /* Special case */
+  if (val == 0) {
+    buf[0] = '0';
+    buf[1] = '\0';
+    return &buf[0];
+  }
+
+  bool neg = (val < 0);
+
+  char *cur = &buf[0];
+  while (val != 0) {
+    int new_dig = val % base;
+    if (neg) new_dig *= -1;
+    *cur++ = dig_lookup[new_dig];
+    val = val / base;
+  }
+
+  *cur = '\0';
+
+  reverse_inplace(buf, cur - buf);
+  if (neg) {
+    memmove(buf+1, buf, strlen(buf));
+    buf[0] = '-';
+    *len = (cur - buf) + 1;
+  } else {
+    *len = cur - buf;
+  }
+
+  return buf;
+}
+
+/* Return value only valid before next call to function. */
+const char* utostr(unsigned val, int base, size_t *len) {
+  assert(base >= 2 && base <= 16 && "Only accepted bases are binary up to hex");
+
+  static char buf[255]; /* should be enough */
+
+  /* Special case */
+  if (val == 0) {
+    buf[0] = '0';
+    buf[1] = '\0';
+    return &buf[0];
+  }
+
+  char *cur = &buf[0];
+  while (val != 0) {
+    int new_dig = val % base;
+    *cur++ = dig_lookup[new_dig];
+    val = val / base;
+  }
+
+  *cur = '\0';
+
+  reverse_inplace(buf, cur - buf);
+  *len = cur - buf;
+  return buf;
+}
+
 int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
   assert(stream != NULL && "Can't print to NULL FILE");
   assert(fmt != NULL && "Can't print from NULL format string");
@@ -130,7 +205,24 @@ int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
         }
         case 'u': {
           unsigned val = va_arg(ap, unsigned);
-          /* TODO: impl */
+          size_t val_len;
+          const char *val_str = utostr(val, 10, &val_len);
+
+          if (width > val_len) {
+            int res = print_pad(stream, width - val_len, use_zero);
+            if (res < 0) {
+              this_char_count = -1;
+              break;
+            } else {
+              this_char_count += res;
+            }
+          }
+
+          int res = fputs(val_str, stream);
+          if (res < 0)
+            this_char_count = -1;
+          else
+            this_char_count += (int)val_len;
           break;
         }
         case 'c': {
@@ -144,7 +236,24 @@ int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
         }
         case 'x': {
           unsigned val = va_arg(ap, unsigned);
-          /* TODO: impl */
+          size_t val_len;
+          const char *val_str = utostr(val, 16, &val_len);
+
+          if (width > val_len) {
+            int res = print_pad(stream, width - val_len, use_zero);
+            if (res < 0) {
+              this_char_count = -1;
+              break;
+            } else {
+              this_char_count += res;
+            }
+          }
+
+          int res = fputs(val_str, stream);
+          if (res < 0)
+            this_char_count = -1;
+          else
+            this_char_count += (int)val_len;
           break;
         }
         case 'n': {
