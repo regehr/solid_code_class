@@ -37,6 +37,14 @@ int xvprintf(const char *fmt, va_list ap) {
 
 /* The real meat starts here */
 
+static char buf[256]; /* should be enough */
+
+void init_buffer() {
+  for (int i = 0; i < sizeof(buf) / sizeof(buf[0]); i++) {
+    buf[i] = '\xCC'; /* debug data, for memory inspection in debugger, etc. */
+  }
+}
+
 /* Only works for positive ints (that's all we need for printf) */
 static bool parse_int(const char *fmt, int *value, const char **new_fmt) {
   assert(fmt != NULL && "Can't parse int from NULL string");
@@ -93,8 +101,7 @@ const static char dig_lookup[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8',
 /* Return value only valid before next call to function. */
 const char* itostr(int val, int base, size_t *len) {
   assert(base >= 2 && base <= 16 && "Only accepted bases are binary up to hex");
-
-  static char buf[255]; /* should be enough */
+  init_buffer();
 
   /* Special case */
   if (val == 0) {
@@ -130,8 +137,7 @@ const char* itostr(int val, int base, size_t *len) {
 /* Return value only valid before next call to function. */
 const char* utostr(unsigned val, int base, size_t *len) {
   assert(base >= 2 && base <= 16 && "Only accepted bases are binary up to hex");
-
-  static char buf[255]; /* should be enough */
+  init_buffer();
 
   /* Special case */
   if (val == 0) {
@@ -366,6 +372,7 @@ int xvfprintf(FILE *stream, const char *fmt, va_list ap) {
     char_count += this_char_count;
     this_char_count = 0;
   }
+
 
   return char_count;
 }
