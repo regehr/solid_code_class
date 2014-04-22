@@ -4,3 +4,7 @@ BIN = xprintf
 
 $(BIN) : xprintf.o main.o
 	gcc -o $(BIN) xprintf.o main.o
+
+.PHONY: clean
+clean:
+	-rm *.o $(BIN)
