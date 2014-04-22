@@ -76,7 +76,7 @@ void xprintf(const char *fmt, ...)
   int i;
   char *s;
   char fmtbuf[256];
-  //int * n;
+  int * n;
   int total_bytes = 0;
 
 va_start(argp, fmt);
@@ -130,7 +130,7 @@ for(p = fmt; *p != '\0'; p++)
 			break;
 
 		case 'n':
-			//n = va_arg(argp, int *);
+			n = va_arg(argp, int *);
 			break;
 		  
 		}
