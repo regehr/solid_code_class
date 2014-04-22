@@ -136,6 +136,7 @@ int xvfprintf(FILE * stream, const char * format, va_list args) {
                 str[0] = '%';
                 str_out = pad(' ', fw, fwb, str);
                 break;
+            default: UNREACHABLE;
         }
 
         count += strlen(str_out);

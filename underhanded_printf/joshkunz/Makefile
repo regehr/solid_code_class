@@ -12,7 +12,6 @@ run-tests: $(bin)
 $(bin): $(objects)
 
 xprintf.o: xprintf.h
-test.o: CFLAGS += -Wno-gnu
 test.o: xprintf.h
 
 clean:

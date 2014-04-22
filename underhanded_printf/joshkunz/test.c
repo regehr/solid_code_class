@@ -5,9 +5,13 @@
 
 #define TRIALS 3
 
+#define TP0(fmt) \
+    printf("libc: " fmt "\n"); \
+   xprintf("  us: " fmt "\n")
+
 #define TP(fmt, ...) \
-    printf("libc: " fmt "\n", ##__VA_ARGS__); \
-    xprintf("  us: " fmt "\n", ##__VA_ARGS__)
+    printf("libc: " fmt "\n", __VA_ARGS__); \
+   xprintf("  us: " fmt "\n", __VA_ARGS__)
 
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
@@ -18,7 +22,9 @@ int randint(int a, int b) {
 
 int main() {
     srand(TRIALS);
-    TP("%%");
+    TP("%015d", INT_MIN);
+    TP("%0300d | %070d", INT_MIN, 1346231289);
+    TP0("%%");
     TP("%3c", 'b');
     TP("%04d", 13);
     TP("%s %20s.", "Hello", "World");
@@ -27,17 +33,10 @@ int main() {
     printf("abc%n (libc capturing %%n)\n", &libc);
     xprintf("abc%n (us capturing %%n)\n", &us);
     printf("libc: %d\n  us: %d\n", libc, us);
-
-    TP("%0300d | %070d", -1346231289, 1346231289);
     for (int i = 0; i < TRIALS; i++) {
         int r = randint(0, INT_MAX);
         TP("%15d", r);
     }
-    for (int i = 0; i < TRIALS; i++) {
-        int r = randint(1234269834, -(INT_MIN + 1));
-        TP("%d | %d", -r, r);
-    }
-    TP("%015d", INT_MIN);
     TP("%u", 324234224U);
     TP("%x", 0x1abcd9U);
     return 0;
