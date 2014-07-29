@@ -1,6 +1,6 @@
 /*
  * Dominic Furano
- * January 2013
+ * January 2014
  */
 
 #include <stdlib.h>
@@ -59,7 +59,7 @@ void angle_type(pt pts[3])
 /* Determines triangle type based on lengths of sides. */
 void edge_type(pt pts[3])
 {
-   /* Check for collinearity. */
+   /* Check for colinearity. */
    if ((pts[0].x * (pts[1].y - pts[2].y) +
 	pts[1].x * (pts[2].y - pts[0].y) +
 	pts[2].x * (pts[0].y - pts[1].y)) == 0)
@@ -75,7 +75,7 @@ void edge_type(pt pts[3])
    /* Equilateral triangles with integer vertices are impossible. */
    assert((pts[0].sqd_d == pts[1].sqd_d == pts[2].sqd_d) == 0);
     
-   /* Output type of triangle. Equilateral triangles with integer vertices are impossible. */
+   /* Output type of triangle. */
    if ((pts[0].sqd_d == pts[1].sqd_d) || (pts[0].sqd_d == pts[2].sqd_d) || (pts[1].sqd_d == pts[2].sqd_d))
       printf("isosceles ");
    else
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
       sscanf(argv[i], "%lld", &pts[i/2].x);
       sscanf(argv[i + 1], "%lld", &pts[i/2].y);
       /* Do not allow invalid inputs. */
-      // assert(pts[i/2].x >= 0 && pts[i/2].y >= 0 && pts[i/2].x <= INT_MAX && pts[i/2].y <= INT_MAX); 
+      assert(pts[i/2].x >= 0 && pts[i/2].y >= 0 && pts[i/2].x <= INT_MAX && pts[i/2].y <= INT_MAX); 
    }
     
    edge_type(pts);
